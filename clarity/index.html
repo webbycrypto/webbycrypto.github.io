@@ -11,7 +11,7 @@
 
     <style>
         body {
-            background: #09090b;
+            background: #1d1d22;
             color: white;
             font-family: Inter, Arial, sans-serif;
         }
@@ -19,7 +19,7 @@
         .hero-card,
         .milestone-card,
         .feed-card {
-            background: #18181b;
+            background: #1f1e27;
             border: 1px solid #27272a;
             border-radius: 28px;
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
@@ -54,6 +54,11 @@
         }
 
         .active {
+            background: rgba(59, 130, 246, 0.18);
+            color: #93c5fd;
+        }
+
+        .completion {
             background: rgba(59, 130, 246, 0.18);
             color: #93c5fd;
         }
@@ -130,8 +135,8 @@
         <div class="row align-items-center g-4 mb-5">
 
             <div class="col-lg-8">
-                <h1 class="display-2 fw-bold mb-4">
-                    CLARITY Act Live Tracker
+                <h1 class="display-5 fw-bold mb-4">
+                    CLARITY Act - Live Tracker
                 </h1>
 
                 <p class="lead muted pe-lg-5">
@@ -141,7 +146,7 @@
             </div>
 
             <div class="col-lg-4">
-                <div class="hero-card p-4 p-lg-5">
+                <div class="hero-card p-4 p-lg-5 completion">
                     <div class="text-uppercase small muted mb-2">
                         Current Legislative Progress
                     </div>
@@ -161,9 +166,9 @@
         </div>
 
         <!-- Timeline -->
-        <div class="position-relative ps-5">
+        <div class="position-relative">
 
-            <div class="timeline-line"></div>
+            <!-- <div class="timeline-line"></div> -->
 
             <!-- Milestone -->
             <div class="milestone-card p-4 p-lg-5 mb-4 position-relative">
@@ -400,14 +405,19 @@
 
         </div>
 
+
+
+
+
+
         <footer class="pt-5 mt-5 border-top border-secondary-subtle text-secondary">
             <div class="d-flex flex-column flex-lg-row justify-content-between gap-3">
                 <div>
-                    CLARITY Act Live Legislative Tracker
+                    CLARITY Act Tracker
                 </div>
 
                 <div>
-                    Bootstrap 5 • Live Senate Milestones • Crypto Regulation Monitoring
+                    <a href="https://x.com/webby589x">Built by Webby - © Copyright 2026</a>
                 </div>
             </div>
         </footer>
