@@ -1,0 +1,734 @@
+:root {
+  --ink: #07182d;
+  --navy: #061329;
+  --navy-2: #0b2445;
+  --gold: #f7b93e;
+  --gold-2: #ffe29a;
+  --cream: #fff3d6;
+  --red: #ff3b32;
+  --cyan: #34d1ff;
+  --green: #5ec99d;
+  --violet: #b875b9;
+  --white: #fffaf0;
+  --shadow: rgba(0, 0, 0, 0.28);
+  --font-pixel: "Courier New", monospace;
+  --font-display: "Press Start 2P", "Courier New", monospace;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  background: var(--navy);
+  color: var(--white);
+  font-family: var(--font-pixel);
+  font-size: 20px;
+  font-weight: bold;
+  line-height: 1.45;
+  letter-spacing: 0;
+  overflow-x: hidden;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+img {
+  display: block;
+  max-width: 100%;
+}
+
+.site-header {
+  min-height: 100vh;
+  background: var(--navy);
+}
+
+.nav {
+  position: fixed;
+  z-index: 20;
+  top: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  padding: 18px clamp(18px, 4vw, 56px);
+  background: rgba(6, 19, 41, 0.84);
+  border-bottom: 3px solid rgba(247, 185, 62, 0.7);
+  backdrop-filter: blur(12px);
+}
+
+.menu-toggle {
+  display: none;
+  width: 48px;
+  height: 44px;
+  padding: 8px;
+  background: var(--gold);
+  border: 3px solid #000;
+  box-shadow: 4px 4px 0 #000;
+  cursor: pointer;
+}
+
+.menu-toggle span {
+  display: block;
+  height: 4px;
+  margin: 4px 0;
+  background: #061329;
+}
+
+.brand,
+h1,
+h2,
+h3,
+.eyebrow,
+.button,
+.ticker-label {
+  font-family: var(--font-display);
+  letter-spacing: 0;
+}
+
+.brand {
+  display: inline-flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 10px;
+  color: var(--gold-2);
+  font-size: 14px;
+  text-shadow: 3px 3px 0 #000;
+  white-space: nowrap;
+}
+
+.brand img {
+  width: 40px;
+  height: 40px;
+  flex: 0 0 auto;
+  border: 2px solid var(--gold);
+  border-radius: 50%;
+  background: var(--gold);
+  box-shadow: 3px 3px 0 #000;
+  image-rendering: auto;
+}
+
+.nav-links {
+  display: flex;
+  align-items: center;
+  gap: clamp(10px, 2.4vw, 24px);
+  color: var(--cream);
+  font-size: 18px;
+}
+
+.nav-links a {
+  border-bottom: 2px solid transparent;
+}
+
+.nav-links a:hover,
+.nav-links a:focus-visible {
+  border-color: var(--gold);
+}
+
+.hero {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  padding: 110px clamp(18px, 6vw, 86px) 64px;
+  background:
+    linear-gradient(90deg, rgba(6, 19, 41, 0.88), rgba(6, 19, 41, 0.46) 45%, rgba(6, 19, 41, 0.1)),
+    url("assets/griffy-pack-header.png") center / cover no-repeat;
+}
+
+.hero-copy {
+  width: min(710px, 100%);
+}
+
+.eyebrow {
+  margin: 0 0 18px;
+  color: var(--gold-2);
+  font-size: 12px;
+  line-height: 1.7;
+  text-shadow: 3px 3px 0 #000;
+}
+
+h1,
+h2,
+h3,
+p {
+  margin-top: 0;
+}
+
+h1 {
+  margin-bottom: 26px;
+  color: var(--white);
+  font-size: clamp(46px, 8vw, 116px);
+  line-height: 1.05;
+  text-shadow: 6px 6px 0 #000, 10px 10px 0 rgba(247, 185, 62, 0.58);
+}
+
+h2 {
+  color: var(--white);
+  font-size: clamp(24px, 4vw, 54px);
+  line-height: 1.25;
+  text-shadow: 4px 4px 0 #000;
+}
+
+h3 {
+  color: var(--gold-2);
+  font-size: 15px;
+  line-height: 1.6;
+}
+
+.hero-subtitle {
+  max-width: 650px;
+  color: var(--cream);
+  font-size: clamp(23px, 3vw, 34px);
+  text-shadow: 2px 2px 0 #000;
+}
+
+.hero-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  margin-top: 30px;
+}
+
+.button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 54px;
+  padding: 15px 20px;
+  border: 3px solid #000;
+  box-shadow: 6px 6px 0 #000;
+  font-size: 11px;
+  line-height: 1.4;
+  transition: transform 160ms ease, box-shadow 160ms ease;
+}
+
+.button:hover,
+.button:focus-visible {
+  transform: translate(3px, 3px);
+  box-shadow: 3px 3px 0 #000;
+}
+
+.button-primary {
+  background: var(--gold);
+  color: #121212;
+}
+
+.button-secondary {
+  background: var(--cyan);
+  color: #061329;
+}
+
+.ticker-strip {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  align-items: center;
+  gap: 20px;
+  padding: 20px clamp(18px, 4vw, 56px);
+  background: #020914;
+  border-top: 3px solid var(--gold);
+  border-bottom: 3px solid var(--gold);
+}
+
+.ticker-label {
+  color: var(--gold);
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+.ticker-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(130px, 1fr));
+  gap: 10px;
+}
+
+.ticker-grid span {
+  min-height: 44px;
+  padding: 9px 12px;
+  background: var(--navy-2);
+  border: 2px solid rgba(255, 226, 154, 0.45);
+  color: var(--cream);
+  font-size: 18px;
+}
+
+.split-section,
+.chart-section,
+.nft-section,
+.roadmap-section {
+  padding: clamp(62px, 9vw, 120px) clamp(18px, 6vw, 86px);
+}
+
+.split-section,
+.chart-section {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(320px, 0.9fr);
+  gap: clamp(28px, 5vw, 72px);
+  align-items: center;
+}
+
+.section-copy p {
+  color: #d7e5f8;
+  font-size: clamp(22px, 2.4vw, 29px);
+}
+
+.contract-box {
+  display: grid;
+  gap: 8px;
+  max-width: 100%;
+  margin-top: 26px;
+  padding: 18px;
+  background: #020914;
+  border: 3px solid var(--gold);
+  box-shadow: 8px 8px 0 #000;
+}
+
+.contract-box span {
+  color: var(--gold-2);
+}
+
+code {
+  display: block;
+  overflow-wrap: anywhere;
+  color: var(--green);
+  font-family: var(--font-pixel);
+  font-size: 18px;
+}
+
+.stat-board,
+.roadmap-grid article {
+  background:
+    linear-gradient(135deg, rgba(255, 226, 154, 0.13), transparent),
+    var(--navy-2);
+  border: 3px solid rgba(255, 226, 154, 0.72);
+  box-shadow: 9px 9px 0 #000;
+}
+
+.stat-board {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(120px, 1fr));
+  gap: 16px;
+  padding: 24px;
+}
+
+.stat-board div {
+  min-height: 116px;
+  padding: 16px;
+  background: #041020;
+  border: 2px solid rgba(52, 209, 255, 0.65);
+}
+
+.stat-board strong,
+.stat-board span {
+  display: block;
+}
+
+.stat-board strong {
+  margin-bottom: 10px;
+  color: var(--gold-2);
+}
+
+.stat-board span {
+  color: var(--white);
+  font-size: 25px;
+}
+
+.image-header {
+  min-height: clamp(260px, 44vw, 200px);
+  background-position: center;
+  background-size: cover;
+  border-top: 4px solid var(--gold);
+  border-bottom: 4px solid var(--gold);
+}
+
+.image-header-network {
+  background-image: url("assets/griffy-network-header.png");
+}
+
+.image-header-coin {
+  background-image: url("assets/griffy-coin-header.png");
+}
+
+.chart-section {
+  background:
+    linear-gradient(180deg, rgba(9, 32, 62, 0.9), rgba(6, 19, 41, 1)),
+    var(--navy);
+}
+
+.market-terminal {
+  border: 4px solid var(--gold);
+  box-shadow: 10px 10px 0 #000;
+  background:
+    linear-gradient(180deg, rgba(52, 209, 255, 0.1), transparent),
+    #01050c;
+  padding: clamp(18px, 3vw, 30px);
+}
+
+.terminal-topline {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  color: var(--gold-2);
+  font-family: var(--font-display);
+  font-size: 11px;
+  line-height: 1.7;
+}
+
+.terminal-price {
+  margin: 28px 0;
+  color: var(--green);
+  font-family: var(--font-display);
+  font-size: clamp(24px, 4vw, 44px);
+  line-height: 1.35;
+  text-shadow: 4px 4px 0 #000;
+  overflow-wrap: anywhere;
+}
+
+.terminal-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.terminal-grid span {
+  min-height: 64px;
+  padding: 12px;
+  color: var(--cream);
+  background: var(--navy-2);
+  border: 2px solid rgba(52, 209, 255, 0.68);
+}
+
+.pixel-meter {
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  gap: 7px;
+  margin: 28px 0;
+}
+
+.pixel-meter span {
+  height: 34px;
+  background: var(--gold);
+  border: 2px solid #000;
+  box-shadow: 3px 3px 0 #000;
+}
+
+.pixel-meter span:nth-child(2n) {
+  background: var(--cyan);
+}
+
+.pixel-meter span:nth-child(3n) {
+  background: var(--green);
+}
+
+.pixel-meter span:nth-child(5n) {
+  background: var(--red);
+}
+
+.terminal-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+}
+
+.nft-section {
+  overflow: hidden;
+  background:
+    linear-gradient(180deg, rgba(6, 19, 41, 0.78), rgba(6, 19, 41, 1)),
+    url("assets/griffy-nft-collage.jpg") center / cover fixed;
+}
+
+.nft-section .section-copy {
+  width: min(920px, 100%);
+  margin-bottom: 48px;
+}
+
+.marquee-shell {
+  width: calc(100% + 172px);
+  margin-left: -86px;
+  padding: 18px 0;
+  overflow: hidden;
+  background: rgba(2, 9, 20, 0.78);
+  border-top: 3px solid var(--gold);
+  border-bottom: 3px solid var(--gold);
+}
+
+.marquee-track {
+  display: flex;
+  width: max-content;
+  gap: 18px;
+  animation: nftMarquee 42s linear infinite;
+  will-change: transform;
+}
+
+.marquee-group {
+  display: flex;
+  flex: 0 0 auto;
+  gap: 18px;
+}
+
+.marquee-shell:hover .marquee-track {
+  animation-play-state: paused;
+}
+
+.nft-tile {
+  width: clamp(134px, 17vw, 232px);
+  aspect-ratio: 1;
+  flex: 0 0 auto;
+  background-image: url("assets/griffy-nft-collage.jpg");
+  background-size: 400% 400%;
+  border: 4px solid var(--white);
+  box-shadow: 7px 7px 0 #000;
+  image-rendering: pixelated;
+}
+
+.nft-1 {
+  background-position: 0% 0%;
+}
+
+.nft-2 {
+  background-position: 33.333% 0%;
+}
+
+.nft-3 {
+  background-position: 66.666% 0%;
+}
+
+.nft-4 {
+  background-position: 100% 0%;
+}
+
+.nft-5 {
+  background-position: 0% 33.333%;
+}
+
+.nft-6 {
+  background-position: 33.333% 33.333%;
+}
+
+.nft-7 {
+  background-position: 66.666% 33.333%;
+}
+
+.nft-8 {
+  background-position: 100% 33.333%;
+}
+
+.nft-9 {
+  background-position: 0% 66.666%;
+}
+
+.nft-10 {
+  background-position: 33.333% 66.666%;
+}
+
+.nft-11 {
+  background-position: 66.666% 66.666%;
+}
+
+.nft-12 {
+  background-position: 100% 66.666%;
+}
+
+.nft-13 {
+  background-position: 0% 100%;
+}
+
+.nft-14 {
+  background-position: 33.333% 100%;
+}
+
+.nft-15 {
+  background-position: 66.666% 100%;
+}
+
+.nft-16 {
+  background-position: 100% 100%;
+}
+
+@keyframes nftMarquee {
+  from {
+    transform: translateX(0);
+  }
+
+  to {
+    transform: translateX(calc(-50% - 9px));
+  }
+}
+
+.roadmap-section {
+  background:
+    linear-gradient(135deg, rgba(94, 201, 157, 0.14), transparent 40%),
+    #07182d;
+}
+
+.roadmap-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 22px;
+  margin-top: 34px;
+}
+
+.roadmap-grid article {
+  min-height: 250px;
+  padding: 24px;
+}
+
+.roadmap-grid article span {
+  display: inline-block;
+  margin-bottom: 22px;
+  padding: 8px 12px;
+  background: var(--gold);
+  color: #121212;
+  border: 2px solid #000;
+  box-shadow: 4px 4px 0 #000;
+}
+
+.roadmap-grid p {
+  color: #d7e5f8;
+}
+
+.footer {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 24px clamp(18px, 4vw, 56px);
+  background: #020914;
+  border-top: 3px solid var(--gold);
+  color: var(--cream);
+}
+
+.footer strong {
+  color: var(--gold-2);
+}
+
+@media (max-width: 920px) {
+  body {
+    font-size: 18px;
+  }
+
+  .nav {
+    position: fixed;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+
+  .menu-toggle {
+    display: block;
+  }
+
+  .nav-links {
+    display: none;
+    width: 100%;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+    padding-top: 14px;
+    font-size: 16px;
+  }
+
+  .nav-links.is-open {
+    display: flex;
+  }
+
+  .nav-links a {
+    display: block;
+    padding: 13px 12px;
+    background: #020914;
+    border: 2px solid rgba(255, 226, 154, 0.52);
+  }
+
+  .menu-toggle[aria-expanded="true"] span:nth-child(1) {
+    transform: translateY(8px) rotate(45deg);
+  }
+
+  .menu-toggle[aria-expanded="true"] span:nth-child(2) {
+    opacity: 0;
+  }
+
+  .menu-toggle[aria-expanded="true"] span:nth-child(3) {
+    transform: translateY(-8px) rotate(-45deg);
+  }
+
+  .hero {
+    min-height: 760px;
+    background:
+      linear-gradient(180deg, rgba(6, 19, 41, 0.92), rgba(6, 19, 41, 0.44)),
+      url("assets/griffy-pack-header.png") center / cover no-repeat;
+  }
+
+  .ticker-strip,
+  .split-section,
+  .chart-section,
+  .roadmap-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .ticker-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .terminal-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 560px) {
+  .nav {
+    padding: 16px 18px;
+  }
+
+  h1 {
+    font-size: clamp(38px, 13.5vw, 54px);
+    text-shadow: 4px 4px 0 #000, 7px 7px 0 rgba(247, 185, 62, 0.58);
+  }
+
+  .hero {
+    min-height: 700px;
+    padding-top: 150px;
+  }
+
+  .button {
+    width: 100%;
+  }
+
+  .ticker-grid,
+  .stat-board {
+    grid-template-columns: 1fr;
+  }
+
+  .marquee-shell {
+    width: calc(100% + 36px);
+    margin-left: -18px;
+  }
+
+  .terminal-actions .button {
+    width: 100%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 1ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 1ms !important;
+  }
+
+  .marquee-track {
+    animation: nftMarquee 42s linear infinite !important;
+  }
+}
