@@ -1,0 +1,642 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Webby's CryptoSphere</title>
+    <meta name="descriptioin" content="Explore my projects, NFT collections, and blockchain insights. From Web3, Crypto, Marketing &
+                analytics" />
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+    <link href="https://unpkg.com/aos@2.3.4/dist/aos.css" rel="stylesheet">
+
+    <style>
+        :root {
+            --bg: #F5F9FC;
+            --panel: rgba(255, 255, 255, 0.82);
+            --border: rgba(15, 23, 42, 0.06);
+            --text: #0F172A;
+            --muted: #64748B;
+            --xrp: #00A8FF;
+            --xrp2: #00D9FF;
+        }
+
+        * {
+            box-sizing: border-box;
+            scroll-behavior: smooth;
+        }
+
+        body {
+            background:
+                radial-gradient(circle at top right, rgba(0, 168, 255, 0.08), transparent 25%),
+                radial-gradient(circle at bottom left, rgba(0, 217, 255, 0.05), transparent 30%),
+                var(--bg);
+            color: var(--text);
+            font-family: Inter, sans-serif;
+            overflow-x: hidden;
+        }
+
+        .navbar {
+            background: rgba(255, 255, 255, 0.88);
+            backdrop-filter: blur(14px);
+            border-bottom: 1px solid var(--border);
+            padding: 10px 0;
+        }
+
+        .navbar-brand {
+            color: var(--text) !important;
+            font-weight: 800;
+            letter-spacing: 1px;
+            font-size: 0.98rem;
+        }
+
+        .nav-link {
+            color: #475569 !important;
+            font-size: 0.92rem;
+            transition: 0.25s ease;
+        }
+
+        .nav-link:hover {
+            color: var(--xrp) !important;
+        }
+
+        .hero {
+            padding-top: 110px;
+            padding-bottom: 55px;
+            position: relative;
+        }
+
+        .hero h1 {
+            font-size: 3.8rem;
+            line-height: 0.95;
+            font-weight: 900;
+            letter-spacing: -2px;
+            max-width: 850px;
+            margin: auto;
+        }
+
+        .gradient {
+            background: linear-gradient(90deg, var(--xrp), var(--xrp2));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .hero p {
+            color: var(--muted);
+            font-size: 1rem;
+            max-width: 650px;
+            margin: auto;
+            margin-top: 20px;
+        }
+
+        .hero-buttons {
+            margin-top: 28px;
+        }
+
+        .btn-primary-custom {
+            background: linear-gradient(90deg, var(--xrp), var(--xrp2));
+            color: white;
+            border: none;
+            padding: 12px 22px;
+            border-radius: 12px;
+            font-weight: 700;
+            transition: 0.3s ease;
+            box-shadow: 0 10px 25px rgba(0, 168, 255, 0.15);
+        }
+
+        .btn-primary-custom:hover {
+            transform: translateY(-2px);
+        }
+
+        .btn-outline-custom {
+            border: 1px solid rgba(15, 23, 42, 0.08);
+            color: var(--text);
+            background: white;
+            padding: 12px 22px;
+            border-radius: 12px;
+            font-weight: 600;
+            text-decoration: none;
+            transition: 0.3s ease;
+        }
+
+        .btn-outline-custom:hover {
+            background: #F8FAFC;
+            color: var(--text);
+        }
+
+        .section {
+            padding: 55px 0;
+        }
+
+        .section-title {
+            font-size: 2rem;
+            font-weight: 800;
+            margin-bottom: 10px;
+        }
+
+        .section-subtitle {
+            color: var(--muted);
+            max-width: 620px;
+            margin: auto;
+            font-size: 0.95rem;
+        }
+
+        .card-link {
+            text-decoration: none;
+            color: var(--text);
+            display: block;
+            height: 100%;
+        }
+
+        .xrp-card {
+            background: var(--panel);
+            border: 1px solid var(--border);
+            border-radius: 22px;
+            overflow: hidden;
+            transition: 0.3s ease;
+            height: 100%;
+            backdrop-filter: blur(14px);
+            position: relative;
+        }
+
+        .card-link:hover .xrp-card {
+            transform: translateY(-6px);
+            box-shadow: 0 20px 40px rgba(15, 23, 42, 0.08);
+            border-color: rgba(0, 168, 255, 0.18);
+        }
+
+        .card-image {
+            width: 100%;
+            height: 300px;
+            object-fit: cover;
+        }
+
+        .card-content {
+            padding: 20px;
+        }
+
+        .card-content h4,
+        .card-content h5 {
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+
+        .tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(0, 168, 255, 0.08);
+            border: 1px solid rgba(0, 217, 255, 0.10);
+            color: var(--xrp);
+            padding: 7px 12px;
+            border-radius: 999px;
+            font-size: 0.75rem;
+            margin-bottom: 14px;
+            font-weight: 600;
+        }
+
+        .card-content p {
+            color: var(--muted);
+            margin: 0;
+            font-size: 0.92rem;
+            line-height: 1.5;
+        }
+
+        .category-tabs {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-top: 30px;
+            margin-bottom: 35px;
+        }
+
+        .category-btn {
+            border: 1px solid rgba(15, 23, 42, 0.08);
+            background: white;
+            color: #475569;
+            border-radius: 999px;
+            padding: 8px 15px;
+            transition: 0.3s ease;
+            cursor: pointer;
+            font-size: 0.86rem;
+            font-weight: 600;
+        }
+
+        .category-btn.active,
+        .category-btn:hover {
+            background: linear-gradient(90deg, var(--xrp), var(--xrp2));
+            color: white;
+            border-color: transparent;
+        }
+
+        .stats {
+            padding-top: 0;
+        }
+
+        .stats-box {
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            background: rgba(255, 255, 255, 0.75);
+            padding: 28px;
+            text-align: center;
+            transition: 0.3s ease;
+            backdrop-filter: blur(12px);
+        }
+
+        .stats-box h2 {
+            color: var(--xrp);
+            font-weight: 900;
+            font-size: 2.3rem;
+            margin-bottom: 6px;
+        }
+
+        .stats-box p {
+            margin: 0;
+            color: var(--muted);
+            font-size: 0.92rem;
+        }
+
+        footer {
+            border-top: 1px solid var(--border);
+            padding: 25px 0;
+            color: var(--muted);
+            background: rgba(255, 255, 255, 0.5);
+            font-size: 0.9rem;
+        }
+
+        @media(max-width: 992px) {
+            .hero h1 {
+                font-size: 2.9rem;
+            }
+        }
+
+        @media(max-width: 768px) {
+
+            .hero {
+                padding-top: 95px;
+                padding-bottom: 40px;
+            }
+
+            .hero h1 {
+                font-size: 2.2rem;
+                letter-spacing: -1px;
+            }
+
+            .section-title {
+                font-size: 1.8rem;
+            }
+
+            .section {
+                padding: 45px 0;
+            }
+
+            .card-image {
+                height: 160px;
+            }
+
+        }
+    </style>
+</head>
+
+<body>
+
+    <nav class="navbar navbar-expand-lg navbar-dark fixed-top">
+        <div class="container">
+
+            <a class="navbar-brand" href="#">
+                Webby's CryptoSphere
+            </a>
+
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navMenu">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <div class="collapse navbar-collapse" id="navMenu">
+                <ul class="navbar-nav ms-auto align-items-lg-center gap-lg-3">
+                    <li class="nav-item"><a class="nav-link" href="#projects">Projects</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#nfts">NFTs</a></li>
+                    <!-- <li class="nav-item"><a class="nav-link" href="#blog">Blog</a></li>
+                    <li class="nav-item ms-lg-3 mt-3 mt-lg-0">
+                        <a href="#" class="btn btn-primary-custom">Launch App</a>
+                    </li> -->
+                </ul>
+            </div>
+
+        </div>
+    </nav>
+
+    <section class="hero text-center">
+        <div class="container" data-aos="fade-up">
+
+            <!-- <div class="tag mx-auto justify-content-center">
+                <i class="bi bi-lightning-charge-fill"></i>
+                All in on place for Web3, Blockchain & Marketing
+            </div> -->
+
+            <h1>
+                Welcome to my
+                <span class="gradient">CryptoSphere</span>
+            </h1>
+
+            <p>
+                Explore my projects, NFT collections, and blockchain insights. <br />From Web3, Crypto, Marketing &
+                analytics
+            </p>
+
+            <div class="hero-buttons d-flex justify-content-center gap-3 flex-wrap">
+                <a href="#projects" class="btn btn-primary-custom">Explore Projects</a>
+                <a href="#nfts" class="btn-outline-custom">Buy NFTs</a>
+            </div>
+
+        </div>
+    </section>
+
+    <!-- <section class="stats">
+        <div class="container">
+            <div class="row g-4">
+
+                <div class="col-lg-4" data-aos="fade-up">
+                    <div class="stats-box">
+                        <h2>120+</h2>
+                        <p>Blockchain Projects</p>
+                    </div>
+                </div>
+
+                <div class="col-lg-4" data-aos="fade-up" data-aos-delay="100">
+                    <div class="stats-box">
+                        <h2>420K</h2>
+                        <p>Community Members</p>
+                    </div>
+                </div>
+
+                <div class="col-lg-4" data-aos="fade-up" data-aos-delay="200">
+                    <div class="stats-box">
+                        <h2>$3.2B</h2>
+                        <p>Total Ecosystem Volume</p>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </section> -->
+
+    <section class="section" id="projects">
+        <div class="container">
+
+            <div class="text-center mb-5" data-aos="fade-up">
+                <h2 class="section-title">Featured Projects</h2>
+                <!-- <p class="section-subtitle">
+                    Explore scalable blockchain infrastructure, payment systems, AI tools, and Web3 applications.
+                </p> -->
+            </div>
+
+            <div class="row g-4">
+
+                <div class="col-lg-6" data-aos="fade-up">
+                    <a href="/clarity/" class="card-link">
+                        <div class="xrp-card">
+                            <img src="https://pbs.twimg.com/media/HIZZEykW4AIHTly?format=png&name=small"
+                                class="card-image">
+
+                            <div class="card-content">
+                                <div class="tag">WEBSITE</div>
+                                <h4>Clarity Act Tracker</h4>
+                                <p>
+                                    Track the Clarity Act Progress easily.
+                                </p>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+
+                <div class="col-lg-6" data-aos="fade-up" data-aos-delay="100">
+                    <a href="/griffy/" class="card-link">
+                        <div class="xrp-card">
+                            <img src="https://pbs.twimg.com/media/HH-scUEXMAEZc0A?format=jpg&name=medium"
+                                class="card-image">
+
+                            <div class="card-content">
+                                <div class="tag">MEME COIN</div>
+                                <h4>GRIFFY - A new dog coin</h4>
+                                <p>
+                                    Real-time blockchain analytics powered by AI and decentralized indexing systems.
+                                </p>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+
+                <!-- <div class="col-lg-4" data-aos="fade-up" data-aos-delay="200">
+                    <a href="#" class="card-link">
+                        <div class="xrp-card">
+                            <img src="https://images.unsplash.com/photo-1639322537228-f710d846310a?q=80&w=1200&auto=format&fit=crop"
+                                class="card-image">
+
+                            <div class="card-content">
+                                <div class="tag">DEFI</div>
+                                <h4>Yield Protocol</h4>
+                                <p>
+                                    Automated liquidity and staking protocol optimized for ultra-fast settlements.
+                                </p>
+                            </div>
+                        </div>
+                    </a>
+                </div> -->
+
+            </div>
+        </div>
+    </section>
+
+    <section class="section" id="nfts">
+        <div class="container">
+
+            <div class="text-center mb-5" data-aos="fade-up">
+                <h2 class="section-title">NFT Collections</h2>
+                <p class="section-subtitle">
+                    Digital collectibles You Can Own.
+                </p>
+            </div>
+
+            <div class="row g-4">
+
+                <div class="col-md-6 col-lg-3" data-aos="zoom-in">
+                    <a href="https://xrp.cafe/collection/griffy30-109" class="card-link">
+                        <div class="xrp-card">
+                            <img src="https://pbs.twimg.com/media/HIBAECiXYAEJw3c?format=jpg&name=large"
+                                class="card-image">
+
+                            <div class="card-content">
+                                <h5>GRIFFY</h5>
+                                <p>Floor Price: 1 XRP</p>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+
+                <div class="col-md-6 col-lg-3" data-aos="zoom-in" data-aos-delay="100">
+                    <a href="https://xrp.cafe/collection/usa250" class="card-link">
+                        <div class="xrp-card">
+                            <img src="https://pbs.twimg.com/media/HIEQi3FW0AAY8JO?format=jpg&name=large"
+                                class="card-image">
+
+                            <div class="card-content">
+                                <h5>USA250 - Figures</h5>
+                                <p>Floor Price: 5 XRP</p>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+
+                <div class="col-md-6 col-lg-3" data-aos="zoom-in" data-aos-delay="200">
+                    <a href="https://xrp.cafe/collection/great-american-city-usa250" class="card-link">
+                        <div class="xrp-card">
+                            <img src="https://cdn.xrp.cafe/5ee33eac6b6a-4b66-bc62-74995246f7c9.webp" type="image/webp"
+                                class="card-image">
+
+                            <div class="card-content">
+                                <h5>Great American Cities</h5>
+                                <p>2 XRP</p>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+
+
+
+            </div>
+        </div>
+    </section>
+
+    <!-- <section class="section" id="blog">
+        <div class="container">
+
+            <div class="text-center" data-aos="fade-up">
+                <h2 class="section-title">Latest Articles</h2>
+                <p class="section-subtitle">
+                    Blockchain development tutorials, XRP ecosystem updates, and Web3 insights.
+                </p>
+            </div>
+
+            <div class="category-tabs" data-aos="fade-up">
+                <button class="category-btn active" data-filter="all">All</button>
+                <button class="category-btn" data-filter="development">Development</button>
+                <button class="category-btn" data-filter="market">Market</button>
+                <button class="category-btn" data-filter="education">Education</button>
+            </div>
+
+            <div class="row g-4">
+
+                <div class="col-lg-4 blog-card" data-category="development" data-aos="fade-up">
+                    <a href="#" class="card-link">
+                        <div class="xrp-card">
+                            <img src="https://images.unsplash.com/photo-1518770660439-4636190af475?q=80&w=1200&auto=format&fit=crop"
+                                class="card-image">
+
+                            <div class="card-content">
+                                <div class="tag">DEVELOPMENT</div>
+                                <h4>Building XRPL dApps</h4>
+                                <p>
+                                    Learn how to create scalable decentralized applications using XRPL technologies.
+                                </p>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+
+                <div class="col-lg-4 blog-card" data-category="market" data-aos="fade-up" data-aos-delay="100">
+                    <a href="#" class="card-link">
+                        <div class="xrp-card">
+                            <img src="https://images.unsplash.com/photo-1526379095098-d400fd0bf935?q=80&w=1200&auto=format&fit=crop"
+                                class="card-image">
+
+                            <div class="card-content">
+                                <div class="tag">MARKET</div>
+                                <h4>The Rise Of Tokenization</h4>
+                                <p>
+                                    Explore how blockchain ecosystems are transforming ownership and finance.
+                                </p>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+
+                <div class="col-lg-4 blog-card" data-category="education" data-aos="fade-up" data-aos-delay="200">
+                    <a href="#" class="card-link">
+                        <div class="xrp-card">
+                            <img src="https://images.unsplash.com/photo-1516321318423-f06f85e504b3?q=80&w=1200&auto=format&fit=crop"
+                                class="card-image">
+
+                            <div class="card-content">
+                                <div class="tag">EDUCATION</div>
+                                <h4>Understanding Smart Contracts</h4>
+                                <p>
+                                    A beginner-friendly breakdown of smart contracts and decentralized execution.
+                                </p>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+
+            </div>
+        </div>
+    </section> -->
+
+    <footer>
+        <div class="container d-flex flex-column flex-lg-row justify-content-between align-items-center gap-3">
+
+            <div>
+                © 2026 webby589x. All rights reserved.
+            </div>
+
+            <div class="d-flex gap-4 fs-5">
+                <a href="https://x.com/webby589x" class="text-dark"><i class="bi bi-twitter-x"></i></a>
+            </div>
+
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://unpkg.com/aos@2.3.4/dist/aos.js"></script>
+
+    <script>
+
+        AOS.init({
+            duration: 900,
+            once: true
+        });
+
+        const buttons = document.querySelectorAll('.category-btn');
+        const blogCards = document.querySelectorAll('.blog-card');
+
+        buttons.forEach(button => {
+
+            button.addEventListener('click', () => {
+
+                buttons.forEach(btn => btn.classList.remove('active'));
+                button.classList.add('active');
+
+                const filter = button.dataset.filter;
+
+                blogCards.forEach(card => {
+
+                    if (filter === 'all' || card.dataset.category === filter) {
+                        card.style.display = 'block';
+                    }
+                    else {
+                        card.style.display = 'none';
+                    }
+
+                });
+
+            });
+
+        });
+
+    </script>
+
+</body>
+
+</html>
