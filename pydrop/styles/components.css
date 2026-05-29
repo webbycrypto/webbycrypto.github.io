@@ -1,0 +1,165 @@
+/* components.css -- Badges, modals, misc shared components */
+
+/* -------------------------------------------------------------------------
+   Keyboard shortcut hints (tooltip-style inline labels)
+------------------------------------------------------------------------- */
+.shortcut-hint {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  font-size: 11px;
+  color: var(--text-faint);
+}
+
+/* -------------------------------------------------------------------------
+   Empty state
+------------------------------------------------------------------------- */
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  color: var(--text-faint);
+  text-align: center;
+  gap: 8px;
+}
+
+.empty-state .empty-icon { font-size: 48px; }
+.empty-state h3 { font-size: 16px; color: var(--text-muted); }
+.empty-state p  { font-size: 13px; max-width: 300px; line-height: 1.5; }
+
+/* -------------------------------------------------------------------------
+   Difficulty color utilities (reusable)
+------------------------------------------------------------------------- */
+.text-easy   { color: var(--accent-green); }
+.text-medium { color: var(--accent-yellow); }
+.text-hard   { color: var(--accent-red); }
+
+/* -------------------------------------------------------------------------
+   Spinner (for loading states)
+------------------------------------------------------------------------- */
+.spinner {
+  width: 20px;
+  height: 20px;
+  border: 2px solid var(--bg-surface1);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: spin .6s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* -------------------------------------------------------------------------
+   Scrollable code block (for solution display)
+------------------------------------------------------------------------- */
+.code-block {
+  background: var(--bg-mantle);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 12px 14px;
+  font-family: var(--font-mono);
+  font-size: 12.5px;
+  line-height: 1.6;
+  color: var(--text-primary);
+  overflow-x: auto;
+  white-space: pre;
+}
+
+/* -------------------------------------------------------------------------
+   Level locked overlay
+------------------------------------------------------------------------- */
+.lock-banner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  gap: 12px;
+  color: var(--text-faint);
+  text-align: center;
+}
+
+.lock-banner .lock-icon { font-size: 52px; }
+.lock-banner h2 { font-size: 18px; color: var(--text-muted); }
+.lock-banner p  { font-size: 13px; max-width: 320px; line-height: 1.5; }
+
+/* -------------------------------------------------------------------------
+   Keyboard shortcut reference (shown in topbar tooltip or help modal)
+------------------------------------------------------------------------- */
+.shortcut-list {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 6px 16px;
+  font-size: 13px;
+}
+
+.shortcut-list .key {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  background: var(--bg-surface0);
+  padding: 2px 7px;
+  border-radius: 4px;
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+
+.shortcut-list .desc { color: var(--text-primary); }
+
+/* -------------------------------------------------------------------------
+   Progress bar (generic reusable)
+------------------------------------------------------------------------- */
+.progress-bar {
+  height: 6px;
+  background: var(--bg-surface0);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.progress-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--accent) 0%, var(--accent-teal) 100%);
+  border-radius: 3px;
+  transition: width .3s;
+}
+
+/* -------------------------------------------------------------------------
+   Tooltip
+------------------------------------------------------------------------- */
+[data-tooltip] {
+  position: relative;
+  cursor: help;
+}
+
+[data-tooltip]::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  bottom: calc(100% + 6px);
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--bg-surface0);
+  color: var(--text-primary);
+  font-size: 11px;
+  padding: 4px 8px;
+  border-radius: 5px;
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity .15s;
+  border: 1px solid var(--border);
+  z-index: 100;
+}
+
+[data-tooltip]:hover::after { opacity: 1; }
+
+/* -------------------------------------------------------------------------
+   Divider
+------------------------------------------------------------------------- */
+.divider {
+  height: 1px;
+  background: var(--border);
+  margin: 12px 0;
+}

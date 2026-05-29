@@ -1,0 +1,202 @@
+{
+  "id": "django",
+  "title": "Todo App with Django",
+  "description": "Django's ORM, admin panel, templates, forms, and a REST API with Django REST Framework.",
+  "icon": "https://cdn.simpleicons.org/django/44b78b",
+  "color": "green",
+  "category": "foundations",
+  "core": true,
+  "steps": [
+    {
+      "id": 1,
+      "title": "What is Django?",
+      "file": "todos/views.py",
+      "instruction": "## What is Django?\n\nDjango is a **batteries-included** web framework. Where Flask gives you the minimum and lets you choose everything else, Django ships with:\n\n- An ORM (database layer)\n- An admin panel (free UI to manage your data)\n- A templating engine\n- A forms library\n- Auth, sessions, middleware - all built in\n\n### Django vs Flask vs FastAPI\n\n| | Flask | FastAPI | Django |\n|---|---|---|---|\n| Philosophy | Minimal | API-first | Full-stack |\n| Structure | You decide | You decide | Enforced |\n| Admin panel | Plugin | Plugin | Built-in |\n| Best for | Small apps | REST APIs | Full web apps |\n\n### Install and create a project\n\n```\npip install django\ndjango-admin startproject todosite\ncd todosite\npython manage.py startapp todos\n```\n\nThis creates two things:\n- `todosite/` - the project (settings, main URL config)\n- `todos/` - an **app** (reusable component: models, views, URLs)\n\nIn Django, a **project** contains one or more **apps**.\n\n---\n\n**Your turn:** The `todos/views.py` file is where views live. Write a simple `index` view that returns an `HttpResponse` with `'Hello, Django!'`.",
+      "starter_code": "# todos/views.py\nfrom django.http import HttpResponse\n\n# Write an index view that returns 'Hello, Django!'\n",
+      "solution_code": "# todos/views.py\nfrom django.http import HttpResponse\n\ndef index(request):\n    return HttpResponse('Hello, Django!')\n",
+      "hint": "def index(request): return HttpResponse('Hello, Django!')",
+      "validate": [
+        "contains:def index(request)",
+        "contains:HttpResponse("
+      ]
+    },
+    {
+      "id": 2,
+      "title": "App-level URL routing",
+      "file": "todos/urls.py",
+      "instruction": "## URL routing\n\nDjango has two levels of URL configuration:\n\n1. **App-level** `todos/urls.py` - routes specific to the todos app\n2. **Project-level** `todosite/urls.py` - the main router that delegates to apps\n\n### App-level URLs (`todos/urls.py`)\n\nCreate this file:\n\n```python\nfrom django.urls import path\nfrom . import views\n\nurlpatterns = [\n    path('', views.index, name='index'),\n]\n```\n\n- `path('')` - matches the root URL of wherever this app is mounted\n- `views.index` - the view function to call\n- `name='index'` - a name you can use in templates to generate URLs without hardcoding paths\n\n---\n\n**Your turn:** Write `todos/urls.py` with `urlpatterns` that maps `''` to `views.index`.",
+      "starter_code": "# todos/urls.py\nfrom django.urls import path\nfrom . import views\n\n# Define urlpatterns here\n",
+      "solution_code": "# todos/urls.py\nfrom django.urls import path\nfrom . import views\n\nurlpatterns = [\n    path('', views.index, name='index'),\n]\n",
+      "hint": "urlpatterns = [path('', views.index, name='index')]",
+      "validate": [
+        "contains:urlpatterns",
+        "contains:path('', views.index",
+        "contains:name='index'"
+      ]
+    },
+    {
+      "id": 3,
+      "title": "Project-level URL config",
+      "file": "todosite/urls.py",
+      "instruction": "## Wiring the project together\n\nThe app-level `todos/urls.py` you just wrote is not connected to anything yet. You need to tell the project to **include** it.\n\nOpen `todosite/urls.py` - this file already exists. It looks like:\n\n```python\nfrom django.contrib import admin\nfrom django.urls import path\n\nurlpatterns = [\n    path('admin/', admin.site.urls),\n]\n```\n\nAdd `include` to the imports and mount your todos app at the root:\n\n```python\nfrom django.contrib import admin\nfrom django.urls import path, include\n\nurlpatterns = [\n    path('admin/', admin.site.urls),\n    path('', include('todos.urls')),\n]\n```\n\n- `include('todos.urls')` - delegates any URL not matched above to `todos/urls.py`\n- `path('')` - mounts the todos app at the root, so `/` maps to `todos/views.index`\n\n### Now you can run it\n\n```\npython manage.py runserver\n```\n\nVisit `http://127.0.0.1:8000/` and you should see `Hello, Django!`.\n\n---\n\n**Your turn:** Update `todosite/urls.py` to import `include` and add the `path('', include('todos.urls'))` entry.",
+      "starter_code": "# todosite/urls.py\nfrom django.contrib import admin\nfrom django.urls import path\n\nurlpatterns = [\n    path('admin/', admin.site.urls),\n    # Add the include for todos.urls here\n]\n",
+      "solution_code": "# todosite/urls.py\nfrom django.contrib import admin\nfrom django.urls import path, include\n\nurlpatterns = [\n    path('admin/', admin.site.urls),\n    path('', include('todos.urls')),\n]\n",
+      "hint": "Add include to the import: from django.urls import path, include  then add: path('', include('todos.urls'))",
+      "validate": [
+        "contains:include",
+        "contains:include('todos.urls')"
+      ]
+    },
+    {
+      "id": 4,
+      "title": "Models - your database in Python",
+      "file": "todos/models.py",
+      "instruction": "## Models\n\nIn Django, a **model** is a Python class that defines a database table. You never write SQL - Django generates it for you.\n\n```python\nfrom django.db import models\n\nclass Todo(models.Model):\n    text = models.CharField(max_length=200)\n    done = models.BooleanField(default=False)\n    created_at = models.DateTimeField(auto_now_add=True)\n\n    def __str__(self):\n        return self.text\n```\n\n### Field types\n\n| Field | Python type | Use it for |\n|---|---|---|\n| `CharField(max_length=n)` | str | Short text |\n| `BooleanField` | bool | True/False |\n| `DateTimeField` | datetime | Timestamps |\n| `TextField` | str | Long text |\n\n`auto_now_add=True` sets the field to now when the record is first created.\n\n`__str__` is a special Python method that controls how an object is converted to a string. Python calls it whenever something tries to display your object as text. Django admin uses it to show meaningful labels in lists - without it, you would see `Todo object (1)` instead of the actual todo text.\n\n### Creating the table\n\nAfter defining a model, run two commands:\n\n```\npython manage.py makemigrations\npython manage.py migrate\n```\n\nDjango tracks every schema change in **migration files** that you commit to version control.\n\n---\n\n**Your turn:** Write the `Todo` model with `text`, `done`, and `created_at` fields, plus a `__str__` method.",
+      "starter_code": "# todos/models.py\nfrom django.db import models\n\n# Define the Todo model here\n",
+      "solution_code": "# todos/models.py\nfrom django.db import models\n\nclass Todo(models.Model):\n    text = models.CharField(max_length=200)\n    done = models.BooleanField(default=False)\n    created_at = models.DateTimeField(auto_now_add=True)\n\n    def __str__(self):\n        return self.text\n",
+      "hint": "class Todo(models.Model): with text = models.CharField(max_length=200), done = models.BooleanField(default=False), and def __str__(self): return self.text",
+      "validate": [
+        "contains:class Todo(models.Model)",
+        "contains:CharField(max_length=200)",
+        "contains:BooleanField(default=False)",
+        "contains:def __str__"
+      ]
+    },
+    {
+      "id": 5,
+      "title": "Register the app and run migrations",
+      "file": "todosite/settings.py",
+      "instruction": "## Registering your app\n\nDjango does not automatically discover your apps - you have to register them in `settings.py`.\n\nFind the `INSTALLED_APPS` list and add `'todos'`:\n\n```python\nINSTALLED_APPS = [\n    'django.contrib.admin',\n    'django.contrib.auth',\n    'django.contrib.contenttypes',\n    'django.contrib.sessions',\n    'django.contrib.messages',\n    'django.contrib.staticfiles',\n    'todos',   # add this\n]\n```\n\n### Then run migrations\n\nIn your terminal:\n\n```\npython manage.py makemigrations todos\npython manage.py migrate\n```\n\nYou will see:\n\n```\nMigrations for 'todos':\n  todos/migrations/0001_initial.py\n    - Create model Todo\n\nApplying todos.0001_initial... OK\n```\n\n### Check it worked\n\n```\npython manage.py shell\n>>> from todos.models import Todo\n>>> Todo.objects.all()\n<QuerySet []>\n```\n\n---\n\n**Your turn:** Add `'todos'` to the `INSTALLED_APPS` list.",
+      "starter_code": "# todosite/settings.py (partial)\n\nINSTALLED_APPS = [\n    'django.contrib.admin',\n    'django.contrib.auth',\n    'django.contrib.contenttypes',\n    'django.contrib.sessions',\n    'django.contrib.messages',\n    'django.contrib.staticfiles',\n    # Register your app here\n]\n",
+      "solution_code": "# todosite/settings.py (partial)\n\nINSTALLED_APPS = [\n    'django.contrib.admin',\n    'django.contrib.auth',\n    'django.contrib.contenttypes',\n    'django.contrib.sessions',\n    'django.contrib.messages',\n    'django.contrib.staticfiles',\n    'todos',\n]\n",
+      "hint": "Add 'todos' as the last item in the INSTALLED_APPS list.",
+      "validate": "contains:'todos'"
+    },
+    {
+      "id": 6,
+      "title": "The Django Admin - free CRUD UI",
+      "file": "todos/admin.py",
+      "instruction": "## The Django Admin\n\nDjango ships with a fully functional admin panel at `/admin`. Register your model and you get a complete create/read/update/delete UI for free - no extra code beyond two lines.\n\n```python\nfrom django.contrib import admin\nfrom .models import Todo\n\nadmin.site.register(Todo)\n```\n\n### Create a superuser\n\nTo log in to the admin, create a superuser account:\n\n```\npython manage.py createsuperuser\n```\n\nEnter a username, email (optional), and password.\n\n### Run the server and explore\n\n```\npython manage.py runserver\n```\n\nThen open `http://127.0.0.1:8000/admin` and log in.\n\nYou can add todos, edit them, delete them, filter and search - all without writing a single view or template. This is what batteries included means.\n\n---\n\n**Your turn:** Register the `Todo` model in `todos/admin.py`.",
+      "starter_code": "# todos/admin.py\nfrom django.contrib import admin\nfrom .models import Todo\n\n# Register Todo with the admin site\n",
+      "solution_code": "# todos/admin.py\nfrom django.contrib import admin\nfrom .models import Todo\n\nadmin.site.register(Todo)\n",
+      "hint": "admin.site.register(Todo)",
+      "validate": "contains:admin.site.register(Todo)"
+    },
+    {
+      "id": 7,
+      "title": "Views - querying and rendering",
+      "file": "todos/views.py",
+      "instruction": "## Views and templates\n\nA Django **view** is a function that takes a `request` and returns a `response`. For HTML pages, you use `render()` which combines a template with context data.\n\n```python\nfrom django.shortcuts import render\nfrom .models import Todo\n\ndef index(request):\n    todos = Todo.objects.all().order_by('created_at')\n    return render(request, 'todos/index.html', {'todos': todos})\n```\n\n- `Todo.objects.all()` - fetches all rows from the Todo table\n- `.order_by('created_at')` - sort oldest first\n- `render(request, template, context)` - renders the template with the context dict\n\n### Template location\n\nDjango looks for templates in a `templates/` folder inside each app:\n\n```\ntodos/\n    templates/\n        todos/\n            index.html\n```\n\nThe double `todos/todos/` nesting is a Django convention to avoid template name collisions between apps.\n\n---\n\n**Your turn:** Update the `index` view to query all todos ordered by `created_at` and render `'todos/index.html'` with them.",
+      "starter_code": "# todos/views.py\nfrom django.shortcuts import render\nfrom .models import Todo\n\ndef index(request):\n    # Query all todos ordered by created_at\n    # Return render() with 'todos/index.html' and the todos\n    pass\n",
+      "solution_code": "# todos/views.py\nfrom django.shortcuts import render\nfrom .models import Todo\n\ndef index(request):\n    todos = Todo.objects.all().order_by('created_at')\n    return render(request, 'todos/index.html', {'todos': todos})\n",
+      "hint": "todos = Todo.objects.all().order_by('created_at')  then return render(request, 'todos/index.html', {'todos': todos})",
+      "validate": [
+        "contains:Todo.objects.all()",
+        "contains:order_by('created_at')",
+        "contains:render(request, 'todos/index.html'"
+      ]
+    },
+    {
+      "id": 8,
+      "title": "Template inheritance with base.html",
+      "file": "todos/templates/todos/base.html",
+      "instruction": "## Template inheritance\n\nDjango templates support **inheritance** - you define a base layout once, then every other template fills in the blocks.\n\n### base.html\n\n```html\n<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n  <meta charset=\"UTF-8\">\n  <title>{% block title %}Todo App{% endblock %}</title>\n</head>\n<body>\n  <nav><h1>My Todos</h1></nav>\n  <main>\n    {% block content %}\n    {% endblock %}\n  </main>\n</body>\n</html>\n```\n\n`{% block name %}` defines a slot that child templates can fill.\n\n### Child template extending the base\n\n```html\n{% extends 'todos/base.html' %}\n\n{% block title %}Todo List{% endblock %}\n\n{% block content %}\n  <p>Todos go here...</p>\n{% endblock %}\n```\n\n`{% extends %}` must be the first line. Everything outside of blocks is ignored in child templates.\n\n---\n\n**Your turn:** Write `base.html` with a `{% block title %}` in the `<title>` tag and a `{% block content %}` inside `<main>`.",
+      "starter_code": "<!-- todos/templates/todos/base.html -->\n<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n  <meta charset=\"UTF-8\">\n  <title><!-- Add {% block title %} here --></title>\n</head>\n<body>\n  <nav><h1>My Todos</h1></nav>\n  <main>\n    <!-- Add {% block content %} here -->\n  </main>\n</body>\n</html>\n",
+      "solution_code": "<!-- todos/templates/todos/base.html -->\n<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n  <meta charset=\"UTF-8\">\n  <title>{% block title %}Todo App{% endblock %}</title>\n</head>\n<body>\n  <nav><h1>My Todos</h1></nav>\n  <main>\n    {% block content %}\n    {% endblock %}\n  </main>\n</body>\n</html>\n",
+      "hint": "{% block title %}Todo App{% endblock %} inside <title>, and {% block content %}{% endblock %} inside <main>",
+      "validate": [
+        "contains:{% block title %}",
+        "contains:{% block content %}",
+        "contains:{% endblock %}"
+      ]
+    },
+    {
+      "id": 9,
+      "title": "Forms - TodoForm with ModelForm",
+      "file": "todos/forms.py",
+      "instruction": "## Django forms\n\nDjango has a forms library that handles rendering HTML fields, validating submitted data, and converting to Python types.\n\nFor a model-backed form, use `ModelForm`:\n\n```python\nfrom django import forms\nfrom .models import Todo\n\nclass TodoForm(forms.ModelForm):\n    class Meta:\n        model = Todo\n        fields = ['text']\n        widgets = {\n            'text': forms.TextInput(attrs={\n                'placeholder': 'What needs doing?',\n                'autofocus': True,\n            })\n        }\n```\n\n`ModelForm` reads the `Todo` model and automatically creates a form field for `text`. The `widgets` dict lets you customize the HTML attributes.\n\n### Using the form in a view\n\n```python\nfrom .forms import TodoForm\n\ndef index(request):\n    form = TodoForm()\n    todos = Todo.objects.all().order_by('created_at')\n    return render(request, 'todos/index.html', {'todos': todos, 'form': form})\n```\n\nIn the template you render it with `{{ form.text }}`, and you must always include `{% csrf_token %}` inside the form tag:\n\n```html\n<form method=\"post\">\n  {% csrf_token %}\n  {{ form.text }}\n  <button type=\"submit\">Add</button>\n</form>\n```\n\n`{% csrf_token %}` protects against cross-site request forgery attacks. Django will reject any POST that is missing it.\n\n---\n\n**Your turn:** Create `todos/forms.py` with a `TodoForm` ModelForm that includes only the `text` field.",
+      "starter_code": "# todos/forms.py\nfrom django import forms\nfrom .models import Todo\n\n# Define TodoForm as a ModelForm here\n",
+      "solution_code": "# todos/forms.py\nfrom django import forms\nfrom .models import Todo\n\nclass TodoForm(forms.ModelForm):\n    class Meta:\n        model = Todo\n        fields = ['text']\n        widgets = {\n            'text': forms.TextInput(attrs={\n                'placeholder': 'What needs doing?',\n                'autofocus': True,\n            })\n        }\n",
+      "hint": "class TodoForm(forms.ModelForm): with class Meta: model = Todo, fields = ['text']",
+      "validate": [
+        "contains:class TodoForm(forms.ModelForm)",
+        "contains:model = Todo",
+        "contains:fields = ['text']"
+      ]
+    },
+    {
+      "id": 10,
+      "title": "Handling POST - saving new todos",
+      "file": "todos/views.py",
+      "instruction": "## Handling form submissions\n\nIn Django, GET and POST requests often hit the same URL. You check `request.method` to know what to do.\n\n```python\ndef index(request):\n    if request.method == 'POST':\n        form = TodoForm(request.POST)\n        if form.is_valid():\n            form.save()  # saves to the database\n            return redirect('index')  # Post-Redirect-Get pattern\n    else:\n        form = TodoForm()\n\n    todos = Todo.objects.all().order_by('created_at')\n    return render(request, 'todos/index.html', {'todos': todos, 'form': form})\n```\n\n### Post-Redirect-Get\n\nAfter a successful POST, always `redirect()` instead of rendering directly. This prevents the browser re-submitting the form if the user hits refresh.\n\n### form.is_valid()\n\nRuns Django's validation rules. If invalid, `form.errors` contains the error messages you can display in the template.\n\n### form.save()\n\nBecause you used `ModelForm`, `.save()` directly creates the database record. No manual `Todo(text=...).save()` needed.\n\n---\n\n**Your turn:** Rewrite the `index` view to handle both GET and POST. Import `redirect` from `django.shortcuts` and `TodoForm` from `.forms`.",
+      "starter_code": "# todos/views.py\nfrom django.shortcuts import render, redirect\nfrom .models import Todo\nfrom .forms import TodoForm\n\ndef index(request):\n    # Handle POST: validate form and save\n    # Handle GET: show empty form\n    # Always: query todos and render template\n    pass\n",
+      "solution_code": "# todos/views.py\nfrom django.shortcuts import render, redirect\nfrom .models import Todo\nfrom .forms import TodoForm\n\ndef index(request):\n    if request.method == 'POST':\n        form = TodoForm(request.POST)\n        if form.is_valid():\n            form.save()\n            return redirect('index')\n    else:\n        form = TodoForm()\n\n    todos = Todo.objects.all().order_by('created_at')\n    return render(request, 'todos/index.html', {'todos': todos, 'form': form})\n",
+      "hint": "if request.method == 'POST': form = TodoForm(request.POST), if form.is_valid(): form.save(), return redirect('index'). else: form = TodoForm()",
+      "validate": [
+        "contains:request.method == 'POST'",
+        "contains:form.is_valid()",
+        "contains:form.save()",
+        "contains:redirect('index')"
+      ]
+    },
+    {
+      "id": 11,
+      "title": "Writing the complete template",
+      "file": "todos/templates/todos/index.html",
+      "instruction": "## The index.html template\n\nNow write the actual HTML page. It extends `base.html`, renders the add form, loops over todos, and has a delete button for each.\n\nHere is everything it needs:\n\n```html\n{% extends 'todos/base.html' %}\n\n{% block content %}\n\n<form method=\"post\">\n  {% csrf_token %}\n  {{ form.text }}\n  <button type=\"submit\">Add</button>\n</form>\n\n<ul>\n  {% for todo in todos %}\n    <li>\n      {{ todo.text }}\n      <form method=\"post\" action=\"{% url 'delete_todo' todo.pk %}\">\n        {% csrf_token %}\n        <button type=\"submit\">Delete</button>\n      </form>\n    </li>\n  {% empty %}\n    <li>No todos yet.</li>\n  {% endfor %}\n</ul>\n\n{% endblock %}\n```\n\n### Key Jinja2 / Django template tags\n\n- `{% extends %}` - inherit from base.html\n- `{% csrf_token %}` - required in every POST form\n- `{{ form.text }}` - renders the text input from TodoForm\n- `{% url 'delete_todo' todo.pk %}` - generates the delete URL for each todo\n- `{% empty %}` - shown when the list is empty\n\nThe `delete_todo` URL name does not exist yet - you will add it in the next step.\n\n---\n\n**Your turn:** Write the full `todos/templates/todos/index.html` template.",
+      "starter_code": "<!-- todos/templates/todos/index.html -->\n{% extends 'todos/base.html' %}\n\n{% block content %}\n\n<!-- Add the form here with {% csrf_token %} and {{ form.text }} -->\n\n<!-- Add the {% for todo in todos %} loop here with a delete button -->\n\n{% endblock %}\n",
+      "solution_code": "<!-- todos/templates/todos/index.html -->\n{% extends 'todos/base.html' %}\n\n{% block content %}\n\n<form method=\"post\">\n  {% csrf_token %}\n  {{ form.text }}\n  <button type=\"submit\">Add</button>\n</form>\n\n<ul>\n  {% for todo in todos %}\n    <li>\n      {{ todo.text }}\n      <form method=\"post\" action=\"{% url 'delete_todo' todo.pk %}\">\n        {% csrf_token %}\n        <button type=\"submit\">Delete</button>\n      </form>\n    </li>\n  {% empty %}\n    <li>No todos yet.</li>\n  {% endfor %}\n</ul>\n\n{% endblock %}\n",
+      "hint": "{% extends 'todos/base.html' %}  then {% block content %}  then a form with {% csrf_token %} and {{ form.text }}  then {% for todo in todos %} with {{ todo.text }} and a delete form",
+      "validate": [
+        "contains:{% extends 'todos/base.html' %}",
+        "contains:{% csrf_token %}",
+        "contains:{{ form.text }}",
+        "contains:{% for todo in todos %}"
+      ]
+    },
+    {
+      "id": 12,
+      "title": "Deleting todos and QuerySets",
+      "file": "todos/views.py",
+      "instruction": "## Deleting a record\n\nAdd a `delete_todo` view that takes the todo's primary key, finds it, and deletes it:\n\n```python\nfrom django.shortcuts import render, redirect, get_object_or_404\n\ndef delete_todo(request, pk):\n    todo = get_object_or_404(Todo, pk=pk)\n    todo.delete()\n    return redirect('index')\n```\n\n- `pk` - Django's name for primary key\n- `get_object_or_404(Todo, pk=pk)` - fetches the record or returns a 404 automatically\n- `todo.delete()` - runs `DELETE FROM todos WHERE id = pk`\n\n### Register the delete URL\n\nIn `todos/urls.py`, add:\n\n```python\npath('delete/<int:pk>/', views.delete_todo, name='delete_todo'),\n```\n\n`<int:pk>` captures the ID from the URL. The `name='delete_todo'` matches what you wrote in the template: `{% url 'delete_todo' todo.pk %}`.\n\n---\n\n## QuerySets - bonus knowledge\n\nDjango's ORM returns **QuerySets** - lazy queries that behave like lists:\n\n```python\nTodo.objects.filter(done=True)          # completed todos\nTodo.objects.filter(done=False)         # pending todos\nTodo.objects.filter(done=False).count() # count pending\nTodo.objects.order_by('-created_at')    # newest first (- prefix = descending)\nTodo.objects.exclude(done=True)         # same as filter(done=False)\n```\n\nQuerySets are **lazy** - they do not hit the database until you actually use the data.\n\n---\n\n**Your turn:** Add the `delete_todo` view. Import `get_object_or_404` from `django.shortcuts`.",
+      "starter_code": "# todos/views.py\nfrom django.shortcuts import render, redirect, get_object_or_404\nfrom .models import Todo\nfrom .forms import TodoForm\n\ndef index(request):\n    if request.method == 'POST':\n        form = TodoForm(request.POST)\n        if form.is_valid():\n            form.save()\n            return redirect('index')\n    else:\n        form = TodoForm()\n\n    todos = Todo.objects.all().order_by('created_at')\n    return render(request, 'todos/index.html', {'todos': todos, 'form': form})\n\n# Add delete_todo view here\n",
+      "solution_code": "# todos/views.py\nfrom django.shortcuts import render, redirect, get_object_or_404\nfrom .models import Todo\nfrom .forms import TodoForm\n\ndef index(request):\n    if request.method == 'POST':\n        form = TodoForm(request.POST)\n        if form.is_valid():\n            form.save()\n            return redirect('index')\n    else:\n        form = TodoForm()\n\n    todos = Todo.objects.all().order_by('created_at')\n    return render(request, 'todos/index.html', {'todos': todos, 'form': form})\n\ndef delete_todo(request, pk):\n    todo = get_object_or_404(Todo, pk=pk)\n    todo.delete()\n    return redirect('index')\n",
+      "hint": "def delete_todo(request, pk): todo = get_object_or_404(Todo, pk=pk), todo.delete(), return redirect('index')",
+      "validate": [
+        "contains:def delete_todo(request, pk)",
+        "contains:get_object_or_404(Todo, pk=pk)",
+        "contains:todo.delete()"
+      ]
+    },
+    {
+      "id": 13,
+      "title": "Intro to Django REST Framework",
+      "file": "todosite/settings.py",
+      "instruction": "## Building a JSON API with Django\n\nSo far your Django app returns HTML pages rendered with templates. But modern apps often need a JSON API too - so a mobile app, a React frontend, or another service can consume your data programmatically.\n\n**Django REST Framework** (DRF) is the standard package for building JSON APIs with Django. It adds:\n\n- **Serializers** - convert model instances to and from JSON\n- **ViewSets** - class-based views that handle GET, POST, PUT, DELETE automatically\n- **Routers** - generate URL patterns from your ViewSets without manual `urlpatterns` entries\n- **Browsable API** - a built-in HTML interface to explore your API directly in a browser\n\n### Install\n\n```bash\npip install djangorestframework\n```\n\n### Register it\n\nAdd `'rest_framework'` to `INSTALLED_APPS` in `settings.py`:\n\n```python\nINSTALLED_APPS = [\n    # ... existing apps ...\n    'todos',\n    'rest_framework',\n]\n```\n\nThat is all the setup DRF needs. It works with your existing models and database - nothing else changes.\n\n---\n\n**Your turn:** Add `'rest_framework'` to `INSTALLED_APPS`.",
+      "starter_code": "# todosite/settings.py (partial)\n\nINSTALLED_APPS = [\n    'django.contrib.admin',\n    'django.contrib.auth',\n    'django.contrib.contenttypes',\n    'django.contrib.sessions',\n    'django.contrib.messages',\n    'django.contrib.staticfiles',\n    'todos',\n    # Add rest_framework here\n]\n",
+      "solution_code": "# todosite/settings.py (partial)\n\nINSTALLED_APPS = [\n    'django.contrib.admin',\n    'django.contrib.auth',\n    'django.contrib.contenttypes',\n    'django.contrib.sessions',\n    'django.contrib.messages',\n    'django.contrib.staticfiles',\n    'todos',\n    'rest_framework',\n]\n",
+      "hint": "Add `'rest_framework'` as a new item in the INSTALLED_APPS list, after `'todos'`.",
+      "validate": "contains:rest_framework"
+    },
+    {
+      "id": 14,
+      "title": "Serializers",
+      "file": "todos/serializers.py",
+      "instruction": "## Serializers - the bridge between models and JSON\n\nA **serializer** converts a Django model instance into a Python dictionary (which DRF then converts to JSON), and converts incoming JSON back into validated data ready for saving.\n\nFor model-backed APIs, `ModelSerializer` generates all the field definitions from your model automatically:\n\n```python\nfrom rest_framework import serializers\nfrom .models import Todo\n\nclass TodoSerializer(serializers.ModelSerializer):\n    class Meta:\n        model = Todo\n        fields = ['id', 'text', 'done', 'created_at']\n```\n\n### What each part does\n\n- `model = Todo` - DRF reads the Todo model's field definitions to know the types\n- `fields = [...]` - which fields to include in the JSON output (and accept as JSON input on write)\n- `id` and `created_at` are read-only by default since they are auto-generated\n\n### Using a serializer manually\n\n```python\ntodo = Todo.objects.first()\nserializer = TodoSerializer(todo)\nprint(serializer.data)\n# {'id': 1, 'text': 'Learn DRF', 'done': False, 'created_at': '2024-01-15T10:00:00Z'}\n```\n\nFor a list of objects, pass `many=True`:\n\n```python\ntodos = Todo.objects.all()\nserializer = TodoSerializer(todos, many=True)\nprint(serializer.data)  # list of dicts\n```\n\n---\n\n**Your turn:** Create `todos/serializers.py` with a `TodoSerializer` that includes `id`, `text`, `done`, and `created_at`.",
+      "starter_code": "# todos/serializers.py\nfrom rest_framework import serializers\nfrom .models import Todo\n\n# Define TodoSerializer as a ModelSerializer\n# Include fields: id, text, done, created_at\n",
+      "solution_code": "# todos/serializers.py\nfrom rest_framework import serializers\nfrom .models import Todo\n\nclass TodoSerializer(serializers.ModelSerializer):\n    class Meta:\n        model = Todo\n        fields = ['id', 'text', 'done', 'created_at']\n",
+      "hint": "class TodoSerializer(serializers.ModelSerializer): with class Meta: model = Todo, fields = ['id', 'text', 'done', 'created_at']",
+      "validate": "contains:ModelSerializer"
+    },
+    {
+      "id": 15,
+      "title": "ViewSets and Routers",
+      "file": "todos/views.py",
+      "instruction": "## Full CRUD API in 10 lines\n\nA `ModelViewSet` is a class-based view that implements all five standard API actions without any extra code:\n\n| HTTP method | URL | What it does |\n|---|---|---|\n| GET | `/api/todos/` | List all todos |\n| POST | `/api/todos/` | Create a todo |\n| GET | `/api/todos/1/` | Get one todo |\n| PUT | `/api/todos/1/` | Update a todo |\n| DELETE | `/api/todos/1/` | Delete a todo |\n\nAdd the ViewSet to `todos/views.py`:\n\n```python\nfrom rest_framework import viewsets\nfrom .serializers import TodoSerializer\n\nclass TodoViewSet(viewsets.ModelViewSet):\n    queryset = Todo.objects.all().order_by('created_at')\n    serializer_class = TodoSerializer\n```\n\n### Wiring up the Router\n\nA `DefaultRouter` generates all the URL patterns automatically. In `todos/urls.py`:\n\n```python\nfrom rest_framework.routers import DefaultRouter\nfrom . import views\n\nrouter = DefaultRouter()\nrouter.register('todos', views.TodoViewSet)\n\nurlpatterns = [\n    path('', views.index, name='index'),\n    path('delete/<int:pk>/', views.delete_todo, name='delete_todo'),\n    path('api/', include(router.urls)),\n]\n```\n\nWith this in place, visit `http://127.0.0.1:8000/api/` in your browser. DRF renders a browsable API where you can list, create, update, and delete todos interactively - no frontend required.\n\n---\n\n**Your turn:** Add `TodoViewSet` to `todos/views.py` with the correct `queryset` and `serializer_class`.",
+      "starter_code": "# todos/views.py\nfrom django.shortcuts import render, redirect, get_object_or_404\nfrom rest_framework import viewsets\nfrom .models import Todo\nfrom .forms import TodoForm\nfrom .serializers import TodoSerializer\n\ndef index(request):\n    if request.method == 'POST':\n        form = TodoForm(request.POST)\n        if form.is_valid():\n            form.save()\n            return redirect('index')\n    else:\n        form = TodoForm()\n    todos = Todo.objects.all().order_by('created_at')\n    return render(request, 'todos/index.html', {'todos': todos, 'form': form})\n\ndef delete_todo(request, pk):\n    todo = get_object_or_404(Todo, pk=pk)\n    todo.delete()\n    return redirect('index')\n\n# Add TodoViewSet here\n",
+      "solution_code": "# todos/views.py\nfrom django.shortcuts import render, redirect, get_object_or_404\nfrom rest_framework import viewsets\nfrom .models import Todo\nfrom .forms import TodoForm\nfrom .serializers import TodoSerializer\n\ndef index(request):\n    if request.method == 'POST':\n        form = TodoForm(request.POST)\n        if form.is_valid():\n            form.save()\n            return redirect('index')\n    else:\n        form = TodoForm()\n    todos = Todo.objects.all().order_by('created_at')\n    return render(request, 'todos/index.html', {'todos': todos, 'form': form})\n\ndef delete_todo(request, pk):\n    todo = get_object_or_404(Todo, pk=pk)\n    todo.delete()\n    return redirect('index')\n\nclass TodoViewSet(viewsets.ModelViewSet):\n    queryset = Todo.objects.all().order_by('created_at')\n    serializer_class = TodoSerializer\n",
+      "hint": "class TodoViewSet(viewsets.ModelViewSet): with queryset = Todo.objects.all().order_by('created_at') and serializer_class = TodoSerializer",
+      "validate": "contains:ModelViewSet"
+    }
+  ]
+}

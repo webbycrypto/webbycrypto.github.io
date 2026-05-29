@@ -1,0 +1,80 @@
+{
+  "id": "git-basics",
+  "title": "Git Basics",
+  "description": "Track your code changes, work safely in branches, push to GitHub, and automate tests with GitHub Actions.",
+  "icon": "https://cdn.simpleicons.org/git",
+  "category": "tools",
+  "core": true,
+  "steps": [
+    {
+      "id": 1,
+      "title": "Why version control",
+      "file": "terminal",
+      "instruction": "## Tracking what changes\n\nEvery project eventually reaches the moment where you change something that worked and cannot remember what it looked like before. Version control solves this by saving snapshots of your code over time.\n\n**Git** is the version control tool almost every developer uses. It runs on your machine and records the history of every change you make.\n\n### What Git tracks\n\nGit tracks a folder (your project) as a **repository**. It watches which files change, lets you group related changes into a **commit**, and keeps a log of every commit you ever made. You can always go back to any previous commit.\n\n### Starting a repository\n\n```bash\ngit init\n```\n\nRun this once inside your project folder. It creates a hidden `.git/` directory that stores the entire history. You never need to open that folder - Git manages it for you.\n\n```bash\ngit status\n```\n\nShows the current state: which files are new, which are modified, which are staged for the next commit.\n\n---\n\n**Your turn:** Initialise a Git repository in your project folder.",
+      "starter_code": "# Run these commands in your project folder:\n\n# Initialise a new repository\ngit init\n\n# Check the current status\ngit status\n",
+      "solution_code": "# Run these commands in your project folder:\n\n# Initialise a new repository\ngit init\n\n# Check the current status\ngit status\n",
+      "hint": "The commands are already written - read through them and press Check to continue.",
+      "validate": "contains:git init"
+    },
+    {
+      "id": 2,
+      "title": "Staging and committing",
+      "file": "terminal",
+      "instruction": "## Saving a snapshot\n\nGit does not automatically save every change. You choose what goes into each snapshot - this is called **staging**.\n\nThe process is always:\n1. Make changes to files\n2. `git add` - stage the files you want to include\n3. `git commit` - save the snapshot with a message\n\n```bash\n# Stage a single file\ngit add main.py\n\n# Stage all changed files at once\ngit add .\n\n# Save the snapshot\ngit commit -m \"Add initial FastAPI app\"\n```\n\n### Commit messages\n\nWrite your message in the present tense, describing what the commit does - not what you did:\n\n```bash\n# Good\ngit commit -m \"Add user login endpoint\"\ngit commit -m \"Fix crash when todo text is empty\"\n\n# Avoid\ngit commit -m \"changes\"\ngit commit -m \"fixed stuff\"\n```\n\n### Viewing history\n\n```bash\ngit log\n```\n\nShows every commit: its ID (a long hash), who made it, when, and the message.\n\n```bash\ngit log --oneline\n```\n\nSame list but compact - one line per commit.\n\n---\n\n**Your turn:** Stage all files and make your first commit.",
+      "starter_code": "# Stage all files in the current folder\ngit add .\n\n# Commit with a message\ngit commit -m \"Initial commit\"\n\n# View the commit log\ngit log --oneline\n",
+      "solution_code": "# Stage all files in the current folder\ngit add .\n\n# Commit with a message\ngit commit -m \"Initial commit\"\n\n# View the commit log\ngit log --oneline\n",
+      "hint": "The commands are already written - read through them and press Check to continue.",
+      "validate": "contains:git commit"
+    },
+    {
+      "id": 3,
+      "title": "What not to commit (.gitignore)",
+      "file": ".gitignore",
+      "instruction": "## Keeping secrets out of Git\n\nNot everything in your project folder should go into Git:\n\n- `.env` - contains API keys and passwords. If this ends up on GitHub, anyone can read your secrets.\n- `venv/` - the virtual environment folder. It is large (hundreds of MB) and recreatable with `pip install`.\n- `__pycache__/` - Python's compiled bytecode. Auto-generated, no value in version control.\n- `*.db` - SQLite database files. These are runtime data, not source code.\n\n### The .gitignore file\n\nCreate a file named `.gitignore` in your project root. Git reads it and skips anything matching the patterns inside:\n\n```\nvenv/\n__pycache__/\n*.pyc\n.env\n*.db\n.DS_Store\n```\n\nEach line is a pattern. `*` means \"any characters\". A trailing `/` means it's a folder.\n\n### Checking what Git sees\n\nAfter creating `.gitignore`, run `git status` again. The ignored files should no longer appear in the list.\n\nIf you accidentally committed a secret before adding it to `.gitignore`, the file is now in your Git history. The safe response is to rotate the secret (generate a new one, invalidate the old one) - not just delete the file.\n\n---\n\n**Your turn:** Create a `.gitignore` that excludes your virtual environment, environment variables, compiled Python files, and SQLite databases.",
+      "starter_code": "# .gitignore\nvenv/\n__pycache__/\n*.pyc\n.env\n*.db\n.DS_Store\n",
+      "solution_code": "# .gitignore\nvenv/\n__pycache__/\n*.pyc\n.env\n*.db\n.DS_Store\n",
+      "hint": "The .gitignore content is already written - read through it and press Check to continue.",
+      "validate": "contains:.env"
+    },
+    {
+      "id": 4,
+      "title": "Branches",
+      "file": "terminal",
+      "instruction": "## Working safely with branches\n\nA **branch** is a separate line of development. You can experiment on a branch without touching your working code. If the experiment works, you merge it in. If it doesn't, you discard the branch.\n\nThe default branch is called `main` (or `master` on older setups).\n\n### Creating and switching branches\n\n```bash\n# Create a new branch and switch to it in one command\ngit checkout -b add-search-feature\n\n# Modern equivalent (Git 2.23+)\ngit switch -c add-search-feature\n\n# See all branches (the * marks the current one)\ngit branch\n```\n\n### Making commits on a branch\n\nAny commits you make while on `add-search-feature` only exist on that branch. Your `main` branch is untouched.\n\n### Merging back\n\nWhen the feature is done, switch back to `main` and merge:\n\n```bash\ngit checkout main\ngit merge add-search-feature\n```\n\nGit replays the branch's commits onto `main`. If both branches changed the same lines, Git will ask you to resolve the conflict manually.\n\n### Deleting a merged branch\n\n```bash\ngit branch -d add-search-feature\n```\n\nCleans up after the merge. The commits are still there on `main` - the branch label is just removed.\n\n---\n\n**Your turn:** Create a branch, then merge it back into main.",
+      "starter_code": "# Create and switch to a new branch\ngit checkout -b my-feature\n\n# Make some changes, then commit them\ngit add .\ngit commit -m \"Add my feature\"\n\n# Switch back to main\ngit checkout main\n\n# Merge the feature branch in\ngit merge my-feature\n\n# Clean up\ngit branch -d my-feature\n",
+      "solution_code": "# Create and switch to a new branch\ngit checkout -b my-feature\n\n# Make some changes, then commit them\ngit add .\ngit commit -m \"Add my feature\"\n\n# Switch back to main\ngit checkout main\n\n# Merge the feature branch in\ngit merge my-feature\n\n# Clean up\ngit branch -d my-feature\n",
+      "hint": "The commands are already written - read through them and press Check to continue.",
+      "validate": "contains:git checkout -b"
+    },
+    {
+      "id": 5,
+      "title": "GitHub - pushing your project",
+      "file": "terminal",
+      "instruction": "## Putting your code online\n\n**GitHub** is a website that stores Git repositories. It gives you a backup, lets others see your code, and is where most open source projects live.\n\nYour local repository and the GitHub repository are separate. You link them with a **remote** and **push** your commits up.\n\n### One-time setup: create a repo on GitHub\n\n1. Go to github.com and click **New repository**\n2. Give it a name - no spaces, lowercase with hyphens works well\n3. Do not initialise with a README (you already have local commits)\n4. Copy the repository URL - it will look like `https://github.com/yourname/yourrepo.git`\n\n### Linking and pushing\n\n```bash\n# Tell Git where the remote is (do this once)\ngit remote add origin https://github.com/yourname/yourrepo.git\n\n# Push your commits and set origin as the default remote\ngit push -u origin main\n```\n\nAfter the first push, future pushes are just:\n```bash\ngit push\n```\n\n### Cloning an existing repo\n\nIf you want to download someone else's project (or your own on a new machine):\n\n```bash\ngit clone https://github.com/yourname/yourrepo.git\n```\n\nThis creates a folder with the full repository already inside.\n\n---\n\n**Your turn:** Link your local repository to GitHub and push your commits.",
+      "starter_code": "# Add GitHub as the remote (replace with your actual URL)\ngit remote add origin https://github.com/yourname/yourrepo.git\n\n# Push all commits to GitHub\ngit push -u origin main\n\n# From now on, just:\ngit push\n",
+      "solution_code": "# Add GitHub as the remote (replace with your actual URL)\ngit remote add origin https://github.com/yourname/yourrepo.git\n\n# Push all commits to GitHub\ngit push -u origin main\n\n# From now on, just:\ngit push\n",
+      "hint": "The commands are already written - read through them and press Check to continue.",
+      "validate": "contains:git push"
+    },
+    {
+      "id": 6,
+      "title": "A working Git workflow",
+      "file": "terminal",
+      "instruction": "## The pattern that keeps projects clean\n\nNow that you know the individual commands, here is the workflow that keeps your code organised as the project grows:\n\n### Feature branch workflow\n\n```bash\n# 1. Start from a clean main\ngit checkout main\ngit pull                         # get latest changes if working with others\n\n# 2. Create a branch for your task\ngit checkout -b add-auth\n\n# 3. Do the work - commit often as you go\ngit add .\ngit commit -m \"Add login endpoint\"\ngit add .\ngit commit -m \"Add token verification middleware\"\n\n# 4. When done, merge back\ngit checkout main\ngit merge add-auth\ngit push\n\n# 5. Clean up\ngit branch -d add-auth\n```\n\n### Why this works\n\n- `main` always has working code - never commit broken code directly to it\n- Each branch is one task - easy to understand what changed and why\n- Commits are small and frequent - easy to find when something broke\n- The log becomes a history of decisions, not just a list of files changed\n\n### Quick reference\n\n| Command | What it does |\n|---|---|\n| `git init` | Start a new repository |\n| `git status` | See what has changed |\n| `git add .` | Stage all changes |\n| `git commit -m \"msg\"` | Save a snapshot |\n| `git log --oneline` | View history |\n| `git checkout -b name` | Create and switch to a branch |\n| `git merge name` | Merge a branch into current |\n| `git push` | Upload commits to GitHub |\n| `git pull` | Download latest commits from GitHub |\n\n---\n\n**Your turn:** Write out the full feature branch workflow.",
+      "starter_code": "# Full feature branch workflow\n\n# 1. Start from main\ngit checkout main\ngit pull\n\n# 2. Create a feature branch\ngit checkout -b my-feature\n\n# 3. Work and commit\ngit add .\ngit commit -m \"Implement feature\"\n\n# 4. Merge back to main and push\ngit checkout main\ngit merge my-feature\ngit push\n\n# 5. Clean up\ngit branch -d my-feature\n",
+      "solution_code": "# Full feature branch workflow\n\n# 1. Start from main\ngit checkout main\ngit pull\n\n# 2. Create a feature branch\ngit checkout -b my-feature\n\n# 3. Work and commit\ngit add .\ngit commit -m \"Implement feature\"\n\n# 4. Merge back to main and push\ngit checkout main\ngit merge my-feature\ngit push\n\n# 5. Clean up\ngit branch -d my-feature\n",
+      "hint": "The workflow is already written - read through it and press Check to continue.",
+      "validate": "contains:git merge"
+    },
+    {
+      "id": 7,
+      "title": "CI with GitHub Actions",
+      "file": ".github/workflows/test.yml",
+      "instruction": "## Running your tests automatically\n\nRight now you run `pytest` manually. **Continuous Integration (CI)** means your tests run automatically every time you push to GitHub. If tests pass, you can deploy with confidence. If they fail, GitHub shows you exactly which commit broke things before it reaches production.\n\n**GitHub Actions** is GitHub's built-in CI system. It is free for public repositories and has a generous free tier for private ones.\n\n### How it works\n\nYou create a YAML file inside `.github/workflows/`. GitHub reads it and runs the steps you define  -  on a fresh Linux machine, every time you push.\n\n### A basic workflow\n\nCreate `.github/workflows/test.yml`:\n\n```yaml\nname: Tests\n\non: [push, pull_request]\n\njobs:\n  test:\n    runs-on: ubuntu-latest\n\n    steps:\n      - uses: actions/checkout@v4\n\n      - name: Set up Python\n        uses: actions/setup-python@v5\n        with:\n          python-version: '3.12'\n\n      - name: Install dependencies\n        run: pip install -r requirements.txt\n\n      - name: Run tests\n        run: pytest\n```\n\nBreaking it down:\n- `on: [push, pull_request]`  -  run on every push and on pull requests\n- `runs-on: ubuntu-latest`  -  use a fresh Ubuntu machine\n- `actions/checkout@v4`  -  clone your repo onto the machine\n- `actions/setup-python@v5`  -  install the Python version you specify\n- `run: pip install -r requirements.txt`  -  install your dependencies\n- `run: pytest`  -  run your test suite\n\nAfter you push this file, go to the **Actions** tab on your GitHub repo to watch it run. A green tick means tests passed. A red cross means something failed  -  click through to see which test and why.\n\n---\n\n**Your turn:** Write the GitHub Actions workflow file.",
+      "starter_code": "name: Tests\n\n# Run on every push and pull request\non: [push, pull_request]\n\njobs:\n  test:\n    runs-on: ubuntu-latest\n\n    steps:\n      - uses: actions/checkout@v4\n\n      - name: Set up Python\n        uses: actions/setup-python@v5\n        with:\n          python-version: '3.12'\n\n      - name: Install dependencies\n        run: pip install -r requirements.txt\n\n      - name: Run tests\n        run: pytest\n",
+      "solution_code": "name: Tests\n\non: [push, pull_request]\n\njobs:\n  test:\n    runs-on: ubuntu-latest\n\n    steps:\n      - uses: actions/checkout@v4\n\n      - name: Set up Python\n        uses: actions/setup-python@v5\n        with:\n          python-version: '3.12'\n\n      - name: Install dependencies\n        run: pip install -r requirements.txt\n\n      - name: Run tests\n        run: pytest\n",
+      "hint": "The workflow file is already written - read through it and press Check to continue.",
+      "validate": "contains:pytest"
+    }
+  ]
+}

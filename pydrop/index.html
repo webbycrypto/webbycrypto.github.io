@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DropAcademy -- Python for Web Development</title>
+
+  <!-- Styles -->
+  <link rel="stylesheet" href="styles/main.css">
+  <link rel="stylesheet" href="styles/sidebar.css">
+  <link rel="stylesheet" href="styles/editor.css">
+  <link rel="stylesheet" href="styles/components.css">
+
+  <!-- Challenge data (global window.LEVEL* arrays) -->
+  <script src="challenges/level1.js"></script>
+  <script src="challenges/level2.js"></script>
+  <script src="challenges/level3.js"></script>
+  <script src="challenges/level4.js"></script>
+  <script src="challenges/level5.js"></script>
+
+  <!-- Engine scripts -->
+  <script src="scripts/validator.js"></script>
+  <script src="scripts/highlighter.js"></script>
+  <script src="scripts/progress.js"></script>
+  <script src="scripts/editor.js"></script>
+  <script src="scripts/ui.js"></script>
+  <script src="scripts/app.js"></script>
+</head>
+<body>
+
+<div id="app">
+
+  <!-- ===================================================================
+       TOPBAR
+  =================================================================== -->
+  <header id="topbar">
+    <a class="topbar-brand" href="#" onclick="return false;" title="DropAcademy">
+      <img src="assets/logo.png" alt="DropAcademy" class="topbar-logo">
+    </a>
+
+    <input
+      type="text"
+      id="search-input"
+      placeholder="Search challenges..."
+      autocomplete="off"
+      spellcheck="false"
+      aria-label="Search challenges"
+    >
+
+    <select id="filter-diff" class="filter-select" aria-label="Filter by difficulty">
+      <option value="">All difficulties</option>
+      <option value="easy">Easy</option>
+      <option value="medium">Medium</option>
+      <option value="hard">Hard</option>
+    </select>
+
+    <select id="filter-topic" class="filter-select" aria-label="Filter by topic">
+      <option value="">All topics</option>
+    </select>
+
+    <div class="topbar-sep"></div>
+
+    <button
+      id="btn-daily"
+      class="btn btn-ghost"
+      title="Open today's daily challenge"
+      data-tooltip="Daily challenge"
+    >📅</button>
+
+    <button
+      id="btn-random"
+      class="btn btn-ghost"
+      title="Open a random challenge"
+      data-tooltip="Random challenge"
+    >🎲</button>
+
+    <button
+      id="btn-dashboard"
+      class="btn btn-ghost"
+      title="Open dashboard"
+      data-tooltip="Dashboard"
+    >📊</button>
+
+    <button
+      id="btn-theme"
+      class="btn btn-ghost"
+      title="Toggle dark/light mode"
+      aria-label="Toggle theme"
+    >☀️</button>
+  </header>
+
+  <!-- ===================================================================
+       SIDEBAR
+  =================================================================== -->
+  <nav id="sidebar" aria-label="Challenge navigation">
+    <!-- Rendered by ui.js renderSidebar() -->
+  </nav>
+
+  <!-- ===================================================================
+       MAIN PANEL
+  =================================================================== -->
+  <main id="main-panel">
+
+    <!-- Challenge info: title, difficulty chips, instructions -->
+    <div id="challenge-info">
+      <!-- Rendered by ui.js renderChallenge() -->
+    </div>
+
+    <!-- Editor region -->
+    <div class="editor-region">
+
+      <div class="editor-titlebar">
+        <span class="editor-filename">solution.py</span>
+        <span class="shortcut-hint">
+          <span class="kbd">Ctrl+Enter</span> Run &nbsp;
+          <span class="kbd">Ctrl+R</span> Reset &nbsp;
+          <span class="kbd">Ctrl+H</span> Hint &nbsp;
+          <span class="kbd">Tab</span> Indent
+        </span>
+      </div>
+
+      <div class="editor-wrapper">
+        <div id="line-numbers" aria-hidden="true"></div>
+        <div id="highlight-layer" aria-hidden="true"></div>
+        <textarea
+          id="code-editor"
+          spellcheck="false"
+          autocomplete="off"
+          autocorrect="off"
+          autocapitalize="off"
+          aria-label="Python code editor"
+          aria-multiline="true"
+        ></textarea>
+      </div>
+
+      <!-- Action buttons -->
+      <div class="action-bar">
+        <button id="btn-run" class="btn btn-primary" title="Run and check (Ctrl+Enter)">
+          &#9654; Run
+        </button>
+        <button id="btn-reset" class="btn btn-secondary" title="Reset to starter code (Ctrl+R)">
+          &#8635; Reset
+        </button>
+        <button id="btn-hint" class="btn btn-ghost" title="Show a hint (Ctrl+H)">
+          &#128161; Hint
+        </button>
+        <button id="btn-solution" class="btn btn-ghost" title="Show solution">
+          &#128065; Solution
+        </button>
+        <span class="spacer"></span>
+        <button id="btn-prev" class="btn btn-ghost" title="Previous challenge (Ctrl+[)">
+          &#8592; Prev
+        </button>
+        <button id="btn-next" class="btn btn-primary" title="Next challenge (Ctrl+])">
+          Next &#8594;
+        </button>
+      </div>
+
+    </div><!-- .editor-region -->
+
+    <!-- Feedback zone: hints, pass/fail, explanation -->
+    <div class="feedback-zone">
+      <div id="hint-area">
+        <div id="hint-text"></div>
+      </div>
+      <div id="feedback-panel"></div>
+      <div id="explanation-panel"></div>
+    </div>
+
+  </main><!-- #main-panel -->
+
+</div><!-- #app -->
+
+<!-- =====================================================================
+     TOAST CONTAINER
+===================================================================== -->
+<div id="toast-container" aria-live="polite" aria-atomic="true"></div>
+
+<!-- =====================================================================
+     MODAL OVERLAY
+===================================================================== -->
+<div id="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+  <div id="modal">
+    <div id="modal-header">
+      <span id="modal-title"></span>
+      <button id="modal-close" aria-label="Close modal">&times;</button>
+    </div>
+    <div id="modal-body"></div>
+  </div>
+</div>
+
+</body>
+</html>

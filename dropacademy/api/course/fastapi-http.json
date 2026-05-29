@@ -1,0 +1,50 @@
+{
+  "id": "fastapi-http",
+  "title": "HTTP and the Web",
+  "description": "How HTTP requests and responses work, what status codes mean, and how JSON ties it together.",
+  "icon": "🌐",
+  "category": "fastapi-track",
+  "core": true,
+  "steps": [
+    {
+      "id": 1,
+      "title": "The request/response cycle",
+      "instruction": "## How the web actually works\n\nEvery time your browser loads a page or your code calls an API, the same thing happens:\n\n1. Your computer sends an **HTTP request** to a server\n2. The server processes it and sends back an **HTTP response**\n3. Your browser (or code) reads the response\n\nAn HTTP request has:\n- A **method** - what action you want (GET, POST, PUT, DELETE)\n- A **path** - which resource you want (`/todos`, `/users/42`)\n- **Headers** - metadata (content type, auth token, etc.)\n- A **body** - data you are sending (only for POST, PUT, PATCH)\n\nAn HTTP response has:\n- A **status code** - a number indicating success or failure\n- **Headers** - metadata about the response\n- A **body** - the data you asked for (usually JSON)\n\nWhen you define a FastAPI route:\n```python\n@app.get('/todos')\ndef list_todos():\n    return [{'id': 1, 'text': 'Learn FastAPI'}]\n```\n\nYou are telling FastAPI: \"when a GET request arrives at `/todos`, call this function and send back its return value as JSON\".\n\nFastAPI handles all the HTTP mechanics. You just write the function.\n\nWrite a FastAPI app with one route that returns information about itself.",
+      "file": "main.py",
+      "starter_code": "from fastapi import FastAPI\n\napp = FastAPI()\n\n# Write a GET route at '/' that returns a dict\n# with 'name' and 'version' keys",
+      "solution_code": "from fastapi import FastAPI\n\napp = FastAPI()\n\n@app.get('/')\ndef root():\n    return {'name': 'My API', 'version': '1.0'}",
+      "hint": "Use `@app.get('/')` and return a Python dict. FastAPI converts it to JSON automatically.",
+      "validate": "contains:@app.get('/')"
+    },
+    {
+      "id": 2,
+      "title": "HTTP methods",
+      "instruction": "## GET, POST, PUT, DELETE\n\nHTTP methods describe the intended action. The four you will use most:\n\n| Method | Purpose | Has body? |\n|---|---|---|\n| `GET` | Read data | No |\n| `POST` | Create a new resource | Yes |\n| `PUT` | Replace an existing resource | Yes |\n| `DELETE` | Remove a resource | No |\n\nThe convention matters. A `GET` request should never have side effects - it should only read. A `POST` creates something new and typically returns the created resource with a `201` status code.\n\nIn FastAPI, you choose the method with the decorator:\n\n```python\n@app.get('/todos')       # read all todos\n@app.post('/todos')      # create a todo\n@app.put('/todos/{id}')  # replace a todo\n@app.delete('/todos/{id}')  # delete a todo\n```\n\nThis maps cleanly to CRUD operations:\n- **C**reate - POST\n- **R**ead - GET\n- **U**pdate - PUT (or PATCH for partial updates)\n- **D**elete - DELETE\n\nAdd a `POST /todos` route to the app below. It should accept a `text` field and return the created todo with a status code of 201.",
+      "file": "main.py",
+      "starter_code": "from fastapi import FastAPI\nfrom pydantic import BaseModel\n\napp = FastAPI()\n\ntodos = []\n\nclass TodoCreate(BaseModel):\n    text: str\n\n@app.get('/todos')\ndef list_todos():\n    return todos\n\n# Add a POST route here",
+      "solution_code": "from fastapi import FastAPI\nfrom pydantic import BaseModel\n\napp = FastAPI()\n\ntodos = []\n\nclass TodoCreate(BaseModel):\n    text: str\n\n@app.get('/todos')\ndef list_todos():\n    return todos\n\n@app.post('/todos', status_code=201)\ndef create_todo(todo: TodoCreate):\n    new_todo = {'id': len(todos) + 1, 'text': todo.text}\n    todos.append(new_todo)\n    return new_todo",
+      "hint": "Use `@app.post('/todos', status_code=201)` and accept `todo: TodoCreate`. Build a dict: `{'id': len(todos) + 1, 'text': todo.text}`, append it to `todos`, then return it.",
+      "validate": "contains:@app.post('/todos', status_code=201)"
+    },
+    {
+      "id": 3,
+      "title": "Status codes",
+      "instruction": "## What the numbers mean\n\nHTTP status codes are grouped by their first digit:\n\n| Range | Category | Meaning |\n|---|---|---|\n| 2xx | Success | Request worked |\n| 3xx | Redirect | Go somewhere else |\n| 4xx | Client error | You did something wrong |\n| 5xx | Server error | The server broke |\n\nThe ones you will use and see most often:\n\n| Code | Name | When |\n|---|---|---|\n| `200` | OK | Default success - data returned |\n| `201` | Created | New resource created (use with POST) |\n| `204` | No Content | Success, nothing to return (use with DELETE) |\n| `400` | Bad Request | Client sent bad data |\n| `401` | Unauthorized | No credentials or invalid credentials |\n| `403` | Forbidden | Credentials are valid but access is denied |\n| `404` | Not Found | Resource does not exist |\n| `409` | Conflict | Resource already exists (e.g. duplicate email) |\n| `422` | Unprocessable Entity | FastAPI validation error |\n| `500` | Internal Server Error | Unhandled exception - fix the bug |\n\nFastAPI defaults to `200`. Set a different code with `status_code` on the decorator:\n\n```python\n@app.delete('/todos/{todo_id}', status_code=204)\ndef delete_todo(todo_id: int):\n    todos.pop(todo_id)\n    # Return nothing - 204 means no content\n```\n\nAdd a `DELETE /todos/{todo_id}` route that removes the item and returns `204 No Content`.",
+      "file": "main.py",
+      "starter_code": "from fastapi import FastAPI, HTTPException\nfrom pydantic import BaseModel\n\napp = FastAPI()\n\ntodos = [\n    {'id': 1, 'text': 'Learn HTTP'},\n    {'id': 2, 'text': 'Build an API'},\n]\n\n@app.get('/todos')\ndef list_todos():\n    return todos\n\n# Add a DELETE route at /todos/{todo_id}\n# Return 204 No Content on success\n# Return 404 if the todo does not exist",
+      "solution_code": "from fastapi import FastAPI, HTTPException\nfrom pydantic import BaseModel\n\napp = FastAPI()\n\ntodos = [\n    {'id': 1, 'text': 'Learn HTTP'},\n    {'id': 2, 'text': 'Build an API'},\n]\n\n@app.get('/todos')\ndef list_todos():\n    return todos\n\n@app.delete('/todos/{todo_id}', status_code=204)\ndef delete_todo(todo_id: int):\n    global todos\n    original_count = len(todos)\n    todos = [t for t in todos if t['id'] != todo_id]\n    if len(todos) == original_count:\n        raise HTTPException(status_code=404, detail='Todo not found')\n    return None",
+      "hint": "Use `todos = [t for t in todos if t['id'] != todo_id]` to filter. Compare `len(todos)` before and after  -  if they are equal, nothing was removed, so raise `HTTPException(status_code=404, ...)`. Return `None` at the end for the 204.",
+      "validate": "contains:status_code=204"
+    },
+    {
+      "id": 4,
+      "title": "JSON and Python dicts",
+      "instruction": "## How data travels over HTTP\n\nJSON (JavaScript Object Notation) is the format almost every web API uses to send and receive data. It looks like this:\n\n```json\n{\n  \"id\": 1,\n  \"text\": \"Learn FastAPI\",\n  \"done\": false\n}\n```\n\nPython dicts map almost perfectly to JSON:\n\n| Python | JSON |\n|---|---|\n| `dict` | object `{}` |\n| `list` | array `[]` |\n| `str` | string `\"\"` |\n| `int`, `float` | number |\n| `True` / `False` | `true` / `false` |\n| `None` | `null` |\n\nFastAPI handles the conversion automatically:\n- When you **return a dict**, FastAPI serializes it to JSON and sets `Content-Type: application/json`\n- When a request has a JSON body, FastAPI deserializes it into your Pydantic model\n\nYou can also work with JSON manually in Python using the built-in `json` module:\n\n```python\nimport json\n\n# Python dict to JSON string\ndata = {'name': 'Alice', 'age': 30}\njson_string = json.dumps(data)\n# '{\"name\": \"Alice\", \"age\": 30}'\n\n# JSON string to Python dict\nparsed = json.loads(json_string)\n# {'name': 'Alice', 'age': 30}\n```\n\nYou rarely need `json.dumps` or `json.loads` in FastAPI - the framework handles it. But you will need them when reading JSON from files or working with external data.\n\nWrite a route that reads a JSON string from a request, parses it, and returns a summary.",
+      "file": "main.py",
+      "starter_code": "import json\nfrom fastapi import FastAPI\nfrom pydantic import BaseModel\n\napp = FastAPI()\n\nclass RawPayload(BaseModel):\n    data: str  # a JSON string to parse\n\n@app.post('/parse')\ndef parse_json(payload: RawPayload):\n    # Parse payload.data as JSON\n    # Return a dict with 'keys' (list of keys) and 'values' (list of values)\n    pass",
+      "solution_code": "import json\nfrom fastapi import FastAPI\nfrom pydantic import BaseModel\n\napp = FastAPI()\n\nclass RawPayload(BaseModel):\n    data: str\n\n@app.post('/parse')\ndef parse_json(payload: RawPayload):\n    parsed = json.loads(payload.data)\n    return {'keys': list(parsed.keys()), 'values': list(parsed.values())}",
+      "hint": "Use `json.loads(payload.data)` to parse the string into a dict. Then return the keys and values using `.keys()` and `.values()`.",
+      "validate": "contains:json.loads(payload.data)"
+    }
+  ]
+}

@@ -1,0 +1,170 @@
+{
+  "id": "flask",
+  "title": "Todo App with Flask",
+  "description": "Build a database-backed Todo app using Flask's simple, minimal approach.",
+  "icon": "https://cdn.simpleicons.org/flask/9ba6be",
+  "color": "orange",
+  "category": "foundations",
+  "core": true,
+  "steps": [
+    {
+      "id": 1,
+      "title": "What is Flask?",
+      "file": "app.py",
+      "instruction": "## What is Flask?\n\nFlask is a **micro-framework** for Python. Micro means it gives you just enough to build a web app - routing, templates, a dev server - without forcing a project structure on you.\n\nCompared to Django, Flask has almost no boilerplate. Your whole app can live in a single file.\n\n### What you will build\n\nA **Todo app** with:\n- A web page that lists your todos\n- A form to add new todos\n- A button to delete each one\n- A SQLite database so todos survive restarts\n\n### How to install Flask\n\nIn your terminal:\n\n```\npip install flask flask-sqlalchemy\n```\n\n---\n\n**Your turn:** The first thing every Flask app needs is an `app` object. Type this into the editor:\n\n```python\nfrom flask import Flask\n\napp = Flask(__name__)\n```\n\n`Flask(__name__)` tells Flask where your app lives so it can find templates and static files.",
+      "starter_code": "# Start here - import Flask and create your app\n",
+      "solution_code": "from flask import Flask\n\napp = Flask(__name__)\n",
+      "hint": "Type: from flask import Flask  then on a new line: app = Flask(__name__)",
+      "validate": "contains:Flask(__name__)"
+    },
+    {
+      "id": 2,
+      "title": "Your first route",
+      "file": "app.py",
+      "instruction": "## Routes\n\nA **route** maps a URL to a Python function. When someone visits that URL, Flask calls your function and returns whatever it returns.\n\nThe `@app.route()` decorator is how you register a route:\n\n```python\n@app.route('/')\ndef index():\n    return 'Hello, world!'\n```\n\n- `'/'` is the URL path - the homepage\n- `index` is just a function name (can be anything)\n- Whatever you `return` is sent to the browser\n\n### Running the app\n\nAdd this at the bottom of your file:\n\n```python\nif __name__ == '__main__':\n    app.run(debug=True)\n```\n\nThen run: `python app.py` and your app will be at `http://127.0.0.1:5000`\n\nWith `debug=True`, Flask automatically reloads when you save changes.\n\n---\n\n**Your turn:** Add an `index` route that returns `'Hello, Flask!'`, and the `app.run()` block at the bottom.",
+      "starter_code": "from flask import Flask\n\napp = Flask(__name__)\n\n# Add your route here\n\n\n# Add app.run() here\n",
+      "solution_code": "from flask import Flask\n\napp = Flask(__name__)\n\n@app.route('/')\ndef index():\n    return 'Hello, Flask!'\n\nif __name__ == '__main__':\n    app.run(debug=True)\n",
+      "hint": "Write `@app.route('/')` on one line, then `def index():` on the next, then `return 'Hello, Flask!'` indented inside the function. At the bottom of the file, add `if __name__ == '__main__': app.run(debug=True)`.",
+      "validate": [
+        "contains:@app.route('/')",
+        "contains:return",
+        "contains:app.run("
+      ],
+      "terminal_output": "$ python app.py\n * Running on http://127.0.0.1:5000\n * Debug mode: on\n * Restarting with stat"
+    },
+    {
+      "id": 3,
+      "title": "Returning HTML with render_template",
+      "file": "app.py",
+      "instruction": "## HTML templates\n\nReturning raw strings works, but for real HTML you use **templates**. Flask uses the Jinja2 templating engine.\n\nYou call `render_template()` and pass it a filename:\n\n```python\nfrom flask import Flask, render_template\n\n@app.route('/')\ndef index():\n    return render_template('index.html')\n```\n\nFlask looks for templates in a folder called `templates/` next to your `app.py`. So the file lives at `templates/index.html`.\n\n### Project structure so far\n\n```\nyour_project/\n    app.py\n    templates/\n        index.html\n```\n\nYou write the Python logic in `app.py`. The HTML lives in `templates/`. They stay cleanly separate.\n\n---\n\n**Your turn:** Update `app.py` to import `render_template` and use it in the `index` route.",
+      "starter_code": "from flask import Flask\n\napp = Flask(__name__)\n\n@app.route('/')\ndef index():\n    return 'Hello, Flask!'\n\nif __name__ == '__main__':\n    app.run(debug=True)\n",
+      "solution_code": "from flask import Flask, render_template\n\napp = Flask(__name__)\n\n@app.route('/')\ndef index():\n    return render_template('index.html')\n\nif __name__ == '__main__':\n    app.run(debug=True)\n",
+      "hint": "Add render_template to your import, then call return render_template('index.html')",
+      "validate": [
+        "contains:render_template",
+        "contains:render_template('index.html')"
+      ]
+    },
+    {
+      "id": 4,
+      "title": "Writing the HTML template",
+      "file": "templates/index.html",
+      "instruction": "## Your first template file\n\nNow that `app.py` calls `render_template('index.html')`, you need the actual file.\n\nCreate `templates/index.html`. Jinja2 templates are HTML files with special tags mixed in:\n\n- `{{ variable }}` - outputs a value\n- `{% for item in list %}...{% endfor %}` - loops\n- `{% if condition %}...{% endif %}` - conditions\n\n### Looping over todos\n\n```html\n<ul>\n  {% for todo in todos %}\n    <li>{{ todo }}</li>\n  {% endfor %}\n</ul>\n```\n\nThe variable name `todos` must match what you pass from Python:\n```python\nrender_template('index.html', todos=my_list)\n```\n\n### Handling an empty list\n\nJinja2 has a handy `{% else %}` clause on for loops:\n\n```html\n{% for todo in todos %}\n  <li>{{ todo }}</li>\n{% else %}\n  <p>No todos yet.</p>\n{% endfor %}\n```\n\nThis renders the `else` block when the list is empty - no `{% if %}` needed.\n\n---\n\n**Your turn:** Write `templates/index.html` with a heading, a `{% for todo in todos %}` loop that renders each todo in an `<li>`, and an `{% else %}` message for when the list is empty.",
+      "starter_code": "<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n  <meta charset=\"UTF-8\">\n  <title>My Todos</title>\n</head>\n<body>\n  <h1>Todo List</h1>\n\n  <!-- Add a for loop over todos here -->\n\n</body>\n</html>\n",
+      "solution_code": "<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n  <meta charset=\"UTF-8\">\n  <title>My Todos</title>\n</head>\n<body>\n  <h1>Todo List</h1>\n\n  <ul>\n    {% for todo in todos %}\n      <li>{{ todo }}</li>\n    {% else %}\n      <p>No todos yet.</p>\n    {% endfor %}\n  </ul>\n\n</body>\n</html>\n",
+      "hint": "{% for todo in todos %}  then <li>{{ todo }}</li>  then {% else %} <p>No todos yet.</p>  then {% endfor %}",
+      "validate": [
+        "contains:{% for todo in todos %}",
+        "contains:{{ todo }}",
+        "contains:{% endfor %}"
+      ]
+    },
+    {
+      "id": 5,
+      "title": "Passing data to templates",
+      "file": "app.py",
+      "instruction": "## Passing data from Python to HTML\n\nTemplates become useful when you pass real data into them. You pass **keyword arguments** to `render_template()`:\n\n```python\ntodos = ['Buy milk', 'Write code', 'Go for a walk']\nreturn render_template('index.html', todos=todos)\n```\n\nThe keyword argument name (`todos=`) becomes the variable name available inside the template (`{{ todo }}` in the loop).\n\n### You can pass anything\n\n```python\nreturn render_template('index.html',\n    todos=todos,\n    title='My List',\n    count=len(todos)\n)\n```\n\nThen in the template: `<title>{{ title }}</title>` or `<p>{{ count }} items</p>`.\n\n### Before adding a database\n\nLet's test with a hardcoded list first. Once you confirm the template is rendering correctly, you replace the hardcoded list with a real database query.\n\n---\n\n**Your turn:** Create a `todos` list with 2 or 3 string items and pass it to `render_template`.",
+      "starter_code": "from flask import Flask, render_template\n\napp = Flask(__name__)\n\n@app.route('/')\ndef index():\n    # Create a todos list and pass it to the template\n    return render_template('index.html')\n\nif __name__ == '__main__':\n    app.run(debug=True)\n",
+      "solution_code": "from flask import Flask, render_template\n\napp = Flask(__name__)\n\n@app.route('/')\ndef index():\n    todos = ['Buy milk', 'Write code', 'Go for a walk']\n    return render_template('index.html', todos=todos)\n\nif __name__ == '__main__':\n    app.run(debug=True)\n",
+      "hint": "Create a list: todos = ['item1', 'item2']  then pass it: render_template('index.html', todos=todos)",
+      "validate": [
+        "contains:todos=",
+        "contains:render_template('index.html', todos=todos)"
+      ]
+    },
+    {
+      "id": 6,
+      "title": "Handling form submissions",
+      "file": "app.py",
+      "instruction": "## Forms and POST requests\n\nWhen a user fills in a form and clicks Submit, the browser sends a **POST** request. Flask handles it like this:\n\n```python\nfrom flask import Flask, render_template, request, redirect, url_for\n\n@app.route('/add', methods=['POST'])\ndef add_todo():\n    text = request.form['text']   # get the form field named 'text'\n    # save it somewhere...\n    return redirect(url_for('index'))  # send the user back to the homepage\n```\n\n### Key imports\n\n- `request` - gives you access to incoming form data\n- `redirect` - sends the browser to a different URL\n- `url_for` - generates a URL from a function name (safer than hardcoding `/`)\n\n### Why POST-Redirect-GET?\n\nAfter a form submission you always `redirect` rather than render directly. This prevents the browser re-submitting the form if the user hits refresh.\n\n---\n\n**Your turn:** Add the `/add` route that reads `request.form['text']` and redirects back to `index`.",
+      "starter_code": "from flask import Flask, render_template\n\napp = Flask(__name__)\n\n@app.route('/')\ndef index():\n    todos = []\n    return render_template('index.html', todos=todos)\n\n# Add your /add route here\n\nif __name__ == '__main__':\n    app.run(debug=True)\n",
+      "solution_code": "from flask import Flask, render_template, request, redirect, url_for\n\napp = Flask(__name__)\n\n@app.route('/')\ndef index():\n    todos = []\n    return render_template('index.html', todos=todos)\n\n@app.route('/add', methods=['POST'])\ndef add_todo():\n    text = request.form['text']\n    return redirect(url_for('index'))\n\nif __name__ == '__main__':\n    app.run(debug=True)\n",
+      "hint": "Add @app.route('/add', methods=['POST']) then a function that reads request.form['text'] and returns redirect(url_for('index'))",
+      "validate": [
+        "contains:methods=['POST']",
+        "contains:request.form",
+        "contains:redirect(url_for('index'))"
+      ]
+    },
+    {
+      "id": 7,
+      "title": "Adding the form to the template",
+      "file": "templates/index.html",
+      "instruction": "## The HTML form\n\nNow that `app.py` has an `/add` route that accepts POST requests, you need the actual HTML form in your template.\n\nA form that submits to `/add`:\n\n```html\n<form method=\"POST\" action=\"/add\">\n  <input type=\"text\" name=\"text\" placeholder=\"New todo\" required>\n  <button type=\"submit\">Add</button>\n</form>\n```\n\n- `method=\"POST\"` - sends a POST request (not GET)\n- `action=\"/add\"` - where to send it (your Flask route)\n- `name=\"text\"` - this is what `request.form['text']` reads on the server\n- `required` - prevents submitting an empty field\n\n### No CSRF token needed here\n\nBasic Flask does not include CSRF protection by default. If you add the `Flask-WTF` extension later, it will require a `{{ form.hidden_tag() }}` inside every form. For now, keep it simple.\n\n---\n\n**Your turn:** Update `templates/index.html` to include the add form above the todo list. Keep the `{% for %}` loop from before.",
+      "starter_code": "<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n  <meta charset=\"UTF-8\">\n  <title>My Todos</title>\n</head>\n<body>\n  <h1>Todo List</h1>\n\n  <!-- Add the form here -->\n\n  <ul>\n    {% for todo in todos %}\n      <li>{{ todo }}</li>\n    {% else %}\n      <p>No todos yet.</p>\n    {% endfor %}\n  </ul>\n\n</body>\n</html>\n",
+      "solution_code": "<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n  <meta charset=\"UTF-8\">\n  <title>My Todos</title>\n</head>\n<body>\n  <h1>Todo List</h1>\n\n  <form method=\"POST\" action=\"/add\">\n    <input type=\"text\" name=\"text\" placeholder=\"New todo\" required>\n    <button type=\"submit\">Add</button>\n  </form>\n\n  <ul>\n    {% for todo in todos %}\n      <li>{{ todo }}</li>\n    {% else %}\n      <p>No todos yet.</p>\n    {% endfor %}\n  </ul>\n\n</body>\n</html>\n",
+      "hint": "<form method=\"POST\" action=\"/add\"> with an <input name=\"text\"> and a submit button",
+      "validate": [
+        "contains:method=\"POST\"",
+        "contains:action=\"/add\"",
+        "contains:name=\"text\""
+      ]
+    },
+    {
+      "id": 8,
+      "title": "Setting up the database",
+      "file": "app.py",
+      "instruction": "## Flask-SQLAlchemy\n\nRight now todos vanish when the server restarts because they only live in memory. You need a **database**.\n\n**Flask-SQLAlchemy** wraps SQLAlchemy to work seamlessly with Flask.\n\n```python\nfrom flask_sqlalchemy import SQLAlchemy\n\napp.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///todos.db'\ndb = SQLAlchemy(app)\n```\n\n- `sqlite:///todos.db` - SQLite stores everything in a single file called `todos.db`\n- `db` - the database object you will use for all queries\n\n### Why SQLite?\n\nPerfect for development - no server to install, just a file. In production you would swap it for PostgreSQL.\n\n---\n\n**Your turn:** Add the SQLAlchemy import, the database config line, and create the `db` object.",
+      "starter_code": "from flask import Flask, render_template, request, redirect, url_for\nfrom flask_sqlalchemy import SQLAlchemy\n\napp = Flask(__name__)\n\n# Add the database config line here\n# Create the db object here\n\n@app.route('/')\ndef index():\n    todos = []\n    return render_template('index.html', todos=todos)\n\n@app.route('/add', methods=['POST'])\ndef add_todo():\n    text = request.form['text']\n    return redirect(url_for('index'))\n\nif __name__ == '__main__':\n    app.run(debug=True)\n",
+      "solution_code": "from flask import Flask, render_template, request, redirect, url_for\nfrom flask_sqlalchemy import SQLAlchemy\n\napp = Flask(__name__)\napp.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///todos.db'\ndb = SQLAlchemy(app)\n\n@app.route('/')\ndef index():\n    todos = []\n    return render_template('index.html', todos=todos)\n\n@app.route('/add', methods=['POST'])\ndef add_todo():\n    text = request.form['text']\n    return redirect(url_for('index'))\n\nif __name__ == '__main__':\n    app.run(debug=True)\n",
+      "hint": "Add: app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///todos.db'  then: db = SQLAlchemy(app)",
+      "validate": [
+        "contains:SQLALCHEMY_DATABASE_URI",
+        "contains:sqlite:///todos.db",
+        "contains:db = SQLAlchemy(app)"
+      ]
+    },
+    {
+      "id": 9,
+      "title": "Creating the Todo model",
+      "file": "app.py",
+      "instruction": "## Database models\n\nA **model** is a Python class that maps to a database table. Each attribute maps to a column.\n\n```python\nclass Todo(db.Model):\n    id = db.Column(db.Integer, primary_key=True)\n    text = db.Column(db.String(200), nullable=False)\n    done = db.Column(db.Boolean, default=False)\n```\n\n- `db.Model` - tells SQLAlchemy this class is a table\n- `primary_key=True` - auto-incrementing unique ID for each row\n- `nullable=False` - text is required\n- `default=False` - new todos start as not done\n\n### Creating the table\n\nAdd this so the table is created when you start the app:\n\n```python\nwith app.app_context():\n    db.create_all()\n```\n\nThis runs `CREATE TABLE IF NOT EXISTS` - safe to call every startup.\n\n---\n\n**Your turn:** Add the `Todo` model class and the `db.create_all()` block.",
+      "starter_code": "from flask import Flask, render_template, request, redirect, url_for\nfrom flask_sqlalchemy import SQLAlchemy\n\napp = Flask(__name__)\napp.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///todos.db'\ndb = SQLAlchemy(app)\n\n# Define the Todo model here\n\n# Create the tables here (use app_context)\n\n@app.route('/')\ndef index():\n    todos = []\n    return render_template('index.html', todos=todos)\n\n@app.route('/add', methods=['POST'])\ndef add_todo():\n    text = request.form['text']\n    return redirect(url_for('index'))\n\nif __name__ == '__main__':\n    app.run(debug=True)\n",
+      "solution_code": "from flask import Flask, render_template, request, redirect, url_for\nfrom flask_sqlalchemy import SQLAlchemy\n\napp = Flask(__name__)\napp.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///todos.db'\ndb = SQLAlchemy(app)\n\nclass Todo(db.Model):\n    id = db.Column(db.Integer, primary_key=True)\n    text = db.Column(db.String(200), nullable=False)\n    done = db.Column(db.Boolean, default=False)\n\nwith app.app_context():\n    db.create_all()\n\n@app.route('/')\ndef index():\n    todos = []\n    return render_template('index.html', todos=todos)\n\n@app.route('/add', methods=['POST'])\ndef add_todo():\n    text = request.form['text']\n    return redirect(url_for('index'))\n\nif __name__ == '__main__':\n    app.run(debug=True)\n",
+      "hint": "Define `class Todo(db.Model):` with three columns: `id = db.Column(db.Integer, primary_key=True)`, `text = db.Column(db.String(200), nullable=False)`, and `done = db.Column(db.Boolean, default=False)`. After the class definition, add `with app.app_context(): db.create_all()` to create the table on startup.",
+      "validate": [
+        "contains:class Todo(db.Model)",
+        "contains:primary_key=True",
+        "contains:db.create_all()"
+      ]
+    },
+    {
+      "id": 10,
+      "title": "Reading todos from the database",
+      "file": "app.py",
+      "instruction": "## Querying the database\n\nNow the `index` route should load todos **from the database** instead of an empty list.\n\nSQLAlchemy makes queries look like Python:\n\n```python\ntodos = Todo.query.order_by(Todo.id).all()\n```\n\n- `Todo.query` - starts a query on the Todo table\n- `.order_by(Todo.id)` - sort by ID (oldest first)\n- `.all()` - return all matching rows as a Python list\n\nEach item in the list is a `Todo` object. In your template you use `{{ todo.text }}` to access the text field (not `{{ todo }}` as before - now it's a database object, not a plain string).\n\n> Update your `templates/index.html` to use `{{ todo.text }}` instead of `{{ todo }}`.\n\n---\n\n**Your turn:** Replace `todos = []` in `index()` with a real database query.",
+      "starter_code": "from flask import Flask, render_template, request, redirect, url_for\nfrom flask_sqlalchemy import SQLAlchemy\n\napp = Flask(__name__)\napp.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///todos.db'\ndb = SQLAlchemy(app)\n\nclass Todo(db.Model):\n    id = db.Column(db.Integer, primary_key=True)\n    text = db.Column(db.String(200), nullable=False)\n    done = db.Column(db.Boolean, default=False)\n\nwith app.app_context():\n    db.create_all()\n\n@app.route('/')\ndef index():\n    todos = []  # Replace this with a database query\n    return render_template('index.html', todos=todos)\n\n@app.route('/add', methods=['POST'])\ndef add_todo():\n    text = request.form['text']\n    return redirect(url_for('index'))\n\nif __name__ == '__main__':\n    app.run(debug=True)\n",
+      "solution_code": "from flask import Flask, render_template, request, redirect, url_for\nfrom flask_sqlalchemy import SQLAlchemy\n\napp = Flask(__name__)\napp.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///todos.db'\ndb = SQLAlchemy(app)\n\nclass Todo(db.Model):\n    id = db.Column(db.Integer, primary_key=True)\n    text = db.Column(db.String(200), nullable=False)\n    done = db.Column(db.Boolean, default=False)\n\nwith app.app_context():\n    db.create_all()\n\n@app.route('/')\ndef index():\n    todos = Todo.query.order_by(Todo.id).all()\n    return render_template('index.html', todos=todos)\n\n@app.route('/add', methods=['POST'])\ndef add_todo():\n    text = request.form['text']\n    return redirect(url_for('index'))\n\nif __name__ == '__main__':\n    app.run(debug=True)\n",
+      "hint": "Replace todos = [] with: todos = Todo.query.order_by(Todo.id).all()",
+      "validate": "contains:Todo.query.order_by(Todo.id).all()"
+    },
+    {
+      "id": 11,
+      "title": "Saving new todos",
+      "file": "app.py",
+      "instruction": "## Writing to the database\n\nThe `add_todo` route gets the text from the form - now it needs to **save it** to the database.\n\nWith SQLAlchemy you:\n1. Create a model instance\n2. Add it to the session\n3. Commit the session\n\n```python\n@app.route('/add', methods=['POST'])\ndef add_todo():\n    text = request.form['text']\n    if text.strip():  # don't save empty todos\n        new_todo = Todo(text=text)\n        db.session.add(new_todo)\n        db.session.commit()\n    return redirect(url_for('index'))\n```\n\n- `db.session.add()` - stages the new row (like `git add`)\n- `db.session.commit()` - writes it to the database (like `git commit`)\n- The `if text.strip()` guard prevents saving blank todos\n\n---\n\n**Your turn:** Update `add_todo()` to create a `Todo` object and save it to the database.",
+      "starter_code": "from flask import Flask, render_template, request, redirect, url_for\nfrom flask_sqlalchemy import SQLAlchemy\n\napp = Flask(__name__)\napp.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///todos.db'\ndb = SQLAlchemy(app)\n\nclass Todo(db.Model):\n    id = db.Column(db.Integer, primary_key=True)\n    text = db.Column(db.String(200), nullable=False)\n    done = db.Column(db.Boolean, default=False)\n\nwith app.app_context():\n    db.create_all()\n\n@app.route('/')\ndef index():\n    todos = Todo.query.order_by(Todo.id).all()\n    return render_template('index.html', todos=todos)\n\n@app.route('/add', methods=['POST'])\ndef add_todo():\n    text = request.form['text']\n    # Save to the database here\n    return redirect(url_for('index'))\n\nif __name__ == '__main__':\n    app.run(debug=True)\n",
+      "solution_code": "from flask import Flask, render_template, request, redirect, url_for\nfrom flask_sqlalchemy import SQLAlchemy\n\napp = Flask(__name__)\napp.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///todos.db'\ndb = SQLAlchemy(app)\n\nclass Todo(db.Model):\n    id = db.Column(db.Integer, primary_key=True)\n    text = db.Column(db.String(200), nullable=False)\n    done = db.Column(db.Boolean, default=False)\n\nwith app.app_context():\n    db.create_all()\n\n@app.route('/')\ndef index():\n    todos = Todo.query.order_by(Todo.id).all()\n    return render_template('index.html', todos=todos)\n\n@app.route('/add', methods=['POST'])\ndef add_todo():\n    text = request.form['text']\n    if text.strip():\n        new_todo = Todo(text=text)\n        db.session.add(new_todo)\n        db.session.commit()\n    return redirect(url_for('index'))\n\nif __name__ == '__main__':\n    app.run(debug=True)\n",
+      "hint": "Create: new_todo = Todo(text=text)  then: db.session.add(new_todo)  then: db.session.commit()",
+      "validate": [
+        "contains:Todo(text=text)",
+        "contains:db.session.add(",
+        "contains:db.session.commit()"
+      ]
+    },
+    {
+      "id": 12,
+      "title": "Deleting todos - the complete app",
+      "file": "app.py",
+      "instruction": "## Deleting a record\n\nThe last piece: deleting a todo. You use a route with a **URL parameter** to identify which todo to delete:\n\n```python\n@app.route('/delete/<int:todo_id>', methods=['POST'])\ndef delete_todo(todo_id):\n    todo = Todo.query.get_or_404(todo_id)\n    db.session.delete(todo)\n    db.session.commit()\n    return redirect(url_for('index'))\n```\n\n- `<int:todo_id>` - captures the ID from the URL (e.g. `/delete/3`)\n- `get_or_404()` - fetches the record or returns a 404 error if not found\n- `db.session.delete()` - marks it for deletion\n- `db.session.commit()` - executes the DELETE\n\n### The delete button in your template\n\nYou would add this inside the `{% for todo in todos %}` loop:\n\n```html\n<form method=\"POST\" action=\"/delete/{{ todo.id }}\">\n  <button type=\"submit\">Delete</button>\n</form>\n```\n\n`{{ todo.id }}` inserts the ID into the URL dynamically for each todo.\n\n---\n\n**Your turn:** Add the `/delete/<int:todo_id>` route. This completes your Flask Todo app.",
+      "starter_code": "from flask import Flask, render_template, request, redirect, url_for\nfrom flask_sqlalchemy import SQLAlchemy\n\napp = Flask(__name__)\napp.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///todos.db'\ndb = SQLAlchemy(app)\n\nclass Todo(db.Model):\n    id = db.Column(db.Integer, primary_key=True)\n    text = db.Column(db.String(200), nullable=False)\n    done = db.Column(db.Boolean, default=False)\n\nwith app.app_context():\n    db.create_all()\n\n@app.route('/')\ndef index():\n    todos = Todo.query.order_by(Todo.id).all()\n    return render_template('index.html', todos=todos)\n\n@app.route('/add', methods=['POST'])\ndef add_todo():\n    text = request.form['text']\n    if text.strip():\n        new_todo = Todo(text=text)\n        db.session.add(new_todo)\n        db.session.commit()\n    return redirect(url_for('index'))\n\n# Add the delete route here\n\nif __name__ == '__main__':\n    app.run(debug=True)\n",
+      "solution_code": "from flask import Flask, render_template, request, redirect, url_for\nfrom flask_sqlalchemy import SQLAlchemy\n\napp = Flask(__name__)\napp.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///todos.db'\ndb = SQLAlchemy(app)\n\nclass Todo(db.Model):\n    id = db.Column(db.Integer, primary_key=True)\n    text = db.Column(db.String(200), nullable=False)\n    done = db.Column(db.Boolean, default=False)\n\nwith app.app_context():\n    db.create_all()\n\n@app.route('/')\ndef index():\n    todos = Todo.query.order_by(Todo.id).all()\n    return render_template('index.html', todos=todos)\n\n@app.route('/add', methods=['POST'])\ndef add_todo():\n    text = request.form['text']\n    if text.strip():\n        new_todo = Todo(text=text)\n        db.session.add(new_todo)\n        db.session.commit()\n    return redirect(url_for('index'))\n\n@app.route('/delete/<int:todo_id>', methods=['POST'])\ndef delete_todo(todo_id):\n    todo = Todo.query.get_or_404(todo_id)\n    db.session.delete(todo)\n    db.session.commit()\n    return redirect(url_for('index'))\n\nif __name__ == '__main__':\n    app.run(debug=True)\n",
+      "hint": "@app.route('/delete/<int:todo_id>', methods=['POST'])  then get_or_404, db.session.delete, commit",
+      "validate": [
+        "contains:/delete/<int:todo_id>",
+        "contains:get_or_404(todo_id)",
+        "contains:db.session.delete(todo)"
+      ]
+    }
+  ]
+}
