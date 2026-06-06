@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Refresh Token Rotation - Auth Series - pyoffline</title>
+<style>
+:root{--bg:#121212;--surface:#1e1e1e;--surface2:#2a2a2a;--sidebar-bg:#1a1a1a;--text:#e0e0e0;--text-muted:#aaa;--text-dim:#666;--border:#333;--code-bg:#1e1e1e;--code-text:#d4d4d4;--shadow:rgba(0,0,0,.4);--accent:#f44336;--hl-keyword:#569cd6;--hl-string:#ce9178;--hl-comment:#6a9955;--hl-number:#b5cea8;--hl-decorator:#dcdcaa;--hl-builtin:#4ec9b0}
+html.light{--bg:#f5f7fa;--surface:#fff;--surface2:#eef0f3;--sidebar-bg:#fff;--text:#1a1a1a;--text-muted:#555;--text-dim:#888;--border:#dde1e7;--code-bg:#f8f8f8;--code-text:#24292e;--shadow:rgba(0,0,0,.1);--hl-keyword:#00f;--hl-string:#a31515;--hl-comment:#008000;--hl-number:#098658;--hl-decorator:#795e26;--hl-builtin:#267f99}
+.hl-keyword{color:var(--hl-keyword)}.hl-string{color:var(--hl-string)}.hl-comment{color:#adb4a7;font-size:12px;font-style:italic}.hl-number{color:var(--hl-number)}.hl-decorator{color:var(--hl-decorator)}.hl-builtin{color:var(--hl-builtin)}
+*{box-sizing:border-box;margin:0;padding:0}body{background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;transition:background .2s,color .2s}a{color:var(--accent)}
+.layout{display:flex;min-height:100vh}.sidebar{width:260px;min-width:260px;background:var(--sidebar-bg);border-right:1px solid var(--border);padding:24px 16px;position:sticky;top:0;height:100vh;overflow-y:auto}.sidebar h2{font-size:1.1rem;margin:16px 0 8px;color:var(--text)}.sidebar nav ol{padding-left:18px}.sidebar nav li{margin:6px 0}.sidebar nav a{color:var(--text-muted);text-decoration:none;font-size:.85rem}.sidebar nav a:hover{color:var(--accent)}.back-link{color:var(--text-dim);text-decoration:none;font-size:.85rem;display:block;margin-bottom:8px}
+.install-box{margin-top:24px;background:var(--bg);border:1px solid var(--border);padding:12px;border-radius:6px;font-size:.8rem}.install-box code{display:block;word-break:break-all;color:var(--hl-comment);font-family:monospace;margin-top:4px}
+.series-box{margin-top:16px;background:var(--bg);border:1px solid var(--border);padding:12px;border-radius:6px;font-size:.8rem}.series-box p{color:var(--text-muted);margin-bottom:6px;font-weight:600}.series-box a{display:block;color:var(--text-muted);text-decoration:none;padding:2px 0;font-size:.8rem}.series-box a:hover{color:var(--accent)}.series-box a.current{color:var(--accent);font-weight:600}
+main{flex:1;padding:40px;max-width:860px}.guide-header{padding:20px 20px 20px 24px;background:var(--surface);border-radius:8px;margin-bottom:32px;box-shadow:0 1px 3px var(--shadow)}.guide-header h1{font-size:1.8rem;margin-bottom:8px}.guide-header p{color:var(--text-muted)}
+.step{display:flex;gap:16px;margin-bottom:40px}.step-number{width:32px;min-width:32px;height:32px;background:var(--accent);border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:bold;font-size:.9rem;margin-top:4px;color:#fff}.step-content{flex:1;min-width:0}.step-content h3{font-size:1.1rem;margin-bottom:8px;color:var(--text)}.explanation{color:var(--text-muted);font-size:.9rem;line-height:1.6;margin-bottom:14px}
+.info-box{background:var(--surface);border-left:3px solid var(--accent);border-radius:0 6px 6px 0;padding:12px 16px;margin-bottom:14px;font-size:.88rem;color:var(--text-muted);line-height:1.6}.info-box strong{color:var(--text)}
+.warn-box{background:var(--surface);border-left:3px solid #ff9800;border-radius:0 6px 6px 0;padding:12px 16px;margin-bottom:14px;font-size:.88rem;color:var(--text-muted);line-height:1.6}.warn-box strong{color:var(--text)}
+.tabs{background:var(--surface);border-radius:6px;overflow:hidden;border:1px solid var(--border)}.tab-bar{display:flex;background:var(--surface2);overflow-x:auto;border-bottom:1px solid var(--border)}.tab-btn{padding:8px 16px;background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:.8rem;white-space:nowrap;border-bottom:2px solid transparent;margin-bottom:-1px}.tab-btn.active{color:var(--text);border-bottom-color:var(--accent)}.tab-panel{display:none}.tab-panel.active{display:block}
+.code-header{display:flex;justify-content:space-between;align-items:center;padding:5px 12px;background:var(--surface2);border-bottom:1px solid var(--border)}.lang-label{font-size:.72rem;color:var(--text-dim);text-transform:uppercase;letter-spacing:.04em}.copy-btn{background:none;border:1px solid var(--border);color:var(--text-muted);padding:2px 8px;cursor:pointer;border-radius:3px;font-size:.72rem}.copy-btn:hover{color:var(--text);border-color:var(--text-muted)}
+pre{overflow-x:auto;padding:16px;background:var(--code-bg)}code{font-family:"Fira Code","Cascadia Code",Consolas,monospace;font-size:.82rem;line-height:1.65;color:var(--code-text)}
+.theme-row{display:flex;align-items:center;gap:8px;margin-top:20px}.theme-label{font-size:.78rem;color:var(--text-muted)}.toggle-switch{position:relative;display:inline-block;width:40px;height:22px}.toggle-switch input{opacity:0;width:0;height:0}.slider{position:absolute;cursor:pointer;inset:0;background:var(--surface2);border:1px solid var(--border);border-radius:22px;transition:background .2s}.slider:before{content:"";position:absolute;width:16px;height:16px;left:2px;top:2px;background:var(--text-muted);border-radius:50%;transition:transform .2s,background .2s}.toggle-switch input:checked+.slider{background:var(--accent);border-color:var(--accent)}.toggle-switch input:checked+.slider:before{transform:translateX(18px);background:#fff}
+.sidebar-toggle{display:none;position:fixed;top:12px;left:12px;z-index:300;background:var(--accent);color:#fff;border:none;padding:7px 14px;border-radius:6px;cursor:pointer;font-size:.85rem;font-weight:600;box-shadow:0 2px 8px var(--shadow);align-items:center;gap:6px}
+.sidebar-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:190}.sidebar-overlay.open{display:block}
+@media(max-width:900px){.sidebar-toggle{display:flex}.layout{display:block}.sidebar{position:fixed;left:-280px;top:0;height:100vh;z-index:200;transition:left .25s ease;box-shadow:2px 0 16px var(--shadow);min-width:260px}.sidebar.open{left:0}main{padding:60px 20px 40px;max-width:100%}pre{overflow-x:auto;max-width:100%;white-space:pre-wrap;word-break:break-word}.tabs{max-width:100%}}
+</style>
+</head>
+<body>
+<button class="sidebar-toggle" id="sidebarToggle" onclick="toggleSidebar()">&#9776; Steps</button>
+<div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+<div class="layout">
+  <aside class="sidebar" id="guideSidebar">
+    <a href="index.html" class="back-link">← All Guides</a>
+    <h2>Auth + Security</h2>
+    <nav><ol>
+      <li><a href="#step1">Why Tokens Expire</a></li>
+      <li><a href="#step2">The Two-Token Pattern</a></li>
+      <li><a href="#step3">RefreshToken Table</a></li>
+      <li><a href="#step4">Login Issues Both Tokens</a></li>
+      <li><a href="#step5">POST /auth/refresh</a></li>
+      <li><a href="#step6">Rotation + Theft Detection</a></li>
+      <li><a href="#step7">POST /auth/logout</a></li>
+      <li><a href="#step8">Client Storage Tradeoff</a></li>
+    </ol></nav>
+    <div class="install-box">
+      <p><strong>Install</strong></p>
+      <code>pip install fastapi uvicorn sqlalchemy passlib[bcrypt] python-jose[cryptography] python-dotenv</code>
+    </div>
+    <div class="series-box">
+      <p>Auth + Security series</p>
+      <a href="auth-passwords.html">Hashing Passwords</a>
+      <a href="auth-jwt.html">JWT Access Tokens</a>
+      <a href="auth-refresh.html" class="current">&#10003; Refresh Token Rotation</a>
+      <a href="auth-email.html">Email Verification</a>
+      <a href="auth-roles.html">Role-Based Access</a>
+    </div>
+    <div class="theme-row">
+      <span class="theme-label">Dark</span>
+      <label class="toggle-switch"><input type="checkbox" id="themeToggle"><span class="slider"></span></label>
+      <span class="theme-label">Light</span>
+    </div>
+  </aside>
+
+  <main>
+    <header class="guide-header" style="border-left:5px solid #f44336">
+      <h1>Refresh Token Rotation</h1>
+      <p>Short-lived access tokens are secure but frustrating if users get logged out every hour. Refresh tokens solve this — they automatically issue new access tokens without re-entering a password, and rotate on every use so theft is detectable.</p>
+    </header>
+    <div class="steps">
+
+      <div class="step" id="step1">
+        <div class="step-number">1</div>
+        <div class="step-content">
+          <h3>Why Access Tokens Expire</h3>
+          <p class="explanation">If an access token is stolen — from a log, a network intercept, a compromised device — the attacker can use it as long as it's valid. A token expiring in 1 hour limits the damage window to 1 hour. A token that never expires gives the attacker permanent access. Short expiry is a security property, not a bug.</p>
+          <div class="info-box"><strong>The tradeoff:</strong> 15-minute expiry = very secure, but users get logged out constantly. 7-day expiry = convenient, but stolen tokens are dangerous for days. Refresh tokens let you have both: short access token (secure) + automatic renewal (convenient).</div>
+        </div>
+      </div>
+
+      <div class="step" id="step2">
+        <div class="step-number">2</div>
+        <div class="step-content">
+          <h3>The Two-Token Pattern</h3>
+          <p class="explanation">Login issues two tokens. The access token is short-lived and used for API calls. The refresh token is long-lived and used only to get new access tokens — it never goes in an API call header.</p>
+          <div class="tabs">
+            <div class="tab-bar"><button class="tab-btn active" onclick="switchTab('step2',0)">The flow</button></div>
+            <div class="tab-panel active">
+              <div class="code-header"><span class="lang-label">text</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code>LOGIN
+  Client sends: email + password
+  Server returns: access_token (60 min) + refresh_token (30 days)
+  Client stores both.
+
+EVERY API CALL
+  Client sends: Authorization: Bearer &lt;access_token&gt;
+  Server verifies, responds.
+
+ACCESS TOKEN EXPIRES (60 min later)
+  Client sends: POST /auth/refresh  with refresh_token
+  Server: validates refresh_token, issues NEW access_token + NEW refresh_token
+          (old refresh_token is now revoked — this is "rotation")
+  Client stores the new pair.
+
+REFRESH TOKEN EXPIRES OR USER LOGS OUT
+  Client must log in again with email + password.</code></pre>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="step" id="step3">
+        <div class="step-number">3</div>
+        <div class="step-content">
+          <h3>RefreshToken Table</h3>
+          <p class="explanation">Store refresh tokens in the database (not just as JWTs) so you can revoke them. Store the token hashed — if the tokens table is breached, raw tokens can't be used.</p>
+          <div class="tabs">
+            <div class="tab-bar"><button class="tab-btn active" onclick="switchTab('step3',0)">models.py — RefreshToken</button></div>
+            <div class="tab-panel active">
+              <div class="code-header"><span class="lang-label">python</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-keyword">import</span> secrets
+<span class="hl-keyword">from</span> sqlalchemy <span class="hl-keyword">import</span> Column, Integer, String, Boolean, DateTime, ForeignKey
+<span class="hl-keyword">from</span> datetime <span class="hl-keyword">import</span> datetime, timedelta, timezone
+
+REFRESH_TOKEN_EXPIRE_DAYS = <span class="hl-number">30</span>
+
+<span class="hl-keyword">class</span> <span class="hl-builtin">RefreshToken</span>(Base):
+    __tablename__ = <span class="hl-string">"refresh_tokens"</span>
+
+    id         = Column(Integer, primary_key=<span class="hl-keyword">True</span>)
+    token_hash = Column(String, unique=<span class="hl-keyword">True</span>, nullable=<span class="hl-keyword">False</span>, index=<span class="hl-keyword">True</span>)
+    <span class="hl-comment"># Store the hash, not the raw token — same reason as passwords</span>
+    user_id    = Column(Integer, ForeignKey(<span class="hl-string">"users.id"</span>), nullable=<span class="hl-keyword">False</span>)
+    expires_at = Column(DateTime, nullable=<span class="hl-keyword">False</span>)
+    revoked    = Column(Boolean, default=<span class="hl-keyword">False</span>)
+    created_at = Column(DateTime, default=<span class="hl-keyword">lambda</span>: datetime.now(timezone.utc))
+
+<span class="hl-comment"># Helper: generate a raw token and its hash</span>
+<span class="hl-keyword">def</span> <span class="hl-builtin">make_refresh_token</span>():
+    raw   = secrets.token_urlsafe(<span class="hl-number">64</span>)  <span class="hl-comment"># 64 bytes → ~86 chars, cryptographically random</span>
+    hashed = pwd_context.hash(raw)       <span class="hl-comment"># same bcrypt context from auth.py</span>
+    expires = datetime.now(timezone.utc) + timedelta(days=REFRESH_TOKEN_EXPIRE_DAYS)
+    <span class="hl-keyword">return</span> raw, hashed, expires           <span class="hl-comment"># return raw to send to client, store hashed</span></code></pre>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="step" id="step4">
+        <div class="step-number">4</div>
+        <div class="step-content">
+          <h3>Login Issues Both Tokens</h3>
+          <p class="explanation">After verifying the password, create both tokens and store the refresh token in the database.</p>
+          <div class="tabs">
+            <div class="tab-bar"><button class="tab-btn active" onclick="switchTab('step4',0)">main.py — updated login</button></div>
+            <div class="tab-panel active">
+              <div class="code-header"><span class="lang-label">python</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-decorator">@app.post</span>(<span class="hl-string">"/login"</span>)
+<span class="hl-keyword">def</span> <span class="hl-builtin">login</span>(email: str, password: str, db: Session = Depends(get_db)):
+    user = db.query(models.User).filter(models.User.email == email).first()
+    <span class="hl-keyword">if not</span> user <span class="hl-keyword">or not</span> verify_password(password, user.hashed_password):
+        <span class="hl-keyword">raise</span> HTTPException(status_code=<span class="hl-number">401</span>, detail=<span class="hl-string">"Invalid email or password"</span>)
+
+    <span class="hl-comment"># Create short-lived access token</span>
+    access_token = create_access_token(data={<span class="hl-string">"sub"</span>: str(user.id)})
+
+    <span class="hl-comment"># Create long-lived refresh token and store in DB</span>
+    raw_refresh, hashed_refresh, expires = make_refresh_token()
+    db.add(models.RefreshToken(
+        token_hash=hashed_refresh,
+        user_id=user.id,
+        expires_at=expires,
+    ))
+    db.commit()
+
+    <span class="hl-keyword">return</span> {
+        <span class="hl-string">"access_token"</span>:  access_token,
+        <span class="hl-string">"refresh_token"</span>: raw_refresh,   <span class="hl-comment"># send the raw token to client</span>
+        <span class="hl-string">"token_type"</span>:    <span class="hl-string">"bearer"</span>,
+    }</code></pre>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="step" id="step5">
+        <div class="step-number">5</div>
+        <div class="step-content">
+          <h3>POST /auth/refresh</h3>
+          <p class="explanation">The client calls this endpoint when the access token expires. It validates the refresh token, issues a new access token, and rotates the refresh token (issues a new one and revokes the old).</p>
+          <div class="tabs">
+            <div class="tab-bar"><button class="tab-btn active" onclick="switchTab('step5',0)">main.py — /auth/refresh</button></div>
+            <div class="tab-panel active">
+              <div class="code-header"><span class="lang-label">python</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-decorator">@app.post</span>(<span class="hl-string">"/auth/refresh"</span>)
+<span class="hl-keyword">def</span> <span class="hl-builtin">refresh</span>(refresh_token: str, db: Session = Depends(get_db)):
+    <span class="hl-comment"># Find a matching, non-revoked, non-expired token in the DB</span>
+    <span class="hl-comment"># We can't query by hash directly (hash changes per call), so fetch recent ones</span>
+    now = datetime.now(timezone.utc)
+    candidates = db.query(models.RefreshToken).filter(
+        models.RefreshToken.revoked == <span class="hl-keyword">False</span>,
+        models.RefreshToken.expires_at > now,
+    ).all()
+
+    <span class="hl-comment"># Find the one whose hash matches</span>
+    token_row = <span class="hl-keyword">None</span>
+    <span class="hl-keyword">for</span> row <span class="hl-keyword">in</span> candidates:
+        <span class="hl-keyword">if</span> pwd_context.verify(refresh_token, row.token_hash):
+            token_row = row
+            <span class="hl-keyword">break</span>
+
+    <span class="hl-keyword">if not</span> token_row:
+        <span class="hl-keyword">raise</span> HTTPException(status_code=<span class="hl-number">401</span>, detail=<span class="hl-string">"Invalid or expired refresh token"</span>)
+
+    <span class="hl-comment"># Revoke old token (rotation)</span>
+    token_row.revoked = <span class="hl-keyword">True</span>
+
+    <span class="hl-comment"># Issue new access token</span>
+    new_access = create_access_token(data={<span class="hl-string">"sub"</span>: str(token_row.user_id)})
+
+    <span class="hl-comment"># Issue new refresh token</span>
+    raw_new, hashed_new, expires_new = make_refresh_token()
+    db.add(models.RefreshToken(
+        token_hash=hashed_new,
+        user_id=token_row.user_id,
+        expires_at=expires_new,
+    ))
+    db.commit()
+
+    <span class="hl-keyword">return</span> {
+        <span class="hl-string">"access_token"</span>:  new_access,
+        <span class="hl-string">"refresh_token"</span>: raw_new,
+        <span class="hl-string">"token_type"</span>:    <span class="hl-string">"bearer"</span>,
+    }</code></pre>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="step" id="step6">
+        <div class="step-number">6</div>
+        <div class="step-content">
+          <h3>Rotation + Theft Detection</h3>
+          <p class="explanation">Rotation means each refresh token can only be used once. The moment it's used, it's revoked and a new one is issued. If a stolen token is used after the legitimate client already rotated it, the stolen token is already revoked — the attacker gets rejected.</p>
+          <div class="tabs">
+            <div class="tab-bar"><button class="tab-btn active" onclick="switchTab('step6',0)">Detecting reuse (theft signal)</button></div>
+            <div class="tab-panel active">
+              <div class="code-header"><span class="lang-label">python — detect revoked token reuse</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-comment"># In /auth/refresh — check if someone is trying to use a revoked token</span>
+<span class="hl-comment"># This means either: (a) token was replayed, or (b) it was stolen</span>
+
+<span class="hl-comment"># Also search revoked tokens</span>
+all_candidates = db.query(models.RefreshToken).filter(
+    models.RefreshToken.expires_at > now,  <span class="hl-comment"># not expired yet</span>
+).all()
+
+<span class="hl-keyword">for</span> row <span class="hl-keyword">in</span> all_candidates:
+    <span class="hl-keyword">if</span> pwd_context.verify(refresh_token, row.token_hash):
+        <span class="hl-keyword">if</span> row.revoked:
+            <span class="hl-comment"># Someone used an already-revoked token → possible theft</span>
+            <span class="hl-comment"># Revoke ALL tokens for this user (force re-login)</span>
+            db.query(models.RefreshToken).filter(
+                models.RefreshToken.user_id == row.user_id,
+                models.RefreshToken.revoked == <span class="hl-keyword">False</span>,
+            ).update({<span class="hl-string">"revoked"</span>: <span class="hl-keyword">True</span>})
+            db.commit()
+            <span class="hl-keyword">raise</span> HTTPException(
+                status_code=<span class="hl-number">401</span>,
+                detail=<span class="hl-string">"Token reuse detected. All sessions revoked. Please log in again."</span>
+            )
+        token_row = row
+        <span class="hl-keyword">break</span></code></pre>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="step" id="step7">
+        <div class="step-number">7</div>
+        <div class="step-content">
+          <h3>POST /auth/logout</h3>
+          <p class="explanation">Logout revokes the refresh token. Once revoked, the client can't get new access tokens — they'll need to log in again when the current access token expires.</p>
+          <div class="tabs">
+            <div class="tab-bar"><button class="tab-btn active" onclick="switchTab('step7',0)">main.py — /auth/logout</button></div>
+            <div class="tab-panel active">
+              <div class="code-header"><span class="lang-label">python</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-decorator">@app.post</span>(<span class="hl-string">"/auth/logout"</span>)
+<span class="hl-keyword">def</span> <span class="hl-builtin">logout</span>(
+    refresh_token:str,
+    current_user: models.User = Depends(get_current_user),  <span class="hl-comment"># must be logged in</span>
+    db: Session = Depends(get_db),
+):
+    <span class="hl-comment"># Find and revoke the refresh token belonging to this user</span>
+    now = datetime.now(timezone.utc)
+    candidates = db.query(models.RefreshToken).filter(
+        models.RefreshToken.user_id == current_user.id,
+        models.RefreshToken.revoked == <span class="hl-keyword">False</span>,
+        models.RefreshToken.expires_at > now,
+    ).all()
+    <span class="hl-keyword">for</span> row <span class="hl-keyword">in</span> candidates:
+        <span class="hl-keyword">if</span> pwd_context.verify(refresh_token, row.token_hash):
+            row.revoked = <span class="hl-keyword">True</span>
+            db.commit()
+            <span class="hl-keyword">break</span>
+    <span class="hl-keyword">return</span> {<span class="hl-string">"message"</span>: <span class="hl-string">"Logged out"</span>}
+    <span class="hl-comment"># Even if token not found, return 200 — logout should always succeed</span></code></pre>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="step" id="step8">
+        <div class="step-number">8</div>
+        <div class="step-content">
+          <h3>Client Storage Tradeoff</h3>
+          <p class="explanation">Where the client stores tokens matters. Both options have tradeoffs — there is no universally correct answer.</p>
+          <div class="tabs">
+            <div class="tab-bar">
+              <button class="tab-btn active" onclick="switchTab('step8',0)">localStorage vs httpOnly cookie</button>
+            </div>
+            <div class="tab-panel active">
+              <div class="code-header"><span class="lang-label">text</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code>localStorage / sessionStorage
+  Easy to use from JavaScript.
+  Vulnerable to XSS (cross-site scripting) attacks.
+  If an attacker injects JS into your page, they can steal the token.
+  Fine for: internal tools, low-risk apps, SPAs with strict CSP.
+
+httpOnly Cookie
+  Cannot be read by JavaScript — immune to XSS token theft.
+  Sent automatically by the browser on every request.
+  Vulnerable to CSRF (cross-site request forgery) if not protected.
+  Add SameSite=Strict or a CSRF token to mitigate.
+  Fine for: user-facing web apps where security is critical.
+
+  FastAPI: set cookie in the response:
+  response.set_cookie(
+      key="refresh_token",
+      value=raw_refresh,
+      httponly=True,
+      secure=True,       # HTTPS only
+      samesite="strict",
+      max_age=30*24*60*60
+  )
+
+Most SaaS apps use httpOnly cookies for refresh tokens
+and localStorage for access tokens (since access tokens
+expire quickly, the XSS window is small).</code></pre>
+            </div>
+          </div>
+          <div class="info-box" style="margin-top:12px"><strong>Next:</strong> <a href="auth-email.html">Email Verification</a> — require users to confirm their email before they can log in.</div>
+        </div>
+      </div>
+
+    </div>
+  </main>
+</div>
+<script>
+(function(){var s=localStorage.getItem("pyoffline-theme");if(s==="light")document.documentElement.classList.add("light");document.addEventListener("DOMContentLoaded",function(){var t=document.getElementById("themeToggle");if(!t)return;t.checked=(localStorage.getItem("pyoffline-theme")==="light");t.addEventListener("change",function(){if(this.checked){document.documentElement.classList.add("light");localStorage.setItem("pyoffline-theme","light")}else{document.documentElement.classList.remove("light");localStorage.setItem("pyoffline-theme","dark")}})})})();
+function switchTab(s,i){var el=document.getElementById(s);var b=el.querySelectorAll(".tab-btn");var p=el.querySelectorAll(".tab-panel");b.forEach(function(x){x.classList.remove("active")});p.forEach(function(x){x.classList.remove("active")});b[i].classList.add("active");p[i].classList.add("active")}
+function copyCode(btn){var c=btn.closest(".tab-panel").querySelector("code").innerText;navigator.clipboard.writeText(c).then(function(){var o=btn.textContent;btn.textContent="Copied!";setTimeout(function(){btn.textContent=o},1500)})}
+function toggleSidebar(){var s=document.getElementById("guideSidebar");var o=document.getElementById("sidebarOverlay");if(!s)return;s.classList.toggle("open");o.classList.toggle("open")}
+document.addEventListener("DOMContentLoaded",function(){var s=document.getElementById("guideSidebar");if(!s)return;s.querySelectorAll("nav a").forEach(function(a){a.addEventListener("click",function(){s.classList.remove("open");var o=document.getElementById("sidebarOverlay");if(o)o.classList.remove("open")})})});
+</script>
+</body>
+</html>

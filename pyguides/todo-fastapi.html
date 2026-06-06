@@ -1,0 +1,732 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Todo App - FastAPI Guide - pyoffline</title>
+<style>
+/* ── Theme variables ───────────────────────────────────────── */
+:root {
+  --bg:          #121212;
+  --surface:     #1e1e1e;
+  --surface2:    #2a2a2a;
+  --sidebar-bg:  #1a1a1a;
+  --text:        #e0e0e0;
+  --text-muted:  #aaa;
+  --text-dim:    #666;
+  --border:      #333;
+  --code-bg:     #1e1e1e;
+  --code-text:   #d4d4d4;
+  --shadow:      rgba(0,0,0,.4);
+  /* syntax - dark (VSCode Dark+) */
+  --hl-keyword:  #569cd6;
+  --hl-string:   #ce9178;
+  --hl-comment:  #6a9955;
+  --hl-number:   #b5cea8;
+  --hl-decorator:#dcdcaa;
+  --hl-builtin:  #4ec9b0;
+  --hl-tag:      #4ec9b0;
+  --hl-attr:     #9cdcfe;
+  --hl-template: #c586c0;
+}
+html.light {
+  --bg:          #f5f7fa;
+  --surface:     #ffffff;
+  --surface2:    #eef0f3;
+  --sidebar-bg:  #ffffff;
+  --text:        #1a1a1a;
+  --text-muted:  #555;
+  --text-dim:    #888;
+  --border:      #dde1e7;
+  --code-bg:     #f8f8f8;
+  --code-text:   #24292e;
+  --shadow:      rgba(0,0,0,.1);
+  /* syntax - light (VSCode Light) */
+  --hl-keyword:  #0000ff;
+  --hl-string:   #a31515;
+  --hl-comment:  #008000;
+  --hl-number:   #098658;
+  --hl-decorator:#795e26;
+  --hl-builtin:  #267f99;
+  --hl-tag:      #800000;
+  --hl-attr:     #e50000;
+  --hl-template: #af00db;
+}
+
+/* ── Syntax span classes ───────────────────────────────────── */
+.hl-keyword  { color: var(--hl-keyword);  }
+.hl-string   { color: var(--hl-string);   }
+.hl-comment  { color: #adb4a7; font-size: 12px; font-style: italic; }
+.hl-number   { color: var(--hl-number);   }
+.hl-decorator{ color: var(--hl-decorator);}
+.hl-builtin  { color: var(--hl-builtin);  }
+.hl-tag      { color: var(--hl-tag);      }
+.hl-attr     { color: var(--hl-attr);     }
+.hl-template { color: var(--hl-template); }
+
+/* ── Base ──────────────────────────────────────────────────── */
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: var(--bg); color: var(--text); font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; transition: background .2s, color .2s; }
+a { color: #009688; }
+
+/* ── Layout ────────────────────────────────────────────────── */
+.layout { display: flex; min-height: 100vh; }
+.sidebar { width: 260px; min-width: 260px; background: var(--sidebar-bg); border-right: 1px solid var(--border); padding: 24px 16px; position: sticky; top: 0; height: 100vh; overflow-y: auto; }
+.sidebar h2 { font-size: 1.1rem; margin: 16px 0 8px; color: var(--text); }
+.sidebar nav ol { padding-left: 18px; }
+.sidebar nav li { margin: 6px 0; }
+.sidebar nav a { color: var(--text-muted); text-decoration: none; font-size: 0.85rem; }
+.sidebar nav a:hover { color: #009688; }
+.back-link { color: var(--text-dim); text-decoration: none; font-size: 0.85rem; display: block; margin-bottom: 8px; }
+.install-box { margin-top: 24px; background: var(--bg); border: 1px solid var(--border); padding: 12px; border-radius: 6px; font-size: 0.8rem; }
+.install-box code { display: block; word-break: break-all; color: var(--hl-comment); font-family: monospace; }
+main { flex: 1; padding: 40px; max-width: 860px; }
+.guide-header { padding: 20px 20px 20px 24px; background: var(--surface); border-radius: 8px; margin-bottom: 32px; box-shadow: 0 1px 3px var(--shadow); }
+.guide-header h1 { font-size: 1.8rem; margin-bottom: 8px; }
+.guide-header p { color: var(--text-muted); }
+
+/* ── Steps ─────────────────────────────────────────────────── */
+.step { display: flex; gap: 16px; margin-bottom: 40px; }
+.step-number { width: 32px; min-width: 32px; height: 32px; background: #009688; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 0.9rem; margin-top: 4px; color: #fff; }
+.step-content { flex: 1; min-width: 0; }
+.step-content h3 { font-size: 1.1rem; margin-bottom: 8px; color: var(--text); }
+.explanation { color: var(--text-muted); font-size: 0.9rem; line-height: 1.6; margin-bottom: 14px; }
+
+/* ── Code tabs ─────────────────────────────────────────────── */
+.tabs { background: var(--surface); border-radius: 6px; overflow: hidden; border: 1px solid var(--border); }
+.tab-bar { display: flex; background: var(--surface2); overflow-x: auto; border-bottom: 1px solid var(--border); }
+.tab-btn { padding: 8px 16px; background: none; border: none; color: var(--text-muted); cursor: pointer; font-size: 0.8rem; white-space: nowrap; border-bottom: 2px solid transparent; margin-bottom: -1px; }
+.tab-btn.active { color: var(--text); border-bottom-color: #009688; }
+.tab-panel { display: none; }
+.tab-panel.active { display: block; }
+.code-header { display: flex; justify-content: space-between; align-items: center; padding: 5px 12px; background: var(--surface2); border-bottom: 1px solid var(--border); }
+.lang-label { font-size: 0.72rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: .04em; }
+.copy-btn { background: none; border: 1px solid var(--border); color: var(--text-muted); padding: 2px 8px; cursor: pointer; border-radius: 3px; font-size: 0.72rem; }
+.copy-btn:hover { color: var(--text); border-color: var(--text-muted); }
+pre { overflow-x: auto; padding: 16px; background: var(--code-bg); }
+code { font-family: "Fira Code", "Cascadia Code", "Consolas", monospace; font-size: 0.82rem; line-height: 1.65; color: var(--code-text); }
+
+/* ── Theme toggle switch ───────────────────────────────────── */
+.theme-row { display: flex; align-items: center; gap: 8px; margin-top: 20px; }
+.theme-label { font-size: 0.78rem; color: var(--text-muted); }
+.toggle-switch { position: relative; display: inline-block; width: 40px; height: 22px; }
+.toggle-switch input { opacity: 0; width: 0; height: 0; }
+.slider { position: absolute; cursor: pointer; inset: 0; background: var(--surface2); border: 1px solid var(--border); border-radius: 22px; transition: background .2s; }
+.slider:before { content: ""; position: absolute; width: 16px; height: 16px; left: 2px; top: 2px; background: var(--text-muted); border-radius: 50%; transition: transform .2s, background .2s; }
+.toggle-switch input:checked + .slider { background: #009688; border-color: #009688; }
+.toggle-switch input:checked + .slider:before { transform: translateX(18px); background: #fff; }
+
+/* ── Responsive sidebar ────────────────────────────────────── */
+/* Toggle button - hidden on wide screens, shown on narrow */
+.sidebar-toggle {
+  display: none;
+  position: fixed; top: 12px; left: 12px; z-index: 300;
+  background: #009688; color: #fff; border: none;
+  padding: 7px 14px; border-radius: 6px; cursor: pointer;
+  font-size: 0.85rem; font-weight: 600;
+  box-shadow: 0 2px 8px var(--shadow);
+  align-items: center; gap: 6px;
+}
+/* Backdrop - covers main content when sidebar is open on narrow screens */
+.sidebar-overlay {
+  display: none; position: fixed; inset: 0;
+  background: rgba(0,0,0,.45); z-index: 190;
+}
+.sidebar-overlay.open { display: block; }
+
+@media (max-width: 900px) {
+  .sidebar-toggle { display: flex; }
+  .layout { display: block; }
+  .sidebar {
+    position: fixed; left: -280px; top: 0;
+    height: 100vh; z-index: 200;
+    transition: left .25s ease;
+    box-shadow: 2px 0 16px var(--shadow);
+    min-width: 260px;
+  }
+  .sidebar.open { left: 0; }
+  main { padding: 60px 20px 40px; max-width: 100%; }
+  /* Prevent wide code lines from breaking the page layout */
+  pre { overflow-x: auto; max-width: 100%; white-space: pre-wrap; word-break: break-word; }
+  .tabs { max-width: 100%; }
+}
+</style>
+</head>
+<body>
+<button class="sidebar-toggle" id="sidebarToggle" onclick="toggleSidebar()">&#9776; Steps</button>
+<div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+<div class="layout">
+  <aside class="sidebar" id="guideSidebar">
+    <a href="index.html" class="back-link">← All Guides</a>
+    <h2>Todo App - FastAPI</h2>
+    <nav><ol><li><a href="#step1">Before You Start</a></li><li><a href="#step2">Project Structure</a></li><li><a href="#step3">Database, Model &amp; Schemas</a></li><li><a href="#step4">REST API Endpoints</a></li><li><a href="#step5">Auto-Generated API Docs</a></li><li><a href="#step6">HTML Frontend Consuming the API</a></li><li><a href="#step7">FastAPI as a Middleman - Calling External APIs</a></li></ol></nav>
+    <div class="install-box">
+      <p><strong>Install</strong></p>
+      <code>pyoffline install --bundle fastapi</code>
+      <p style="margin-top:12px"><strong>Run</strong></p>
+      <code>uvicorn main:app --reload</code>
+    </div>
+    <div class="theme-row">
+      <span class="theme-label">Dark</span>
+      <label class="toggle-switch">
+        <input type="checkbox" id="themeToggle">
+        <span class="slider"></span>
+      </label>
+      <span class="theme-label">Light</span>
+    </div>
+  </aside>
+  <main>
+    <header class="guide-header" style="border-left: 5px solid #009688">
+      <h1>Todo App - FastAPI</h1>
+      <p>Build a todo API as a standalone backend service with full REST endpoints, auto-generated docs, and an HTML frontend. Also shows how FastAPI acts as a middleman - calling external APIs and returning the results to your frontend.</p>
+    </header>
+    <div class="steps">
+<div class="step" id="step1">
+  <div class="step-number">1</div>
+  <div class="step-content">
+    <h3>Before You Start</h3>
+    <p class="explanation">Four concepts will make this guide much easier to follow. Virtual environments keep your project&#x27;s packages isolated - activate one before installing anything, and you will see (venv) in your prompt. HTTP is the protocol every browser and app uses to talk to servers: GET retrieves data without changing anything, POST creates, PUT updates, DELETE removes. A REST API is a server that speaks HTTP and returns structured data instead of HTML - any client (browser, mobile app, Python script) can use it. JSON is the data format APIs use: it looks like {&quot;title&quot;: &quot;Buy milk&quot;, &quot;done&quot;: false} and both Python and JavaScript understand it natively. When your HTML page sends a new todo to FastAPI it sends JSON in the request body, and FastAPI sends JSON back. SQLite stores everything in a single file (todos.db) with no installation required - perfect for learning.</p>
+    <div class="tabs" data-step="step1">
+      <div class="tab-bar"><button class="tab-btn active" onclick="switchTab('step1',0)" id="step1_tab0">terminal</button></div>
+      
+<div class="tab-panel active" id="step1_panel0">
+  <div class="code-header">
+    <span class="lang-label">bash</span>
+    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+  </div>
+  <pre><code><span class="hl-comment"># Create a virtual environment in your project folder</span>
+<span class="hl-keyword">python</span> -m venv venv
+
+<span class="hl-comment"># Activate it - run this every time you open a new terminal</span>
+venv\Scripts\activate        <span class="hl-comment"># Windows</span>
+<span class="hl-keyword">source</span> venv/bin/activate      <span class="hl-comment"># macOS / Linux</span>
+
+<span class="hl-comment"># Your prompt will show (venv) when it is active.</span>
+<span class="hl-comment"># Install dependencies:</span>
+<span class="hl-keyword">pip</span> install fastapi <span class="hl-keyword">uvicorn</span> sqlalchemy aiosqlite httpx
+
+<span class="hl-comment"># Or install offline if you have already downloaded the bundle:</span>
+pyoffline install --bundle fastapi
+
+<span class="hl-comment"># Start the development server (auto-reloads on file changes):</span>
+<span class="hl-keyword">uvicorn</span> main:app --reload
+<span class="hl-comment"># Then open: http://localhost:8000/docs</span></code></pre>
+</div>
+    </div>
+  </div>
+</div>
+<div class="step" id="step2">
+  <div class="step-number">2</div>
+  <div class="step-content">
+    <h3>Project Structure</h3>
+    <p class="explanation">This app separates the backend (FastAPI) from the frontend (plain HTML files served as static files). The frontend talks to the backend using JavaScript fetch() calls - the two sides are completely independent, which is the key idea behind an API-as-a-service architecture. This means you could replace the HTML frontend with a mobile app, a React app, or a command-line tool without changing a single line of backend code. Uvicorn is the server that runs the FastAPI app - it is fast, asynchronous, and handles many requests at the same time. The static/ folder holds the HTML pages; FastAPI serves them directly so you do not need a separate web server for development.</p>
+    <div class="tabs" data-step="step2">
+      <div class="tab-bar"><button class="tab-btn active" onclick="switchTab('step2',0)" id="step2_tab0">structure.txt</button></div>
+      
+<div class="tab-panel active" id="step2_panel0">
+  <div class="code-header">
+    <span class="lang-label">text</span>
+    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+  </div>
+  <pre><code>todo-fastapi/
+  main.py           ← FastAPI app: todos + external API proxy
+  database.py       ← SQLAlchemy connection
+  models.py         ← SQLAlchemy models
+  schemas.py        ← Pydantic request/response shapes
+  static/
+    index.html      ← frontend: todo list UI
+    proxy.html      ← frontend: external API demo</code></pre>
+</div>
+    </div>
+  </div>
+</div>
+<div class="step" id="step3">
+  <div class="step-number">3</div>
+  <div class="step-content">
+    <h3>Database, Model &amp; Schemas</h3>
+    <p class="explanation">This layer has two distinct parts that work together. The database.py and models.py files handle storage - they define how data is saved and retrieved. The schemas.py file handles the API contract - it defines exactly what shape of data the API accepts and what it returns. Keeping models and schemas separate is important: your database model might have a password column you never want to expose, while your response schema only includes safe fields. Pydantic validates incoming data against the schema automatically - if a request sends a number where a string is expected, FastAPI rejects it with a clear error message before your code ever runs. The server_default=func.now() on created_at means the database itself sets the timestamp when a row is inserted, which is more reliable than setting it in Python (no clock skew issues across servers).</p>
+    <div class="tabs" data-step="step3">
+      <div class="tab-bar"><button class="tab-btn active" onclick="switchTab('step3',0)" id="step3_tab0">database.py</button><button class="tab-btn " onclick="switchTab('step3',1)" id="step3_tab1">models.py</button><button class="tab-btn " onclick="switchTab('step3',2)" id="step3_tab2">schemas.py</button></div>
+      
+<div class="tab-panel active" id="step3_panel0">
+  <div class="code-header">
+    <span class="lang-label">python</span>
+    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+  </div>
+  <pre><code><span class="hl-keyword">from</span> sqlalchemy <span class="hl-keyword">import</span> create_engine
+<span class="hl-keyword">from</span> sqlalchemy.orm <span class="hl-keyword">import</span> sessionmaker, DeclarativeBase
+
+DATABASE_URL = <span class="hl-string">&quot;sqlite:///./todos.db&quot;</span>
+
+<span class="hl-comment"># check_same_thread=False is required for SQLite when used with FastAPI.</span>
+<span class="hl-comment"># SQLite&#x27;s default behaviour only allows the thread that created the connection</span>
+<span class="hl-comment"># to use it - but FastAPI may serve a request on a different thread.</span>
+engine = create_engine(DATABASE_URL, connect_args={<span class="hl-string">&quot;check_same_thread&quot;</span>: <span class="hl-keyword">False</span>})
+
+<span class="hl-comment"># autocommit=False means changes are not written until you call db.commit().</span>
+<span class="hl-comment"># autoflush=False means SQLAlchemy doesn&#x27;t automatically sync pending changes</span>
+<span class="hl-comment"># to the database before every query - giving you more explicit control.</span>
+SessionLocal = sessionmaker(autocommit=<span class="hl-keyword">False</span>, autoflush=<span class="hl-keyword">False</span>, bind=engine)
+
+<span class="hl-keyword">class</span> Base(DeclarativeBase):
+    <span class="hl-keyword">pass</span>
+
+<span class="hl-comment"># get_db() is used as a FastAPI dependency.</span>
+<span class="hl-comment"># &#x27;yield&#x27; turns it into a context manager: the code before yield runs before</span>
+<span class="hl-comment"># the route, and the code after (db.close()) runs after - even if an error occurs.</span>
+<span class="hl-keyword">def</span> get_db():
+    db = SessionLocal()
+    <span class="hl-keyword">try</span>:
+        <span class="hl-keyword">yield</span> db
+    <span class="hl-keyword">finally</span>:
+        db.close()</code></pre>
+</div>
+<div class="tab-panel " id="step3_panel1">
+  <div class="code-header">
+    <span class="lang-label">python</span>
+    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+  </div>
+  <pre><code><span class="hl-keyword">from</span> sqlalchemy <span class="hl-keyword">import</span> Column, Integer, String, Boolean, DateTime
+<span class="hl-keyword">from</span> sqlalchemy.sql <span class="hl-keyword">import</span> func
+<span class="hl-keyword">from</span> database <span class="hl-keyword">import</span> Base
+
+<span class="hl-keyword">class</span> Todo(Base):
+    __tablename__ = <span class="hl-string">&quot;todos&quot;</span>
+    id         = Column(Integer, primary_key=<span class="hl-keyword">True</span>, index=<span class="hl-keyword">True</span>)
+    title      = Column(String(<span class="hl-number">200</span>), nullable=<span class="hl-keyword">False</span>)   <span class="hl-comment"># database rejects rows with no title</span>
+    done       = Column(Boolean, default=<span class="hl-keyword">False</span>)         <span class="hl-comment"># new todos start incomplete</span>
+    <span class="hl-comment"># server_default=func.now() sets the timestamp in the database engine itself,</span>
+    <span class="hl-comment"># not in Python - more accurate than datetime.utcnow when running multiple servers.</span>
+    created_at = Column(DateTime(timezone=<span class="hl-keyword">True</span>), server_default=func.now())</code></pre>
+</div>
+<div class="tab-panel " id="step3_panel2">
+  <div class="code-header">
+    <span class="lang-label">python</span>
+    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+  </div>
+  <pre><code><span class="hl-keyword">from</span> pydantic <span class="hl-keyword">import</span> BaseModel
+<span class="hl-keyword">from</span> datetime <span class="hl-keyword">import</span> datetime
+
+<span class="hl-comment"># TodoCreate defines what the API expects in the request body when creating a todo.</span>
+<span class="hl-comment"># FastAPI reads this class and automatically validates the incoming JSON.</span>
+<span class="hl-keyword">class</span> TodoCreate(BaseModel):
+    title: <span class="hl-builtin">str</span>   <span class="hl-comment"># required - FastAPI returns 422 Unprocessable Entity if it&#x27;s missing</span>
+
+<span class="hl-comment"># TodoUpdate defines what the API expects when marking a todo done or undone.</span>
+<span class="hl-keyword">class</span> TodoUpdate(BaseModel):
+    done: <span class="hl-builtin">bool</span>   <span class="hl-comment"># required - must be true or false</span>
+
+<span class="hl-comment"># TodoOut defines what the API sends back in responses.</span>
+<span class="hl-comment"># It never includes internal fields the caller shouldn&#x27;t see.</span>
+<span class="hl-keyword">class</span> TodoOut(BaseModel):
+    id: <span class="hl-builtin">int</span>
+    title: <span class="hl-builtin">str</span>
+    done: <span class="hl-builtin">bool</span>
+    created_at: datetime
+    <span class="hl-comment"># from_attributes=True tells Pydantic it can read values from SQLAlchemy</span>
+    <span class="hl-comment"># model instances directly, not just from plain dicts.</span>
+    model_config = {<span class="hl-string">&quot;from_attributes&quot;</span>: <span class="hl-keyword">True</span>}</code></pre>
+</div>
+    </div>
+  </div>
+</div>
+<div class="step" id="step4">
+  <div class="step-number">4</div>
+  <div class="step-content">
+    <h3>REST API Endpoints</h3>
+    <p class="explanation">REST is a convention for designing APIs around resources (like todos) using the HTTP methods your browser already understands. GET retrieves data without changing anything; POST creates a new record; PUT replaces or updates a record; DELETE removes it. Using the right method matters because clients (browsers, apps, other services) use it to decide how to cache, retry, or log requests. The response status code also communicates the outcome - 200 OK means success, 201 Created means a new record was made, 204 No Content means the action succeeded but there is nothing to return (used after DELETE). FastAPI infers the correct response format and status from your type annotations and the response_model parameter. After starting the server, visit http://localhost:8000/docs to see all five endpoints listed and to send real test requests directly from the browser - no extra tool needed.</p>
+    <div class="tabs" data-step="step4">
+      <div class="tab-bar"><button class="tab-btn active" onclick="switchTab('step4',0)" id="step4_tab0">main.py</button></div>
+      
+<div class="tab-panel active" id="step4_panel0">
+  <div class="code-header">
+    <span class="lang-label">python</span>
+    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+  </div>
+  <pre><code><span class="hl-keyword">from</span> fastapi <span class="hl-keyword">import</span> FastAPI, Depends, HTTPException
+<span class="hl-keyword">from</span> fastapi.staticfiles <span class="hl-keyword">import</span> StaticFiles
+<span class="hl-keyword">from</span> sqlalchemy.orm <span class="hl-keyword">import</span> Session
+<span class="hl-keyword">from</span> database <span class="hl-keyword">import</span> engine, get_db
+<span class="hl-keyword">import</span> models, schemas
+
+models.Base.metadata.create_all(bind=engine)
+
+app = FastAPI(title=<span class="hl-string">&quot;Todo API&quot;</span>, description=<span class="hl-string">&quot;A simple todo backend service&quot;</span>)
+app.mount(<span class="hl-string">&quot;/static&quot;</span>, StaticFiles(directory=<span class="hl-string">&quot;static&quot;</span>), name=<span class="hl-string">&quot;static&quot;</span>)
+
+<span class="hl-comment"># GET /todos - return all todos, newest first</span>
+<span class="hl-decorator">@app.get</span>(<span class="hl-string">&quot;/todos&quot;</span>, response_model=<span class="hl-builtin">list</span>[schemas.TodoOut])
+<span class="hl-keyword">def</span> list_todos(db: Session = Depends(get_db)):
+    <span class="hl-keyword">return</span> db.query(models.Todo).order_by(models.Todo.created_at.desc()).<span class="hl-builtin">all</span>()
+
+<span class="hl-comment"># GET /todos/{id} - return one todo</span>
+<span class="hl-decorator">@app.get</span>(<span class="hl-string">&quot;/todos/{todo_id}&quot;</span>, response_model=schemas.TodoOut)
+<span class="hl-keyword">def</span> get_todo(todo_id: <span class="hl-builtin">int</span>, db: Session = Depends(get_db)):
+    todo = db.query(models.Todo).<span class="hl-builtin">filter</span>(models.Todo.id == todo_id).first()
+    <span class="hl-keyword">if</span> <span class="hl-keyword">not</span> todo:
+        <span class="hl-keyword">raise</span> HTTPException(status_code=<span class="hl-number">404</span>, detail=<span class="hl-string">&quot;Todo not found&quot;</span>)
+    <span class="hl-keyword">return</span> todo
+
+<span class="hl-comment"># POST /todos - create a new todo</span>
+<span class="hl-decorator">@app.post</span>(<span class="hl-string">&quot;/todos&quot;</span>, response_model=schemas.TodoOut, status_code=<span class="hl-number">201</span>)
+<span class="hl-keyword">def</span> create_todo(data: schemas.TodoCreate, db: Session = Depends(get_db)):
+    todo = models.Todo(title=data.title)
+    db.add(todo)
+    db.commit()
+    db.refresh(todo)
+    <span class="hl-keyword">return</span> todo
+
+<span class="hl-comment"># PUT /todos/{id} - update done status</span>
+<span class="hl-decorator">@app.put</span>(<span class="hl-string">&quot;/todos/{todo_id}&quot;</span>, response_model=schemas.TodoOut)
+<span class="hl-keyword">def</span> update_todo(todo_id: <span class="hl-builtin">int</span>, data: schemas.TodoUpdate, db: Session = Depends(get_db)):
+    todo = db.query(models.Todo).<span class="hl-builtin">filter</span>(models.Todo.id == todo_id).first()
+    <span class="hl-keyword">if</span> <span class="hl-keyword">not</span> todo:
+        <span class="hl-keyword">raise</span> HTTPException(status_code=<span class="hl-number">404</span>, detail=<span class="hl-string">&quot;Todo not found&quot;</span>)
+    todo.done = data.done
+    db.commit()
+    db.refresh(todo)
+    <span class="hl-keyword">return</span> todo
+
+<span class="hl-comment"># DELETE /todos/{id} - remove a todo</span>
+<span class="hl-decorator">@app.delete</span>(<span class="hl-string">&quot;/todos/{todo_id}&quot;</span>, status_code=<span class="hl-number">204</span>)
+<span class="hl-keyword">def</span> delete_todo(todo_id: <span class="hl-builtin">int</span>, db: Session = Depends(get_db)):
+    todo = db.query(models.Todo).<span class="hl-builtin">filter</span>(models.Todo.id == todo_id).first()
+    <span class="hl-keyword">if</span> <span class="hl-keyword">not</span> todo:
+        <span class="hl-keyword">raise</span> HTTPException(status_code=<span class="hl-number">404</span>, detail=<span class="hl-string">&quot;Todo not found&quot;</span>)
+    db.delete(todo)
+    db.commit()</code></pre>
+</div>
+    </div>
+  </div>
+</div>
+<div class="step" id="step5">
+  <div class="step-number">5</div>
+  <div class="step-content">
+    <h3>Auto-Generated API Docs</h3>
+    <p class="explanation">FastAPI reads your Python type annotations and generates interactive API documentation automatically - you write no documentation code yourself. The /docs URL opens Swagger UI, a web interface where you can expand each endpoint, fill in values, click Execute, and see the real response from your running server. This is extremely useful during development: you can test your entire API without writing a frontend first. The /redoc URL is a cleaner read-only version suited for sharing with other developers or clients. The /openapi.json URL returns the raw machine-readable schema - other tools (like code generators and API testing suites) use this to understand your API automatically. Any time you add or change an endpoint, the docs update instantly with no extra steps.</p>
+    <div class="tabs" data-step="step5">
+      <div class="tab-bar"><button class="tab-btn active" onclick="switchTab('step5',0)" id="step5_tab0">main.py (docs config)</button></div>
+      
+<div class="tab-panel active" id="step5_panel0">
+  <div class="code-header">
+    <span class="lang-label">python</span>
+    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+  </div>
+  <pre><code><span class="hl-comment"># FastAPI generates docs from your code automatically.</span>
+<span class="hl-comment"># You can customise the title, description, and version:</span>
+
+app = FastAPI(
+    title=<span class="hl-string">&quot;Todo API&quot;</span>,
+    description=<span class="hl-string">&quot;A standalone todo backend. Consumes this from any frontend or mobile app.&quot;</span>,
+    version=<span class="hl-string">&quot;1.0.0&quot;</span>,
+    docs_url=<span class="hl-string">&quot;/docs&quot;</span>,      <span class="hl-comment"># Swagger UI - interactive, lets you send real requests</span>
+    redoc_url=<span class="hl-string">&quot;/redoc&quot;</span>,    <span class="hl-comment"># ReDoc - cleaner read-only documentation</span>
+)
+
+<span class="hl-comment"># Once running, visit:</span>
+<span class="hl-comment">#   http://localhost:8000/docs   ← try every endpoint in the browser</span>
+<span class="hl-comment">#   http://localhost:8000/redoc  ← share this with other developers</span>
+<span class="hl-comment">#   http://localhost:8000/openapi.json ← raw schema, used by code generators</span></code></pre>
+</div>
+    </div>
+  </div>
+</div>
+<div class="step" id="step6">
+  <div class="step-number">6</div>
+  <div class="step-content">
+    <h3>HTML Frontend Consuming the API</h3>
+    <p class="explanation">The frontend is a plain HTML page that communicates with the FastAPI backend entirely through fetch() - a built-in browser function for making HTTP requests. The page never touches the database or imports any Python code; it only sends requests to the API and renders whatever the API sends back. async/await is JavaScript&#x27;s way of waiting for something to finish (like a network request) without freezing the rest of the page - async marks a function as one that can pause, and await means &#x27;wait here until this finishes before continuing&#x27;. The Content-Type: application/json header tells the server that the body of your request is JSON - FastAPI requires this when you POST data. After every mutation (add, toggle, delete) we call loadTodos() again to re-fetch the latest list from the server, which keeps the page in sync with the database without a full page refresh.</p>
+    <div class="tabs" data-step="step6">
+      <div class="tab-bar"><button class="tab-btn active" onclick="switchTab('step6',0)" id="step6_tab0">static/index.html</button></div>
+      
+<div class="tab-panel active" id="step6_panel0">
+  <div class="code-header">
+    <span class="lang-label">html</span>
+    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+  </div>
+  <pre><code>&lt;!DOCTYPE html&gt;
+&lt;<span <span class="hl-attr">class</span>="hl-tag">html</span> <span class="hl-attr">lang</span>=<span class="hl-string">&quot;en&quot;</span>&gt;
+&lt;<span <span class="hl-attr">class</span>="hl-tag">head</span>&gt;
+  &lt;<span <span class="hl-attr">class</span>="hl-tag">meta</span> <span class="hl-attr">charset</span>=<span class="hl-string">&quot;UTF-8&quot;</span>&gt;
+  &lt;<span <span class="hl-attr">class</span>="hl-tag">title</span>&gt;Todo - FastAPI Frontend&lt;/<span <span class="hl-attr">class</span>="hl-tag">title</span>&gt;
+  &lt;<span <span class="hl-attr">class</span>="hl-tag">style</span>&gt;
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, sans-serif; background: #f5f7fa;
+           color: #1a1a1a; max-width: 600px; margin: 40px auto; padding: 0 20px; }
+    h2 { margin-bottom: 20px; }
+    .add-form { display: flex; gap: 8px; margin-bottom: 24px; }
+    .add-form input { flex: 1; padding: 10px 14px; border: 1px solid #ccc;
+                      border-radius: 6px; font-size: 1rem; }
+    .add-form button { padding: 10px 20px; background: #009688; color: white;
+                       border: none; border-radius: 6px; cursor: pointer; }
+    .todo-item { display: flex; align-items: center; gap: 10px; padding: 12px 16px;
+                 background: white; border-radius: 8px; margin-bottom: 8px;
+                 box-shadow: 0 1px 3px rgba(0,0,0,.08); }
+    .todo-item.done span { text-decoration: line-through; color: #888; }
+    .todo-item span { flex: 1; }
+    button.toggle { background: #e8f5e9; color: #2e7d32; border: none;
+                    padding: 4px 12px; border-radius: 4px; cursor: pointer; }
+    button.delete { background: #fdecea; color: #b71c1c; border: none;
+                    padding: 4px 12px; border-radius: 4px; cursor: pointer; }
+  &lt;/<span <span class="hl-attr">class</span>="hl-tag">style</span>&gt;
+&lt;/<span <span class="hl-attr">class</span>="hl-tag">head</span>&gt;
+&lt;<span <span class="hl-attr">class</span>="hl-tag">body</span>&gt;
+  &lt;<span <span class="hl-attr">class</span>="hl-tag">h2</span>&gt;My Tasks&lt;/<span <span class="hl-attr">class</span>="hl-tag">h2</span>&gt;
+
+  &lt;<span <span class="hl-attr">class</span>="hl-tag">div</span> <span class="hl-attr">class</span>=<span class="hl-string">&quot;add-form&quot;</span>&gt;
+    &lt;<span <span class="hl-attr">class</span>="hl-tag">input</span> <span class="hl-attr">type</span>=<span class="hl-string">&quot;text&quot;</span> <span class="hl-attr">id</span>=<span class="hl-string">&quot;newTitle&quot;</span> <span class="hl-attr">placeholder</span>=<span class="hl-string">&quot;What needs doing?&quot;</span> /&gt;
+    &lt;<span <span class="hl-attr">class</span>="hl-tag">button</span> <span class="hl-attr">onclick</span>=<span class="hl-string">&quot;addTodo()&quot;</span>&gt;Add&lt;/<span <span class="hl-attr">class</span>="hl-tag">button</span>&gt;
+  &lt;/<span <span class="hl-attr">class</span>="hl-tag">div</span>&gt;
+
+  &lt;<span <span class="hl-attr">class</span>="hl-tag">div</span> <span class="hl-attr">id</span>=<span class="hl-string">&quot;list&quot;</span>&gt;&lt;/<span <span class="hl-attr">class</span>="hl-tag">div</span>&gt;
+
+  &lt;<span <span class="hl-attr">class</span>="hl-tag">script</span>&gt;
+    // The base URL of the FastAPI backend
+    const API = &quot;http://localhost:8000&quot;;
+
+    // Load and display all todos when the page opens
+    async function loadTodos() {
+      const res   = await fetch(API + &quot;/todos&quot;);   // GET /todos
+      const todos = await res.json();              // parse the JSON array
+
+      const list = document.getElementById(&quot;list&quot;);
+      list.innerHTML = &quot;&quot;;                          // clear old items
+
+      todos.forEach(todo =&gt; {
+        const div = document.createElement(&quot;div&quot;);
+        div.className = &quot;todo-item&quot; + (todo.done ? &quot; done&quot; : &quot;&quot;);
+        div.id = &quot;todo-&quot; + todo.id;
+        div.innerHTML = `
+          &lt;<span <span class="hl-attr">class</span>="hl-tag">span</span>&gt;${todo.title}&lt;/<span <span class="hl-attr">class</span>="hl-tag">span</span>&gt;
+          &lt;<span <span class="hl-attr">class</span>="hl-tag">button</span> <span class="hl-attr">class</span>=<span class="hl-string">&quot;toggle&quot;</span> <span class="hl-attr">onclick</span>=<span class="hl-string">&quot;toggleTodo(${todo.id}, ${todo.done})&quot;</span>&gt;
+            ${todo.done ? &quot;Undo&quot; : &quot;Done&quot;}
+          &lt;/<span <span class="hl-attr">class</span>="hl-tag">button</span>&gt;
+          &lt;<span <span class="hl-attr">class</span>="hl-tag">button</span> <span class="hl-attr">class</span>=<span class="hl-string">&quot;delete&quot;</span> <span class="hl-attr">onclick</span>=<span class="hl-string">&quot;deleteTodo(${todo.id})&quot;</span>&gt;Delete&lt;/<span <span class="hl-attr">class</span>="hl-tag">button</span>&gt;`;
+        list.appendChild(div);
+      });
+    }
+
+    // Add a new todo by POSTing to the API
+    async function addTodo() {
+      const input = document.getElementById(&quot;newTitle&quot;);
+      const title = input.value.trim();
+      if (!title) return;                           // do nothing if input is empty
+
+      await fetch(API + &quot;/todos&quot;, {
+        method: &quot;POST&quot;,
+        headers: { &quot;Content-Type&quot;: &quot;application/json&quot; },
+        body: JSON.stringify({ title })             // send title as JSON
+      });
+
+      input.value = &quot;&quot;;                             // clear the input field
+      loadTodos();                                  // refresh the list
+    }
+
+    // Toggle done state by sending PUT with the flipped value
+    async function toggleTodo(id, currentDone) {
+      await fetch(API + &quot;/todos/&quot; + id, {
+        method: &quot;PUT&quot;,
+        headers: { &quot;Content-Type&quot;: &quot;application/json&quot; },
+        body: JSON.stringify({ done: !currentDone })  // flip the done flag
+      });
+      loadTodos();
+    }
+
+    // Delete a todo by sending a DELETE request
+    async function deleteTodo(id) {
+      await fetch(API + &quot;/todos/&quot; + id, { method: &quot;DELETE&quot; });
+      loadTodos();
+    }
+
+    loadTodos();  // run as soon as the page loads
+  &lt;/<span <span class="hl-attr">class</span>="hl-tag">script</span>&gt;
+&lt;/<span <span class="hl-attr">class</span>="hl-tag">body</span>&gt;
+&lt;/<span <span class="hl-attr">class</span>="hl-tag">html</span>&gt;</code></pre>
+</div>
+    </div>
+  </div>
+</div>
+<div class="step" id="step7">
+  <div class="step-number">7</div>
+  <div class="step-content">
+    <h3>FastAPI as a Middleman - Calling External APIs</h3>
+    <p class="explanation">A proxy endpoint sits between your frontend and a third-party API. The frontend calls your server, your server calls the external API, and your server returns the result - the external URL and any API keys never leave your server. This pattern is useful in several situations: hiding credentials (API keys must never appear in browser code), reshaping data (the external API returns 20 fields but you only need 3), adding caching (store responses so you do not hit rate limits), or combining multiple external calls into one. httpx is an async HTTP client - like the popular requests library but designed to work inside async functions like FastAPI endpoints. asyncio.gather() fires multiple HTTP requests at the same time and waits for all of them to complete, which is much faster than sending them one after the other. HTTP 502 Bad Gateway is the correct status code to return when your server called another server and that server failed - it tells the caller &#x27;it&#x27;s not your request that&#x27;s broken, the upstream service is&#x27;.</p>
+    <div class="tabs" data-step="step7">
+      <div class="tab-bar"><button class="tab-btn active" onclick="switchTab('step7',0)" id="step7_tab0">main.py (proxy endpoint)</button><button class="tab-btn " onclick="switchTab('step7',1)" id="step7_tab1">static/proxy.html</button></div>
+      
+<div class="tab-panel active" id="step7_panel0">
+  <div class="code-header">
+    <span class="lang-label">python</span>
+    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+  </div>
+  <pre><code><span class="hl-keyword">import</span> httpx  <span class="hl-comment"># async HTTP client - like requests but works with FastAPI&#x27;s async</span>
+
+<span class="hl-comment"># This endpoint calls JSONPlaceholder (a free public test API) on behalf of the frontend.</span>
+<span class="hl-comment"># The frontend sends one request to /proxy/todos/{id} and gets back a clean response.</span>
+<span class="hl-comment"># The external API URL and any secret keys stay on the server - never exposed to the browser.</span>
+
+EXTERNAL_API = <span class="hl-string">&quot;https://jsonplaceholder.typicode.com&quot;</span>
+
+<span class="hl-decorator">@app.get</span>(<span class="hl-string">&quot;/proxy/sample-todo/{item_id}&quot;</span>)
+<span class="hl-keyword">async</span> <span class="hl-keyword">def</span> proxy_external_todo(item_id: <span class="hl-builtin">int</span>):
+    <span class="hl-comment"># Use async with so the HTTP client is properly cleaned up after the request</span>
+    <span class="hl-keyword">async</span> <span class="hl-keyword">with</span> httpx.AsyncClient() <span class="hl-keyword">as</span> client:
+        response = <span class="hl-keyword">await</span> client.get(f<span class="hl-string">&quot;{EXTERNAL_API}/todos/{item_id}&quot;</span>)
+
+    <span class="hl-keyword">if</span> response.status_code != <span class="hl-number">200</span>:
+        <span class="hl-keyword">raise</span> HTTPException(status_code=<span class="hl-number">502</span>, detail=<span class="hl-string">&quot;External API failed&quot;</span>)
+
+    raw = response.json()
+
+    <span class="hl-comment"># Transform the external API&#x27;s shape into your own clean format</span>
+    <span class="hl-comment"># The frontend gets your format - it never sees the raw external response</span>
+    <span class="hl-keyword">return</span> {
+        <span class="hl-string">&quot;source&quot;</span>:    <span class="hl-string">&quot;jsonplaceholder&quot;</span>,
+        <span class="hl-string">&quot;id&quot;</span>:        raw[<span class="hl-string">&quot;id&quot;</span>],
+        <span class="hl-string">&quot;title&quot;</span>:     raw[<span class="hl-string">&quot;title&quot;</span>],
+        <span class="hl-string">&quot;completed&quot;</span>: raw[<span class="hl-string">&quot;completed&quot;</span>],
+    }
+
+<span class="hl-comment"># You can also combine multiple external API calls into one response:</span>
+<span class="hl-decorator">@app.get</span>(<span class="hl-string">&quot;/proxy/summary&quot;</span>)
+<span class="hl-keyword">async</span> <span class="hl-keyword">def</span> proxy_summary():
+    <span class="hl-keyword">async</span> <span class="hl-keyword">with</span> httpx.AsyncClient() <span class="hl-keyword">as</span> client:
+        <span class="hl-comment"># Fire both requests at the same time using asyncio</span>
+        <span class="hl-keyword">import</span> asyncio
+        todo_res, user_res = <span class="hl-keyword">await</span> asyncio.gather(
+            client.get(f<span class="hl-string">&quot;{EXTERNAL_API}/todos/1&quot;</span>),
+            client.get(f<span class="hl-string">&quot;{EXTERNAL_API}/users/1&quot;</span>),
+        )
+    <span class="hl-keyword">return</span> {
+        <span class="hl-string">&quot;todo&quot;</span>: todo_res.json(),
+        <span class="hl-string">&quot;user&quot;</span>: user_res.json(),
+    }</code></pre>
+</div>
+<div class="tab-panel " id="step7_panel1">
+  <div class="code-header">
+    <span class="lang-label">html</span>
+    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+  </div>
+  <pre><code>&lt;!DOCTYPE html&gt;
+&lt;<span <span class="hl-attr">class</span>="hl-tag">html</span> <span class="hl-attr">lang</span>=<span class="hl-string">&quot;en&quot;</span>&gt;
+&lt;<span <span class="hl-attr">class</span>="hl-tag">head</span>&gt;
+  &lt;<span <span class="hl-attr">class</span>="hl-tag">meta</span> <span class="hl-attr">charset</span>=<span class="hl-string">&quot;UTF-8&quot;</span>&gt;
+  &lt;<span <span class="hl-attr">class</span>="hl-tag">title</span>&gt;External API Demo&lt;/<span <span class="hl-attr">class</span>="hl-tag">title</span>&gt;
+  &lt;<span <span class="hl-attr">class</span>="hl-tag">style</span>&gt;
+    body { font-family: -apple-system, sans-serif; max-width: 600px;
+           margin: 40px auto; padding: 0 20px; }
+    button { padding: 10px 20px; background: #009688; color: white;
+             border: none; border-radius: 6px; cursor: pointer; margin: 4px; }
+    pre { background: #f5f7fa; padding: 16px; border-radius: 8px;
+          margin-top: 16px; overflow-x: auto; font-size: .85rem; }
+  &lt;/<span <span class="hl-attr">class</span>="hl-tag">style</span>&gt;
+&lt;/<span <span class="hl-attr">class</span>="hl-tag">head</span>&gt;
+&lt;<span <span class="hl-attr">class</span>="hl-tag">body</span>&gt;
+  &lt;<span <span class="hl-attr">class</span>="hl-tag">h2</span>&gt;FastAPI as a Middleman&lt;/<span <span class="hl-attr">class</span>="hl-tag">h2</span>&gt;
+  &lt;<span <span class="hl-attr">class</span>="hl-tag">p</span> <span class="hl-attr">style</span>=<span class="hl-string">&quot;color:#555; margin-bottom:16px&quot;</span>&gt;
+    These buttons call your FastAPI server, which then calls an external API
+    and returns the result. Your API key or external URL is never exposed to the browser.
+  &lt;/<span <span class="hl-attr">class</span>="hl-tag">p</span>&gt;
+
+  &lt;<span <span class="hl-attr">class</span>="hl-tag">button</span> <span class="hl-attr">onclick</span>=<span class="hl-string">&quot;fetchProxy(1)&quot;</span>&gt;Fetch External Todo #1&lt;/<span <span class="hl-attr">class</span>="hl-tag">button</span>&gt;
+  &lt;<span <span class="hl-attr">class</span>="hl-tag">button</span> <span class="hl-attr">onclick</span>=<span class="hl-string">&quot;fetchProxy(5)&quot;</span>&gt;Fetch External Todo #5&lt;/<span <span class="hl-attr">class</span>="hl-tag">button</span>&gt;
+  &lt;<span <span class="hl-attr">class</span>="hl-tag">button</span> <span class="hl-attr">onclick</span>=<span class="hl-string">&quot;fetchSummary()&quot;</span>&gt;Fetch Combined Summary&lt;/<span <span class="hl-attr">class</span>="hl-tag">button</span>&gt;
+
+  &lt;<span <span class="hl-attr">class</span>="hl-tag">pre</span> <span class="hl-attr">id</span>=<span class="hl-string">&quot;result&quot;</span>&gt;Click a button to see the response...&lt;/<span <span class="hl-attr">class</span>="hl-tag">pre</span>&gt;
+
+  &lt;<span <span class="hl-attr">class</span>="hl-tag">script</span>&gt;
+    const API = &quot;http://localhost:8000&quot;;
+
+    // Ask our FastAPI server to fetch an external todo and return it
+    async function fetchProxy(id) {
+      const res  = await fetch(API + &quot;/proxy/sample-todo/&quot; + id);  // call our server
+      const data = await res.json();
+      // Display the JSON response formatted with 2-space indentation
+      document.getElementById(&quot;result&quot;).textContent = JSON.stringify(data, null, 2);
+    }
+
+    // Ask our FastAPI server to combine two external API calls
+    async function fetchSummary() {
+      const res  = await fetch(API + &quot;/proxy/summary&quot;);
+      const data = await res.json();
+      document.getElementById(&quot;result&quot;).textContent = JSON.stringify(data, null, 2);
+    }
+  &lt;/<span <span class="hl-attr">class</span>="hl-tag">script</span>&gt;
+&lt;/<span <span class="hl-attr">class</span>="hl-tag">body</span>&gt;
+&lt;/<span <span class="hl-attr">class</span>="hl-tag">html</span>&gt;</code></pre>
+</div>
+    </div>
+  </div>
+</div></div>
+  </main>
+</div>
+<script>
+(function() {
+  // Restore saved theme preference before first paint
+  var saved = localStorage.getItem("pyoffline-theme");
+  if (saved === "light") {
+    document.documentElement.classList.add("light"); // apply class immediately
+  }
+  // Once DOM is ready, sync the checkbox state
+  document.addEventListener("DOMContentLoaded", function() {
+    var toggle = document.getElementById("themeToggle");
+    if (!toggle) return;
+    toggle.checked = (localStorage.getItem("pyoffline-theme") === "light");
+    toggle.addEventListener("change", function() {
+      if (this.checked) {
+        document.documentElement.classList.add("light");    // switch to light
+        localStorage.setItem("pyoffline-theme", "light");  // remember the choice
+      } else {
+        document.documentElement.classList.remove("light"); // back to dark
+        localStorage.setItem("pyoffline-theme", "dark");
+      }
+    });
+  });
+})();
+
+function switchTab(stepId, idx) {
+  // Find all tab buttons and panels belonging to this step
+  var step   = document.getElementById(stepId);
+  var btns   = step.querySelectorAll(".tab-btn");
+  var panels = step.querySelectorAll(".tab-panel");
+  // Remove active from all, then add it to the clicked one
+  btns.forEach(function(b) { b.classList.remove("active"); });
+  panels.forEach(function(p) { p.classList.remove("active"); });
+  btns[idx].classList.add("active");
+  panels[idx].classList.add("active");
+}
+
+function copyCode(btn) {
+  // Walk up to the panel, find the code block, copy its plain text (no HTML tags)
+  var code = btn.closest(".tab-panel").querySelector("code").innerText;
+  navigator.clipboard.writeText(code).then(function() {
+    var orig = btn.textContent;
+    btn.textContent = "Copied!";                              // briefly show confirmation
+    setTimeout(function() { btn.textContent = orig; }, 1500); // restore after 1.5s
+  });
+}
+
+// ── Responsive sidebar ──────────────────────────────────────
+function toggleSidebar() {
+  var sidebar = document.getElementById("guideSidebar");
+  var overlay = document.getElementById("sidebarOverlay");
+  if (!sidebar) return;
+  sidebar.classList.toggle("open");
+  overlay.classList.toggle("open");
+}
+
+// Close sidebar automatically when a step link is clicked (so the scroll happens cleanly)
+document.addEventListener("DOMContentLoaded", function() {
+  var sidebar = document.getElementById("guideSidebar");
+  if (!sidebar) return;
+  sidebar.querySelectorAll("nav a").forEach(function(a) {
+    a.addEventListener("click", function() {
+      sidebar.classList.remove("open");
+      var overlay = document.getElementById("sidebarOverlay");
+      if (overlay) overlay.classList.remove("open");
+    });
+  });
+});
+</script>
+</body>
+</html>

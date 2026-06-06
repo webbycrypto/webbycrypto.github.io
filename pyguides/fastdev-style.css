@@ -1,0 +1,147 @@
+/* static/style.css — loaded by the <link> tag in index.html */
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  background: #f5f7fa;
+  color: #1a1a1a;
+  min-height: 100vh;
+}
+
+/* ── Header ── */
+header {
+  background: #009688;
+  color: white;
+  padding: 20px 32px;
+}
+header h1 { font-size: 1.6rem; }
+header p  { font-size: 0.9rem; opacity: 0.85; margin-top: 4px; }
+
+/* ── Main layout ── */
+main {
+  max-width: 760px;
+  margin: 32px auto;
+  padding: 0 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+}
+
+/* ── Sections ── */
+section {
+  background: white;
+  border-radius: 8px;
+  padding: 24px;
+  box-shadow: 0 1px 4px rgba(0,0,0,.08);
+}
+section h2 {
+  font-size: 1.1rem;
+  margin-bottom: 16px;
+  color: #333;
+}
+
+/* ── Create form ── */
+form label {
+  display: block;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #555;
+  margin-bottom: 4px;
+  margin-top: 12px;
+}
+form label:first-of-type { margin-top: 0; }
+
+form input[type="text"] {
+  width: 100%;
+  padding: 9px 12px;
+  border: 1px solid #dde1e7;
+  border-radius: 6px;
+  font-size: 0.95rem;
+  color: #1a1a1a;
+  background: #fafafa;
+}
+form input[type="text"]:focus {
+  outline: none;
+  border-color: #009688;
+  background: white;
+}
+
+.required { color: #e53935; }
+
+/* ── Buttons ── */
+.btn {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+.btn-create {
+  background: #009688;
+  color: white;
+  margin-top: 16px;
+  padding: 10px 24px;
+  font-size: 0.95rem;
+}
+.btn-create:hover { background: #00796b; }
+.btn-update { background: #e8f5e9; color: #2e7d32; }
+.btn-update:hover { background: #c8e6c9; }
+.btn-delete { background: #fdecea; color: #c62828; }
+.btn-delete:hover { background: #ffcdd2; }
+
+/* ── Item list ── */
+.item-list { display: flex; flex-direction: column; gap: 12px; }
+
+.item-card {
+  border: 1px solid #eee;
+  border-radius: 8px;
+  padding: 14px 16px;
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.item-info { flex: 1; min-width: 140px; }
+.item-id   { font-size: 0.75rem; color: #aaa; display: block; margin-bottom: 2px; }
+.item-info strong { font-size: 1rem; }
+.item-desc { font-size: 0.85rem; color: #777; margin-top: 4px; }
+
+/* ── Inline update/delete forms ── */
+.item-actions { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+
+.inline-form { display: flex; gap: 6px; align-items: center; }
+
+.inline-input {
+  padding: 6px 10px;
+  border: 1px solid #dde1e7;
+  border-radius: 6px;
+  font-size: 0.82rem;
+  width: 120px;
+  background: #fafafa;
+}
+.inline-input:focus {
+  outline: none;
+  border-color: #009688;
+  background: white;
+}
+
+/* ── Empty state ── */
+.empty { color: #aaa; text-align: center; padding: 24px 0; font-size: 0.9rem; }
+
+/* ── Footer ── */
+footer {
+  text-align: center;
+  padding: 24px;
+  font-size: 0.82rem;
+  color: #aaa;
+}
+footer a { color: #009688; }
+
+/* ── Responsive ── */
+@media (max-width: 600px) {
+  .item-card { flex-direction: column; }
+  .inline-input { width: 100%; }
+}

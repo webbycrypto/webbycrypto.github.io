@@ -1,0 +1,878 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>XRPL Guide - pyoffline</title>
+<style>
+/* ── Theme variables ───────────────────────────────────────── */
+:root {
+  --bg:          #121212;
+  --surface:     #1e1e1e;
+  --surface2:    #2a2a2a;
+  --sidebar-bg:  #1a1a1a;
+  --text:        #e0e0e0;
+  --text-muted:  #aaa;
+  --text-dim:    #666;
+  --border:      #333;
+  --code-bg:     #1e1e1e;
+  --code-text:   #d4d4d4;
+  --shadow:      rgba(0,0,0,.4);
+  /* syntax - dark (VSCode Dark+) */
+  --hl-keyword:  #569cd6;
+  --hl-string:   #ce9178;
+  --hl-comment:  #6a9955;
+  --hl-number:   #b5cea8;
+  --hl-decorator:#dcdcaa;
+  --hl-builtin:  #4ec9b0;
+  --hl-tag:      #4ec9b0;
+  --hl-attr:     #9cdcfe;
+  --hl-template: #c586c0;
+}
+html.light {
+  --bg:          #f5f7fa;
+  --surface:     #ffffff;
+  --surface2:    #eef0f3;
+  --sidebar-bg:  #ffffff;
+  --text:        #1a1a1a;
+  --text-muted:  #555;
+  --text-dim:    #888;
+  --border:      #dde1e7;
+  --code-bg:     #f8f8f8;
+  --code-text:   #24292e;
+  --shadow:      rgba(0,0,0,.1);
+  /* syntax - light (VSCode Light) */
+  --hl-keyword:  #0000ff;
+  --hl-string:   #a31515;
+  --hl-comment:  #008000;
+  --hl-number:   #098658;
+  --hl-decorator:#795e26;
+  --hl-builtin:  #267f99;
+  --hl-tag:      #800000;
+  --hl-attr:     #e50000;
+  --hl-template: #af00db;
+}
+
+/* ── Syntax span classes ───────────────────────────────────── */
+.hl-keyword  { color: var(--hl-keyword);  }
+.hl-string   { color: var(--hl-string);   }
+.hl-comment  { color: #adb4a7; font-size: 12px; font-style: italic; }
+.hl-number   { color: var(--hl-number);   }
+.hl-decorator{ color: var(--hl-decorator);}
+.hl-builtin  { color: var(--hl-builtin);  }
+.hl-tag      { color: var(--hl-tag);      }
+.hl-attr     { color: var(--hl-attr);     }
+.hl-template { color: var(--hl-template); }
+
+/* ── Base ──────────────────────────────────────────────────── */
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: var(--bg); color: var(--text); font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; transition: background .2s, color .2s; }
+a { color: #346AA9; }
+
+/* ── Layout ────────────────────────────────────────────────── */
+.layout { display: flex; min-height: 100vh; }
+.sidebar { width: 260px; min-width: 260px; background: var(--sidebar-bg); border-right: 1px solid var(--border); padding: 24px 16px; position: sticky; top: 0; height: 100vh; overflow-y: auto; }
+.sidebar h2 { font-size: 1.1rem; margin: 16px 0 8px; color: var(--text); }
+.sidebar nav ol { padding-left: 18px; }
+.sidebar nav li { margin: 6px 0; }
+.sidebar nav a { color: var(--text-muted); text-decoration: none; font-size: 0.85rem; }
+.sidebar nav a:hover { color: #346AA9; }
+.back-link { color: var(--text-dim); text-decoration: none; font-size: 0.85rem; display: block; margin-bottom: 8px; }
+.install-box { margin-top: 24px; background: var(--bg); border: 1px solid var(--border); padding: 12px; border-radius: 6px; font-size: 0.8rem; }
+.install-box code { display: block; word-break: break-all; color: var(--hl-comment); font-family: monospace; }
+main { flex: 1; padding: 40px; max-width: 860px; }
+.guide-header { padding: 20px 20px 20px 24px; background: var(--surface); border-radius: 8px; margin-bottom: 32px; box-shadow: 0 1px 3px var(--shadow); }
+.guide-header h1 { font-size: 1.8rem; margin-bottom: 8px; }
+.guide-header p { color: var(--text-muted); }
+
+/* ── Steps ─────────────────────────────────────────────────── */
+.step { display: flex; gap: 16px; margin-bottom: 40px; }
+.step-number { width: 32px; min-width: 32px; height: 32px; background: #346AA9; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 0.9rem; margin-top: 4px; color: #fff; }
+.step-content { flex: 1; min-width: 0; }
+.step-content h3 { font-size: 1.1rem; margin-bottom: 8px; color: var(--text); }
+.explanation { color: var(--text-muted); font-size: 0.9rem; line-height: 1.6; margin-bottom: 14px; }
+
+/* ── Code tabs ─────────────────────────────────────────────── */
+.tabs { background: var(--surface); border-radius: 6px; overflow: hidden; border: 1px solid var(--border); }
+.tab-bar { display: flex; background: var(--surface2); overflow-x: auto; border-bottom: 1px solid var(--border); }
+.tab-btn { padding: 8px 16px; background: none; border: none; color: var(--text-muted); cursor: pointer; font-size: 0.8rem; white-space: nowrap; border-bottom: 2px solid transparent; margin-bottom: -1px; }
+.tab-btn.active { color: var(--text); border-bottom-color: #346AA9; }
+.tab-panel { display: none; }
+.tab-panel.active { display: block; }
+.code-header { display: flex; justify-content: space-between; align-items: center; padding: 5px 12px; background: var(--surface2); border-bottom: 1px solid var(--border); }
+.lang-label { font-size: 0.72rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: .04em; }
+.copy-btn { background: none; border: 1px solid var(--border); color: var(--text-muted); padding: 2px 8px; cursor: pointer; border-radius: 3px; font-size: 0.72rem; }
+.copy-btn:hover { color: var(--text); border-color: var(--text-muted); }
+pre { overflow-x: auto; padding: 16px; background: var(--code-bg); }
+code { font-family: "Fira Code", "Cascadia Code", "Consolas", monospace; font-size: 0.82rem; line-height: 1.65; color: var(--code-text); }
+
+/* ── Theme toggle switch ───────────────────────────────────── */
+.theme-row { display: flex; align-items: center; gap: 8px; margin-top: 20px; }
+.theme-label { font-size: 0.78rem; color: var(--text-muted); }
+.toggle-switch { position: relative; display: inline-block; width: 40px; height: 22px; }
+.toggle-switch input { opacity: 0; width: 0; height: 0; }
+.slider { position: absolute; cursor: pointer; inset: 0; background: var(--surface2); border: 1px solid var(--border); border-radius: 22px; transition: background .2s; }
+.slider:before { content: ""; position: absolute; width: 16px; height: 16px; left: 2px; top: 2px; background: var(--text-muted); border-radius: 50%; transition: transform .2s, background .2s; }
+.toggle-switch input:checked + .slider { background: #346AA9; border-color: #346AA9; }
+.toggle-switch input:checked + .slider:before { transform: translateX(18px); background: #fff; }
+
+/* ── Responsive sidebar ────────────────────────────────────── */
+/* Toggle button - hidden on wide screens, shown on narrow */
+.sidebar-toggle {
+  display: none;
+  position: fixed; top: 12px; left: 12px; z-index: 300;
+  background: #346AA9; color: #fff; border: none;
+  padding: 7px 14px; border-radius: 6px; cursor: pointer;
+  font-size: 0.85rem; font-weight: 600;
+  box-shadow: 0 2px 8px var(--shadow);
+  align-items: center; gap: 6px;
+}
+/* Backdrop - covers main content when sidebar is open on narrow screens */
+.sidebar-overlay {
+  display: none; position: fixed; inset: 0;
+  background: rgba(0,0,0,.45); z-index: 190;
+}
+.sidebar-overlay.open { display: block; }
+
+@media (max-width: 900px) {
+  .sidebar-toggle { display: flex; }
+  .layout { display: block; }
+  .sidebar {
+    position: fixed; left: -280px; top: 0;
+    height: 100vh; z-index: 200;
+    transition: left .25s ease;
+    box-shadow: 2px 0 16px var(--shadow);
+    min-width: 260px;
+  }
+  .sidebar.open { left: 0; }
+  main { padding: 60px 20px 40px; max-width: 100%; }
+  /* Prevent wide code lines from breaking the page layout */
+  pre { overflow-x: auto; max-width: 100%; white-space: pre-wrap; word-break: break-word; }
+  .tabs { max-width: 100%; }
+}
+</style>
+</head>
+<body>
+<button class="sidebar-toggle" id="sidebarToggle" onclick="toggleSidebar()">&#9776; Steps</button>
+<div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+<div class="layout">
+  <aside class="sidebar" id="guideSidebar">
+    <a href="index.html" class="back-link">← All Guides</a>
+    <h2>XRPL</h2>
+    <nav><ol><li><a href="#step1">Project Setup</a></li><li><a href="#step2">Create &amp; Fund a Wallet</a></li><li><a href="#step3">Check Balance</a></li><li><a href="#step4">Send Payment</a></li><li><a href="#step5">Transaction History</a></li><li><a href="#step6">Trust Lines</a></li><li><a href="#step7">Escrow</a></li><li><a href="#step8">Mint an NFT</a></li></ol></nav>
+    <div class="install-box">
+      <p><strong>Install</strong></p>
+      <code>pyoffline install --bundle xrpl fastapi</code>
+      <p style="margin-top:12px"><strong>Run</strong></p>
+      <code>uvicorn main:app --reload  (then open http://localhost:8000/static/index.html)</code>
+    </div>
+    <div class="theme-row">
+      <span class="theme-label">Dark</span>
+      <label class="toggle-switch">
+        <input type="checkbox" id="themeToggle">
+        <span class="slider"></span>
+      </label>
+      <span class="theme-label">Light</span>
+    </div>
+  </aside>
+  <main>
+    <header class="guide-header" style="border-left: 5px solid #346AA9">
+      <h1>XRPL</h1>
+      <p>Interact with the XRP Ledger testnet - create wallets, check balances, send payments, set trust lines, create escrows, and mint NFTs. All examples use a thin FastAPI backend with HTML pages.</p>
+    </header>
+    <div class="steps">
+<div class="step" id="step1">
+  <div class="step-number">1</div>
+  <div class="step-content">
+    <h3>Project Setup</h3>
+    <p class="explanation">These examples use xrpl-py to talk to the XRP Ledger testnet and a small FastAPI server to expose it to the browser. Never use your real mainnet wallet seed in code - always start with a testnet wallet.</p>
+    <div class="tabs" data-step="step1">
+      <div class="tab-bar"><button class="tab-btn active" onclick="switchTab('step1',0)" id="step1_tab0">structure.txt</button><button class="tab-btn " onclick="switchTab('step1',1)" id="step1_tab1">xrpl_client.py</button></div>
+      
+<div class="tab-panel active" id="step1_panel0">
+  <div class="code-header">
+    <span class="lang-label">text</span>
+    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+  </div>
+  <pre><code>xrpl_app/
+  main.py        ← FastAPI app with all XRPL endpoints
+  xrpl_client.py ← shared XRPL client helper
+  static/
+    index.html   ← wallet dashboard
+    send.html    ← send payment page
+    history.html ← transaction history page
+    escrow.html  ← escrow page
+    nft.html     ← NFT page
+  .env           ← WALLET_SEED (testnet only!)</code></pre>
+</div>
+<div class="tab-panel " id="step1_panel1">
+  <div class="code-header">
+    <span class="lang-label">python</span>
+    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+  </div>
+  <pre><code><span class="hl-keyword">from</span> xrpl.clients <span class="hl-keyword">import</span> JsonRpcClient
+
+<span class="hl-comment"># Testnet URL - safe to use for development, tokens have no real value</span>
+TESTNET_URL = <span class="hl-string">&quot;https://s.altnet.rippletest.net:51234&quot;</span>
+
+<span class="hl-keyword">def</span> get_client():
+    <span class="hl-keyword">return</span> JsonRpcClient(TESTNET_URL)</code></pre>
+</div>
+    </div>
+  </div>
+</div>
+<div class="step" id="step2">
+  <div class="step-number">2</div>
+  <div class="step-content">
+    <h3>Create &amp; Fund a Wallet</h3>
+    <p class="explanation">The XRPL testnet has a faucet that creates a wallet and sends it 1000 test XRP for free. The wallet has two important values: the classic_address (public, like an account number) and the seed (private, like a password - never share it).</p>
+    <div class="tabs" data-step="step2">
+      <div class="tab-bar"><button class="tab-btn active" onclick="switchTab('step2',0)" id="step2_tab0">main.py (wallet endpoint)</button><button class="tab-btn " onclick="switchTab('step2',1)" id="step2_tab1">static/index.html</button></div>
+      
+<div class="tab-panel active" id="step2_panel0">
+  <div class="code-header">
+    <span class="lang-label">python</span>
+    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+  </div>
+  <pre><code><span class="hl-keyword">from</span> fastapi <span class="hl-keyword">import</span> FastAPI
+<span class="hl-keyword">from</span> fastapi.staticfiles <span class="hl-keyword">import</span> StaticFiles
+<span class="hl-keyword">from</span> xrpl.wallet <span class="hl-keyword">import</span> generate_faucet_wallet
+<span class="hl-keyword">from</span> xrpl.models.requests <span class="hl-keyword">import</span> AccountInfo
+<span class="hl-keyword">from</span> xrpl_client <span class="hl-keyword">import</span> get_client
+<span class="hl-keyword">import</span> xrpl.utils
+
+app = FastAPI()
+app.mount(<span class="hl-string">&quot;/static&quot;</span>, StaticFiles(directory=<span class="hl-string">&quot;static&quot;</span>), name=<span class="hl-string">&quot;static&quot;</span>)
+
+<span class="hl-decorator">@app.post</span>(<span class="hl-string">&quot;/wallet/create&quot;</span>)
+<span class="hl-keyword">def</span> create_wallet():
+    client = get_client()
+    <span class="hl-comment"># generate_faucet_wallet creates a new wallet AND funds it with 1000 test XRP</span>
+    wallet = generate_faucet_wallet(client, debug=<span class="hl-keyword">True</span>)
+    <span class="hl-keyword">return</span> {
+        <span class="hl-string">&quot;address&quot;</span>: wallet.classic_address,  <span class="hl-comment"># public - share this to receive XRP</span>
+        <span class="hl-string">&quot;seed&quot;</span>:    wallet.seed,             <span class="hl-comment"># PRIVATE - never share or store in plain text</span>
+        <span class="hl-string">&quot;balance&quot;</span>: <span class="hl-string">&quot;1000 XRP (testnet)&quot;</span>
+    }</code></pre>
+</div>
+<div class="tab-panel " id="step2_panel1">
+  <div class="code-header">
+    <span class="lang-label">html</span>
+    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+  </div>
+  <pre><code>&lt;!DOCTYPE html&gt;
+&lt;<span <span class="hl-attr">class</span>="hl-tag">html</span> <span class="hl-attr">lang</span>=<span class="hl-string">&quot;en&quot;</span>&gt;
+&lt;<span <span class="hl-attr">class</span>="hl-tag">head</span>&gt;
+  &lt;<span <span class="hl-attr">class</span>="hl-tag">meta</span> <span class="hl-attr">charset</span>=<span class="hl-string">&quot;UTF-8&quot;</span>&gt;
+  &lt;<span <span class="hl-attr">class</span>="hl-tag">title</span>&gt;XRPL Wallet&lt;/<span <span class="hl-attr">class</span>="hl-tag">title</span>&gt;
+  &lt;<span <span class="hl-attr">class</span>="hl-tag">style</span>&gt;
+    body { font-family: sans-serif; max-width: 600px; margin: 40px auto; padding: 0 20px; background: #f0f4f8; }
+    .card { background: white; padding: 20px; border-radius: 8px; margin-bottom: 16px; box-shadow: 0 1px 4px rgba(0,0,0,.1); }
+    button { padding: 10px 20px; background: #346AA9; color: white; border: none; cursor: pointer; border-radius: 4px; }
+    .address { font-family: monospace; word-break: break-all; background: #f5f5f5; padding: 8px; border-radius: 4px; }
+    nav a { margin-right: 12px; color: #346AA9; text-decoration: none; }
+  &lt;/<span <span class="hl-attr">class</span>="hl-tag">style</span>&gt;
+&lt;/<span <span class="hl-attr">class</span>="hl-tag">head</span>&gt;
+&lt;<span <span class="hl-attr">class</span>="hl-tag">body</span>&gt;
+  &lt;<span <span class="hl-attr">class</span>="hl-tag">nav</span>&gt;
+    &lt;<span <span class="hl-attr">class</span>="hl-tag">a</span> <span class="hl-attr">href</span>=<span class="hl-string">&quot;index.html&quot;</span>&gt;Wallet&lt;/<span <span class="hl-attr">class</span>="hl-tag">a</span>&gt;
+    &lt;<span <span class="hl-attr">class</span>="hl-tag">a</span> <span class="hl-attr">href</span>=<span class="hl-string">&quot;send.html&quot;</span>&gt;Send&lt;/<span <span class="hl-attr">class</span>="hl-tag">a</span>&gt;
+    &lt;<span <span class="hl-attr">class</span>="hl-tag">a</span> <span class="hl-attr">href</span>=<span class="hl-string">&quot;history.html&quot;</span>&gt;History&lt;/<span <span class="hl-attr">class</span>="hl-tag">a</span>&gt;
+    &lt;<span <span class="hl-attr">class</span>="hl-tag">a</span> <span class="hl-attr">href</span>=<span class="hl-string">&quot;escrow.html&quot;</span>&gt;Escrow&lt;/<span <span class="hl-attr">class</span>="hl-tag">a</span>&gt;
+    &lt;<span <span class="hl-attr">class</span>="hl-tag">a</span> <span class="hl-attr">href</span>=<span class="hl-string">&quot;nft.html&quot;</span>&gt;NFTs&lt;/<span <span class="hl-attr">class</span>="hl-tag">a</span>&gt;
+  &lt;/<span <span class="hl-attr">class</span>="hl-tag">nav</span>&gt;
+
+  &lt;<span <span class="hl-attr">class</span>="hl-tag">div</span> <span class="hl-attr">class</span>=<span class="hl-string">&quot;card&quot;</span>&gt;
+    &lt;<span <span class="hl-attr">class</span>="hl-tag">h2</span>&gt;Create Testnet Wallet&lt;/<span <span class="hl-attr">class</span>="hl-tag">h2</span>&gt;
+    &lt;<span <span class="hl-attr">class</span>="hl-tag">p</span>&gt;Creates a new wallet and funds it with 1,000 test XRP from the faucet.&lt;/<span <span class="hl-attr">class</span>="hl-tag">p</span>&gt;
+    &lt;<span <span class="hl-attr">class</span>="hl-tag">button</span> <span class="hl-attr">onclick</span>=<span class="hl-string">&quot;createWallet()&quot;</span>&gt;Create Wallet&lt;/<span <span class="hl-attr">class</span>="hl-tag">button</span>&gt;
+    &lt;<span <span class="hl-attr">class</span>="hl-tag">div</span> <span class="hl-attr">id</span>=<span class="hl-string">&quot;result&quot;</span> <span class="hl-attr">style</span>=<span class="hl-string">&quot;margin-top:16px;&quot;</span>&gt;&lt;/<span <span class="hl-attr">class</span>="hl-tag">div</span>&gt;
+  &lt;/<span <span class="hl-attr">class</span>="hl-tag">div</span>&gt;
+
+  &lt;<span <span class="hl-attr">class</span>="hl-tag">script</span>&gt;
+    async function createWallet() {
+      // Tell the user something is happening
+      document.getElementById(&quot;result&quot;).textContent = &quot;Creating wallet...&quot;;
+
+      // Ask our FastAPI backend to create the wallet
+      const res  = await fetch(&quot;/wallet/create&quot;, { method: &quot;POST&quot; });
+      const data = await res.json(); // parse the JSON response
+
+      if (res.ok) {
+        // Display the wallet address and seed
+        document.getElementById(&quot;result&quot;).innerHTML = `
+          &lt;<span <span class="hl-attr">class</span>="hl-tag">p</span>&gt;&lt;<span <span class="hl-attr">class</span>="hl-tag">strong</span>&gt;Address&lt;/<span <span class="hl-attr">class</span>="hl-tag">strong</span>&gt; (public - safe to share):&lt;/<span <span class="hl-attr">class</span>="hl-tag">p</span>&gt;
+          &lt;<span <span class="hl-attr">class</span>="hl-tag">div</span> <span class="hl-attr">class</span>=<span class="hl-string">&quot;address&quot;</span>&gt;${data.address}&lt;/<span <span class="hl-attr">class</span>="hl-tag">div</span>&gt;
+          &lt;<span <span class="hl-attr">class</span>="hl-tag">p</span>&gt;&lt;<span <span class="hl-attr">class</span>="hl-tag">strong</span>&gt;Seed&lt;/<span <span class="hl-attr">class</span>="hl-tag">strong</span>&gt; (PRIVATE - save this securely, never share it):&lt;/<span <span class="hl-attr">class</span>="hl-tag">p</span>&gt;
+          &lt;<span <span class="hl-attr">class</span>="hl-tag">div</span> <span class="hl-attr">class</span>=<span class="hl-string">&quot;address&quot;</span> <span class="hl-attr">style</span>=<span class="hl-string">&quot;color:red&quot;</span>&gt;${data.seed}&lt;/<span <span class="hl-attr">class</span>="hl-tag">div</span>&gt;
+          &lt;<span <span class="hl-attr">class</span>="hl-tag">p</span>&gt;Balance: ${data.balance}&lt;/<span <span class="hl-attr">class</span>="hl-tag">p</span>&gt;`;
+
+        // Save address and seed so other pages can use them
+        localStorage.setItem(&quot;xrpl_address&quot;, data.address);
+        localStorage.setItem(&quot;xrpl_seed&quot;, data.seed);
+      } else {
+        document.getElementById(&quot;result&quot;).textContent = &quot;Error: &quot; + data.detail;
+      }
+    }
+  &lt;/<span <span class="hl-attr">class</span>="hl-tag">script</span>&gt;
+&lt;/<span <span class="hl-attr">class</span>="hl-tag">body</span>&gt;
+&lt;/<span <span class="hl-attr">class</span>="hl-tag">html</span>&gt;</code></pre>
+</div>
+    </div>
+  </div>
+</div>
+<div class="step" id="step3">
+  <div class="step-number">3</div>
+  <div class="step-content">
+    <h3>Check Balance</h3>
+    <p class="explanation">AccountInfo returns all information about an account including its XRP balance. The balance is stored in drops (1 XRP = 1,000,000 drops) so we divide by a million to get the human-readable amount.</p>
+    <div class="tabs" data-step="step3">
+      <div class="tab-bar"><button class="tab-btn active" onclick="switchTab('step3',0)" id="step3_tab0">main.py (balance endpoint)</button></div>
+      
+<div class="tab-panel active" id="step3_panel0">
+  <div class="code-header">
+    <span class="lang-label">python</span>
+    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+  </div>
+  <pre><code><span class="hl-keyword">from</span> xrpl.models.requests <span class="hl-keyword">import</span> AccountInfo
+<span class="hl-keyword">import</span> xrpl.utils
+
+<span class="hl-decorator">@app.get</span>(<span class="hl-string">&quot;/balance/{address}&quot;</span>)
+<span class="hl-keyword">def</span> get_balance(address: <span class="hl-builtin">str</span>):
+    client = get_client()
+    request  = AccountInfo(account=address, ledger_index=<span class="hl-string">&quot;validated&quot;</span>)
+    response = client.request(request)
+    <span class="hl-keyword">if</span> response.is_successful():
+        drops  = <span class="hl-builtin">int</span>(response.result[<span class="hl-string">&quot;account_data&quot;</span>][<span class="hl-string">&quot;Balance&quot;</span>])
+        xrp    = xrpl.utils.drops_to_xrp(<span class="hl-builtin">str</span>(drops))  <span class="hl-comment"># convert drops to XRP</span>
+        <span class="hl-keyword">return</span> {<span class="hl-string">&quot;address&quot;</span>: address, <span class="hl-string">&quot;balance_xrp&quot;</span>: <span class="hl-builtin">float</span>(xrp), <span class="hl-string">&quot;balance_drops&quot;</span>: drops}
+    <span class="hl-keyword">return</span> {<span class="hl-string">&quot;error&quot;</span>: response.result.get(<span class="hl-string">&quot;error_message&quot;</span>, <span class="hl-string">&quot;Unknown error&quot;</span>)}</code></pre>
+</div>
+    </div>
+  </div>
+</div>
+<div class="step" id="step4">
+  <div class="step-number">4</div>
+  <div class="step-content">
+    <h3>Send Payment</h3>
+    <p class="explanation">A Payment transaction transfers XRP from one address to another. It must be signed with the sender&#x27;s seed (private key) before being submitted to the ledger.</p>
+    <div class="tabs" data-step="step4">
+      <div class="tab-bar"><button class="tab-btn active" onclick="switchTab('step4',0)" id="step4_tab0">main.py (payment endpoint)</button><button class="tab-btn " onclick="switchTab('step4',1)" id="step4_tab1">static/send.html</button></div>
+      
+<div class="tab-panel active" id="step4_panel0">
+  <div class="code-header">
+    <span class="lang-label">python</span>
+    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+  </div>
+  <pre><code><span class="hl-keyword">from</span> pydantic <span class="hl-keyword">import</span> BaseModel
+<span class="hl-keyword">from</span> xrpl.models.transactions <span class="hl-keyword">import</span> Payment
+<span class="hl-keyword">from</span> xrpl.transaction <span class="hl-keyword">import</span> submit_and_wait
+<span class="hl-keyword">from</span> xrpl.wallet <span class="hl-keyword">import</span> Wallet
+<span class="hl-keyword">import</span> xrpl.utils
+
+<span class="hl-keyword">class</span> PaymentRequest(BaseModel):
+    seed:        <span class="hl-builtin">str</span>    <span class="hl-comment"># sender&#x27;s private seed</span>
+    destination: <span class="hl-builtin">str</span>    <span class="hl-comment"># receiver&#x27;s address</span>
+    amount_xrp:  <span class="hl-builtin">float</span>  <span class="hl-comment"># how much XRP to send</span>
+
+<span class="hl-decorator">@app.post</span>(<span class="hl-string">&quot;/payment/send&quot;</span>)
+<span class="hl-keyword">def</span> send_payment(data: PaymentRequest):
+    client = get_client()
+    wallet = Wallet.from_seed(data.seed)  <span class="hl-comment"># reconstruct the wallet from the seed</span>
+    drops  = xrpl.utils.xrp_to_drops(data.amount_xrp)  <span class="hl-comment"># convert XRP to drops</span>
+
+    tx = Payment(
+        account=wallet.classic_address,
+        destination=data.destination,
+        amount=drops,
+        destination_tag=<span class="hl-number">0</span>,  <span class="hl-comment"># required by some exchanges; use 0 if unsure</span>
+    )
+
+    response = submit_and_wait(tx, client, wallet)  <span class="hl-comment"># sign, submit, and wait for confirmation</span>
+    <span class="hl-keyword">if</span> response.is_successful():
+        <span class="hl-keyword">return</span> {<span class="hl-string">&quot;tx_hash&quot;</span>: response.result[<span class="hl-string">&quot;hash&quot;</span>], <span class="hl-string">&quot;status&quot;</span>: <span class="hl-string">&quot;confirmed&quot;</span>}
+    <span class="hl-keyword">return</span> {<span class="hl-string">&quot;error&quot;</span>: response.result.get(<span class="hl-string">&quot;engine_result_message&quot;</span>, <span class="hl-string">&quot;Failed&quot;</span>)}</code></pre>
+</div>
+<div class="tab-panel " id="step4_panel1">
+  <div class="code-header">
+    <span class="lang-label">html</span>
+    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+  </div>
+  <pre><code>&lt;!DOCTYPE html&gt;
+&lt;<span <span class="hl-attr">class</span>="hl-tag">html</span> <span class="hl-attr">lang</span>=<span class="hl-string">&quot;en&quot;</span>&gt;
+&lt;<span <span class="hl-attr">class</span>="hl-tag">head</span>&gt;
+  &lt;<span <span class="hl-attr">class</span>="hl-tag">meta</span> <span class="hl-attr">charset</span>=<span class="hl-string">&quot;UTF-8&quot;</span>&gt;&lt;<span <span class="hl-attr">class</span>="hl-tag">title</span>&gt;Send XRP&lt;/<span <span class="hl-attr">class</span>="hl-tag">title</span>&gt;
+  &lt;<span <span class="hl-attr">class</span>="hl-tag">style</span>&gt;
+    body { font-family: sans-serif; max-width: 500px; margin: 40px auto; padding: 0 20px; }
+    input { display: block; width: 100%; padding: 8px; margin: 6px 0; box-sizing: border-box; }
+    button { padding: 10px 20px; background: #346AA9; color: white; border: none; cursor: pointer; border-radius: 4px; }
+    #result { margin-top: 16px; padding: 12px; background: #f5f5f5; border-radius: 4px; display: none; }
+  &lt;/<span <span class="hl-attr">class</span>="hl-tag">style</span>&gt;
+&lt;/<span <span class="hl-attr">class</span>="hl-tag">head</span>&gt;
+&lt;<span <span class="hl-attr">class</span>="hl-tag">body</span>&gt;
+  &lt;<span <span class="hl-attr">class</span>="hl-tag">h2</span>&gt;Send XRP&lt;/<span <span class="hl-attr">class</span>="hl-tag">h2</span>&gt;
+
+  &lt;<span <span class="hl-attr">class</span>="hl-tag">label</span>&gt;Your Seed (private key)&lt;/<span <span class="hl-attr">class</span>="hl-tag">label</span>&gt;
+  <span class="hl-comment">&lt;!-- Pre-fill with the seed saved on the wallet page --&gt;</span>
+  &lt;<span <span class="hl-attr">class</span>="hl-tag">input</span> <span class="hl-attr">type</span>=<span class="hl-string">&quot;text&quot;</span> <span class="hl-attr">id</span>=<span class="hl-string">&quot;seed&quot;</span> <span class="hl-attr">placeholder</span>=<span class="hl-string">&quot;sXXXXXX...&quot;</span>&gt;
+
+  &lt;<span <span class="hl-attr">class</span>="hl-tag">label</span>&gt;Destination Address&lt;/<span <span class="hl-attr">class</span>="hl-tag">label</span>&gt;
+  &lt;<span <span class="hl-attr">class</span>="hl-tag">input</span> <span class="hl-attr">type</span>=<span class="hl-string">&quot;text&quot;</span> <span class="hl-attr">id</span>=<span class="hl-string">&quot;destination&quot;</span> <span class="hl-attr">placeholder</span>=<span class="hl-string">&quot;rXXXXXX...&quot;</span>&gt;
+
+  &lt;<span <span class="hl-attr">class</span>="hl-tag">label</span>&gt;Amount (XRP)&lt;/<span <span class="hl-attr">class</span>="hl-tag">label</span>&gt;
+  &lt;<span <span class="hl-attr">class</span>="hl-tag">input</span> <span class="hl-attr">type</span>=<span class="hl-string">&quot;number&quot;</span> <span class="hl-attr">id</span>=<span class="hl-string">&quot;amount&quot;</span> <span class="hl-attr">placeholder</span>=<span class="hl-string">&quot;10&quot;</span> <span class="hl-attr">min</span>=<span class="hl-string">&quot;1&quot;</span> <span class="hl-attr">step</span>=<span class="hl-string">&quot;0.000001&quot;</span>&gt;
+
+  &lt;<span <span class="hl-attr">class</span>="hl-tag">button</span> <span class="hl-attr">onclick</span>=<span class="hl-string">&quot;sendPayment()&quot;</span>&gt;Send&lt;/<span <span class="hl-attr">class</span>="hl-tag">button</span>&gt;
+
+  &lt;<span <span class="hl-attr">class</span>="hl-tag">div</span> <span class="hl-attr">id</span>=<span class="hl-string">&quot;result&quot;</span>&gt;&lt;/<span <span class="hl-attr">class</span>="hl-tag">div</span>&gt;
+
+  &lt;<span <span class="hl-attr">class</span>="hl-tag">script</span>&gt;
+    // Pre-fill the seed from localStorage if available
+    const saved = localStorage.getItem(&quot;xrpl_seed&quot;);
+    if (saved) document.getElementById(&quot;seed&quot;).value = saved;
+
+    async function sendPayment() {
+      const result = document.getElementById(&quot;result&quot;);
+      result.style.display = &quot;block&quot;;
+      result.textContent = &quot;Submitting transaction...&quot;;
+
+      // Collect the form values
+      const body = {
+        seed:        document.getElementById(&quot;seed&quot;).value,
+        destination: document.getElementById(&quot;destination&quot;).value,
+        amount_xrp:  parseFloat(document.getElementById(&quot;amount&quot;).value)
+      };
+
+      // Send to our backend as JSON
+      const res  = await fetch(&quot;/payment/send&quot;, {
+        method: &quot;POST&quot;,
+        headers: { &quot;Content-Type&quot;: &quot;application/json&quot; },
+        body: JSON.stringify(body)
+      });
+      const data = await res.json();
+
+      if (res.ok) {
+        result.innerHTML = `
+          &lt;<span <span class="hl-attr">class</span>="hl-tag">p</span> <span class="hl-attr">style</span>=<span class="hl-string">&quot;color:green&quot;</span>&gt;Payment confirmed!&lt;/<span <span class="hl-attr">class</span>="hl-tag">p</span>&gt;
+          &lt;<span <span class="hl-attr">class</span>="hl-tag">p</span>&gt;Transaction hash:&lt;<span <span class="hl-attr">class</span>="hl-tag">br</span>&gt;
+          &lt;<span <span class="hl-attr">class</span>="hl-tag">code</span>&gt;${data.tx_hash}&lt;/<span <span class="hl-attr">class</span>="hl-tag">code</span>&gt;&lt;/<span <span class="hl-attr">class</span>="hl-tag">p</span>&gt;`;
+      } else {
+        result.innerHTML = `&lt;<span <span class="hl-attr">class</span>="hl-tag">p</span> <span class="hl-attr">style</span>=<span class="hl-string">&quot;color:red&quot;</span>&gt;Error: ${data.error}&lt;/<span <span class="hl-attr">class</span>="hl-tag">p</span>&gt;`;
+      }
+    }
+  &lt;/<span <span class="hl-attr">class</span>="hl-tag">script</span>&gt;
+&lt;/<span <span class="hl-attr">class</span>="hl-tag">body</span>&gt;
+&lt;/<span <span class="hl-attr">class</span>="hl-tag">html</span>&gt;</code></pre>
+</div>
+    </div>
+  </div>
+</div>
+<div class="step" id="step5">
+  <div class="step-number">5</div>
+  <div class="step-content">
+    <h3>Transaction History</h3>
+    <p class="explanation">account_tx returns a list of all transactions involving an account. We pull the important fields from each one and return them as a table on the page.</p>
+    <div class="tabs" data-step="step5">
+      <div class="tab-bar"><button class="tab-btn active" onclick="switchTab('step5',0)" id="step5_tab0">main.py (history endpoint)</button><button class="tab-btn " onclick="switchTab('step5',1)" id="step5_tab1">static/history.html</button></div>
+      
+<div class="tab-panel active" id="step5_panel0">
+  <div class="code-header">
+    <span class="lang-label">python</span>
+    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+  </div>
+  <pre><code><span class="hl-keyword">from</span> xrpl.models.requests <span class="hl-keyword">import</span> AccountTx
+
+<span class="hl-decorator">@app.get</span>(<span class="hl-string">&quot;/history/{address}&quot;</span>)
+<span class="hl-keyword">def</span> get_history(address: <span class="hl-builtin">str</span>, limit: <span class="hl-builtin">int</span> = <span class="hl-number">10</span>):
+    client   = get_client()
+    request  = AccountTx(account=address, limit=limit)
+    response = client.request(request)
+    <span class="hl-keyword">if</span> <span class="hl-keyword">not</span> response.is_successful():
+        <span class="hl-keyword">return</span> {<span class="hl-string">&quot;error&quot;</span>: <span class="hl-string">&quot;Could not fetch history&quot;</span>}
+
+    rows = []
+    <span class="hl-keyword">for</span> entry <span class="hl-keyword">in</span> response.result.get(<span class="hl-string">&quot;transactions&quot;</span>, []):
+        tx = entry.get(<span class="hl-string">&quot;tx&quot;</span>, {})
+        rows.append({
+            <span class="hl-string">&quot;type&quot;</span>:        tx.get(<span class="hl-string">&quot;TransactionType&quot;</span>),
+            <span class="hl-string">&quot;amount_drops&quot;</span>: tx.get(<span class="hl-string">&quot;Amount&quot;</span>, <span class="hl-string">&quot;N/A&quot;</span>),
+            <span class="hl-string">&quot;destination&quot;</span>: tx.get(<span class="hl-string">&quot;Destination&quot;</span>, <span class="hl-string">&quot;-&quot;</span>),
+            <span class="hl-string">&quot;hash&quot;</span>:        tx.get(<span class="hl-string">&quot;hash&quot;</span>, <span class="hl-string">&quot;&quot;</span>),
+            <span class="hl-string">&quot;date&quot;</span>:        tx.get(<span class="hl-string">&quot;date&quot;</span>, <span class="hl-string">&quot;&quot;</span>),
+        })
+    <span class="hl-keyword">return</span> {<span class="hl-string">&quot;transactions&quot;</span>: rows}</code></pre>
+</div>
+<div class="tab-panel " id="step5_panel1">
+  <div class="code-header">
+    <span class="lang-label">html</span>
+    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+  </div>
+  <pre><code>&lt;!DOCTYPE html&gt;
+&lt;<span <span class="hl-attr">class</span>="hl-tag">html</span> <span class="hl-attr">lang</span>=<span class="hl-string">&quot;en&quot;</span>&gt;
+&lt;<span <span class="hl-attr">class</span>="hl-tag">head</span>&gt;
+  &lt;<span <span class="hl-attr">class</span>="hl-tag">meta</span> <span class="hl-attr">charset</span>=<span class="hl-string">&quot;UTF-8&quot;</span>&gt;&lt;<span <span class="hl-attr">class</span>="hl-tag">title</span>&gt;Transaction History&lt;/<span <span class="hl-attr">class</span>="hl-tag">title</span>&gt;
+  &lt;<span <span class="hl-attr">class</span>="hl-tag">style</span>&gt;
+    body { font-family: sans-serif; max-width: 800px; margin: 40px auto; padding: 0 20px; }
+    table { width: 100%; border-collapse: collapse; font-size: 0.9em; }
+    th, td { padding: 8px 12px; border-bottom: 1px solid #ddd; text-align: left; }
+    th { background: #346AA9; color: white; }
+    code { font-size: 0.8em; word-break: break-all; }
+    button { padding: 8px 16px; background: #346AA9; color: white; border: none; cursor: pointer; }
+    input { padding: 8px; width: 60%; }
+  &lt;/<span <span class="hl-attr">class</span>="hl-tag">style</span>&gt;
+&lt;/<span <span class="hl-attr">class</span>="hl-tag">head</span>&gt;
+&lt;<span <span class="hl-attr">class</span>="hl-tag">body</span>&gt;
+  &lt;<span <span class="hl-attr">class</span>="hl-tag">h2</span>&gt;Transaction History&lt;/<span <span class="hl-attr">class</span>="hl-tag">h2</span>&gt;
+
+  <span class="hl-comment">&lt;!-- Pre-filled with the address saved on the wallet page --&gt;</span>
+  &lt;<span <span class="hl-attr">class</span>="hl-tag">input</span> <span class="hl-attr">type</span>=<span class="hl-string">&quot;text&quot;</span> <span class="hl-attr">id</span>=<span class="hl-string">&quot;address&quot;</span> <span class="hl-attr">placeholder</span>=<span class="hl-string">&quot;rXXXXXX...&quot;</span>&gt;
+  &lt;<span <span class="hl-attr">class</span>="hl-tag">button</span> <span class="hl-attr">onclick</span>=<span class="hl-string">&quot;loadHistory()&quot;</span>&gt;Load&lt;/<span <span class="hl-attr">class</span>="hl-tag">button</span>&gt;
+
+  &lt;<span <span class="hl-attr">class</span>="hl-tag">table</span> <span class="hl-attr">id</span>=<span class="hl-string">&quot;historyTable&quot;</span> <span class="hl-attr">style</span>=<span class="hl-string">&quot;margin-top:16px; display:none;&quot;</span>&gt;
+    &lt;<span <span class="hl-attr">class</span>="hl-tag">thead</span>&gt;&lt;<span <span class="hl-attr">class</span>="hl-tag">tr</span>&gt;&lt;<span <span class="hl-attr">class</span>="hl-tag">th</span>&gt;Type&lt;/<span <span class="hl-attr">class</span>="hl-tag">th</span>&gt;&lt;<span <span class="hl-attr">class</span>="hl-tag">th</span>&gt;Amount (drops)&lt;/<span <span class="hl-attr">class</span>="hl-tag">th</span>&gt;&lt;<span <span class="hl-attr">class</span>="hl-tag">th</span>&gt;Destination&lt;/<span <span class="hl-attr">class</span>="hl-tag">th</span>&gt;&lt;<span <span class="hl-attr">class</span>="hl-tag">th</span>&gt;Hash&lt;/<span <span class="hl-attr">class</span>="hl-tag">th</span>&gt;&lt;/<span <span class="hl-attr">class</span>="hl-tag">tr</span>&gt;&lt;/<span <span class="hl-attr">class</span>="hl-tag">thead</span>&gt;
+    &lt;<span <span class="hl-attr">class</span>="hl-tag">tbody</span> <span class="hl-attr">id</span>=<span class="hl-string">&quot;rows&quot;</span>&gt;&lt;/<span <span class="hl-attr">class</span>="hl-tag">tbody</span>&gt;
+  &lt;/<span <span class="hl-attr">class</span>="hl-tag">table</span>&gt;
+
+  &lt;<span <span class="hl-attr">class</span>="hl-tag">script</span>&gt;
+    // Pre-fill address from localStorage
+    const saved = localStorage.getItem(&quot;xrpl_address&quot;);
+    if (saved) document.getElementById(&quot;address&quot;).value = saved;
+
+    async function loadHistory() {
+      const address = document.getElementById(&quot;address&quot;).value;
+
+      // Fetch the history from our backend
+      const res  = await fetch(`/history/${address}`);
+      const data = await res.json();
+
+      const tbody = document.getElementById(&quot;rows&quot;);
+      tbody.innerHTML = &quot;&quot;; // clear previous rows
+
+      if (data.error) {
+        tbody.innerHTML = `&lt;<span <span class="hl-attr">class</span>="hl-tag">tr</span>&gt;&lt;<span <span class="hl-attr">class</span>="hl-tag">td</span> <span class="hl-attr">colspan</span>=<span class="hl-string">&quot;4&quot;</span> <span class="hl-attr">style</span>=<span class="hl-string">&quot;color:red&quot;</span>&gt;${data.error}&lt;/<span <span class="hl-attr">class</span>="hl-tag">td</span>&gt;&lt;/<span <span class="hl-attr">class</span>="hl-tag">tr</span>&gt;`;
+      } else {
+        data.transactions.forEach(tx =&gt; {   // loop over each transaction
+          const tr = document.createElement(&quot;tr&quot;);
+          tr.innerHTML = `
+            &lt;<span <span class="hl-attr">class</span>="hl-tag">td</span>&gt;${tx.type}&lt;/<span <span class="hl-attr">class</span>="hl-tag">td</span>&gt;
+            &lt;<span <span class="hl-attr">class</span>="hl-tag">td</span>&gt;${tx.amount_drops}&lt;/<span <span class="hl-attr">class</span>="hl-tag">td</span>&gt;
+            &lt;<span <span class="hl-attr">class</span>="hl-tag">td</span>&gt;${tx.destination}&lt;/<span <span class="hl-attr">class</span>="hl-tag">td</span>&gt;
+            &lt;<span <span class="hl-attr">class</span>="hl-tag">td</span>&gt;&lt;<span <span class="hl-attr">class</span>="hl-tag">code</span>&gt;${tx.hash.slice(0, 16)}...&lt;/<span <span class="hl-attr">class</span>="hl-tag">code</span>&gt;&lt;/<span <span class="hl-attr">class</span>="hl-tag">td</span>&gt;`;   // show first 16 chars of hash
+          tbody.appendChild(tr);
+        });
+      }
+
+      document.getElementById(&quot;historyTable&quot;).style.display = &quot;table&quot;; // show the table
+    }
+  &lt;/<span <span class="hl-attr">class</span>="hl-tag">script</span>&gt;
+&lt;/<span <span class="hl-attr">class</span>="hl-tag">body</span>&gt;
+&lt;/<span <span class="hl-attr">class</span>="hl-tag">html</span>&gt;</code></pre>
+</div>
+    </div>
+  </div>
+</div>
+<div class="step" id="step6">
+  <div class="step-number">6</div>
+  <div class="step-content">
+    <h3>Trust Lines</h3>
+    <p class="explanation">A trust line tells the ledger that you trust a specific issuer to owe you a custom token (like a stablecoin). Without it, you cannot receive that token. TrustSet sets the maximum amount you&#x27;re willing to hold.</p>
+    <div class="tabs" data-step="step6">
+      <div class="tab-bar"><button class="tab-btn active" onclick="switchTab('step6',0)" id="step6_tab0">main.py (trust line endpoint)</button></div>
+      
+<div class="tab-panel active" id="step6_panel0">
+  <div class="code-header">
+    <span class="lang-label">python</span>
+    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+  </div>
+  <pre><code><span class="hl-keyword">from</span> xrpl.models.transactions <span class="hl-keyword">import</span> TrustSet
+<span class="hl-keyword">from</span> xrpl.models.amounts <span class="hl-keyword">import</span> IssuedCurrencyAmount
+
+<span class="hl-keyword">class</span> TrustLineRequest(BaseModel):
+    seed:     <span class="hl-builtin">str</span>    <span class="hl-comment"># your private seed</span>
+    issuer:   <span class="hl-builtin">str</span>    <span class="hl-comment"># the address of the token issuer</span>
+    currency: <span class="hl-builtin">str</span>    <span class="hl-comment"># 3-letter currency code, e.g. &quot;USD&quot;</span>
+    limit:    <span class="hl-builtin">str</span>    <span class="hl-comment"># maximum amount you trust them to owe you, e.g. &quot;1000&quot;</span>
+
+<span class="hl-decorator">@app.post</span>(<span class="hl-string">&quot;/trustline/set&quot;</span>)
+<span class="hl-keyword">def</span> set_trust_line(data: TrustLineRequest):
+    client = get_client()
+    wallet = Wallet.from_seed(data.seed)
+
+    tx = TrustSet(
+        account=wallet.classic_address,
+        limit_amount=IssuedCurrencyAmount(
+            currency=data.currency,
+            issuer=data.issuer,
+            value=data.limit
+        )
+    )
+
+    response = submit_and_wait(tx, client, wallet)
+    <span class="hl-keyword">if</span> response.is_successful():
+        <span class="hl-keyword">return</span> {<span class="hl-string">&quot;status&quot;</span>: <span class="hl-string">&quot;trust line set&quot;</span>, <span class="hl-string">&quot;tx_hash&quot;</span>: response.result[<span class="hl-string">&quot;hash&quot;</span>]}
+    <span class="hl-keyword">return</span> {<span class="hl-string">&quot;error&quot;</span>: response.result.get(<span class="hl-string">&quot;engine_result_message&quot;</span>)}</code></pre>
+</div>
+    </div>
+  </div>
+</div>
+<div class="step" id="step7">
+  <div class="step-number">7</div>
+  <div class="step-content">
+    <h3>Escrow</h3>
+    <p class="explanation">An escrow locks XRP until either a set time passes or a crypto-condition is fulfilled. This is useful for delayed payments or trustless agreements. EscrowCreate locks the funds; EscrowFinish releases them.</p>
+    <div class="tabs" data-step="step7">
+      <div class="tab-bar"><button class="tab-btn active" onclick="switchTab('step7',0)" id="step7_tab0">main.py (escrow endpoints)</button></div>
+      
+<div class="tab-panel active" id="step7_panel0">
+  <div class="code-header">
+    <span class="lang-label">python</span>
+    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+  </div>
+  <pre><code><span class="hl-keyword">from</span> xrpl.models.transactions <span class="hl-keyword">import</span> EscrowCreate, EscrowFinish
+<span class="hl-keyword">from</span> xrpl.models.requests <span class="hl-keyword">import</span> AccountInfo
+<span class="hl-keyword">import</span> time
+
+<span class="hl-keyword">class</span> EscrowRequest(BaseModel):
+    seed:         <span class="hl-builtin">str</span>    <span class="hl-comment"># sender&#x27;s seed</span>
+    destination:  <span class="hl-builtin">str</span>    <span class="hl-comment"># who receives the XRP when it unlocks</span>
+    amount_xrp:   <span class="hl-builtin">float</span>
+    finish_after_seconds: <span class="hl-builtin">int</span>  <span class="hl-comment"># how many seconds from now until the funds unlock</span>
+
+<span class="hl-decorator">@app.post</span>(<span class="hl-string">&quot;/escrow/create&quot;</span>)
+<span class="hl-keyword">def</span> create_escrow(data: EscrowRequest):
+    client    = get_client()
+    wallet    = Wallet.from_seed(data.seed)
+    drops     = xrpl.utils.xrp_to_drops(data.amount_xrp)
+
+    <span class="hl-comment"># XRPL time is seconds since Jan 1 2000, not Unix epoch</span>
+    xrpl_epoch_offset = <span class="hl-number">946684800</span>
+    finish_after = <span class="hl-builtin">int</span>(time.time()) - xrpl_epoch_offset + data.finish_after_seconds
+
+    tx = EscrowCreate(
+        account=wallet.classic_address,
+        destination=data.destination,
+        amount=drops,
+        finish_after=finish_after
+    )
+
+    response = submit_and_wait(tx, client, wallet)
+    <span class="hl-keyword">if</span> response.is_successful():
+        <span class="hl-keyword">return</span> {
+            <span class="hl-string">&quot;tx_hash&quot;</span>: response.result[<span class="hl-string">&quot;hash&quot;</span>],
+            <span class="hl-string">&quot;sequence&quot;</span>: response.result[<span class="hl-string">&quot;Sequence&quot;</span>],  <span class="hl-comment"># needed to finish/cancel the escrow later</span>
+            <span class="hl-string">&quot;unlocks_in_seconds&quot;</span>: data.finish_after_seconds
+        }
+    <span class="hl-keyword">return</span> {<span class="hl-string">&quot;error&quot;</span>: response.result.get(<span class="hl-string">&quot;engine_result_message&quot;</span>)}
+
+<span class="hl-keyword">class</span> EscrowFinishRequest(BaseModel):
+    seed:            <span class="hl-builtin">str</span>
+    owner:           <span class="hl-builtin">str</span>  <span class="hl-comment"># address that created the escrow</span>
+    offer_sequence:  <span class="hl-builtin">int</span>  <span class="hl-comment"># the Sequence from the EscrowCreate response</span>
+
+<span class="hl-decorator">@app.post</span>(<span class="hl-string">&quot;/escrow/finish&quot;</span>)
+<span class="hl-keyword">def</span> finish_escrow(data: EscrowFinishRequest):
+    client = get_client()
+    wallet = Wallet.from_seed(data.seed)
+    tx = EscrowFinish(
+        account=wallet.classic_address,
+        owner=data.owner,
+        offer_sequence=data.offer_sequence
+    )
+    response = submit_and_wait(tx, client, wallet)
+    <span class="hl-keyword">if</span> response.is_successful():
+        <span class="hl-keyword">return</span> {<span class="hl-string">&quot;status&quot;</span>: <span class="hl-string">&quot;escrow released&quot;</span>, <span class="hl-string">&quot;tx_hash&quot;</span>: response.result[<span class="hl-string">&quot;hash&quot;</span>]}
+    <span class="hl-keyword">return</span> {<span class="hl-string">&quot;error&quot;</span>: response.result.get(<span class="hl-string">&quot;engine_result_message&quot;</span>)}</code></pre>
+</div>
+    </div>
+  </div>
+</div>
+<div class="step" id="step8">
+  <div class="step-number">8</div>
+  <div class="step-content">
+    <h3>Mint an NFT</h3>
+    <p class="explanation">NFTokenMint creates a non-fungible token on the XRPL. The URI field typically points to the token&#x27;s metadata (a JSON file describing the NFT). Flags=8 means the NFT can be transferred to others.</p>
+    <div class="tabs" data-step="step8">
+      <div class="tab-bar"><button class="tab-btn active" onclick="switchTab('step8',0)" id="step8_tab0">main.py (NFT endpoint)</button><button class="tab-btn " onclick="switchTab('step8',1)" id="step8_tab1">static/nft.html</button></div>
+      
+<div class="tab-panel active" id="step8_panel0">
+  <div class="code-header">
+    <span class="lang-label">python</span>
+    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+  </div>
+  <pre><code><span class="hl-keyword">from</span> xrpl.models.transactions <span class="hl-keyword">import</span> NFTokenMint
+
+<span class="hl-keyword">class</span> NFTMintRequest(BaseModel):
+    seed:         <span class="hl-builtin">str</span>
+    uri:          <span class="hl-builtin">str</span>   <span class="hl-comment"># URL pointing to the NFT metadata (e.g. ipfs://... or https://...)</span>
+    taxon:        <span class="hl-builtin">int</span>   <span class="hl-comment"># a number you choose to categorize your NFTs</span>
+    transfer_fee: <span class="hl-builtin">int</span>   <span class="hl-comment"># royalty in basis points (0–50000). 1000 = 10%</span>
+
+<span class="hl-decorator">@app.post</span>(<span class="hl-string">&quot;/nft/mint&quot;</span>)
+<span class="hl-keyword">def</span> mint_nft(data: NFTMintRequest):
+    client = get_client()
+    wallet = Wallet.from_seed(data.seed)
+
+    <span class="hl-comment"># URI must be hex-encoded</span>
+    uri_hex = data.uri.encode(<span class="hl-string">&quot;utf-8&quot;</span>).hex().upper()
+
+    tx = NFTokenMint(
+        account=wallet.classic_address,
+        uri=uri_hex,
+        nftoken_taxon=data.taxon,
+        transfer_fee=data.transfer_fee,
+        flags=<span class="hl-number">8</span>,  <span class="hl-comment"># tfTransferable - allows this NFT to be sold/transferred</span>
+    )
+
+    response = submit_and_wait(tx, client, wallet)
+    <span class="hl-keyword">if</span> response.is_successful():
+        <span class="hl-comment"># The NFT ID is in the metadata of the transaction</span>
+        nfts = response.result.get(<span class="hl-string">&quot;meta&quot;</span>, {}).get(<span class="hl-string">&quot;nftoken_id&quot;</span>, <span class="hl-string">&quot;&quot;</span>)
+        <span class="hl-keyword">return</span> {<span class="hl-string">&quot;status&quot;</span>: <span class="hl-string">&quot;minted&quot;</span>, <span class="hl-string">&quot;tx_hash&quot;</span>: response.result[<span class="hl-string">&quot;hash&quot;</span>], <span class="hl-string">&quot;nftoken_id&quot;</span>: nfts}
+    <span class="hl-keyword">return</span> {<span class="hl-string">&quot;error&quot;</span>: response.result.get(<span class="hl-string">&quot;engine_result_message&quot;</span>)}</code></pre>
+</div>
+<div class="tab-panel " id="step8_panel1">
+  <div class="code-header">
+    <span class="lang-label">html</span>
+    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+  </div>
+  <pre><code>&lt;!DOCTYPE html&gt;
+&lt;<span <span class="hl-attr">class</span>="hl-tag">html</span> <span class="hl-attr">lang</span>=<span class="hl-string">&quot;en&quot;</span>&gt;
+&lt;<span <span class="hl-attr">class</span>="hl-tag">head</span>&gt;
+  &lt;<span <span class="hl-attr">class</span>="hl-tag">meta</span> <span class="hl-attr">charset</span>=<span class="hl-string">&quot;UTF-8&quot;</span>&gt;&lt;<span <span class="hl-attr">class</span>="hl-tag">title</span>&gt;Mint NFT&lt;/<span <span class="hl-attr">class</span>="hl-tag">title</span>&gt;
+  &lt;<span <span class="hl-attr">class</span>="hl-tag">style</span>&gt;
+    body { font-family: sans-serif; max-width: 500px; margin: 40px auto; padding: 0 20px; }
+    input { display: block; width: 100%; padding: 8px; margin: 6px 0; box-sizing: border-box; }
+    button { padding: 10px 20px; background: #346AA9; color: white; border: none; cursor: pointer; border-radius: 4px; }
+    #result { margin-top: 16px; background: #f5f5f5; padding: 12px; border-radius: 4px; display: none; word-break: break-all; }
+  &lt;/<span <span class="hl-attr">class</span>="hl-tag">style</span>&gt;
+&lt;/<span <span class="hl-attr">class</span>="hl-tag">head</span>&gt;
+&lt;<span <span class="hl-attr">class</span>="hl-tag">body</span>&gt;
+  &lt;<span <span class="hl-attr">class</span>="hl-tag">h2</span>&gt;Mint an NFT&lt;/<span <span class="hl-attr">class</span>="hl-tag">h2</span>&gt;
+
+  &lt;<span <span class="hl-attr">class</span>="hl-tag">label</span>&gt;Your Seed&lt;/<span <span class="hl-attr">class</span>="hl-tag">label</span>&gt;
+  &lt;<span <span class="hl-attr">class</span>="hl-tag">input</span> <span class="hl-attr">type</span>=<span class="hl-string">&quot;text&quot;</span> <span class="hl-attr">id</span>=<span class="hl-string">&quot;seed&quot;</span> <span class="hl-attr">placeholder</span>=<span class="hl-string">&quot;sXXXXXX...&quot;</span>&gt;
+
+  &lt;<span <span class="hl-attr">class</span>="hl-tag">label</span>&gt;Metadata URI (where the NFT&#x27;s data lives)&lt;/<span <span class="hl-attr">class</span>="hl-tag">label</span>&gt;
+  &lt;<span <span class="hl-attr">class</span>="hl-tag">input</span> <span class="hl-attr">type</span>=<span class="hl-string">&quot;text&quot;</span> <span class="hl-attr">id</span>=<span class="hl-string">&quot;uri&quot;</span> <span class="hl-attr">placeholder</span>=<span class="hl-string">&quot;https://example.com/nft/1.json&quot;</span>&gt;
+
+  &lt;<span <span class="hl-attr">class</span>="hl-tag">label</span>&gt;Taxon (your category number, e.g. 0)&lt;/<span <span class="hl-attr">class</span>="hl-tag">label</span>&gt;
+  &lt;<span <span class="hl-attr">class</span>="hl-tag">input</span> <span class="hl-attr">type</span>=<span class="hl-string">&quot;number&quot;</span> <span class="hl-attr">id</span>=<span class="hl-string">&quot;taxon&quot;</span> <span class="hl-attr">value</span>=<span class="hl-string">&quot;0&quot;</span> <span class="hl-attr">min</span>=<span class="hl-string">&quot;0&quot;</span>&gt;
+
+  &lt;<span <span class="hl-attr">class</span>="hl-tag">label</span>&gt;Transfer Fee (basis points, e.g. 1000 = 10%)&lt;/<span <span class="hl-attr">class</span>="hl-tag">label</span>&gt;
+  &lt;<span <span class="hl-attr">class</span>="hl-tag">input</span> <span class="hl-attr">type</span>=<span class="hl-string">&quot;number&quot;</span> <span class="hl-attr">id</span>=<span class="hl-string">&quot;fee&quot;</span> <span class="hl-attr">value</span>=<span class="hl-string">&quot;0&quot;</span> <span class="hl-attr">min</span>=<span class="hl-string">&quot;0&quot;</span> <span class="hl-attr">max</span>=<span class="hl-string">&quot;50000&quot;</span>&gt;
+
+  &lt;<span <span class="hl-attr">class</span>="hl-tag">button</span> <span class="hl-attr">onclick</span>=<span class="hl-string">&quot;mintNFT()&quot;</span>&gt;Mint NFT&lt;/<span <span class="hl-attr">class</span>="hl-tag">button</span>&gt;
+  &lt;<span <span class="hl-attr">class</span>="hl-tag">div</span> <span class="hl-attr">id</span>=<span class="hl-string">&quot;result&quot;</span>&gt;&lt;/<span <span class="hl-attr">class</span>="hl-tag">div</span>&gt;
+
+  &lt;<span <span class="hl-attr">class</span>="hl-tag">script</span>&gt;
+    const savedSeed = localStorage.getItem(&quot;xrpl_seed&quot;);
+    if (savedSeed) document.getElementById(&quot;seed&quot;).value = savedSeed;
+
+    async function mintNFT() {
+      const result = document.getElementById(&quot;result&quot;);
+      result.style.display = &quot;block&quot;;
+      result.textContent = &quot;Minting...&quot;;
+
+      // Collect values from the form
+      const body = {
+        seed:         document.getElementById(&quot;seed&quot;).value,
+        uri:          document.getElementById(&quot;uri&quot;).value,
+        taxon:        parseInt(document.getElementById(&quot;taxon&quot;).value),
+        transfer_fee: parseInt(document.getElementById(&quot;fee&quot;).value)
+      };
+
+      const res  = await fetch(&quot;/nft/mint&quot;, {
+        method: &quot;POST&quot;,
+        headers: { &quot;Content-Type&quot;: &quot;application/json&quot; },
+        body: JSON.stringify(body)   // send as JSON to the backend
+      });
+      const data = await res.json();
+
+      if (res.ok) {
+        result.innerHTML = `
+          &lt;<span <span class="hl-attr">class</span>="hl-tag">p</span> <span class="hl-attr">style</span>=<span class="hl-string">&quot;color:green&quot;</span>&gt;&lt;<span <span class="hl-attr">class</span>="hl-tag">strong</span>&gt;NFT Minted!&lt;/<span <span class="hl-attr">class</span>="hl-tag">strong</span>&gt;&lt;/<span <span class="hl-attr">class</span>="hl-tag">p</span>&gt;
+          &lt;<span <span class="hl-attr">class</span>="hl-tag">p</span>&gt;Transaction hash:&lt;<span <span class="hl-attr">class</span>="hl-tag">br</span>&gt;&lt;<span <span class="hl-attr">class</span>="hl-tag">code</span>&gt;${data.tx_hash}&lt;/<span <span class="hl-attr">class</span>="hl-tag">code</span>&gt;&lt;/<span <span class="hl-attr">class</span>="hl-tag">p</span>&gt;
+          &lt;<span <span class="hl-attr">class</span>="hl-tag">p</span>&gt;NFToken ID:&lt;<span <span class="hl-attr">class</span>="hl-tag">br</span>&gt;&lt;<span <span class="hl-attr">class</span>="hl-tag">code</span>&gt;${data.nftoken_id || &quot;See transaction on explorer&quot;}&lt;/<span <span class="hl-attr">class</span>="hl-tag">code</span>&gt;&lt;/<span <span class="hl-attr">class</span>="hl-tag">p</span>&gt;`;
+      } else {
+        result.innerHTML = `&lt;<span <span class="hl-attr">class</span>="hl-tag">p</span> <span class="hl-attr">style</span>=<span class="hl-string">&quot;color:red&quot;</span>&gt;Error: ${data.error}&lt;/<span <span class="hl-attr">class</span>="hl-tag">p</span>&gt;`;
+      }
+    }
+  &lt;/<span <span class="hl-attr">class</span>="hl-tag">script</span>&gt;
+&lt;/<span <span class="hl-attr">class</span>="hl-tag">body</span>&gt;
+&lt;/<span <span class="hl-attr">class</span>="hl-tag">html</span>&gt;</code></pre>
+</div>
+    </div>
+  </div>
+</div></div>
+  </main>
+</div>
+<script>
+(function() {
+  // Restore saved theme preference before first paint
+  var saved = localStorage.getItem("pyoffline-theme");
+  if (saved === "light") {
+    document.documentElement.classList.add("light"); // apply class immediately
+  }
+  // Once DOM is ready, sync the checkbox state
+  document.addEventListener("DOMContentLoaded", function() {
+    var toggle = document.getElementById("themeToggle");
+    if (!toggle) return;
+    toggle.checked = (localStorage.getItem("pyoffline-theme") === "light");
+    toggle.addEventListener("change", function() {
+      if (this.checked) {
+        document.documentElement.classList.add("light");    // switch to light
+        localStorage.setItem("pyoffline-theme", "light");  // remember the choice
+      } else {
+        document.documentElement.classList.remove("light"); // back to dark
+        localStorage.setItem("pyoffline-theme", "dark");
+      }
+    });
+  });
+})();
+
+function switchTab(stepId, idx) {
+  // Find all tab buttons and panels belonging to this step
+  var step   = document.getElementById(stepId);
+  var btns   = step.querySelectorAll(".tab-btn");
+  var panels = step.querySelectorAll(".tab-panel");
+  // Remove active from all, then add it to the clicked one
+  btns.forEach(function(b) { b.classList.remove("active"); });
+  panels.forEach(function(p) { p.classList.remove("active"); });
+  btns[idx].classList.add("active");
+  panels[idx].classList.add("active");
+}
+
+function copyCode(btn) {
+  // Walk up to the panel, find the code block, copy its plain text (no HTML tags)
+  var code = btn.closest(".tab-panel").querySelector("code").innerText;
+  navigator.clipboard.writeText(code).then(function() {
+    var orig = btn.textContent;
+    btn.textContent = "Copied!";                              // briefly show confirmation
+    setTimeout(function() { btn.textContent = orig; }, 1500); // restore after 1.5s
+  });
+}
+
+// ── Responsive sidebar ──────────────────────────────────────
+function toggleSidebar() {
+  var sidebar = document.getElementById("guideSidebar");
+  var overlay = document.getElementById("sidebarOverlay");
+  if (!sidebar) return;
+  sidebar.classList.toggle("open");
+  overlay.classList.toggle("open");
+}
+
+// Close sidebar automatically when a step link is clicked (so the scroll happens cleanly)
+document.addEventListener("DOMContentLoaded", function() {
+  var sidebar = document.getElementById("guideSidebar");
+  if (!sidebar) return;
+  sidebar.querySelectorAll("nav a").forEach(function(a) {
+    a.addEventListener("click", function() {
+      sidebar.classList.remove("open");
+      var overlay = document.getElementById("sidebarOverlay");
+      if (overlay) overlay.classList.remove("open");
+    });
+  });
+});
+</script>
+</body>
+</html>

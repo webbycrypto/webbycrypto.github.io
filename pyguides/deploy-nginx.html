@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Nginx Reverse Proxy - Deployment Series - pyoffline</title>
+<style>
+:root{--bg:#121212;--surface:#1e1e1e;--surface2:#2a2a2a;--sidebar-bg:#1a1a1a;--text:#e0e0e0;--text-muted:#aaa;--text-dim:#666;--border:#333;--code-bg:#1e1e1e;--code-text:#d4d4d4;--shadow:rgba(0,0,0,.4);--accent:#607d8b;--hl-keyword:#569cd6;--hl-string:#ce9178;--hl-comment:#6a9955;--hl-number:#b5cea8;--hl-decorator:#dcdcaa;--hl-builtin:#4ec9b0}
+html.light{--bg:#f5f7fa;--surface:#fff;--surface2:#eef0f3;--sidebar-bg:#fff;--text:#1a1a1a;--text-muted:#555;--text-dim:#888;--border:#dde1e7;--code-bg:#f8f8f8;--code-text:#24292e;--shadow:rgba(0,0,0,.1);--hl-keyword:#00f;--hl-string:#a31515;--hl-comment:#008000;--hl-number:#098658;--hl-decorator:#795e26;--hl-builtin:#267f99}
+.hl-keyword{color:var(--hl-keyword)}.hl-string{color:var(--hl-string)}.hl-comment{color:#adb4a7;font-size:12px;font-style:italic}.hl-number{color:var(--hl-number)}.hl-decorator{color:var(--hl-decorator)}.hl-builtin{color:var(--hl-builtin)}
+*{box-sizing:border-box;margin:0;padding:0}body{background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;transition:background .2s,color .2s}a{color:var(--accent)}
+.layout{display:flex;min-height:100vh}.sidebar{width:260px;min-width:260px;background:var(--sidebar-bg);border-right:1px solid var(--border);padding:24px 16px;position:sticky;top:0;height:100vh;overflow-y:auto}.sidebar h2{font-size:1.1rem;margin:16px 0 8px;color:var(--text)}.sidebar nav ol{padding-left:18px}.sidebar nav li{margin:6px 0}.sidebar nav a{color:var(--text-muted);text-decoration:none;font-size:.85rem}.sidebar nav a:hover{color:var(--accent)}.back-link{color:var(--text-dim);text-decoration:none;font-size:.85rem;display:block;margin-bottom:8px}
+.install-box{margin-top:24px;background:var(--bg);border:1px solid var(--border);padding:12px;border-radius:6px;font-size:.8rem}.install-box code{display:block;word-break:break-all;color:var(--hl-comment);font-family:monospace;margin-top:4px}
+.series-box{margin-top:16px;background:var(--bg);border:1px solid var(--border);padding:12px;border-radius:6px;font-size:.8rem}.series-box p{color:var(--text-muted);margin-bottom:6px;font-weight:600}.series-box a{display:block;color:var(--text-muted);text-decoration:none;padding:2px 0;font-size:.8rem}.series-box a:hover{color:var(--accent)}.series-box a.current{color:var(--accent);font-weight:600}
+main{flex:1;padding:40px;max-width:860px}.guide-header{padding:20px 20px 20px 24px;background:var(--surface);border-radius:8px;margin-bottom:32px;box-shadow:0 1px 3px var(--shadow)}.guide-header h1{font-size:1.8rem;margin-bottom:8px}.guide-header p{color:var(--text-muted)}
+.step{display:flex;gap:16px;margin-bottom:40px}.step-number{width:32px;min-width:32px;height:32px;background:var(--accent);border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:bold;font-size:.9rem;margin-top:4px;color:#fff}.step-content{flex:1;min-width:0}.step-content h3{font-size:1.1rem;margin-bottom:8px;color:var(--text)}.explanation{color:var(--text-muted);font-size:.9rem;line-height:1.6;margin-bottom:14px}
+.info-box{background:var(--surface);border-left:3px solid var(--accent);border-radius:0 6px 6px 0;padding:12px 16px;margin-bottom:14px;font-size:.88rem;color:var(--text-muted);line-height:1.6}.info-box strong{color:var(--text)}
+.warn-box{background:var(--surface);border-left:3px solid #ff9800;border-radius:0 6px 6px 0;padding:12px 16px;margin-bottom:14px;font-size:.88rem;color:var(--text-muted);line-height:1.6}.warn-box strong{color:var(--text)}
+.tabs{background:var(--surface);border-radius:6px;overflow:hidden;border:1px solid var(--border)}.tab-bar{display:flex;background:var(--surface2);overflow-x:auto;border-bottom:1px solid var(--border)}.tab-btn{padding:8px 16px;background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:.8rem;white-space:nowrap;border-bottom:2px solid transparent;margin-bottom:-1px}.tab-btn.active{color:var(--text);border-bottom-color:var(--accent)}.tab-panel{display:none}.tab-panel.active{display:block}
+.code-header{display:flex;justify-content:space-between;align-items:center;padding:5px 12px;background:var(--surface2);border-bottom:1px solid var(--border)}.lang-label{font-size:.72rem;color:var(--text-dim);text-transform:uppercase;letter-spacing:.04em}.copy-btn{background:none;border:1px solid var(--border);color:var(--text-muted);padding:2px 8px;cursor:pointer;border-radius:3px;font-size:.72rem}.copy-btn:hover{color:var(--text);border-color:var(--text-muted)}
+pre{overflow-x:auto;padding:16px;background:var(--code-bg)}code{font-family:"Fira Code","Cascadia Code",Consolas,monospace;font-size:.82rem;line-height:1.65;color:var(--code-text)}
+.theme-row{display:flex;align-items:center;gap:8px;margin-top:20px}.theme-label{font-size:.78rem;color:var(--text-muted)}.toggle-switch{position:relative;display:inline-block;width:40px;height:22px}.toggle-switch input{opacity:0;width:0;height:0}.slider{position:absolute;cursor:pointer;inset:0;background:var(--surface2);border:1px solid var(--border);border-radius:22px;transition:background .2s}.slider:before{content:"";position:absolute;width:16px;height:16px;left:2px;top:2px;background:var(--text-muted);border-radius:50%;transition:transform .2s,background .2s}.toggle-switch input:checked+.slider{background:var(--accent);border-color:var(--accent)}.toggle-switch input:checked+.slider:before{transform:translateX(18px);background:#fff}
+.sidebar-toggle{display:none;position:fixed;top:12px;left:12px;z-index:300;background:var(--accent);color:#fff;border:none;padding:7px 14px;border-radius:6px;cursor:pointer;font-size:.85rem;font-weight:600;box-shadow:0 2px 8px var(--shadow);align-items:center;gap:6px}
+.sidebar-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:190}.sidebar-overlay.open{display:block}
+@media(max-width:900px){.sidebar-toggle{display:flex}.layout{display:block}.sidebar{position:fixed;left:-280px;top:0;height:100vh;z-index:200;transition:left .25s ease;box-shadow:2px 0 16px var(--shadow);min-width:260px}.sidebar.open{left:0}main{padding:60px 20px 40px;max-width:100%}pre{overflow-x:auto;max-width:100%;white-space:pre-wrap;word-break:break-word}.tabs{max-width:100%}}
+</style>
+</head>
+<body>
+<button class="sidebar-toggle" id="sidebarToggle" onclick="toggleSidebar()">&#9776; Steps</button>
+<div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+<div class="layout">
+  <aside class="sidebar" id="guideSidebar">
+    <a href="index.html" class="back-link">← All Guides</a>
+    <h2>Deployment + DevOps</h2>
+    <nav><ol>
+      <li><a href="#step1">What Nginx Does</a></li>
+      <li><a href="#step2">Install Nginx</a></li>
+      <li><a href="#step3">Write the Site Config</a></li>
+      <li><a href="#step4">Enable the Site</a></li>
+      <li><a href="#step5">Serve Static Files</a></li>
+      <li><a href="#step6">Common Errors</a></li>
+      <li><a href="#step7">What's Next</a></li>
+    </ol></nav>
+    <div class="install-box">
+      <p><strong>Install on server</strong></p>
+      <code>sudo apt install nginx</code>
+      <p style="margin-top:10px"><strong>Key files</strong></p>
+      <code>/etc/nginx/sites-available/</code>
+      <code style="margin-top:4px">/etc/nginx/sites-enabled/</code>
+      <code style="margin-top:4px">/var/log/nginx/error.log</code>
+    </div>
+    <div class="series-box">
+      <p>Deployment + DevOps series</p>
+      <a href="deploy-vps.html">VPS Setup + SSH</a>
+      <a href="deploy-nginx.html" class="current">&#10003; Nginx Reverse Proxy</a>
+      <a href="deploy-ssl.html">HTTPS with Certbot</a>
+      <a href="deploy-systemd.html">systemd + Env Vars</a>
+      <a href="deploy-cicd.html">GitHub Actions CI/CD</a>
+    </div>
+    <div class="theme-row">
+      <span class="theme-label">Dark</span>
+      <label class="toggle-switch"><input type="checkbox" id="themeToggle"><span class="slider"></span></label>
+      <span class="theme-label">Light</span>
+    </div>
+  </aside>
+
+  <main>
+    <header class="guide-header" style="border-left:5px solid #607d8b">
+      <h1>Nginx Reverse Proxy</h1>
+      <p>Put Nginx in front of uvicorn. Nginx listens on port 80 (HTTP) and forwards requests to uvicorn running on port 8000. This gives you a standard URL, better performance for static files, and a foundation for HTTPS.</p>
+    </header>
+    <div class="steps">
+
+      <div class="step" id="step1">
+        <div class="step-number">1</div>
+        <div class="step-content">
+          <h3>What Nginx Does</h3>
+          <p class="explanation">Nginx sits between the internet and uvicorn. Browsers connect to Nginx on port 80 (or 443 for HTTPS). Nginx forwards the request to uvicorn on localhost:8000, gets the response, and sends it back. uvicorn never talks directly to the outside world.</p>
+          <div class="tabs">
+            <div class="tab-bar"><button class="tab-btn active" onclick="switchTab('step1',0)">Request flow</button></div>
+            <div class="tab-panel active">
+              <div class="code-header"><span class="lang-label">text</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code>Browser → port 80 → Nginx → localhost:8000 → uvicorn → FastAPI
+
+Without Nginx:  http://yoursite.com:8000  (ugly, non-standard)
+With Nginx:     http://yoursite.com       (standard port 80)
+With Nginx+SSL: https://yoursite.com      (secure, professional)
+
+Nginx also:
+  - Serves static files directly (faster than Python)
+  - Handles SSL/TLS termination (with Certbot)
+  - Can rate-limit, add headers, redirect URLs
+  - Can proxy to multiple backends (load balancing)</code></pre>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="step" id="step2">
+        <div class="step-number">2</div>
+        <div class="step-content">
+          <h3>Install Nginx</h3>
+          <div class="tabs">
+            <div class="tab-bar"><button class="tab-btn active" onclick="switchTab('step2',0)">bash</button></div>
+            <div class="tab-panel active">
+              <div class="code-header"><span class="lang-label">bash</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code>sudo apt install -y nginx
+
+<span class="hl-comment"># Start and enable Nginx (so it starts on boot)</span>
+sudo systemctl enable nginx
+sudo systemctl start nginx
+
+<span class="hl-comment"># Test it's working</span>
+curl http://localhost
+<span class="hl-comment"># Should return the default Nginx welcome page HTML</span>
+
+<span class="hl-comment"># Or visit http://YOUR_SERVER_IP in your browser</span>
+<span class="hl-comment"># You should see "Welcome to nginx!"</span></code></pre>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="step" id="step3">
+        <div class="step-number">3</div>
+        <div class="step-content">
+          <h3>Write the Site Config</h3>
+          <p class="explanation">Each website gets its own config file in <code>/etc/nginx/sites-available/</code>. The core directive is <code>proxy_pass</code> — it tells Nginx where to forward requests.</p>
+          <div class="tabs">
+            <div class="tab-bar">
+              <button class="tab-btn active" onclick="switchTab('step3',0)">Minimal config (domain)</button>
+              <button class="tab-btn" onclick="switchTab('step3',1)">IP-only (no domain)</button>
+            </div>
+            <div class="tab-panel active">
+              <div class="code-header"><span class="lang-label">nginx — /etc/nginx/sites-available/myapp</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code>server {
+    listen 80;
+    server_name yourdomain.com www.yourdomain.com;
+
+    location / {
+        proxy_pass         http://127.0.0.1:8000;
+        proxy_http_version 1.1;
+        proxy_set_header   Host              $host;
+        proxy_set_header   X-Real-IP         $remote_addr;
+        proxy_set_header   X-Forwarded-For   $proxy_add_x_forwarded_for;
+        proxy_set_header   X-Forwarded-Proto $scheme;
+        <span class="hl-comment"># These headers tell FastAPI the original request info</span>
+        <span class="hl-comment"># without them, request.client.host would show 127.0.0.1</span>
+    }
+}</code></pre>
+            </div>
+            <div class="tab-panel">
+              <div class="code-header"><span class="lang-label">nginx — IP only (testing)</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code>server {
+    listen 80 default_server;
+    server_name _;     <span class="hl-comment"># matches any hostname / IP</span>
+
+    location / {
+        proxy_pass         http://127.0.0.1:8000;
+        proxy_http_version 1.1;
+        proxy_set_header   Host            $host;
+        proxy_set_header   X-Real-IP       $remote_addr;
+    }
+}
+
+<span class="hl-comment"># Use this if you don't have a domain yet</span>
+<span class="hl-comment"># Access via: http://YOUR_SERVER_IP</span></code></pre>
+            </div>
+          </div>
+          <div class="info-box" style="margin-top:12px"><strong>Create the file:</strong> <code>sudo nano /etc/nginx/sites-available/myapp</code> — paste the config, save with Ctrl+O, exit with Ctrl+X.</div>
+        </div>
+      </div>
+
+      <div class="step" id="step4">
+        <div class="step-number">4</div>
+        <div class="step-content">
+          <h3>Enable the Site</h3>
+          <p class="explanation">Nginx reads from <code>sites-enabled/</code> — symlink your config there, remove the default, test, and reload.</p>
+          <div class="tabs">
+            <div class="tab-bar"><button class="tab-btn active" onclick="switchTab('step4',0)">bash</button></div>
+            <div class="tab-panel active">
+              <div class="code-header"><span class="lang-label">bash</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-comment"># Create a symlink from sites-enabled to sites-available</span>
+sudo ln -s /etc/nginx/sites-available/myapp /etc/nginx/sites-enabled/
+
+<span class="hl-comment"># Remove the default site (optional but cleaner)</span>
+sudo rm /etc/nginx/sites-enabled/default
+
+<span class="hl-comment"># Test the config syntax — always do this before reloading</span>
+sudo nginx -t
+<span class="hl-comment"># Should say: nginx: configuration file ... syntax is ok</span>
+
+<span class="hl-comment"># Reload Nginx (graceful — no dropped connections)</span>
+sudo systemctl reload nginx
+
+<span class="hl-comment"># Make sure uvicorn is running on port 8000, then test:</span>
+curl http://localhost          <span class="hl-comment"># should return your FastAPI response</span>
+curl http://YOUR_SERVER_IP     <span class="hl-comment"># same from outside</span></code></pre>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="step" id="step5">
+        <div class="step-number">5</div>
+        <div class="step-content">
+          <h3>Serve Static Files via Nginx</h3>
+          <p class="explanation">Nginx can serve CSS, JS, and images directly from disk — much faster than routing them through Python. Add a <code>location /static</code> block that points to your app's static folder.</p>
+          <div class="tabs">
+            <div class="tab-bar"><button class="tab-btn active" onclick="switchTab('step5',0)">Updated config with static files</button></div>
+            <div class="tab-panel active">
+              <div class="code-header"><span class="lang-label">nginx</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code>server {
+    listen 80;
+    server_name yourdomain.com;
+
+    <span class="hl-comment"># Serve static files directly — bypass Python entirely</span>
+    location /static {
+        alias /home/deploy/apps/yourapp/static;
+        expires 30d;              <span class="hl-comment"># tell browsers to cache for 30 days</span>
+        add_header Cache-Control "public";
+    }
+
+    <span class="hl-comment"># Everything else goes to FastAPI</span>
+    location / {
+        proxy_pass         http://127.0.0.1:8000;
+        proxy_http_version 1.1;
+        proxy_set_header   Host            $host;
+        proxy_set_header   X-Real-IP       $remote_addr;
+        proxy_set_header   X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header   X-Forwarded-Proto $scheme;
+    }
+}</code></pre>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="step" id="step6">
+        <div class="step-number">6</div>
+        <div class="step-content">
+          <h3>Common Errors</h3>
+          <div class="tabs">
+            <div class="tab-bar"><button class="tab-btn active" onclick="switchTab('step6',0)">Error reference</button></div>
+            <div class="tab-panel active">
+              <div class="code-header"><span class="lang-label">text</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code>502 Bad Gateway
+  Nginx is running but can't reach uvicorn.
+  Check: is uvicorn actually running on port 8000?
+    sudo ss -tlnp | grep 8000
+  Check Nginx error log:
+    sudo tail -f /var/log/nginx/error.log
+
+403 Forbidden (for /static)
+  Nginx can't read the static files.
+  Fix: the www-data user needs read access.
+    sudo chmod -R o+r /home/deploy/apps/yourapp/static
+  Or check the path is correct in the alias directive.
+
+404 Not Found
+  Nginx is proxying to FastAPI but the route doesn't exist.
+  Check your FastAPI routes, not Nginx.
+
+"nginx: configuration file syntax error"
+  You have a typo in the config.
+  sudo nginx -t  shows the exact line.
+  Common: missing semicolons, unclosed braces.</code></pre>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="step" id="step7">
+        <div class="step-number">7</div>
+        <div class="step-content">
+          <h3>What's Next</h3>
+          <p class="explanation">Nginx is running and proxying to uvicorn. Two problems remain: uvicorn stops when you close the terminal, and the site is HTTP not HTTPS. Fix both in the next two guides.</p>
+          <div class="info-box"><strong>Next:</strong> <a href="deploy-ssl.html">HTTPS with Certbot</a> — get a free TLS certificate and configure Nginx to serve HTTPS. Takes about 5 minutes.</div>
+          <div class="info-box"><strong>After that:</strong> <a href="deploy-systemd.html">systemd + Env Vars</a> — keep uvicorn alive as a background service that restarts on crash and starts on boot.</div>
+        </div>
+      </div>
+
+    </div>
+  </main>
+</div>
+<script>
+(function(){var s=localStorage.getItem("pyoffline-theme");if(s==="light")document.documentElement.classList.add("light");document.addEventListener("DOMContentLoaded",function(){var t=document.getElementById("themeToggle");if(!t)return;t.checked=(localStorage.getItem("pyoffline-theme")==="light");t.addEventListener("change",function(){if(this.checked){document.documentElement.classList.add("light");localStorage.setItem("pyoffline-theme","light")}else{document.documentElement.classList.remove("light");localStorage.setItem("pyoffline-theme","dark")}})})})();
+function switchTab(s,i){var el=document.getElementById(s);var b=el.querySelectorAll(".tab-btn");var p=el.querySelectorAll(".tab-panel");b.forEach(function(x){x.classList.remove("active")});p.forEach(function(x){x.classList.remove("active")});b[i].classList.add("active");p[i].classList.add("active")}
+function copyCode(btn){var c=btn.closest(".tab-panel").querySelector("code").innerText;navigator.clipboard.writeText(c).then(function(){var o=btn.textContent;btn.textContent="Copied!";setTimeout(function(){btn.textContent=o},1500)})}
+function toggleSidebar(){var s=document.getElementById("guideSidebar");var o=document.getElementById("sidebarOverlay");if(!s)return;s.classList.toggle("open");o.classList.toggle("open")}
+document.addEventListener("DOMContentLoaded",function(){var s=document.getElementById("guideSidebar");if(!s)return;s.querySelectorAll("nav a").forEach(function(a){a.addEventListener("click",function(){s.classList.remove("open");var o=document.getElementById("sidebarOverlay");if(o)o.classList.remove("open")})})});
+</script>
+</body>
+</html>

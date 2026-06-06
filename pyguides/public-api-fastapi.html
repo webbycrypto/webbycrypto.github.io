@@ -1,0 +1,870 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Public API Integration - FastAPI Guide - pyoffline</title>
+<style>
+:root {
+  --bg:          #121212;
+  --surface:     #1e1e1e;
+  --surface2:    #2a2a2a;
+  --sidebar-bg:  #1a1a1a;
+  --text:        #e0e0e0;
+  --text-muted:  #aaa;
+  --text-dim:    #666;
+  --border:      #333;
+  --code-bg:     #1e1e1e;
+  --code-text:   #d4d4d4;
+  --shadow:      rgba(0,0,0,.4);
+  --accent:      #009688;
+  --hl-keyword:  #569cd6;
+  --hl-string:   #ce9178;
+  --hl-comment:  #6a9955;
+  --hl-number:   #b5cea8;
+  --hl-decorator:#dcdcaa;
+  --hl-builtin:  #4ec9b0;
+  --hl-tag:      #4ec9b0;
+  --hl-attr:     #9cdcfe;
+  --hl-template: #c586c0;
+}
+html.light {
+  --bg:          #f5f7fa;
+  --surface:     #ffffff;
+  --surface2:    #eef0f3;
+  --sidebar-bg:  #ffffff;
+  --text:        #1a1a1a;
+  --text-muted:  #555;
+  --text-dim:    #888;
+  --border:      #dde1e7;
+  --code-bg:     #f8f8f8;
+  --code-text:   #24292e;
+  --shadow:      rgba(0,0,0,.1);
+  --hl-keyword:  #0000ff;
+  --hl-string:   #a31515;
+  --hl-comment:  #008000;
+  --hl-number:   #098658;
+  --hl-decorator:#795e26;
+  --hl-builtin:  #267f99;
+  --hl-tag:      #800000;
+  --hl-attr:     #e50000;
+  --hl-template: #af00db;
+}
+.hl-keyword  { color: var(--hl-keyword);  }
+.hl-string   { color: var(--hl-string);   }
+.hl-comment  { color: #adb4a7; font-size: 12px; font-style: italic; }
+.hl-number   { color: var(--hl-number);   }
+.hl-decorator{ color: var(--hl-decorator);}
+.hl-builtin  { color: var(--hl-builtin);  }
+.hl-tag      { color: var(--hl-tag);      }
+.hl-attr     { color: var(--hl-attr);     }
+.hl-template { color: var(--hl-template); }
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: var(--bg); color: var(--text); font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; transition: background .2s, color .2s; }
+a { color: var(--accent); }
+.layout { display: flex; min-height: 100vh; }
+.sidebar { width: 260px; min-width: 260px; background: var(--sidebar-bg); border-right: 1px solid var(--border); padding: 24px 16px; position: sticky; top: 0; height: 100vh; overflow-y: auto; }
+.sidebar h2 { font-size: 1.1rem; margin: 16px 0 8px; color: var(--text); }
+.sidebar nav ol { padding-left: 18px; }
+.sidebar nav li { margin: 6px 0; }
+.sidebar nav a { color: var(--text-muted); text-decoration: none; font-size: 0.85rem; }
+.sidebar nav a:hover { color: var(--accent); }
+.back-link { color: var(--text-dim); text-decoration: none; font-size: 0.85rem; display: block; margin-bottom: 8px; }
+.install-box { margin-top: 24px; background: var(--bg); border: 1px solid var(--border); padding: 12px; border-radius: 6px; font-size: 0.8rem; }
+.install-box code { display: block; word-break: break-all; color: var(--hl-comment); font-family: monospace; margin-top: 4px; }
+.series-box { margin-top: 16px; background: var(--bg); border: 1px solid var(--border); padding: 12px; border-radius: 6px; font-size: 0.8rem; }
+.series-box p { color: var(--text-muted); margin-bottom: 6px; font-weight: 600; }
+.series-box a { display: block; color: var(--text-muted); text-decoration: none; padding: 2px 0; font-size: 0.8rem; }
+.series-box a:hover { color: var(--accent); }
+.series-box a.current { color: var(--accent); font-weight: 600; }
+main { flex: 1; padding: 40px; max-width: 860px; }
+.guide-header { padding: 20px 20px 20px 24px; background: var(--surface); border-radius: 8px; margin-bottom: 32px; box-shadow: 0 1px 3px var(--shadow); }
+.guide-header h1 { font-size: 1.8rem; margin-bottom: 8px; }
+.guide-header p { color: var(--text-muted); }
+.step { display: flex; gap: 16px; margin-bottom: 40px; }
+.step-number { width: 32px; min-width: 32px; height: 32px; background: var(--accent); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 0.9rem; margin-top: 4px; color: #fff; }
+.step-content { flex: 1; min-width: 0; }
+.step-content h3 { font-size: 1.1rem; margin-bottom: 8px; color: var(--text); }
+.explanation { color: var(--text-muted); font-size: 0.9rem; line-height: 1.6; margin-bottom: 14px; }
+.info-box { background: var(--surface); border-left: 3px solid var(--accent); border-radius: 0 6px 6px 0; padding: 12px 16px; margin-bottom: 14px; font-size: 0.88rem; color: var(--text-muted); line-height: 1.6; }
+.info-box strong { color: var(--text); }
+.warn-box { background: var(--surface); border-left: 3px solid #ff9800; border-radius: 0 6px 6px 0; padding: 12px 16px; margin-bottom: 14px; font-size: 0.88rem; color: var(--text-muted); line-height: 1.6; }
+.warn-box strong { color: var(--text); }
+.api-table { width: 100%; border-collapse: collapse; margin-bottom: 14px; font-size: 0.85rem; }
+.api-table th { background: var(--surface2); color: var(--text-muted); text-align: left; padding: 8px 12px; border: 1px solid var(--border); font-weight: 600; }
+.api-table td { padding: 8px 12px; border: 1px solid var(--border); color: var(--text); }
+.api-table tr:nth-child(even) td { background: var(--surface); }
+.tabs { background: var(--surface); border-radius: 6px; overflow: hidden; border: 1px solid var(--border); }
+.tab-bar { display: flex; background: var(--surface2); overflow-x: auto; border-bottom: 1px solid var(--border); }
+.tab-btn { padding: 8px 16px; background: none; border: none; color: var(--text-muted); cursor: pointer; font-size: 0.8rem; white-space: nowrap; border-bottom: 2px solid transparent; margin-bottom: -1px; }
+.tab-btn.active { color: var(--text); border-bottom-color: var(--accent); }
+.tab-panel { display: none; }
+.tab-panel.active { display: block; }
+.code-header { display: flex; justify-content: space-between; align-items: center; padding: 5px 12px; background: var(--surface2); border-bottom: 1px solid var(--border); }
+.lang-label { font-size: 0.72rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: .04em; }
+.copy-btn { background: none; border: 1px solid var(--border); color: var(--text-muted); padding: 2px 8px; cursor: pointer; border-radius: 3px; font-size: 0.72rem; }
+.copy-btn:hover { color: var(--text); border-color: var(--text-muted); }
+pre { overflow-x: auto; padding: 16px; background: var(--code-bg); }
+code { font-family: "Fira Code", "Cascadia Code", "Consolas", monospace; font-size: 0.82rem; line-height: 1.65; color: var(--code-text); }
+.theme-row { display: flex; align-items: center; gap: 8px; margin-top: 20px; }
+.theme-label { font-size: 0.78rem; color: var(--text-muted); }
+.toggle-switch { position: relative; display: inline-block; width: 40px; height: 22px; }
+.toggle-switch input { opacity: 0; width: 0; height: 0; }
+.slider { position: absolute; cursor: pointer; inset: 0; background: var(--surface2); border: 1px solid var(--border); border-radius: 22px; transition: background .2s; }
+.slider:before { content: ""; position: absolute; width: 16px; height: 16px; left: 2px; top: 2px; background: var(--text-muted); border-radius: 50%; transition: transform .2s, background .2s; }
+.toggle-switch input:checked + .slider { background: var(--accent); border-color: var(--accent); }
+.toggle-switch input:checked + .slider:before { transform: translateX(18px); background: #fff; }
+.sidebar-toggle {
+  display: none; position: fixed; top: 12px; left: 12px; z-index: 300;
+  background: var(--accent); color: #fff; border: none;
+  padding: 7px 14px; border-radius: 6px; cursor: pointer;
+  font-size: 0.85rem; font-weight: 600; box-shadow: 0 2px 8px var(--shadow);
+  align-items: center; gap: 6px;
+}
+.sidebar-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.45); z-index: 190; }
+.sidebar-overlay.open { display: block; }
+@media (max-width: 900px) {
+  .sidebar-toggle { display: flex; }
+  .layout { display: block; }
+  .sidebar { position: fixed; left: -280px; top: 0; height: 100vh; z-index: 200; transition: left .25s ease; box-shadow: 2px 0 16px var(--shadow); min-width: 260px; }
+  .sidebar.open { left: 0; }
+  main { padding: 60px 20px 40px; max-width: 100%; }
+  pre { overflow-x: auto; max-width: 100%; white-space: pre-wrap; word-break: break-word; }
+  .tabs { max-width: 100%; }
+}
+</style>
+</head>
+<body>
+<button class="sidebar-toggle" id="sidebarToggle" onclick="toggleSidebar()">&#9776; Steps</button>
+<div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+<div class="layout">
+  <aside class="sidebar" id="guideSidebar">
+    <a href="index.html" class="back-link">← All Guides</a>
+    <h2>Public API Integration</h2>
+    <nav><ol>
+      <li><a href="#step1">What is a Public API?</a></li>
+      <li><a href="#step2">The Core Pattern</a></li>
+      <li><a href="#step3">Example 1 — PokéAPI</a></li>
+      <li><a href="#step4">Reading the Docs</a></li>
+      <li><a href="#step5">Example 2 — OpenWeatherMap</a></li>
+      <li><a href="#step6">Handling Errors</a></li>
+      <li><a href="#step7">Caching Responses</a></li>
+      <li><a href="#step8">Example 3 — NewsAPI</a></li>
+      <li><a href="#step9">Building a Mini Dashboard</a></li>
+      <li><a href="#step10">What's Next</a></li>
+    </ol></nav>
+    <div class="install-box">
+      <p><strong>Install</strong></p>
+      <code>pip install fastapi uvicorn jinja2 httpx python-dotenv</code>
+      <p style="margin-top:12px"><strong>Free API keys</strong></p>
+      <code>openweathermap.org/api</code>
+      <code style="margin-top:4px">newsapi.org</code>
+      <p style="margin-top:12px"><strong>Run</strong></p>
+      <code>uvicorn main:app --reload</code>
+    </div>
+    <div class="series-box">
+      <p>Also in this series</p>
+      <a href="crud-fastapi.html">CRUD + HTML Frontend</a>
+      <a href="task-ai-fastapi.html">Task App + AI Chat</a>
+      <a href="crm-fastapi.html">CRM Integration</a>
+      <a href="public-api-fastapi.html" class="current">&#10003; Public API Integration</a>
+      <a href="database-fastapi.html">SQLite + PostgreSQL</a>
+    </div>
+    <div class="theme-row">
+      <span class="theme-label">Dark</span>
+      <label class="toggle-switch">
+        <input type="checkbox" id="themeToggle">
+        <span class="slider"></span>
+      </label>
+      <span class="theme-label">Light</span>
+    </div>
+  </aside>
+
+  <main>
+    <header class="guide-header" style="border-left: 5px solid #2196f3">
+      <h1>Public API Integration with FastAPI</h1>
+      <p>Learn to call any external API — no auth, API key, or complex OAuth — using <code>httpx</code>. Three real examples: PokéAPI (free, no key), OpenWeatherMap (free API key), and NewsAPI (free API key + query params). Ends with a working no-JS dashboard page.</p>
+    </header>
+
+    <div class="steps">
+
+      <!-- ── STEP 1 ── -->
+      <div class="step" id="step1">
+        <div class="step-number">1</div>
+        <div class="step-content">
+          <h3>What is a Public API?</h3>
+          <p class="explanation">A public API is a URL that returns data as JSON. You make an HTTP GET request to it, it replies with structured data, and you use that data in your app. There is no database to set up on your end, no backend to write — the data lives on their servers. You just fetch it.</p>
+          <table class="api-table">
+            <tr><th>API</th><th>Auth</th><th>What it returns</th><th>Base URL</th></tr>
+            <tr><td>PokéAPI</td><td>None — completely free</td><td>Pokémon data</td><td><code>pokeapi.co/api/v2</code></td></tr>
+            <tr><td>OpenWeatherMap</td><td>API key (free tier)</td><td>Current weather</td><td><code>api.openweathermap.org</code></td></tr>
+            <tr><td>NewsAPI</td><td>API key (free tier)</td><td>News headlines</td><td><code>newsapi.org/v2</code></td></tr>
+            <tr><td>GitHub API</td><td>None or token</td><td>Repos, users, issues</td><td><code>api.github.com</code></td></tr>
+            <tr><td>REST Countries</td><td>None — completely free</td><td>Country info</td><td><code>restcountries.com/v3.1</code></td></tr>
+          </table>
+          <div class="info-box"><strong>No auth vs API key:</strong> PokéAPI trusts everyone — no registration needed. OpenWeatherMap gives you 1,000 free calls per day if you create an account and get a key. The key just identifies you so they can enforce limits. It is <em>not</em> a security measure — never treat a public API key like a password, but still don't commit it to GitHub.</div>
+        </div>
+      </div>
+
+      <!-- ── STEP 2 ── -->
+      <div class="step" id="step2">
+        <div class="step-number">2</div>
+        <div class="step-content">
+          <h3>The Core Pattern</h3>
+          <p class="explanation">Every public API call follows the same three lines. Learn this pattern and you can call any API on the internet. Everything else — authentication, query params, parsing the response — is just variations on these three lines.</p>
+          <div class="tabs">
+            <div class="tab-bar">
+              <button class="tab-btn active" onclick="switchTab('step2',0)">The three lines</button>
+              <button class="tab-btn" onclick="switchTab('step2',1)">Full minimal example</button>
+            </div>
+            <div class="tab-panel active">
+              <div class="code-header"><span class="lang-label">python</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-keyword">import</span> httpx
+
+<span class="hl-comment"># 1. Make the GET request to the URL</span>
+response = httpx.get(<span class="hl-string">"https://pokeapi.co/api/v2/pokemon/pikachu"</span>)
+
+<span class="hl-comment"># 2. Parse the JSON response into a Python dict</span>
+data = response.json()
+
+<span class="hl-comment"># 3. Use the data</span>
+print(data[<span class="hl-string">"name"</span>])          <span class="hl-comment"># "pikachu"</span>
+print(data[<span class="hl-string">"base_experience"</span>]) <span class="hl-comment"># 112</span>
+print(data[<span class="hl-string">"height"</span>])         <span class="hl-comment"># 4  (in decimetres)</span>
+
+<span class="hl-comment"># That's it. 90% of all API integration work is these three lines.</span></code></pre>
+            </div>
+            <div class="tab-panel">
+              <div class="code-header"><span class="lang-label">python — run this now</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-comment"># Save as test_api.py and run: python test_api.py</span>
+<span class="hl-keyword">import</span> httpx
+
+response = httpx.get(<span class="hl-string">"https://pokeapi.co/api/v2/pokemon/bulbasaur"</span>)
+data     = response.json()
+
+print(<span class="hl-string">"Name:"</span>,    data[<span class="hl-string">"name"</span>])
+print(<span class="hl-string">"Weight:"</span>,  data[<span class="hl-string">"weight"</span>], <span class="hl-string">"hectograms"</span>)
+print(<span class="hl-string">"Types:"</span>,   [t[<span class="hl-string">"type"</span>][<span class="hl-string">"name"</span>] <span class="hl-keyword">for</span> t <span class="hl-keyword">in</span> data[<span class="hl-string">"types"</span>]])
+print(<span class="hl-string">"Abilities:"</span>,[a[<span class="hl-string">"ability"</span>][<span class="hl-string">"name"</span>] <span class="hl-keyword">for</span> a <span class="hl-keyword">in</span> data[<span class="hl-string">"abilities"</span>]])
+
+<span class="hl-comment"># Expected output:</span>
+<span class="hl-comment"># Name:     bulbasaur</span>
+<span class="hl-comment"># Weight:   69 hectograms</span>
+<span class="hl-comment"># Types:    ['grass', 'poison']</span>
+<span class="hl-comment"># Abilities:['overgrow', 'chlorophyll']</span></code></pre>
+            </div>
+          </div>
+          <div class="info-box" style="margin-top:12px"><strong>Why httpx and not requests?</strong> Both work. <code>httpx</code> supports both sync and async, integrates cleanly with FastAPI, and is the modern choice. The API is almost identical to <code>requests</code> — if you already know <code>requests</code>, you already know <code>httpx</code>.</div>
+        </div>
+      </div>
+
+      <!-- ── STEP 3 ── -->
+      <div class="step" id="step3">
+        <div class="step-number">3</div>
+        <div class="step-content">
+          <h3>Example 1 — PokéAPI (No Auth)</h3>
+          <p class="explanation">PokéAPI is the perfect first API to practice with — completely free, no registration, rich data. Add a FastAPI route that fetches a Pokémon by name and returns the data you care about.</p>
+          <div class="tabs">
+            <div class="tab-bar">
+              <button class="tab-btn active" onclick="switchTab('step3',0)">main.py — /pokemon/{name}</button>
+              <button class="tab-btn" onclick="switchTab('step3',1)">JSON response (trimmed)</button>
+            </div>
+            <div class="tab-panel active">
+              <div class="code-header"><span class="lang-label">python</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-keyword">from</span> fastapi <span class="hl-keyword">import</span> FastAPI, HTTPException
+<span class="hl-keyword">import</span> httpx
+
+app = FastAPI()
+
+<span class="hl-decorator">@app.get</span>(<span class="hl-string">"/pokemon/{name}"</span>)
+<span class="hl-keyword">def</span> <span class="hl-builtin">get_pokemon</span>(name: str):
+    <span class="hl-comment"># name comes from the URL path: /pokemon/charizard</span>
+    url = f<span class="hl-string">"https://pokeapi.co/api/v2/pokemon/{name.lower()}"</span>
+
+    response = httpx.get(url)
+
+    <span class="hl-keyword">if</span> response.status_code == <span class="hl-number">404</span>:
+        <span class="hl-keyword">raise</span> HTTPException(status_code=<span class="hl-number">404</span>, detail=f<span class="hl-string">"Pokémon '{name}' not found"</span>)
+
+    response.raise_for_status()   <span class="hl-comment"># handle other errors (5xx etc.)</span>
+    data = response.json()
+
+    <span class="hl-comment"># Return only the fields we care about — don't dump the whole 200-field response</span>
+    <span class="hl-keyword">return</span> {
+        <span class="hl-string">"name"</span>:    data[<span class="hl-string">"name"</span>],
+        <span class="hl-string">"id"</span>:      data[<span class="hl-string">"id"</span>],
+        <span class="hl-string">"height"</span>:  data[<span class="hl-string">"height"</span>],
+        <span class="hl-string">"weight"</span>:  data[<span class="hl-string">"weight"</span>],
+        <span class="hl-string">"types"</span>:   [t[<span class="hl-string">"type"</span>][<span class="hl-string">"name"</span>] <span class="hl-keyword">for</span> t <span class="hl-keyword">in</span> data[<span class="hl-string">"types"</span>]],
+        <span class="hl-string">"sprite"</span>:  data[<span class="hl-string">"sprites"</span>][<span class="hl-string">"front_default"</span>],  <span class="hl-comment"># image URL</span>
+    }
+
+<span class="hl-comment"># Test: http://localhost:8000/pokemon/pikachu</span></code></pre>
+            </div>
+            <div class="tab-panel">
+              <div class="code-header"><span class="lang-label">json — what PokéAPI returns (trimmed)</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code>{
+  "id": 25,
+  "name": "pikachu",
+  "height": 4,
+  "weight": 60,
+  "base_experience": 112,
+  "types": [
+    { "slot": 1, "type": { "name": "electric", "url": "..." } }
+  ],
+  "abilities": [
+    { "ability": { "name": "static", "url": "..." }, "is_hidden": false },
+    { "ability": { "name": "lightning-rod", "url": "..." }, "is_hidden": true }
+  ],
+  "sprites": {
+    "front_default": "https://raw.githubusercontent.com/.../25.png",
+    "front_shiny":   "https://raw.githubusercontent.com/.../shiny/25.png"
+  },
+  "stats": [
+    { "base_stat": 35, "stat": { "name": "hp" } },
+    { "base_stat": 55, "stat": { "name": "attack" } }
+  ]
+  ... (200+ more fields)
+}</code></pre>
+            </div>
+          </div>
+          <div class="info-box" style="margin-top:12px"><strong>Key principle:</strong> Always pick out only the fields your app needs from the API response. Returning or storing the raw 200-field JSON object is slow, wastes memory, and makes debugging harder. Flatten it into a clean dict of just what you use.</div>
+        </div>
+      </div>
+
+      <!-- ── STEP 4 ── -->
+      <div class="step" id="step4">
+        <div class="step-number">4</div>
+        <div class="step-content">
+          <h3>Reading the Docs</h3>
+          <p class="explanation">Every API has documentation. Learning to read docs quickly is the real skill — not memorising any one API. Every doc page has the same four things you need.</p>
+          <div class="tabs">
+            <div class="tab-bar">
+              <button class="tab-btn active" onclick="switchTab('step4',0)">The four things you always need</button>
+            </div>
+            <div class="tab-panel active">
+              <div class="code-header"><span class="lang-label">text — how to read any API docs</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code>1. BASE URL
+   The root URL all endpoints share.
+   PokéAPI example: https://pokeapi.co/api/v2
+   Everything after this is the endpoint path.
+
+2. ENDPOINT PATH
+   Combined with the base URL to form the full request URL.
+   Example endpoint:  /pokemon/{name}
+   Full URL:          https://pokeapi.co/api/v2/pokemon/pikachu
+   Path parameters like {name} go directly in the URL.
+
+3. QUERY PARAMETERS
+   Appended to the URL after a ? — used for filters, pagination, API keys.
+   Example: /pokemon?limit=20&amp;offset=40
+   In Python: httpx.get(url, params={"limit": 20, "offset": 40})
+   httpx automatically encodes the ? and &amp; for you.
+
+4. RESPONSE SHAPE
+   The JSON structure the API returns.
+   Look for: What key holds the data you want?
+   PokéAPI:     data["name"], data["types"]
+   OpenWeather: data["main"]["temp"], data["weather"][0]["description"]
+   NewsAPI:     data["articles"][0]["title"]
+
+PRACTICE: Open https://pokeapi.co/api/v2/pokemon/ditto in your browser.
+Read the raw JSON. Find: the "types" array, the "abilities" list,
+and the "sprites.front_default" image URL.</code></pre>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── STEP 5 ── -->
+      <div class="step" id="step5">
+        <div class="step-number">5</div>
+        <div class="step-content">
+          <h3>Example 2 — OpenWeatherMap (API Key)</h3>
+          <p class="explanation">OpenWeatherMap gives 1,000 free calls per day. You pass your API key as a query parameter — it's not a secret in the same way a password is, but you still load it from <code>.env</code> so it's not hardcoded in your source code.</p>
+          <div class="tabs">
+            <div class="tab-bar">
+              <button class="tab-btn active" onclick="switchTab('step5',0)">main.py — /weather/{city}</button>
+              <button class="tab-btn" onclick="switchTab('step5',1)">JSON response shape</button>
+            </div>
+            <div class="tab-panel active">
+              <div class="code-header"><span class="lang-label">python</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-keyword">import</span> os
+<span class="hl-keyword">from</span> dotenv <span class="hl-keyword">import</span> load_dotenv
+load_dotenv()
+
+WEATHER_KEY = os.getenv(<span class="hl-string">"OPENWEATHER_API_KEY"</span>)
+
+<span class="hl-decorator">@app.get</span>(<span class="hl-string">"/weather/{city}"</span>)
+<span class="hl-keyword">def</span> <span class="hl-builtin">get_weather</span>(city: str, units: str = <span class="hl-string">"metric"</span>):
+    <span class="hl-comment"># units: "metric" = Celsius, "imperial" = Fahrenheit, "standard" = Kelvin</span>
+    response = httpx.get(
+        <span class="hl-string">"https://api.openweathermap.org/data/2.5/weather"</span>,
+        params={
+            <span class="hl-string">"q"</span>:     city,
+            <span class="hl-string">"appid"</span>: WEATHER_KEY,   <span class="hl-comment"># API key goes here as a query param</span>
+            <span class="hl-string">"units"</span>: units,
+        }
+    )
+
+    <span class="hl-keyword">if</span> response.status_code == <span class="hl-number">404</span>:
+        <span class="hl-keyword">raise</span> HTTPException(status_code=<span class="hl-number">404</span>, detail=f<span class="hl-string">"City '{city}' not found"</span>)
+    <span class="hl-keyword">if</span> response.status_code == <span class="hl-number">401</span>:
+        <span class="hl-keyword">raise</span> HTTPException(status_code=<span class="hl-number">500</span>, detail=<span class="hl-string">"Invalid API key"</span>)
+
+    response.raise_for_status()
+    data = response.json()
+
+    <span class="hl-keyword">return</span> {
+        <span class="hl-string">"city"</span>:        data[<span class="hl-string">"name"</span>],
+        <span class="hl-string">"country"</span>:     data[<span class="hl-string">"sys"</span>][<span class="hl-string">"country"</span>],
+        <span class="hl-string">"temp"</span>:        data[<span class="hl-string">"main"</span>][<span class="hl-string">"temp"</span>],
+        <span class="hl-string">"feels_like"</span>:  data[<span class="hl-string">"main"</span>][<span class="hl-string">"feels_like"</span>],
+        <span class="hl-string">"humidity"</span>:    data[<span class="hl-string">"main"</span>][<span class="hl-string">"humidity"</span>],
+        <span class="hl-string">"description"</span>: data[<span class="hl-string">"weather"</span>][<span class="hl-number">0</span>][<span class="hl-string">"description"</span>],
+        <span class="hl-string">"icon"</span>:        f<span class="hl-string">"https://openweathermap.org/img/wn/{data['weather'][0]['icon']}@2x.png"</span>,
+    }
+
+<span class="hl-comment"># Test: http://localhost:8000/weather/London</span>
+<span class="hl-comment"># With units: http://localhost:8000/weather/London?units=imperial</span></code></pre>
+            </div>
+            <div class="tab-panel">
+              <div class="code-header"><span class="lang-label">json — OpenWeatherMap response</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code>{
+  "name": "London",
+  "sys":  { "country": "GB", "sunrise": 1717384000, "sunset": 1717440000 },
+  "main": {
+    "temp":       18.4,
+    "feels_like": 17.9,
+    "humidity":   72,
+    "pressure":   1012
+  },
+  "weather": [
+    {
+      "id":          800,
+      "main":        "Clear",
+      "description": "clear sky",
+      "icon":        "01d"          &lt;-- used in icon URL: /img/wn/01d@2x.png
+    }
+  ],
+  "wind": { "speed": 3.6, "deg": 230 },
+  "visibility": 10000,
+  "coord": { "lon": -0.1257, "lat": 51.5085 }
+}</code></pre>
+            </div>
+          </div>
+          <div class="info-box" style="margin-top:12px"><strong>Getting your free key:</strong> Sign up at <a href="https://openweathermap.org/api" target="_blank">openweathermap.org/api</a> → "Get API key". The free key activates within a few minutes. Add it to your <code>.env</code> as <code>OPENWEATHER_API_KEY=your_key_here</code>.</div>
+        </div>
+      </div>
+
+      <!-- ── STEP 6 ── -->
+      <div class="step" id="step6">
+        <div class="step-number">6</div>
+        <div class="step-content">
+          <h3>Handling Errors</h3>
+          <p class="explanation">APIs can fail in several ways. A proper error handler means your app returns a clear message to the user instead of crashing with an unhandled Python exception.</p>
+          <div class="tabs">
+            <div class="tab-bar">
+              <button class="tab-btn active" onclick="switchTab('step6',0)">Common status codes</button>
+              <button class="tab-btn" onclick="switchTab('step6',1)">Robust error handler</button>
+            </div>
+            <div class="tab-panel active">
+              <div class="code-header"><span class="lang-label">text — HTTP status codes you'll see</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code>200 OK              — Request succeeded. Response body has your data.
+
+400 Bad Request     — You sent something malformed (wrong field name, bad format).
+                      Check your params dict.
+
+401 Unauthorized    — Missing or invalid API key / token.
+                      Check your .env and that you're passing the key correctly.
+
+403 Forbidden       — Valid key, but you don't have permission for this resource.
+                      Check your plan/scopes.
+
+404 Not Found       — The resource doesn't exist (e.g. city name typo, unknown Pokémon).
+                      Show the user a friendly "not found" message.
+
+422 Unprocessable   — Valid request format, but values are wrong.
+                      Common with FastAPI when query params fail validation.
+
+429 Too Many Reqs   — Rate limit hit. Wait before retrying.
+                      Free tiers usually reset hourly or daily.
+
+500 Server Error    — Their API crashed. Nothing you can do. Try again later.</code></pre>
+            </div>
+            <div class="tab-panel">
+              <div class="code-header"><span class="lang-label">python — reusable error handler</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-keyword">def</span> <span class="hl-builtin">safe_get</span>(url: str, params: dict = <span class="hl-keyword">None</span>) -> dict:
+    <span class="hl-comment">"""Make a GET request and return JSON, or raise HTTPException on failure."""</span>
+    <span class="hl-keyword">try</span>:
+        response = httpx.get(url, params=params, timeout=<span class="hl-number">10</span>)
+    <span class="hl-keyword">except</span> httpx.TimeoutException:
+        <span class="hl-keyword">raise</span> HTTPException(status_code=<span class="hl-number">504</span>, detail=<span class="hl-string">"API timed out"</span>)
+    <span class="hl-keyword">except</span> httpx.RequestError:
+        <span class="hl-keyword">raise</span> HTTPException(status_code=<span class="hl-number">503</span>, detail=<span class="hl-string">"Could not reach API"</span>)
+
+    <span class="hl-keyword">if</span> response.status_code == <span class="hl-number">404</span>:
+        <span class="hl-keyword">raise</span> HTTPException(status_code=<span class="hl-number">404</span>, detail=<span class="hl-string">"Not found"</span>)
+    <span class="hl-keyword">if</span> response.status_code == <span class="hl-number">401</span>:
+        <span class="hl-keyword">raise</span> HTTPException(status_code=<span class="hl-number">500</span>, detail=<span class="hl-string">"Invalid API key"</span>)
+    <span class="hl-keyword">if</span> response.status_code == <span class="hl-number">429</span>:
+        <span class="hl-keyword">raise</span> HTTPException(status_code=<span class="hl-number">429</span>, detail=<span class="hl-string">"Rate limit hit — try again later"</span>)
+
+    response.raise_for_status()   <span class="hl-comment"># catch anything else (5xx etc.)</span>
+    <span class="hl-keyword">return</span> response.json()
+
+<span class="hl-comment"># Use it instead of httpx.get() directly:</span>
+<span class="hl-comment"># data = safe_get("https://pokeapi.co/api/v2/pokemon/missingno")</span></code></pre>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── STEP 7 ── -->
+      <div class="step" id="step7">
+        <div class="step-number">7</div>
+        <div class="step-content">
+          <h3>Caching Responses</h3>
+          <p class="explanation">If your FastAPI route calls an external API on every request, you'll quickly hit rate limits and slow down your app. A simple in-memory cache stores the last response with a timestamp. If the cache is fresh, return it immediately without hitting the API again.</p>
+          <div class="tabs">
+            <div class="tab-bar">
+              <button class="tab-btn active" onclick="switchTab('step7',0)">Simple TTL cache</button>
+              <button class="tab-btn" onclick="switchTab('step7',1)">Using it in a route</button>
+            </div>
+            <div class="tab-panel active">
+              <div class="code-header"><span class="lang-label">python — in-memory cache</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-keyword">import</span> time
+
+<span class="hl-comment"># A dict that stores: key → {"data": ..., "expires": timestamp}</span>
+_cache: dict = {}
+
+<span class="hl-keyword">def</span> <span class="hl-builtin">cache_get</span>(key: str):
+    <span class="hl-comment">"""Return cached data if it exists and hasn't expired. Else None."""</span>
+    entry = _cache.get(key)
+    <span class="hl-keyword">if</span> entry <span class="hl-keyword">and</span> time.time() < entry[<span class="hl-string">"expires"</span>]:
+        <span class="hl-keyword">return</span> entry[<span class="hl-string">"data"</span>]
+    <span class="hl-keyword">return</span> <span class="hl-keyword">None</span>
+
+<span class="hl-keyword">def</span> <span class="hl-builtin">cache_set</span>(key: str, data, ttl_seconds: int = <span class="hl-number">300</span>):
+    <span class="hl-comment">"""Store data in cache for ttl_seconds (default 5 minutes)."""</span>
+    _cache[key] = {
+        <span class="hl-string">"data"</span>:    data,
+        <span class="hl-string">"expires"</span>: time.time() + ttl_seconds,
+    }
+
+<span class="hl-comment"># TTL = "Time To Live" — how long the cached data stays valid</span>
+<span class="hl-comment"># Weather: 5 mins is fine (it doesn't change second-to-second)</span>
+<span class="hl-comment"># News: 15-30 mins is fine</span>
+<span class="hl-comment"># Pokémon: 24 hours is fine (the data never changes)</span></code></pre>
+            </div>
+            <div class="tab-panel">
+              <div class="code-header"><span class="lang-label">python — weather with cache</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-decorator">@app.get</span>(<span class="hl-string">"/weather/{city}"</span>)
+<span class="hl-keyword">def</span> <span class="hl-builtin">get_weather</span>(city: str, units: str = <span class="hl-string">"metric"</span>):
+    cache_key = f<span class="hl-string">"weather:{city}:{units}"</span>  <span class="hl-comment"># unique key per city + unit combo</span>
+
+    <span class="hl-comment"># Check cache first</span>
+    cached = cache_get(cache_key)
+    <span class="hl-keyword">if</span> cached:
+        <span class="hl-keyword">return</span> {**cached, <span class="hl-string">"from_cache"</span>: <span class="hl-keyword">True</span>}   <span class="hl-comment"># return cached result immediately</span>
+
+    <span class="hl-comment"># Cache miss — call the real API</span>
+    data = safe_get(
+        <span class="hl-string">"https://api.openweathermap.org/data/2.5/weather"</span>,
+        params={<span class="hl-string">"q"</span>: city, <span class="hl-string">"appid"</span>: WEATHER_KEY, <span class="hl-string">"units"</span>: units}
+    )
+    result = {
+        <span class="hl-string">"city"</span>:        data[<span class="hl-string">"name"</span>],
+        <span class="hl-string">"temp"</span>:        data[<span class="hl-string">"main"</span>][<span class="hl-string">"temp"</span>],
+        <span class="hl-string">"description"</span>: data[<span class="hl-string">"weather"</span>][<span class="hl-number">0</span>][<span class="hl-string">"description"</span>],
+        <span class="hl-string">"icon"</span>:        f<span class="hl-string">"https://openweathermap.org/img/wn/{data['weather'][0]['icon']}@2x.png"</span>,
+    }
+    cache_set(cache_key, result, ttl_seconds=<span class="hl-number">300</span>)   <span class="hl-comment"># cache for 5 mins</span>
+    <span class="hl-keyword">return</span> {**result, <span class="hl-string">"from_cache"</span>: <span class="hl-keyword">False</span>}</code></pre>
+            </div>
+          </div>
+          <div class="warn-box" style="margin-top:12px"><strong>In-memory only:</strong> This cache lives in RAM and disappears when you restart the server. For a production app with multiple workers, use Redis instead. But for a single-worker learning project or side project, this is perfectly fine.</div>
+        </div>
+      </div>
+
+      <!-- ── STEP 8 ── -->
+      <div class="step" id="step8">
+        <div class="step-number">8</div>
+        <div class="step-content">
+          <h3>Example 3 — NewsAPI (API Key + Query Params)</h3>
+          <p class="explanation">NewsAPI searches live headlines by topic. It introduces multiple query parameters — <code>q</code> for the search term, <code>language</code>, <code>pageSize</code> — and a response that's a list inside a <code>articles</code> key.</p>
+          <div class="tabs">
+            <div class="tab-bar">
+              <button class="tab-btn active" onclick="switchTab('step8',0)">main.py — /news</button>
+              <button class="tab-btn" onclick="switchTab('step8',1)">JSON response shape</button>
+            </div>
+            <div class="tab-panel active">
+              <div class="code-header"><span class="lang-label">python</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code>NEWS_KEY = os.getenv(<span class="hl-string">"NEWS_API_KEY"</span>)
+
+<span class="hl-decorator">@app.get</span>(<span class="hl-string">"/news"</span>)
+<span class="hl-keyword">def</span> <span class="hl-builtin">get_news</span>(
+    topic:    str = <span class="hl-string">"technology"</span>,   <span class="hl-comment"># query param: /news?topic=sports</span>
+    count:    int = <span class="hl-number">5</span>,              <span class="hl-comment"># how many articles to return</span>
+    language: str = <span class="hl-string">"en"</span>,
+):
+    cache_key = f<span class="hl-string">"news:{topic}:{language}"</span>
+    cached = cache_get(cache_key)
+    <span class="hl-keyword">if</span> cached:
+        <span class="hl-keyword">return</span> cached[:count]   <span class="hl-comment"># slice cached list to requested count</span>
+
+    data = safe_get(
+        <span class="hl-string">"https://newsapi.org/v2/everything"</span>,
+        params={
+            <span class="hl-string">"q"</span>:        topic,
+            <span class="hl-string">"language"</span>: language,
+            <span class="hl-string">"pageSize"</span>: <span class="hl-number">20</span>,         <span class="hl-comment"># fetch 20, cache them, return slice</span>
+            <span class="hl-string">"sortBy"</span>:   <span class="hl-string">"publishedAt"</span>,
+            <span class="hl-string">"apiKey"</span>:   NEWS_KEY,     <span class="hl-comment"># NewsAPI uses apiKey, not appid</span>
+        }
+    )
+
+    <span class="hl-comment"># Flatten the articles list</span>
+    articles = [
+        {
+            <span class="hl-string">"title"</span>:       a[<span class="hl-string">"title"</span>],
+            <span class="hl-string">"source"</span>:      a[<span class="hl-string">"source"</span>][<span class="hl-string">"name"</span>],
+            <span class="hl-string">"url"</span>:         a[<span class="hl-string">"url"</span>],
+            <span class="hl-string">"published_at"</span>: a[<span class="hl-string">"publishedAt"</span>],
+            <span class="hl-string">"description"</span>: a[<span class="hl-string">"description"</span>] <span class="hl-keyword">or</span> <span class="hl-string">""</span>,
+        }
+        <span class="hl-keyword">for</span> a <span class="hl-keyword">in</span> data[<span class="hl-string">"articles"</span>]
+        <span class="hl-keyword">if</span> a[<span class="hl-string">"title"</span>] != <span class="hl-string">"[Removed]"</span>   <span class="hl-comment"># NewsAPI sometimes returns deleted articles</span>
+    ]
+
+    cache_set(cache_key, articles, ttl_seconds=<span class="hl-number">900</span>)   <span class="hl-comment"># cache 15 mins</span>
+    <span class="hl-keyword">return</span> articles[:count]
+
+<span class="hl-comment"># Test: http://localhost:8000/news?topic=AI&amp;count=3</span></code></pre>
+            </div>
+            <div class="tab-panel">
+              <div class="code-header"><span class="lang-label">json — NewsAPI response</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code>{
+  "status":      "ok",
+  "totalResults": 34721,
+  "articles": [
+    {
+      "source":      { "id": "wired", "name": "Wired" },
+      "author":      "Katie Drummond",
+      "title":       "The AI Industry Keeps Getting Bigger",
+      "description": "A short summary of the article...",
+      "url":         "https://www.wired.com/story/...",
+      "urlToImage":  "https://media.wired.com/photos/...",
+      "publishedAt": "2024-06-01T10:00:00Z",
+      "content":     "Full article text (truncated at 200 chars on free plan)"
+    },
+    ...
+  ]
+}</code></pre>
+            </div>
+          </div>
+          <div class="info-box" style="margin-top:12px"><strong>Free key:</strong> Sign up at <a href="https://newsapi.org" target="_blank">newsapi.org</a> — free developer key gives 100 requests per day. Add to <code>.env</code>: <code>NEWS_API_KEY=your_key_here</code>. Note: the free plan only works on localhost, not a deployed server.</div>
+        </div>
+      </div>
+
+      <!-- ── STEP 9 ── -->
+      <div class="step" id="step9">
+        <div class="step-number">9</div>
+        <div class="step-content">
+          <h3>Building a Mini Dashboard</h3>
+          <p class="explanation">Wire all three APIs into a single-page Jinja2 dashboard — a Pokémon lookup by name, a weather card for any city, and a news feed by topic. Three forms, three FastAPI routes, one template. No JavaScript.</p>
+          <div class="tabs">
+            <div class="tab-bar">
+              <button class="tab-btn active" onclick="switchTab('step9',0)">main.py — dashboard route</button>
+              <button class="tab-btn" onclick="switchTab('step9',1)">templates/dashboard.html</button>
+            </div>
+            <div class="tab-panel active">
+              <div class="code-header"><span class="lang-label">python</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-keyword">from</span> fastapi.templating <span class="hl-keyword">import</span> Jinja2Templates
+<span class="hl-keyword">from</span> fastapi.responses <span class="hl-keyword">import</span> HTMLResponse
+<span class="hl-keyword">from</span> fastapi.staticfiles <span class="hl-keyword">import</span> StaticFiles
+
+templates = Jinja2Templates(directory=<span class="hl-string">"templates"</span>)
+app.mount(<span class="hl-string">"/static"</span>, StaticFiles(directory=<span class="hl-string">"static"</span>), name=<span class="hl-string">"static"</span>)
+
+<span class="hl-decorator">@app.get</span>(<span class="hl-string">"/dashboard"</span>, response_class=HTMLResponse)
+<span class="hl-keyword">def</span> <span class="hl-builtin">dashboard</span>(
+    request: Request,
+    pokemon: str = <span class="hl-string">""</span>,   <span class="hl-comment"># query param from search form</span>
+    city:    str = <span class="hl-string">""</span>,
+    topic:   str = <span class="hl-string">"technology"</span>,
+):
+    pokemon_data = <span class="hl-keyword">None</span>
+    weather_data = <span class="hl-keyword">None</span>
+    news_data    = []
+    errors       = {}
+
+    <span class="hl-keyword">if</span> pokemon:
+        <span class="hl-keyword">try</span>:
+            pokemon_data = get_pokemon(pokemon)   <span class="hl-comment"># reuse the route function</span>
+        <span class="hl-keyword">except</span> HTTPException <span class="hl-keyword">as</span> e:
+            errors[<span class="hl-string">"pokemon"</span>] = e.detail
+
+    <span class="hl-keyword">if</span> city:
+        <span class="hl-keyword">try</span>:
+            weather_data = get_weather(city)
+        <span class="hl-keyword">except</span> HTTPException <span class="hl-keyword">as</span> e:
+            errors[<span class="hl-string">"weather"</span>] = e.detail
+
+    news_data = get_news(topic=topic, count=<span class="hl-number">5</span>)
+
+    <span class="hl-keyword">return</span> templates.TemplateResponse(<span class="hl-string">"dashboard.html"</span>, {
+        <span class="hl-string">"request"</span>:      request,
+        <span class="hl-string">"pokemon"</span>:      pokemon_data,
+        <span class="hl-string">"weather"</span>:      weather_data,
+        <span class="hl-string">"news"</span>:         news_data,
+        <span class="hl-string">"errors"</span>:       errors,
+        <span class="hl-string">"search_vals"</span>:  {<span class="hl-string">"pokemon"</span>: pokemon, <span class="hl-string">"city"</span>: city, <span class="hl-string">"topic"</span>: topic},
+    })</code></pre>
+            </div>
+            <div class="tab-panel">
+              <div class="code-header"><span class="lang-label">html + jinja2 — dashboard template</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-tag">&lt;!DOCTYPE html&gt;</span>
+<span class="hl-tag">&lt;html&gt;&lt;head&gt;</span>
+  <span class="hl-tag">&lt;title&gt;</span>API Dashboard<span class="hl-tag">&lt;/title&gt;</span>
+  <span class="hl-tag">&lt;link</span> <span class="hl-attr">rel</span>=<span class="hl-string">"stylesheet"</span> <span class="hl-attr">href</span>=<span class="hl-string">"/static/style.css"</span><span class="hl-tag">&gt;</span>
+<span class="hl-tag">&lt;/head&gt;&lt;body&gt;</span>
+
+<span class="hl-tag">&lt;header&gt;&lt;h1&gt;</span>API Dashboard<span class="hl-tag">&lt;/h1&gt;&lt;/header&gt;</span>
+
+<span class="hl-tag">&lt;main&gt;</span>
+
+  <span class="hl-comment">&lt;!-- Search forms use GET so results are bookmarkable --&gt;</span>
+  <span class="hl-tag">&lt;div</span> <span class="hl-attr">class</span>=<span class="hl-string">"search-row"</span><span class="hl-tag">&gt;</span>
+    <span class="hl-tag">&lt;form</span> <span class="hl-attr">method</span>=<span class="hl-string">"get"</span> <span class="hl-attr">action</span>=<span class="hl-string">"/dashboard"</span><span class="hl-tag">&gt;</span>
+      <span class="hl-tag">&lt;input</span> <span class="hl-attr">name</span>=<span class="hl-string">"pokemon"</span> <span class="hl-attr">placeholder</span>=<span class="hl-string">"Pokémon name..."</span>
+             <span class="hl-attr">value</span>=<span class="hl-string">"<span class="hl-template">{{ search_vals.pokemon }}</span>"</span><span class="hl-tag">&gt;</span>
+      <span class="hl-tag">&lt;button&gt;</span>Search<span class="hl-tag">&lt;/button&gt;</span>
+    <span class="hl-tag">&lt;/form&gt;</span>
+    <span class="hl-tag">&lt;form</span> <span class="hl-attr">method</span>=<span class="hl-string">"get"</span> <span class="hl-attr">action</span>=<span class="hl-string">"/dashboard"</span><span class="hl-tag">&gt;</span>
+      <span class="hl-tag">&lt;input</span> <span class="hl-attr">name</span>=<span class="hl-string">"city"</span> <span class="hl-attr">placeholder</span>=<span class="hl-string">"City name..."</span>
+             <span class="hl-attr">value</span>=<span class="hl-string">"<span class="hl-template">{{ search_vals.city }}</span>"</span><span class="hl-tag">&gt;</span>
+      <span class="hl-tag">&lt;button&gt;</span>Weather<span class="hl-tag">&lt;/button&gt;</span>
+    <span class="hl-tag">&lt;/form&gt;</span>
+  <span class="hl-tag">&lt;/div&gt;</span>
+
+  <span class="hl-comment">&lt;!-- Pokémon result --&gt;</span>
+  <span class="hl-template">{% if errors.pokemon %}</span>
+    <span class="hl-tag">&lt;p</span> <span class="hl-attr">class</span>=<span class="hl-string">"error"</span><span class="hl-tag">&gt;</span><span class="hl-template">{{ errors.pokemon }}</span><span class="hl-tag">&lt;/p&gt;</span>
+  <span class="hl-template">{% elif pokemon %}</span>
+    <span class="hl-tag">&lt;div</span> <span class="hl-attr">class</span>=<span class="hl-string">"card"</span><span class="hl-tag">&gt;</span>
+      <span class="hl-tag">&lt;img</span> <span class="hl-attr">src</span>=<span class="hl-string">"<span class="hl-template">{{ pokemon.sprite }}</span>"</span> <span class="hl-attr">alt</span>=<span class="hl-string">"<span class="hl-template">{{ pokemon.name }}</span>"</span><span class="hl-tag">&gt;</span>
+      <span class="hl-tag">&lt;h2&gt;</span><span class="hl-template">{{ pokemon.name | title }}</span><span class="hl-tag">&lt;/h2&gt;</span>
+      <span class="hl-tag">&lt;p&gt;</span>Types: <span class="hl-template">{{ pokemon.types | join(", ") }}</span><span class="hl-tag">&lt;/p&gt;</span>
+    <span class="hl-tag">&lt;/div&gt;</span>
+  <span class="hl-template">{% endif %}</span>
+
+  <span class="hl-comment">&lt;!-- Weather result --&gt;</span>
+  <span class="hl-template">{% if weather %}</span>
+    <span class="hl-tag">&lt;div</span> <span class="hl-attr">class</span>=<span class="hl-string">"card"</span><span class="hl-tag">&gt;</span>
+      <span class="hl-tag">&lt;img</span> <span class="hl-attr">src</span>=<span class="hl-string">"<span class="hl-template">{{ weather.icon }}</span>"</span> <span class="hl-attr">alt</span>=<span class="hl-string">"weather icon"</span><span class="hl-tag">&gt;</span>
+      <span class="hl-tag">&lt;h2&gt;</span><span class="hl-template">{{ weather.city }}</span>, <span class="hl-template">{{ weather.country }}</span><span class="hl-tag">&lt;/h2&gt;</span>
+      <span class="hl-tag">&lt;p&gt;</span><span class="hl-template">{{ weather.temp }}</span>°C — <span class="hl-template">{{ weather.description }}</span><span class="hl-tag">&lt;/p&gt;</span>
+    <span class="hl-tag">&lt;/div&gt;</span>
+  <span class="hl-template">{% endif %}</span>
+
+  <span class="hl-comment">&lt;!-- News feed --&gt;</span>
+  <span class="hl-tag">&lt;section&gt;&lt;h2&gt;</span>Latest: <span class="hl-template">{{ search_vals.topic | title }}</span><span class="hl-tag">&lt;/h2&gt;</span>
+    <span class="hl-template">{% for article in news %}</span>
+      <span class="hl-tag">&lt;div</span> <span class="hl-attr">class</span>=<span class="hl-string">"news-item"</span><span class="hl-tag">&gt;</span>
+        <span class="hl-tag">&lt;a</span> <span class="hl-attr">href</span>=<span class="hl-string">"<span class="hl-template">{{ article.url }}</span>"</span> <span class="hl-attr">target</span>=<span class="hl-string">"_blank"</span><span class="hl-tag">&gt;</span><span class="hl-template">{{ article.title }}</span><span class="hl-tag">&lt;/a&gt;</span>
+        <span class="hl-tag">&lt;span</span> <span class="hl-attr">class</span>=<span class="hl-string">"source"</span><span class="hl-tag">&gt;</span><span class="hl-template">{{ article.source }}</span><span class="hl-tag">&lt;/span&gt;</span>
+      <span class="hl-tag">&lt;/div&gt;</span>
+    <span class="hl-template">{% endfor %}</span>
+  <span class="hl-tag">&lt;/section&gt;</span>
+
+<span class="hl-tag">&lt;/main&gt;</span>
+<span class="hl-tag">&lt;/body&gt;&lt;/html&gt;</span></code></pre>
+            </div>
+          </div>
+          <div class="info-box" style="margin-top:12px"><strong>GET forms for search:</strong> The search forms use <code>method="get"</code> instead of POST because search queries belong in the URL. <code>/dashboard?city=London</code> is bookmarkable and shareable. Use GET for any form that only <em>reads</em> data.</div>
+        </div>
+      </div>
+
+      <!-- ── STEP 10 ── -->
+      <div class="step" id="step10">
+        <div class="step-number">10</div>
+        <div class="step-content">
+          <h3>What's Next</h3>
+          <p class="explanation">You've learned the universal pattern for calling any external API from FastAPI. Everything in the CRM guide, the AI chat guide, and real freelance projects uses these same three lines: <code>httpx.get()</code> → <code>.json()</code> → use the data.</p>
+          <div class="info-box">
+            <strong>Async routes:</strong> Replace <code>httpx.get()</code> with <code>await httpx.AsyncClient().get()</code> and mark your route with <code>async def</code>. This lets FastAPI handle other requests while waiting for the API to respond — important when you have many users.
+          </div>
+          <div class="info-box">
+            <strong>Retry on 429:</strong> Add automatic backoff when the API rate limits you. The <code>tenacity</code> library makes this one decorator: <code>@retry(wait=wait_exponential(min=1, max=10), stop=stop_after_attempt(3))</code>.
+          </div>
+          <div class="info-box">
+            <strong>More free APIs to try:</strong> REST Countries (<code>restcountries.com</code> — no key), Open Meteo (<code>open-meteo.com</code> — free weather, no key), GitHub API (<code>api.github.com</code> — public repos need no key), NASA APOD (<code>api.nasa.gov</code> — free key, one image per day).
+          </div>
+          <div class="info-box">
+            <strong>From proxy to value-add:</strong> Your FastAPI routes are currently just passing through data from other APIs. The real value comes when you combine them — use NewsAPI to get headlines, then pass them to the Claude API (AI Chat guide) to generate a daily briefing, then cache it for all users.
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /steps -->
+  </main>
+</div>
+
+<script>
+(function() {
+  var saved = localStorage.getItem("pyoffline-theme");
+  if (saved === "light") { document.documentElement.classList.add("light"); }
+  document.addEventListener("DOMContentLoaded", function() {
+    var toggle = document.getElementById("themeToggle");
+    if (!toggle) return;
+    toggle.checked = (localStorage.getItem("pyoffline-theme") === "light");
+    toggle.addEventListener("change", function() {
+      if (this.checked) {
+        document.documentElement.classList.add("light");
+        localStorage.setItem("pyoffline-theme", "light");
+      } else {
+        document.documentElement.classList.remove("light");
+        localStorage.setItem("pyoffline-theme", "dark");
+      }
+    });
+  });
+})();
+function switchTab(stepId, idx) {
+  var step = document.getElementById(stepId);
+  var btns = step.querySelectorAll(".tab-btn");
+  var panels = step.querySelectorAll(".tab-panel");
+  btns.forEach(function(b) { b.classList.remove("active"); });
+  panels.forEach(function(p) { p.classList.remove("active"); });
+  btns[idx].classList.add("active");
+  panels[idx].classList.add("active");
+}
+function copyCode(btn) {
+  var code = btn.closest(".tab-panel").querySelector("code").innerText;
+  navigator.clipboard.writeText(code).then(function() {
+    var orig = btn.textContent;
+    btn.textContent = "Copied!";
+    setTimeout(function() { btn.textContent = orig; }, 1500);
+  });
+}
+function toggleSidebar() {
+  var sidebar = document.getElementById("guideSidebar");
+  var overlay = document.getElementById("sidebarOverlay");
+  if (!sidebar) return;
+  sidebar.classList.toggle("open");
+  overlay.classList.toggle("open");
+}
+document.addEventListener("DOMContentLoaded", function() {
+  var sidebar = document.getElementById("guideSidebar");
+  if (!sidebar) return;
+  sidebar.querySelectorAll("nav a").forEach(function(a) {
+    a.addEventListener("click", function() {
+      sidebar.classList.remove("open");
+      var overlay = document.getElementById("sidebarOverlay");
+      if (overlay) overlay.classList.remove("open");
+    });
+  });
+});
+</script>
+</body>
+</html>

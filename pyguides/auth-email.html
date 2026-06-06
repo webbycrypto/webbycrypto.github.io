@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Email Verification - Auth Series - pyoffline</title>
+<style>
+:root{--bg:#121212;--surface:#1e1e1e;--surface2:#2a2a2a;--sidebar-bg:#1a1a1a;--text:#e0e0e0;--text-muted:#aaa;--text-dim:#666;--border:#333;--code-bg:#1e1e1e;--code-text:#d4d4d4;--shadow:rgba(0,0,0,.4);--accent:#f44336;--hl-keyword:#569cd6;--hl-string:#ce9178;--hl-comment:#6a9955;--hl-number:#b5cea8;--hl-decorator:#dcdcaa;--hl-builtin:#4ec9b0}
+html.light{--bg:#f5f7fa;--surface:#fff;--surface2:#eef0f3;--sidebar-bg:#fff;--text:#1a1a1a;--text-muted:#555;--text-dim:#888;--border:#dde1e7;--code-bg:#f8f8f8;--code-text:#24292e;--shadow:rgba(0,0,0,.1);--hl-keyword:#00f;--hl-string:#a31515;--hl-comment:#008000;--hl-number:#098658;--hl-decorator:#795e26;--hl-builtin:#267f99}
+.hl-keyword{color:var(--hl-keyword)}.hl-string{color:var(--hl-string)}.hl-comment{color:#adb4a7;font-size:12px;font-style:italic}.hl-number{color:var(--hl-number)}.hl-decorator{color:var(--hl-decorator)}.hl-builtin{color:var(--hl-builtin)}
+*{box-sizing:border-box;margin:0;padding:0}body{background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;transition:background .2s,color .2s}a{color:var(--accent)}
+.layout{display:flex;min-height:100vh}.sidebar{width:260px;min-width:260px;background:var(--sidebar-bg);border-right:1px solid var(--border);padding:24px 16px;position:sticky;top:0;height:100vh;overflow-y:auto}.sidebar h2{font-size:1.1rem;margin:16px 0 8px;color:var(--text)}.sidebar nav ol{padding-left:18px}.sidebar nav li{margin:6px 0}.sidebar nav a{color:var(--text-muted);text-decoration:none;font-size:.85rem}.sidebar nav a:hover{color:var(--accent)}.back-link{color:var(--text-dim);text-decoration:none;font-size:.85rem;display:block;margin-bottom:8px}
+.install-box{margin-top:24px;background:var(--bg);border:1px solid var(--border);padding:12px;border-radius:6px;font-size:.8rem}.install-box code{display:block;word-break:break-all;color:var(--hl-comment);font-family:monospace;margin-top:4px}
+.series-box{margin-top:16px;background:var(--bg);border:1px solid var(--border);padding:12px;border-radius:6px;font-size:.8rem}.series-box p{color:var(--text-muted);margin-bottom:6px;font-weight:600}.series-box a{display:block;color:var(--text-muted);text-decoration:none;padding:2px 0;font-size:.8rem}.series-box a:hover{color:var(--accent)}.series-box a.current{color:var(--accent);font-weight:600}
+main{flex:1;padding:40px;max-width:860px}.guide-header{padding:20px 20px 20px 24px;background:var(--surface);border-radius:8px;margin-bottom:32px;box-shadow:0 1px 3px var(--shadow)}.guide-header h1{font-size:1.8rem;margin-bottom:8px}.guide-header p{color:var(--text-muted)}
+.step{display:flex;gap:16px;margin-bottom:40px}.step-number{width:32px;min-width:32px;height:32px;background:var(--accent);border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:bold;font-size:.9rem;margin-top:4px;color:#fff}.step-content{flex:1;min-width:0}.step-content h3{font-size:1.1rem;margin-bottom:8px;color:var(--text)}.explanation{color:var(--text-muted);font-size:.9rem;line-height:1.6;margin-bottom:14px}
+.info-box{background:var(--surface);border-left:3px solid var(--accent);border-radius:0 6px 6px 0;padding:12px 16px;margin-bottom:14px;font-size:.88rem;color:var(--text-muted);line-height:1.6}.info-box strong{color:var(--text)}
+.warn-box{background:var(--surface);border-left:3px solid #ff9800;border-radius:0 6px 6px 0;padding:12px 16px;margin-bottom:14px;font-size:.88rem;color:var(--text-muted);line-height:1.6}.warn-box strong{color:var(--text)}
+.tabs{background:var(--surface);border-radius:6px;overflow:hidden;border:1px solid var(--border)}.tab-bar{display:flex;background:var(--surface2);overflow-x:auto;border-bottom:1px solid var(--border)}.tab-btn{padding:8px 16px;background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:.8rem;white-space:nowrap;border-bottom:2px solid transparent;margin-bottom:-1px}.tab-btn.active{color:var(--text);border-bottom-color:var(--accent)}.tab-panel{display:none}.tab-panel.active{display:block}
+.code-header{display:flex;justify-content:space-between;align-items:center;padding:5px 12px;background:var(--surface2);border-bottom:1px solid var(--border)}.lang-label{font-size:.72rem;color:var(--text-dim);text-transform:uppercase;letter-spacing:.04em}.copy-btn{background:none;border:1px solid var(--border);color:var(--text-muted);padding:2px 8px;cursor:pointer;border-radius:3px;font-size:.72rem}.copy-btn:hover{color:var(--text);border-color:var(--text-muted)}
+pre{overflow-x:auto;padding:16px;background:var(--code-bg)}code{font-family:"Fira Code","Cascadia Code",Consolas,monospace;font-size:.82rem;line-height:1.65;color:var(--code-text)}
+.theme-row{display:flex;align-items:center;gap:8px;margin-top:20px}.theme-label{font-size:.78rem;color:var(--text-muted)}.toggle-switch{position:relative;display:inline-block;width:40px;height:22px}.toggle-switch input{opacity:0;width:0;height:0}.slider{position:absolute;cursor:pointer;inset:0;background:var(--surface2);border:1px solid var(--border);border-radius:22px;transition:background .2s}.slider:before{content:"";position:absolute;width:16px;height:16px;left:2px;top:2px;background:var(--text-muted);border-radius:50%;transition:transform .2s,background .2s}.toggle-switch input:checked+.slider{background:var(--accent);border-color:var(--accent)}.toggle-switch input:checked+.slider:before{transform:translateX(18px);background:#fff}
+.sidebar-toggle{display:none;position:fixed;top:12px;left:12px;z-index:300;background:var(--accent);color:#fff;border:none;padding:7px 14px;border-radius:6px;cursor:pointer;font-size:.85rem;font-weight:600;box-shadow:0 2px 8px var(--shadow);align-items:center;gap:6px}
+.sidebar-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:190}.sidebar-overlay.open{display:block}
+@media(max-width:900px){.sidebar-toggle{display:flex}.layout{display:block}.sidebar{position:fixed;left:-280px;top:0;height:100vh;z-index:200;transition:left .25s ease;box-shadow:2px 0 16px var(--shadow);min-width:260px}.sidebar.open{left:0}main{padding:60px 20px 40px;max-width:100%}pre{overflow-x:auto;max-width:100%;white-space:pre-wrap;word-break:break-word}.tabs{max-width:100%}}
+</style>
+</head>
+<body>
+<button class="sidebar-toggle" id="sidebarToggle" onclick="toggleSidebar()">&#9776; Steps</button>
+<div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+<div class="layout">
+  <aside class="sidebar" id="guideSidebar">
+    <a href="index.html" class="back-link">← All Guides</a>
+    <h2>Auth + Security</h2>
+    <nav><ol>
+      <li><a href="#step1">Why Email Verification?</a></li>
+      <li><a href="#step2">The Full Flow</a></li>
+      <li><a href="#step3">email_verified Column</a></li>
+      <li><a href="#step4">Verification Token Table</a></li>
+      <li><a href="#step5">Send the Email</a></li>
+      <li><a href="#step6">GET /auth/verify</a></li>
+      <li><a href="#step7">Block Unverified Logins</a></li>
+      <li><a href="#step8">Resend Verification</a></li>
+    </ol></nav>
+    <div class="install-box">
+      <p><strong>Install</strong></p>
+      <code>pip install fastapi uvicorn sqlalchemy passlib[bcrypt] python-jose[cryptography] python-dotenv httpx</code>
+      <p style="margin-top:8px"><strong>Email (pick one)</strong></p>
+      <code>pip install resend</code>
+    </div>
+    <div class="series-box">
+      <p>Auth + Security series</p>
+      <a href="auth-passwords.html">Hashing Passwords</a>
+      <a href="auth-jwt.html">JWT Access Tokens</a>
+      <a href="auth-refresh.html">Refresh Token Rotation</a>
+      <a href="auth-email.html" class="current">&#10003; Email Verification</a>
+      <a href="auth-roles.html">Role-Based Access</a>
+    </div>
+    <div class="theme-row">
+      <span class="theme-label">Dark</span>
+      <label class="toggle-switch"><input type="checkbox" id="themeToggle"><span class="slider"></span></label>
+      <span class="theme-label">Light</span>
+    </div>
+  </aside>
+
+  <main>
+    <header class="guide-header" style="border-left:5px solid #f44336">
+      <h1>Email Verification</h1>
+      <p>Require users to confirm they own the email address they registered with before they can log in. Covers the full flow: token generation, sending the link, the verify endpoint, blocking unverified logins, and resend.</p>
+    </header>
+    <div class="steps">
+
+      <div class="step" id="step1">
+        <div class="step-number">1</div>
+        <div class="step-content">
+          <h3>Why Email Verification?</h3>
+          <p class="explanation">Without verification, anyone can register with <code>ceo@bigcorp.com</code> and your app has no way to know the person doesn't own that address. Email verification confirms the registrant can receive mail at that address — they clicked a link that only arrived in their inbox.</p>
+          <div class="info-box"><strong>Three benefits:</strong> (1) Prevents spam/bot accounts using fake addresses. (2) Ensures you can actually contact the user for password resets. (3) Reduces abuse from throwaway signups. Most SaaS products require it before the account can do anything meaningful.</div>
+        </div>
+      </div>
+
+      <div class="step" id="step2">
+        <div class="step-number">2</div>
+        <div class="step-content">
+          <h3>The Full Flow</h3>
+          <div class="tabs">
+            <div class="tab-bar"><button class="tab-btn active" onclick="switchTab('step2',0)">Step by step</button></div>
+            <div class="tab-panel active">
+              <div class="code-header"><span class="lang-label">text</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code>1. POST /register
+   → Create user with email_verified=False
+   → Generate a random verification token
+   → Store token (hashed) in DB with 24hr expiry
+   → Send email with link: GET /auth/verify?token=RAW_TOKEN
+
+2. User clicks the link in their email
+
+3. GET /auth/verify?token=RAW_TOKEN
+   → Find matching token in DB (bcrypt verify)
+   → Check it hasn't expired
+   → Set user.email_verified = True
+   → Delete the token row
+   → Redirect to /login (or return success JSON)
+
+4. POST /login
+   → After password check: if not user.email_verified → 403
+   → Only verified users get a token
+
+5. POST /auth/resend-verification
+   → Delete any existing token for this user
+   → Generate a new one
+   → Resend the email</code></pre>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="step" id="step3">
+        <div class="step-number">3</div>
+        <div class="step-content">
+          <h3>email_verified Column</h3>
+          <p class="explanation">Add one column to the User model. This is the only change to the existing model — the verification logic lives in a separate table.</p>
+          <div class="tabs">
+            <div class="tab-bar"><button class="tab-btn active" onclick="switchTab('step3',0)">models.py — User update</button></div>
+            <div class="tab-panel active">
+              <div class="code-header"><span class="lang-label">python</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-keyword">class</span> <span class="hl-builtin">User</span>(Base):
+    __tablename__ = <span class="hl-string">"users"</span>
+    id              = Column(Integer, primary_key=<span class="hl-keyword">True</span>, index=<span class="hl-keyword">True</span>)
+    email           = Column(String, unique=<span class="hl-keyword">True</span>, nullable=<span class="hl-keyword">False</span>, index=<span class="hl-keyword">True</span>)
+    hashed_password = Column(String, nullable=<span class="hl-keyword">False</span>)
+    is_active       = Column(Boolean, default=<span class="hl-keyword">True</span>)
+    email_verified  = Column(Boolean, default=<span class="hl-keyword">False</span>)   <span class="hl-comment"># ← new column</span>
+    created_at      = Column(DateTime, default=<span class="hl-keyword">lambda</span>: datetime.now(timezone.utc))</code></pre>
+            </div>
+          </div>
+          <div class="warn-box" style="margin-top:12px"><strong>If using PostgreSQL in production:</strong> adding a column requires an Alembic migration — <code>create_all()</code> won't add it to an existing table. Run: <code>alembic revision --autogenerate -m "add email_verified"</code> then <code>alembic upgrade head</code>.</div>
+        </div>
+      </div>
+
+      <div class="step" id="step4">
+        <div class="step-number">4</div>
+        <div class="step-content">
+          <h3>Verification Token Table</h3>
+          <p class="explanation">Store the verification token in the database with an expiry. Hash it like a password — if the table is leaked, tokens can't be used.</p>
+          <div class="tabs">
+            <div class="tab-bar"><button class="tab-btn active" onclick="switchTab('step4',0)">models.py — VerificationToken</button></div>
+            <div class="tab-panel active">
+              <div class="code-header"><span class="lang-label">python</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-keyword">import</span> secrets
+
+<span class="hl-keyword">class</span> <span class="hl-builtin">VerificationToken</span>(Base):
+    __tablename__ = <span class="hl-string">"verification_tokens"</span>
+    id         = Column(Integer, primary_key=<span class="hl-keyword">True</span>)
+    user_id    = Column(Integer, ForeignKey(<span class="hl-string">"users.id"</span>), nullable=<span class="hl-keyword">False</span>)
+    token_hash = Column(String, unique=<span class="hl-keyword">True</span>, nullable=<span class="hl-keyword">False</span>)
+    expires_at = Column(DateTime, nullable=<span class="hl-keyword">False</span>)
+
+<span class="hl-keyword">def</span> <span class="hl-builtin">make_verification_token</span>(user_id: int, db: Session):
+    <span class="hl-comment">"""Generate a token, store its hash, return the raw token (to send in the link)."""</span>
+    <span class="hl-comment"># Delete any existing token for this user first</span>
+    db.query(VerificationToken).filter(
+        VerificationToken.user_id == user_id
+    ).delete()
+
+    raw   = secrets.token_urlsafe(<span class="hl-number">32</span>)   <span class="hl-comment"># 32 bytes → ~43 URL-safe chars</span>
+    hashed = pwd_context.hash(raw)
+    expires = datetime.now(timezone.utc) + timedelta(hours=<span class="hl-number">24</span>)
+    db.add(VerificationToken(user_id=user_id, token_hash=hashed, expires_at=expires))
+    db.commit()
+    <span class="hl-keyword">return</span> raw   <span class="hl-comment"># put this in the email link</span></code></pre>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="step" id="step5">
+        <div class="step-number">5</div>
+        <div class="step-content">
+          <h3>Send the Email</h3>
+          <p class="explanation">Two options: <code>smtplib</code> (built into Python, works with Gmail/SMTP) or a transactional email API like Resend. Resend is simpler for production — one <code>pip install</code> and an API key.</p>
+          <div class="tabs">
+            <div class="tab-bar">
+              <button class="tab-btn active" onclick="switchTab('step5',0)">Resend API (recommended)</button>
+              <button class="tab-btn" onclick="switchTab('step5',1)">smtplib (Gmail)</button>
+            </div>
+            <div class="tab-panel active">
+              <div class="code-header"><span class="lang-label">python — Resend</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-comment"># pip install resend</span>
+<span class="hl-comment"># Get free API key at resend.com (100 emails/day free)</span>
+<span class="hl-keyword">import</span> resend
+resend.api_key = os.getenv(<span class="hl-string">"RESEND_API_KEY"</span>)
+
+<span class="hl-keyword">def</span> <span class="hl-builtin">send_verification_email</span>(to_email: str, raw_token: str):
+    base_url = os.getenv(<span class="hl-string">"APP_BASE_URL"</span>, <span class="hl-string">"http://localhost:8000"</span>)
+    link = f<span class="hl-string">"{base_url}/auth/verify?token={raw_token}"</span>
+    resend.Emails.send({
+        <span class="hl-string">"from"</span>:    <span class="hl-string">"noreply@yourapp.com"</span>,
+        <span class="hl-string">"to"</span>:      [to_email],
+        <span class="hl-string">"subject"</span>: <span class="hl-string">"Verify your email"</span>,
+        <span class="hl-string">"html"</span>:    f<span class="hl-string">"&lt;p&gt;Click to verify: &lt;a href='{link}'&gt;{link}&lt;/a&gt;&lt;/p&gt;&lt;p&gt;Expires in 24 hours.&lt;/p&gt;"</span>,
+    })</code></pre>
+            </div>
+            <div class="tab-panel">
+              <div class="code-header"><span class="lang-label">python — smtplib (Gmail)</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-keyword">import</span> smtplib
+<span class="hl-keyword">from</span> email.mime.text <span class="hl-keyword">import</span> MIMEText
+
+<span class="hl-keyword">def</span> <span class="hl-builtin">send_verification_email</span>(to_email: str, raw_token: str):
+    base_url = os.getenv(<span class="hl-string">"APP_BASE_URL"</span>, <span class="hl-string">"http://localhost:8000"</span>)
+    link = f<span class="hl-string">"{base_url}/auth/verify?token={raw_token}"</span>
+
+    msg = MIMEText(f<span class="hl-string">"Click to verify your email:\n{link}\n\nExpires in 24 hours."</span>)
+    msg[<span class="hl-string">"Subject"</span>] = <span class="hl-string">"Verify your email"</span>
+    msg[<span class="hl-string">"From"</span>]    = os.getenv(<span class="hl-string">"SMTP_FROM"</span>)
+    msg[<span class="hl-string">"To"</span>]      = to_email
+
+    <span class="hl-keyword">with</span> smtplib.SMTP_SSL(<span class="hl-string">"smtp.gmail.com"</span>, <span class="hl-number">465</span>) <span class="hl-keyword">as</span> smtp:
+        smtp.login(os.getenv(<span class="hl-string">"SMTP_USER"</span>), os.getenv(<span class="hl-string">"SMTP_PASSWORD"</span>))
+        smtp.send_message(msg)
+<span class="hl-comment"># Gmail: use an "App Password" (not your account password)</span>
+<span class="hl-comment"># Google Account → Security → 2-Step Verification → App passwords</span></code></pre>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="step" id="step6">
+        <div class="step-number">6</div>
+        <div class="step-content">
+          <h3>GET /auth/verify</h3>
+          <p class="explanation">The user clicks the link in their email. This endpoint finds the matching token, marks the user as verified, and deletes the token so it can't be used again.</p>
+          <div class="tabs">
+            <div class="tab-bar"><button class="tab-btn active" onclick="switchTab('step6',0)">main.py — /auth/verify</button></div>
+            <div class="tab-panel active">
+              <div class="code-header"><span class="lang-label">python</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-decorator">@app.get</span>(<span class="hl-string">"/auth/verify"</span>)
+<span class="hl-keyword">def</span> <span class="hl-builtin">verify_email</span>(token: str, db: Session = Depends(get_db)):
+    now = datetime.now(timezone.utc)
+
+    <span class="hl-comment"># Find non-expired verification tokens</span>
+    candidates = db.query(models.VerificationToken).filter(
+        models.VerificationToken.expires_at > now
+    ).all()
+
+    token_row = <span class="hl-keyword">None</span>
+    <span class="hl-keyword">for</span> row <span class="hl-keyword">in</span> candidates:
+        <span class="hl-keyword">if</span> pwd_context.verify(token, row.token_hash):
+            token_row = row
+            <span class="hl-keyword">break</span>
+
+    <span class="hl-keyword">if not</span> token_row:
+        <span class="hl-keyword">raise</span> HTTPException(status_code=<span class="hl-number">400</span>, detail=<span class="hl-string">"Invalid or expired verification link"</span>)
+
+    <span class="hl-comment"># Mark the user as verified</span>
+    user = db.query(models.User).filter(models.User.id == token_row.user_id).first()
+    user.email_verified = <span class="hl-keyword">True</span>
+
+    <span class="hl-comment"># Delete the token — single use</span>
+    db.delete(token_row)
+    db.commit()
+
+    <span class="hl-keyword">return</span> {<span class="hl-string">"message"</span>: <span class="hl-string">"Email verified. You can now log in."</span>}
+    <span class="hl-comment"># Or: return RedirectResponse("/login", status_code=303) for HTML apps</span></code></pre>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="step" id="step7">
+        <div class="step-number">7</div>
+        <div class="step-content">
+          <h3>Block Unverified Logins</h3>
+          <p class="explanation">One extra check in the login route — after the password is verified, before issuing the token.</p>
+          <div class="tabs">
+            <div class="tab-bar"><button class="tab-btn active" onclick="switchTab('step7',0)">main.py — updated login</button></div>
+            <div class="tab-panel active">
+              <div class="code-header"><span class="lang-label">python</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-decorator">@app.post</span>(<span class="hl-string">"/login"</span>)
+<span class="hl-keyword">def</span> <span class="hl-builtin">login</span>(email: str, password: str, db: Session = Depends(get_db)):
+    user = db.query(models.User).filter(models.User.email == email).first()
+    <span class="hl-keyword">if not</span> user <span class="hl-keyword">or not</span> verify_password(password, user.hashed_password):
+        <span class="hl-keyword">raise</span> HTTPException(status_code=<span class="hl-number">401</span>, detail=<span class="hl-string">"Invalid email or password"</span>)
+    <span class="hl-keyword">if not</span> user.is_active:
+        <span class="hl-keyword">raise</span> HTTPException(status_code=<span class="hl-number">403</span>, detail=<span class="hl-string">"Account suspended"</span>)
+
+    <span class="hl-comment"># ← New check: block unverified accounts</span>
+    <span class="hl-keyword">if not</span> user.email_verified:
+        <span class="hl-keyword">raise</span> HTTPException(
+            status_code=<span class="hl-number">403</span>,
+            detail=<span class="hl-string">"Email not verified. Check your inbox for the verification link."</span>
+        )
+
+    token = create_access_token(data={<span class="hl-string">"sub"</span>: str(user.id)})
+    <span class="hl-keyword">return</span> {<span class="hl-string">"access_token"</span>: token, <span class="hl-string">"token_type"</span>: <span class="hl-string">"bearer"</span>}</code></pre>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="step" id="step8">
+        <div class="step-number">8</div>
+        <div class="step-content">
+          <h3>Resend Verification</h3>
+          <p class="explanation">Users sometimes miss the email or let it expire. Provide an endpoint to generate a new token and resend — but rate-limit it or require a recent login to prevent abuse.</p>
+          <div class="tabs">
+            <div class="tab-bar"><button class="tab-btn active" onclick="switchTab('step8',0)">POST /auth/resend-verification</button></div>
+            <div class="tab-panel active">
+              <div class="code-header"><span class="lang-label">python</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-decorator">@app.post</span>(<span class="hl-string">"/auth/resend-verification"</span>)
+<span class="hl-keyword">def</span> <span class="hl-builtin">resend_verification</span>(email: str, db: Session = Depends(get_db)):
+    user = db.query(models.User).filter(models.User.email == email).first()
+
+    <span class="hl-comment"># Don't reveal if the email exists — return the same message either way</span>
+    <span class="hl-keyword">if not</span> user <span class="hl-keyword">or</span> user.email_verified:
+        <span class="hl-keyword">return</span> {<span class="hl-string">"message"</span>: <span class="hl-string">"If that email is registered and unverified, a new link has been sent."</span>}
+
+    raw_token = make_verification_token(user.id, db)  <span class="hl-comment"># deletes old, creates new</span>
+    send_verification_email(user.email, raw_token)
+    <span class="hl-keyword">return</span> {<span class="hl-string">"message"</span>: <span class="hl-string">"If that email is registered and unverified, a new link has been sent."</span>}
+
+<span class="hl-comment"># Note: in production, add rate limiting to this endpoint</span>
+<span class="hl-comment"># (e.g. max 3 resends per hour per email) to prevent email bombing</span></code></pre>
+            </div>
+          </div>
+          <div class="info-box" style="margin-top:12px"><strong>Next:</strong> <a href="auth-roles.html">Role-Based Access</a> — add admin and user roles to control who can do what in your app.</div>
+        </div>
+      </div>
+
+    </div>
+  </main>
+</div>
+<script>
+(function(){var s=localStorage.getItem("pyoffline-theme");if(s==="light")document.documentElement.classList.add("light");document.addEventListener("DOMContentLoaded",function(){var t=document.getElementById("themeToggle");if(!t)return;t.checked=(localStorage.getItem("pyoffline-theme")==="light");t.addEventListener("change",function(){if(this.checked){document.documentElement.classList.add("light");localStorage.setItem("pyoffline-theme","light")}else{document.documentElement.classList.remove("light");localStorage.setItem("pyoffline-theme","dark")}})})})();
+function switchTab(s,i){var el=document.getElementById(s);var b=el.querySelectorAll(".tab-btn");var p=el.querySelectorAll(".tab-panel");b.forEach(function(x){x.classList.remove("active")});p.forEach(function(x){x.classList.remove("active")});b[i].classList.add("active");p[i].classList.add("active")}
+function copyCode(btn){var c=btn.closest(".tab-panel").querySelector("code").innerText;navigator.clipboard.writeText(c).then(function(){var o=btn.textContent;btn.textContent="Copied!";setTimeout(function(){btn.textContent=o},1500)})}
+function toggleSidebar(){var s=document.getElementById("guideSidebar");var o=document.getElementById("sidebarOverlay");if(!s)return;s.classList.toggle("open");o.classList.toggle("open")}
+document.addEventListener("DOMContentLoaded",function(){var s=document.getElementById("guideSidebar");if(!s)return;s.querySelectorAll("nav a").forEach(function(a){a.addEventListener("click",function(){s.classList.remove("open");var o=document.getElementById("sidebarOverlay");if(o)o.classList.remove("open")})})});
+</script>
+</body>
+</html>

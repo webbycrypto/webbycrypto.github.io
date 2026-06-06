@@ -1,0 +1,880 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SQLAlchemy Guide - pyoffline</title>
+<style>
+/* ── Theme variables ───────────────────────────────────────── */
+:root {
+  --bg:          #121212;
+  --surface:     #1e1e1e;
+  --surface2:    #2a2a2a;
+  --sidebar-bg:  #1a1a1a;
+  --text:        #e0e0e0;
+  --text-muted:  #aaa;
+  --text-dim:    #666;
+  --border:      #333;
+  --code-bg:     #1e1e1e;
+  --code-text:   #d4d4d4;
+  --shadow:      rgba(0,0,0,.4);
+  /* syntax - dark (VSCode Dark+) */
+  --hl-keyword:  #569cd6;
+  --hl-string:   #ce9178;
+  --hl-comment:  #6a9955;
+  --hl-number:   #b5cea8;
+  --hl-decorator:#dcdcaa;
+  --hl-builtin:  #4ec9b0;
+  --hl-tag:      #4ec9b0;
+  --hl-attr:     #9cdcfe;
+  --hl-template: #c586c0;
+}
+html.light {
+  --bg:          #f5f7fa;
+  --surface:     #ffffff;
+  --surface2:    #eef0f3;
+  --sidebar-bg:  #ffffff;
+  --text:        #1a1a1a;
+  --text-muted:  #555;
+  --text-dim:    #888;
+  --border:      #dde1e7;
+  --code-bg:     #f8f8f8;
+  --code-text:   #24292e;
+  --shadow:      rgba(0,0,0,.1);
+  /* syntax - light (VSCode Light) */
+  --hl-keyword:  #0000ff;
+  --hl-string:   #a31515;
+  --hl-comment:  #008000;
+  --hl-number:   #098658;
+  --hl-decorator:#795e26;
+  --hl-builtin:  #267f99;
+  --hl-tag:      #800000;
+  --hl-attr:     #e50000;
+  --hl-template: #af00db;
+}
+
+/* ── Syntax span classes ───────────────────────────────────── */
+.hl-keyword  { color: var(--hl-keyword);  }
+.hl-string   { color: var(--hl-string);   }
+.hl-comment  { color: #adb4a7; font-size: 12px; font-style: italic; }
+.hl-number   { color: var(--hl-number);   }
+.hl-decorator{ color: var(--hl-decorator);}
+.hl-builtin  { color: var(--hl-builtin);  }
+.hl-tag      { color: var(--hl-tag);      }
+.hl-attr     { color: var(--hl-attr);     }
+.hl-template { color: var(--hl-template); }
+
+/* ── Base ──────────────────────────────────────────────────── */
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: var(--bg); color: var(--text); font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; transition: background .2s, color .2s; }
+a { color: #ca2323; }
+
+/* ── Layout ────────────────────────────────────────────────── */
+.layout { display: flex; min-height: 100vh; }
+.sidebar { width: 260px; min-width: 260px; background: var(--sidebar-bg); border-right: 1px solid var(--border); padding: 24px 16px; position: sticky; top: 0; height: 100vh; overflow-y: auto; }
+.sidebar h2 { font-size: 1.1rem; margin: 16px 0 8px; color: var(--text); }
+.sidebar nav ol { padding-left: 18px; }
+.sidebar nav li { margin: 6px 0; }
+.sidebar nav a { color: var(--text-muted); text-decoration: none; font-size: 0.85rem; }
+.sidebar nav a:hover { color: #ca2323; }
+.back-link { color: var(--text-dim); text-decoration: none; font-size: 0.85rem; display: block; margin-bottom: 8px; }
+.install-box { margin-top: 24px; background: var(--bg); border: 1px solid var(--border); padding: 12px; border-radius: 6px; font-size: 0.8rem; }
+.install-box code { display: block; word-break: break-all; color: var(--hl-comment); font-family: monospace; }
+main { flex: 1; padding: 40px; max-width: 860px; }
+.guide-header { padding: 20px 20px 20px 24px; background: var(--surface); border-radius: 8px; margin-bottom: 32px; box-shadow: 0 1px 3px var(--shadow); }
+.guide-header h1 { font-size: 1.8rem; margin-bottom: 8px; }
+.guide-header p { color: var(--text-muted); }
+
+/* ── Steps ─────────────────────────────────────────────────── */
+.step { display: flex; gap: 16px; margin-bottom: 40px; }
+.step-number { width: 32px; min-width: 32px; height: 32px; background: #ca2323; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 0.9rem; margin-top: 4px; color: #fff; }
+.step-content { flex: 1; min-width: 0; }
+.step-content h3 { font-size: 1.1rem; margin-bottom: 8px; color: var(--text); }
+.explanation { color: var(--text-muted); font-size: 0.9rem; line-height: 1.6; margin-bottom: 14px; }
+
+/* ── Code tabs ─────────────────────────────────────────────── */
+.tabs { background: var(--surface); border-radius: 6px; overflow: hidden; border: 1px solid var(--border); }
+.tab-bar { display: flex; background: var(--surface2); overflow-x: auto; border-bottom: 1px solid var(--border); }
+.tab-btn { padding: 8px 16px; background: none; border: none; color: var(--text-muted); cursor: pointer; font-size: 0.8rem; white-space: nowrap; border-bottom: 2px solid transparent; margin-bottom: -1px; }
+.tab-btn.active { color: var(--text); border-bottom-color: #ca2323; }
+.tab-panel { display: none; }
+.tab-panel.active { display: block; }
+.code-header { display: flex; justify-content: space-between; align-items: center; padding: 5px 12px; background: var(--surface2); border-bottom: 1px solid var(--border); }
+.lang-label { font-size: 0.72rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: .04em; }
+.copy-btn { background: none; border: 1px solid var(--border); color: var(--text-muted); padding: 2px 8px; cursor: pointer; border-radius: 3px; font-size: 0.72rem; }
+.copy-btn:hover { color: var(--text); border-color: var(--text-muted); }
+pre { overflow-x: auto; padding: 16px; background: var(--code-bg); }
+code { font-family: "Fira Code", "Cascadia Code", "Consolas", monospace; font-size: 0.82rem; line-height: 1.65; color: var(--code-text); }
+
+/* ── Theme toggle switch ───────────────────────────────────── */
+.theme-row { display: flex; align-items: center; gap: 8px; margin-top: 20px; }
+.theme-label { font-size: 0.78rem; color: var(--text-muted); }
+.toggle-switch { position: relative; display: inline-block; width: 40px; height: 22px; }
+.toggle-switch input { opacity: 0; width: 0; height: 0; }
+.slider { position: absolute; cursor: pointer; inset: 0; background: var(--surface2); border: 1px solid var(--border); border-radius: 22px; transition: background .2s; }
+.slider:before { content: ""; position: absolute; width: 16px; height: 16px; left: 2px; top: 2px; background: var(--text-muted); border-radius: 50%; transition: transform .2s, background .2s; }
+.toggle-switch input:checked + .slider { background: #ca2323; border-color: #ca2323; }
+.toggle-switch input:checked + .slider:before { transform: translateX(18px); background: #fff; }
+
+/* ── Responsive sidebar ────────────────────────────────────── */
+/* Toggle button - hidden on wide screens, shown on narrow */
+.sidebar-toggle {
+  display: none;
+  position: fixed; top: 12px; left: 12px; z-index: 300;
+  background: #ca2323; color: #fff; border: none;
+  padding: 7px 14px; border-radius: 6px; cursor: pointer;
+  font-size: 0.85rem; font-weight: 600;
+  box-shadow: 0 2px 8px var(--shadow);
+  align-items: center; gap: 6px;
+}
+/* Backdrop - covers main content when sidebar is open on narrow screens */
+.sidebar-overlay {
+  display: none; position: fixed; inset: 0;
+  background: rgba(0,0,0,.45); z-index: 190;
+}
+.sidebar-overlay.open { display: block; }
+
+@media (max-width: 900px) {
+  .sidebar-toggle { display: flex; }
+  .layout { display: block; }
+  .sidebar {
+    position: fixed; left: -280px; top: 0;
+    height: 100vh; z-index: 200;
+    transition: left .25s ease;
+    box-shadow: 2px 0 16px var(--shadow);
+    min-width: 260px;
+  }
+  .sidebar.open { left: 0; }
+  main { padding: 60px 20px 40px; max-width: 100%; }
+  /* Prevent wide code lines from breaking the page layout */
+  pre { overflow-x: auto; max-width: 100%; white-space: pre-wrap; word-break: break-word; }
+  .tabs { max-width: 100%; }
+}
+</style>
+</head>
+<body>
+<button class="sidebar-toggle" id="sidebarToggle" onclick="toggleSidebar()">&#9776; Steps</button>
+<div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+<div class="layout">
+  <aside class="sidebar" id="guideSidebar">
+    <a href="index.html" class="back-link">← All Guides</a>
+    <h2>SQLAlchemy</h2>
+    <nav><ol><li><a href="#step1">Project Setup &amp; Connection Strings</a></li><li><a href="#step2">Defining Models</a></li><li><a href="#step3">Creating Tables &amp; Sessions</a></li><li><a href="#step4">Create &amp; Read</a></li><li><a href="#step5">Update &amp; Delete</a></li><li><a href="#step6">Relationships</a></li><li><a href="#step7">Alembic Migrations</a></li><li><a href="#step8">Async SQLAlchemy</a></li><li><a href="#step9">SQLAlchemy with FastAPI / Flask / Django / XRPL</a></li></ol></nav>
+    <div class="install-box">
+      <p><strong>Install</strong></p>
+      <code>pyoffline install --packages sqlalchemy alembic aiosqlite</code>
+      <p style="margin-top:12px"><strong>Run</strong></p>
+      <code>python main.py</code>
+    </div>
+    <div class="theme-row">
+      <span class="theme-label">Dark</span>
+      <label class="toggle-switch">
+        <input type="checkbox" id="themeToggle">
+        <span class="slider"></span>
+      </label>
+      <span class="theme-label">Light</span>
+    </div>
+  </aside>
+  <main>
+    <header class="guide-header" style="border-left: 5px solid #ca2323">
+      <h1>SQLAlchemy</h1>
+      <p>Master SQLAlchemy from first connection to async sessions - models, CRUD, relationships, Alembic migrations, and how to wire it into FastAPI, Flask, Django, and XRPL.</p>
+    </header>
+    <div class="steps">
+<div class="step" id="step1">
+  <div class="step-number">1</div>
+  <div class="step-content">
+    <h3>Project Setup &amp; Connection Strings</h3>
+    <p class="explanation">SQLAlchemy supports many databases. The connection string tells it which one to use and where to find it. SQLite is a single file - perfect for local development. PostgreSQL is used in production. You do not need to install anything extra for SQLite; it is built into Python.</p>
+    <div class="tabs" data-step="step1">
+      <div class="tab-bar"><button class="tab-btn active" onclick="switchTab('step1',0)" id="step1_tab0">database.py</button></div>
+      
+<div class="tab-panel active" id="step1_panel0">
+  <div class="code-header">
+    <span class="lang-label">python</span>
+    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+  </div>
+  <pre><code><span class="hl-keyword">from</span> sqlalchemy <span class="hl-keyword">import</span> create_engine
+<span class="hl-keyword">from</span> sqlalchemy.orm <span class="hl-keyword">import</span> sessionmaker, DeclarativeBase
+
+<span class="hl-comment"># SQLite - stores everything in a single file, no server needed</span>
+DATABASE_URL = <span class="hl-string">&quot;sqlite:///./app.db&quot;</span>
+
+<span class="hl-comment"># PostgreSQL - swap this in for production</span>
+<span class="hl-comment"># DATABASE_URL = &quot;postgresql://user:password@localhost:5432/mydb&quot;</span>
+
+<span class="hl-comment"># MySQL</span>
+<span class="hl-comment"># DATABASE_URL = &quot;mysql+pymysql://user:password@localhost:3306/mydb&quot;</span>
+
+<span class="hl-comment"># echo=True prints every SQL statement to the terminal - useful for debugging</span>
+engine = create_engine(DATABASE_URL, connect_args={<span class="hl-string">&quot;check_same_thread&quot;</span>: <span class="hl-keyword">False</span>}, echo=<span class="hl-keyword">False</span>)
+
+<span class="hl-comment"># SessionLocal is a factory - call it to get a new database session</span>
+SessionLocal = sessionmaker(autocommit=<span class="hl-keyword">False</span>, autoflush=<span class="hl-keyword">False</span>, bind=engine)
+
+<span class="hl-comment"># All models inherit from Base - SQLAlchemy uses this to track your tables</span>
+<span class="hl-keyword">class</span> Base(DeclarativeBase):
+    <span class="hl-keyword">pass</span></code></pre>
+</div>
+    </div>
+  </div>
+</div>
+<div class="step" id="step2">
+  <div class="step-number">2</div>
+  <div class="step-content">
+    <h3>Defining Models</h3>
+    <p class="explanation">A model is a Python class that maps to a database table. Each class attribute decorated with Column becomes a column in the table. SQLAlchemy handles the SQL - you just work with Python objects.</p>
+    <div class="tabs" data-step="step2">
+      <div class="tab-bar"><button class="tab-btn active" onclick="switchTab('step2',0)" id="step2_tab0">models.py</button></div>
+      
+<div class="tab-panel active" id="step2_panel0">
+  <div class="code-header">
+    <span class="lang-label">python</span>
+    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+  </div>
+  <pre><code><span class="hl-keyword">from</span> sqlalchemy <span class="hl-keyword">import</span> Column, Integer, String, Boolean, DateTime, Float, Text
+<span class="hl-keyword">from</span> sqlalchemy.sql <span class="hl-keyword">import</span> func
+<span class="hl-keyword">from</span> database <span class="hl-keyword">import</span> Base
+
+<span class="hl-keyword">class</span> User(Base):
+    __tablename__ = <span class="hl-string">&quot;users&quot;</span>  <span class="hl-comment"># name of the table in the database</span>
+
+    id         = Column(Integer, primary_key=<span class="hl-keyword">True</span>, index=<span class="hl-keyword">True</span>)  <span class="hl-comment"># auto-incrementing ID</span>
+    email      = Column(String(<span class="hl-number">120</span>), unique=<span class="hl-keyword">True</span>, nullable=<span class="hl-keyword">False</span>, index=<span class="hl-keyword">True</span>)
+    name       = Column(String(<span class="hl-number">100</span>))
+    is_active  = Column(Boolean, default=<span class="hl-keyword">True</span>)
+    created_at = Column(DateTime(timezone=<span class="hl-keyword">True</span>), server_default=func.now())  <span class="hl-comment"># set by the DB</span>
+
+    <span class="hl-keyword">def</span> __repr__(self):
+        <span class="hl-comment"># What Python prints when you do print(user) or look at a list of users</span>
+        <span class="hl-keyword">return</span> f<span class="hl-string">&quot;&lt;User id={self.id} email={self.email}&gt;&quot;</span>
+
+<span class="hl-keyword">class</span> Product(Base):
+    __tablename__ = <span class="hl-string">&quot;products&quot;</span>
+
+    id          = Column(Integer, primary_key=<span class="hl-keyword">True</span>, index=<span class="hl-keyword">True</span>)
+    name        = Column(String(<span class="hl-number">200</span>), nullable=<span class="hl-keyword">False</span>)
+    description = Column(Text)
+    price       = Column(Float, nullable=<span class="hl-keyword">False</span>)
+    in_stock    = Column(Boolean, default=<span class="hl-keyword">True</span>)
+
+    <span class="hl-keyword">def</span> __repr__(self):
+        <span class="hl-keyword">return</span> f<span class="hl-string">&#x27;&lt;Product id={self.id} name={self.name} price={self.price}&gt;&#x27;</span></code></pre>
+</div>
+    </div>
+  </div>
+</div>
+<div class="step" id="step3">
+  <div class="step-number">3</div>
+  <div class="step-content">
+    <h3>Creating Tables &amp; Sessions</h3>
+    <p class="explanation">create_all() looks at all models that inherit from Base and creates their tables if they don&#x27;t exist yet. The get_db() function opens a session, hands it to your code, then closes it automatically - even if something goes wrong.</p>
+    <div class="tabs" data-step="step3">
+      <div class="tab-bar"><button class="tab-btn active" onclick="switchTab('step3',0)" id="step3_tab0">main.py</button></div>
+      
+<div class="tab-panel active" id="step3_panel0">
+  <div class="code-header">
+    <span class="lang-label">python</span>
+    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+  </div>
+  <pre><code><span class="hl-keyword">from</span> database <span class="hl-keyword">import</span> engine, SessionLocal, Base
+<span class="hl-keyword">import</span> models  <span class="hl-comment"># importing models registers them with Base</span>
+
+<span class="hl-comment"># Create all tables that don&#x27;t exist yet - safe to call every startup</span>
+Base.metadata.create_all(bind=engine)
+
+<span class="hl-comment"># --- Session as a context manager ---</span>
+<span class="hl-comment"># This is the cleanest pattern: the session is always closed, even on errors</span>
+
+<span class="hl-keyword">def</span> get_db():
+    db = SessionLocal()       <span class="hl-comment"># open a new session</span>
+    <span class="hl-keyword">try</span>:
+        <span class="hl-keyword">yield</span> db              <span class="hl-comment"># hand it to the caller</span>
+    <span class="hl-keyword">finally</span>:
+        db.close()            <span class="hl-comment"># always close, no matter what happened</span>
+
+<span class="hl-comment"># Using it directly (without FastAPI/Flask dependency injection):</span>
+<span class="hl-keyword">if</span> __name__ == <span class="hl-string">&quot;__main__&quot;</span>:
+    db = SessionLocal()
+    <span class="hl-keyword">try</span>:
+        <span class="hl-keyword">print</span>(<span class="hl-string">&quot;Tables created. Session open.&quot;</span>)
+        <span class="hl-comment"># ... do database work here ...</span>
+    <span class="hl-keyword">finally</span>:
+        db.close()</code></pre>
+</div>
+    </div>
+  </div>
+</div>
+<div class="step" id="step4">
+  <div class="step-number">4</div>
+  <div class="step-content">
+    <h3>Create &amp; Read</h3>
+    <p class="explanation">Adding a record takes three steps: create the object, add it to the session, commit. Reading uses session.query() to build a SELECT statement - filter() adds a WHERE clause, first() returns one result, all() returns a list.</p>
+    <div class="tabs" data-step="step4">
+      <div class="tab-bar"><button class="tab-btn active" onclick="switchTab('step4',0)" id="step4_tab0">crud.py</button></div>
+      
+<div class="tab-panel active" id="step4_panel0">
+  <div class="code-header">
+    <span class="lang-label">python</span>
+    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+  </div>
+  <pre><code><span class="hl-keyword">from</span> database <span class="hl-keyword">import</span> SessionLocal
+<span class="hl-keyword">from</span> models <span class="hl-keyword">import</span> User
+
+db = SessionLocal()
+
+<span class="hl-comment"># --- CREATE ---</span>
+new_user = User(email=<span class="hl-string">&quot;alice@example.com&quot;</span>, name=<span class="hl-string">&quot;Alice&quot;</span>)
+db.add(new_user)        <span class="hl-comment"># stage the insert</span>
+db.commit()             <span class="hl-comment"># write to the database</span>
+db.refresh(new_user)    <span class="hl-comment"># reload the object so new_user.id is populated</span>
+<span class="hl-keyword">print</span>(new_user)         <span class="hl-comment"># &lt;User id=1 email=alice@example.com&gt;</span>
+
+<span class="hl-comment"># Add multiple records at once</span>
+db.add_all([
+    User(email=<span class="hl-string">&quot;bob@example.com&quot;</span>,     name=<span class="hl-string">&quot;Bob&quot;</span>),
+    User(email=<span class="hl-string">&quot;charlie@example.com&quot;</span>, name=<span class="hl-string">&quot;Charlie&quot;</span>),
+])
+db.commit()
+
+<span class="hl-comment"># --- READ ---</span>
+<span class="hl-comment"># Get all users</span>
+all_users = db.query(User).<span class="hl-builtin">all</span>()
+<span class="hl-keyword">print</span>(all_users)  <span class="hl-comment"># [&lt;User ...&gt;, &lt;User ...&gt;, ...]</span>
+
+<span class="hl-comment"># Get by primary key</span>
+user = db.query(User).<span class="hl-builtin">filter</span>(User.id == <span class="hl-number">1</span>).first()
+<span class="hl-keyword">print</span>(user.name)  <span class="hl-comment"># Alice</span>
+
+<span class="hl-comment"># Get by email (or any column)</span>
+user = db.query(User).<span class="hl-builtin">filter</span>(User.email == <span class="hl-string">&quot;bob@example.com&quot;</span>).first()
+
+<span class="hl-comment"># Filter with multiple conditions (AND)</span>
+active_bobs = db.query(User).<span class="hl-builtin">filter</span>(User.name == <span class="hl-string">&quot;Bob&quot;</span>, User.is_active == <span class="hl-keyword">True</span>).<span class="hl-builtin">all</span>()
+
+<span class="hl-comment"># Count results</span>
+count = db.query(User).count()
+<span class="hl-keyword">print</span>(f<span class="hl-string">&quot;{count} users in the database&quot;</span>)
+
+<span class="hl-comment"># Order and limit</span>
+top5 = db.query(User).order_by(User.created_at.desc()).limit(<span class="hl-number">5</span>).<span class="hl-builtin">all</span>()
+
+db.close()</code></pre>
+</div>
+    </div>
+  </div>
+</div>
+<div class="step" id="step5">
+  <div class="step-number">5</div>
+  <div class="step-content">
+    <h3>Update &amp; Delete</h3>
+    <p class="explanation">To update a record, fetch it, change the attribute, then commit. To delete, fetch it and call session.delete(). The bulk update pattern lets you update many rows at once without loading them all into Python first.</p>
+    <div class="tabs" data-step="step5">
+      <div class="tab-bar"><button class="tab-btn active" onclick="switchTab('step5',0)" id="step5_tab0">crud_update_delete.py</button></div>
+      
+<div class="tab-panel active" id="step5_panel0">
+  <div class="code-header">
+    <span class="lang-label">python</span>
+    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+  </div>
+  <pre><code><span class="hl-keyword">from</span> database <span class="hl-keyword">import</span> SessionLocal
+<span class="hl-keyword">from</span> models <span class="hl-keyword">import</span> User
+
+db = SessionLocal()
+
+<span class="hl-comment"># --- UPDATE (fetch, change, commit) ---</span>
+user = db.query(User).<span class="hl-builtin">filter</span>(User.id == <span class="hl-number">1</span>).first()
+<span class="hl-keyword">if</span> user:
+    user.name = <span class="hl-string">&quot;Alice Updated&quot;</span>  <span class="hl-comment"># change the attribute directly</span>
+    db.commit()                  <span class="hl-comment"># write the change</span>
+    db.refresh(user)             <span class="hl-comment"># reload to confirm</span>
+    <span class="hl-keyword">print</span>(user.name)             <span class="hl-comment"># Alice Updated</span>
+
+<span class="hl-comment"># --- BULK UPDATE (without loading each object) ---</span>
+db.query(User).<span class="hl-builtin">filter</span>(User.is_active == <span class="hl-keyword">False</span>).update({<span class="hl-string">&quot;name&quot;</span>: <span class="hl-string">&quot;Inactive&quot;</span>})
+db.commit()
+
+<span class="hl-comment"># --- DELETE (fetch, delete, commit) ---</span>
+user = db.query(User).<span class="hl-builtin">filter</span>(User.id == <span class="hl-number">2</span>).first()
+<span class="hl-keyword">if</span> user:
+    db.delete(user)  <span class="hl-comment"># mark for deletion</span>
+    db.commit()      <span class="hl-comment"># execute the DELETE</span>
+
+<span class="hl-comment"># --- BULK DELETE ---</span>
+db.query(User).<span class="hl-builtin">filter</span>(User.email.like(<span class="hl-string">&quot;%spam%&quot;</span>)).delete(synchronize_session=<span class="hl-keyword">False</span>)
+db.commit()
+
+<span class="hl-comment"># --- SAFE DELETE PATTERN ---</span>
+<span class="hl-comment"># Check it exists before deleting - avoids silent failures</span>
+<span class="hl-keyword">def</span> delete_user(db, user_id: <span class="hl-builtin">int</span>) -&gt; <span class="hl-builtin">bool</span>:
+    user = db.query(User).<span class="hl-builtin">filter</span>(User.id == user_id).first()
+    <span class="hl-keyword">if</span> <span class="hl-keyword">not</span> user:
+        <span class="hl-keyword">return</span> <span class="hl-keyword">False</span>        <span class="hl-comment"># nothing to delete</span>
+    db.delete(user)
+    db.commit()
+    <span class="hl-keyword">return</span> <span class="hl-keyword">True</span>             <span class="hl-comment"># deleted successfully</span>
+
+db.close()</code></pre>
+</div>
+    </div>
+  </div>
+</div>
+<div class="step" id="step6">
+  <div class="step-number">6</div>
+  <div class="step-content">
+    <h3>Relationships</h3>
+    <p class="explanation">A relationship links two tables together. ForeignKey creates the database-level link; relationship() creates the Python-level link so you can navigate from a parent object to its children (and back) without writing any SQL.</p>
+    <div class="tabs" data-step="step6">
+      <div class="tab-bar"><button class="tab-btn active" onclick="switchTab('step6',0)" id="step6_tab0">models_related.py</button><button class="tab-btn " onclick="switchTab('step6',1)" id="step6_tab1">using_relationships.py</button></div>
+      
+<div class="tab-panel active" id="step6_panel0">
+  <div class="code-header">
+    <span class="lang-label">python</span>
+    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+  </div>
+  <pre><code><span class="hl-keyword">from</span> sqlalchemy <span class="hl-keyword">import</span> Column, Integer, String, ForeignKey, Text
+<span class="hl-keyword">from</span> sqlalchemy.orm <span class="hl-keyword">import</span> relationship
+<span class="hl-keyword">from</span> database <span class="hl-keyword">import</span> Base
+
+<span class="hl-keyword">class</span> Author(Base):
+    __tablename__ = <span class="hl-string">&quot;authors&quot;</span>
+
+    id    = Column(Integer, primary_key=<span class="hl-keyword">True</span>)
+    name  = Column(String(<span class="hl-number">100</span>), nullable=<span class="hl-keyword">False</span>)
+
+    <span class="hl-comment"># &#x27;books&#x27; is a Python attribute - SQLAlchemy loads the related Book rows automatically</span>
+    books = relationship(<span class="hl-string">&quot;Book&quot;</span>, back_populates=<span class="hl-string">&quot;author&quot;</span>, cascade=<span class="hl-string">&quot;all, delete-orphan&quot;</span>)
+    <span class="hl-comment"># cascade=&quot;all, delete-orphan&quot; means: if you delete an Author, delete their Books too</span>
+
+    <span class="hl-keyword">def</span> __repr__(self):
+        <span class="hl-keyword">return</span> f<span class="hl-string">&quot;&lt;Author {self.name}&gt;&quot;</span>
+
+<span class="hl-keyword">class</span> Book(Base):
+    __tablename__ = <span class="hl-string">&quot;books&quot;</span>
+
+    id        = Column(Integer, primary_key=<span class="hl-keyword">True</span>)
+    title     = Column(String(<span class="hl-number">200</span>), nullable=<span class="hl-keyword">False</span>)
+    body      = Column(Text)
+    author_id = Column(Integer, ForeignKey(<span class="hl-string">&quot;authors.id&quot;</span>), nullable=<span class="hl-keyword">False</span>)  <span class="hl-comment"># the FK column</span>
+
+    <span class="hl-comment"># &#x27;author&#x27; is a Python attribute - gives you back the Author object</span>
+    author = relationship(<span class="hl-string">&quot;Author&quot;</span>, back_populates=<span class="hl-string">&quot;books&quot;</span>)
+
+    <span class="hl-keyword">def</span> __repr__(self):
+        <span class="hl-keyword">return</span> f<span class="hl-string">&quot;&lt;Book &#x27;{self.title}&#x27;&gt;&quot;</span>
+</code></pre>
+</div>
+<div class="tab-panel " id="step6_panel1">
+  <div class="code-header">
+    <span class="lang-label">python</span>
+    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+  </div>
+  <pre><code><span class="hl-keyword">from</span> database <span class="hl-keyword">import</span> SessionLocal, engine, Base
+<span class="hl-keyword">import</span> models_related <span class="hl-keyword">as</span> m
+
+Base.metadata.create_all(bind=engine)
+db = SessionLocal()
+
+<span class="hl-comment"># Create an author with books in one go</span>
+author = m.Author(name=<span class="hl-string">&quot;George Orwell&quot;</span>, books=[
+    m.Book(title=<span class="hl-string">&quot;1984&quot;</span>),
+    m.Book(title=<span class="hl-string">&quot;Animal Farm&quot;</span>),
+])
+db.add(author)
+db.commit()
+db.refresh(author)
+
+<span class="hl-comment"># Navigate from author → books</span>
+<span class="hl-keyword">for</span> book <span class="hl-keyword">in</span> author.books:
+    <span class="hl-keyword">print</span>(book.title)   <span class="hl-comment"># 1984 / Animal Farm</span>
+
+<span class="hl-comment"># Navigate from book → author</span>
+book = db.query(m.Book).<span class="hl-builtin">filter</span>(m.Book.title == <span class="hl-string">&quot;1984&quot;</span>).first()
+<span class="hl-keyword">print</span>(book.author.name)  <span class="hl-comment"># George Orwell</span>
+
+db.close()</code></pre>
+</div>
+    </div>
+  </div>
+</div>
+<div class="step" id="step7">
+  <div class="step-number">7</div>
+  <div class="step-content">
+    <h3>Alembic Migrations</h3>
+    <p class="explanation">Alembic tracks changes to your models and generates SQL migration scripts. When you add a column or change a table, you create a new migration rather than deleting and recreating the database - this keeps your existing data safe.</p>
+    <div class="tabs" data-step="step7">
+      <div class="tab-bar"><button class="tab-btn active" onclick="switchTab('step7',0)" id="step7_tab0">terminal</button><button class="tab-btn " onclick="switchTab('step7',1)" id="step7_tab1">alembic/env.py (key changes)</button></div>
+      
+<div class="tab-panel active" id="step7_panel0">
+  <div class="code-header">
+    <span class="lang-label">bash</span>
+    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+  </div>
+  <pre><code><span class="hl-comment"># 1. Initialise Alembic - creates an alembic/ folder and alembic.ini</span>
+alembic init alembic
+
+<span class="hl-comment"># 2. Edit alembic/env.py - tell it about your models and database URL</span>
+<span class="hl-comment">#    (see env.py below)</span>
+
+<span class="hl-comment"># 3. Auto-generate a migration by comparing your models to the current DB</span>
+alembic revision --autogenerate -m <span class="hl-string">&quot;add users table&quot;</span>
+
+<span class="hl-comment"># 4. Apply the migration to the database</span>
+alembic upgrade head
+
+<span class="hl-comment"># Other useful commands:</span>
+alembic history          <span class="hl-comment"># list all migrations</span>
+alembic current          <span class="hl-comment"># show which migration the DB is at</span>
+alembic downgrade -1     <span class="hl-comment"># roll back one migration</span></code></pre>
+</div>
+<div class="tab-panel " id="step7_panel1">
+  <div class="code-header">
+    <span class="lang-label">python</span>
+    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+  </div>
+  <pre><code><span class="hl-comment"># Add these two lines near the top of env.py (after the default imports):</span>
+<span class="hl-keyword">from</span> database <span class="hl-keyword">import</span> Base, DATABASE_URL   <span class="hl-comment"># import your Base and URL</span>
+<span class="hl-keyword">import</span> models                              <span class="hl-comment"># import your models so Alembic sees them</span>
+
+<span class="hl-comment"># Then update the two config lines Alembic looks for:</span>
+config.set_main_option(<span class="hl-string">&quot;sqlalchemy.url&quot;</span>, DATABASE_URL)  <span class="hl-comment"># tell Alembic the DB URL</span>
+target_metadata = Base.metadata                          <span class="hl-comment"># tell Alembic about your tables</span>
+
+<span class="hl-comment"># Everything else in env.py stays the same - Alembic auto-generates the rest.</span></code></pre>
+</div>
+    </div>
+  </div>
+</div>
+<div class="step" id="step8">
+  <div class="step-number">8</div>
+  <div class="step-content">
+    <h3>Async SQLAlchemy</h3>
+    <p class="explanation">The async version of SQLAlchemy works with asyncio - useful inside FastAPI async routes or any async Python code. The API is nearly identical to the sync version; the main differences are using `await` and `AsyncSession`.</p>
+    <div class="tabs" data-step="step8">
+      <div class="tab-bar"><button class="tab-btn active" onclick="switchTab('step8',0)" id="step8_tab0">database_async.py</button><button class="tab-btn " onclick="switchTab('step8',1)" id="step8_tab1">async_crud.py</button></div>
+      
+<div class="tab-panel active" id="step8_panel0">
+  <div class="code-header">
+    <span class="lang-label">python</span>
+    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+  </div>
+  <pre><code><span class="hl-keyword">from</span> sqlalchemy.ext.asyncio <span class="hl-keyword">import</span> create_async_engine, AsyncSession, async_sessionmaker
+<span class="hl-keyword">from</span> sqlalchemy.orm <span class="hl-keyword">import</span> DeclarativeBase
+
+<span class="hl-comment"># Note: aiosqlite driver is required for async SQLite</span>
+ASYNC_DATABASE_URL = <span class="hl-string">&quot;sqlite+aiosqlite:///./app_async.db&quot;</span>
+
+<span class="hl-comment"># For async PostgreSQL use asyncpg:</span>
+<span class="hl-comment"># ASYNC_DATABASE_URL = &quot;postgresql+asyncpg://user:password@localhost/mydb&quot;</span>
+
+async_engine = create_async_engine(ASYNC_DATABASE_URL, echo=<span class="hl-keyword">False</span>)
+
+AsyncSessionLocal = async_sessionmaker(
+    bind=async_engine,
+    class_=AsyncSession,
+    expire_on_commit=<span class="hl-keyword">False</span>,  <span class="hl-comment"># keeps objects usable after commit without a reload</span>
+)
+
+<span class="hl-keyword">class</span> Base(DeclarativeBase):
+    <span class="hl-keyword">pass</span>
+
+<span class="hl-comment"># Async version of get_db() - use with &#x27;async with&#x27; or as a FastAPI dependency</span>
+<span class="hl-keyword">async</span> <span class="hl-keyword">def</span> get_async_db():
+    <span class="hl-keyword">async</span> <span class="hl-keyword">with</span> AsyncSessionLocal() <span class="hl-keyword">as</span> session:
+        <span class="hl-keyword">yield</span> session</code></pre>
+</div>
+<div class="tab-panel " id="step8_panel1">
+  <div class="code-header">
+    <span class="lang-label">python</span>
+    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+  </div>
+  <pre><code><span class="hl-keyword">import</span> asyncio
+<span class="hl-keyword">from</span> sqlalchemy <span class="hl-keyword">import</span> select
+<span class="hl-keyword">from</span> database_async <span class="hl-keyword">import</span> async_engine, AsyncSessionLocal, Base
+<span class="hl-keyword">from</span> models <span class="hl-keyword">import</span> User  <span class="hl-comment"># same models work for both sync and async</span>
+
+<span class="hl-keyword">async</span> <span class="hl-keyword">def</span> main():
+    <span class="hl-comment"># Create tables</span>
+    <span class="hl-keyword">async</span> <span class="hl-keyword">with</span> async_engine.begin() <span class="hl-keyword">as</span> conn:
+        <span class="hl-keyword">await</span> conn.run_sync(Base.metadata.create_all)
+
+    <span class="hl-keyword">async</span> <span class="hl-keyword">with</span> AsyncSessionLocal() <span class="hl-keyword">as</span> db:
+        <span class="hl-comment"># CREATE</span>
+        user = User(email=<span class="hl-string">&quot;async@example.com&quot;</span>, name=<span class="hl-string">&quot;Async User&quot;</span>)
+        db.add(user)
+        <span class="hl-keyword">await</span> db.commit()
+        <span class="hl-keyword">await</span> db.refresh(user)
+        <span class="hl-keyword">print</span>(user)
+
+        <span class="hl-comment"># READ - use select() instead of db.query() for async</span>
+        result = <span class="hl-keyword">await</span> db.execute(select(User).where(User.email == <span class="hl-string">&quot;async@example.com&quot;</span>))
+        found = result.scalar_one_or_none()  <span class="hl-comment"># returns the object or None</span>
+        <span class="hl-keyword">print</span>(found)
+
+        <span class="hl-comment"># UPDATE</span>
+        found.name = <span class="hl-string">&quot;Updated Async User&quot;</span>
+        <span class="hl-keyword">await</span> db.commit()
+
+        <span class="hl-comment"># DELETE</span>
+        <span class="hl-keyword">await</span> db.delete(found)
+        <span class="hl-keyword">await</span> db.commit()
+
+asyncio.run(main())</code></pre>
+</div>
+    </div>
+  </div>
+</div>
+<div class="step" id="step9">
+  <div class="step-number">9</div>
+  <div class="step-content">
+    <h3>SQLAlchemy with FastAPI / Flask / Django / XRPL</h3>
+    <p class="explanation">Each framework wires SQLAlchemy in slightly differently. FastAPI uses dependency injection, Flask uses an extension, Django typically uses its own ORM but you can add SQLAlchemy alongside it, and XRPL apps use it as a local cache for wallet and transaction data.</p>
+    <div class="tabs" data-step="step9">
+      <div class="tab-bar"><button class="tab-btn active" onclick="switchTab('step9',0)" id="step9_tab0">FastAPI</button><button class="tab-btn " onclick="switchTab('step9',1)" id="step9_tab1">Flask</button><button class="tab-btn " onclick="switchTab('step9',2)" id="step9_tab2">Django</button><button class="tab-btn " onclick="switchTab('step9',3)" id="step9_tab3">XRPL</button></div>
+      
+<div class="tab-panel active" id="step9_panel0">
+  <div class="code-header">
+    <span class="lang-label">python</span>
+    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+  </div>
+  <pre><code><span class="hl-comment"># FastAPI uses Depends() to inject a database session into each route.</span>
+<span class="hl-comment"># The session is opened at the start of the request and closed at the end.</span>
+
+<span class="hl-keyword">from</span> fastapi <span class="hl-keyword">import</span> FastAPI, Depends
+<span class="hl-keyword">from</span> sqlalchemy.orm <span class="hl-keyword">import</span> Session
+<span class="hl-keyword">from</span> database <span class="hl-keyword">import</span> engine, Base, get_db
+<span class="hl-keyword">import</span> models
+
+Base.metadata.create_all(bind=engine)
+app = FastAPI()
+
+<span class="hl-decorator">@app.post</span>(<span class="hl-string">&quot;/users&quot;</span>)
+<span class="hl-keyword">def</span> create_user(email: <span class="hl-builtin">str</span>, db: Session = Depends(get_db)):
+    <span class="hl-comment"># db is a fresh session for this request - injected automatically by FastAPI</span>
+    user = models.User(email=email)
+    db.add(user)
+    db.commit()
+    db.refresh(user)
+    <span class="hl-keyword">return</span> {<span class="hl-string">&quot;id&quot;</span>: user.id, <span class="hl-string">&quot;email&quot;</span>: user.email}
+
+<span class="hl-decorator">@app.get</span>(<span class="hl-string">&quot;/users/{user_id}&quot;</span>)
+<span class="hl-keyword">def</span> get_user(user_id: <span class="hl-builtin">int</span>, db: Session = Depends(get_db)):
+    user = db.query(models.User).<span class="hl-builtin">filter</span>(models.User.id == user_id).first()
+    <span class="hl-keyword">if</span> <span class="hl-keyword">not</span> user:
+        <span class="hl-keyword">raise</span> HTTPException(status_code=<span class="hl-number">404</span>, detail=<span class="hl-string">&quot;User not found&quot;</span>)
+    <span class="hl-keyword">return</span> {<span class="hl-string">&quot;id&quot;</span>: user.id, <span class="hl-string">&quot;email&quot;</span>: user.email}</code></pre>
+</div>
+<div class="tab-panel " id="step9_panel1">
+  <div class="code-header">
+    <span class="lang-label">python</span>
+    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+  </div>
+  <pre><code><span class="hl-comment"># Flask uses the flask-sqlalchemy extension which wraps SQLAlchemy.</span>
+<span class="hl-comment"># Models inherit from db.Model instead of Base, and db.session replaces SessionLocal.</span>
+
+<span class="hl-keyword">from</span> flask <span class="hl-keyword">import</span> Flask
+<span class="hl-keyword">from</span> flask_sqlalchemy <span class="hl-keyword">import</span> SQLAlchemy
+
+app = Flask(__name__)
+app.config[<span class="hl-string">&quot;SQLALCHEMY_DATABASE_URI&quot;</span>] = <span class="hl-string">&quot;sqlite:///app.db&quot;</span>
+app.config[<span class="hl-string">&quot;SQLALCHEMY_TRACK_MODIFICATIONS&quot;</span>] = <span class="hl-keyword">False</span>
+
+db = SQLAlchemy(app)
+
+<span class="hl-keyword">class</span> User(db.Model):
+    id    = db.Column(db.Integer, primary_key=<span class="hl-keyword">True</span>)
+    email = db.Column(db.String(<span class="hl-number">120</span>), unique=<span class="hl-keyword">True</span>, nullable=<span class="hl-keyword">False</span>)
+    name  = db.Column(db.String(<span class="hl-number">100</span>))
+
+<span class="hl-keyword">with</span> app.app_context():
+    db.create_all()  <span class="hl-comment"># create tables</span>
+
+<span class="hl-decorator">@app.route</span>(<span class="hl-string">&quot;/users&quot;</span>, methods=[<span class="hl-string">&quot;POST&quot;</span>])
+<span class="hl-keyword">def</span> create_user():
+    <span class="hl-keyword">from</span> flask <span class="hl-keyword">import</span> request, jsonify
+    data = request.get_json()
+    user = User(email=data[<span class="hl-string">&quot;email&quot;</span>], name=data.get(<span class="hl-string">&quot;name&quot;</span>))
+    db.session.add(user)
+    db.session.commit()
+    <span class="hl-keyword">return</span> jsonify({<span class="hl-string">&quot;id&quot;</span>: user.id, <span class="hl-string">&quot;email&quot;</span>: user.email}), <span class="hl-number">201</span>
+
+<span class="hl-decorator">@app.route</span>(<span class="hl-string">&quot;/users/&lt;int:user_id&gt;&quot;</span>)
+<span class="hl-keyword">def</span> get_user(user_id):
+    <span class="hl-keyword">from</span> flask <span class="hl-keyword">import</span> jsonify
+    user = User.query.get_or_404(user_id)
+    <span class="hl-keyword">return</span> jsonify({<span class="hl-string">&quot;id&quot;</span>: user.id, <span class="hl-string">&quot;email&quot;</span>: user.email})</code></pre>
+</div>
+<div class="tab-panel " id="step9_panel2">
+  <div class="code-header">
+    <span class="lang-label">python</span>
+    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+  </div>
+  <pre><code><span class="hl-comment"># Django has its own ORM and uses it by default.</span>
+<span class="hl-comment"># You can add a raw SQLAlchemy session alongside Django for edge cases</span>
+<span class="hl-comment"># (e.g. complex queries, legacy databases, or shared code with non-Django apps).</span>
+
+<span class="hl-comment"># settings.py - Django still manages its own DB connection</span>
+DATABASES = {
+    <span class="hl-string">&quot;default&quot;</span>: {
+        <span class="hl-string">&quot;ENGINE&quot;</span>: <span class="hl-string">&quot;django.db.backends.sqlite3&quot;</span>,
+        <span class="hl-string">&quot;NAME&quot;</span>: BASE_DIR / <span class="hl-string">&quot;db.sqlite3&quot;</span>,
+    }
+}
+
+<span class="hl-comment"># db_alchemy.py - separate SQLAlchemy session for raw queries</span>
+<span class="hl-keyword">from</span> sqlalchemy <span class="hl-keyword">import</span> create_engine, text
+<span class="hl-keyword">from</span> sqlalchemy.orm <span class="hl-keyword">import</span> sessionmaker
+
+<span class="hl-comment"># Point it at the same SQLite file Django uses</span>
+engine  = create_engine(<span class="hl-string">&quot;sqlite:///./db.sqlite3&quot;</span>)
+Session = sessionmaker(bind=engine)
+
+<span class="hl-keyword">def</span> raw_query_example():
+    <span class="hl-comment"># Use this only when Django ORM can&#x27;t express what you need</span>
+    <span class="hl-keyword">with</span> Session() <span class="hl-keyword">as</span> session:
+        result = session.execute(text(<span class="hl-string">&quot;SELECT * FROM myapp_mymodel WHERE active = 1&quot;</span>))
+        <span class="hl-keyword">return</span> result.fetchall()
+
+<span class="hl-comment"># views.py - using Django ORM normally (recommended for most cases)</span>
+<span class="hl-keyword">from</span> django.shortcuts <span class="hl-keyword">import</span> get_object_or_404
+<span class="hl-keyword">from</span> .models <span class="hl-keyword">import</span> MyModel
+
+<span class="hl-keyword">def</span> my_view(request, pk):
+    obj = get_object_or_404(MyModel, pk=pk)
+    <span class="hl-keyword">return</span> obj</code></pre>
+</div>
+<div class="tab-panel " id="step9_panel3">
+  <div class="code-header">
+    <span class="lang-label">python</span>
+    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+  </div>
+  <pre><code><span class="hl-comment"># XRPL apps use SQLAlchemy to cache wallet data and transaction history locally.</span>
+<span class="hl-comment"># This avoids re-querying the ledger every time and lets you search/filter offline.</span>
+
+<span class="hl-keyword">from</span> sqlalchemy <span class="hl-keyword">import</span> create_engine, Column, Integer, String, DateTime
+<span class="hl-keyword">from</span> sqlalchemy.orm <span class="hl-keyword">import</span> sessionmaker, DeclarativeBase
+<span class="hl-keyword">from</span> datetime <span class="hl-keyword">import</span> datetime
+
+engine = create_engine(<span class="hl-string">&quot;sqlite:///xrpl_cache.db&quot;</span>)
+Session = sessionmaker(bind=engine)
+
+<span class="hl-keyword">class</span> Base(DeclarativeBase):
+    <span class="hl-keyword">pass</span>
+
+<span class="hl-keyword">class</span> Wallet(Base):
+    __tablename__ = <span class="hl-string">&quot;wallets&quot;</span>
+    id         = Column(Integer, primary_key=<span class="hl-keyword">True</span>)
+    address    = Column(String(<span class="hl-number">35</span>), unique=<span class="hl-keyword">True</span>, nullable=<span class="hl-keyword">False</span>)  <span class="hl-comment"># classic address rXXX...</span>
+    label      = Column(String(<span class="hl-number">100</span>))  <span class="hl-comment"># a friendly name you give the wallet</span>
+    created_at = Column(DateTime, default=datetime.utcnow)
+
+<span class="hl-keyword">class</span> Transaction(Base):
+    __tablename__ = <span class="hl-string">&quot;transactions&quot;</span>
+    id          = Column(Integer, primary_key=<span class="hl-keyword">True</span>)
+    tx_hash     = Column(String(<span class="hl-number">64</span>), unique=<span class="hl-keyword">True</span>, nullable=<span class="hl-keyword">False</span>)
+    tx_type     = Column(String(<span class="hl-number">50</span>))   <span class="hl-comment"># Payment, EscrowCreate, NFTokenMint, etc.</span>
+    from_addr   = Column(String(<span class="hl-number">35</span>))
+    to_addr     = Column(String(<span class="hl-number">35</span>))
+    amount_drops= Column(String(<span class="hl-number">20</span>))   <span class="hl-comment"># store as string to avoid float precision issues</span>
+    ledger_date = Column(DateTime)
+    raw_json    = Column(String)       <span class="hl-comment"># store the full tx JSON for reference</span>
+
+Base.metadata.create_all(bind=engine)
+
+<span class="hl-comment"># --- Example: cache a transaction after submitting it ---</span>
+<span class="hl-keyword">def</span> cache_transaction(tx_hash, tx_type, from_addr, to_addr, amount_drops, raw_json):
+    <span class="hl-keyword">with</span> Session() <span class="hl-keyword">as</span> db:
+        tx = Transaction(
+            tx_hash=tx_hash,
+            tx_type=tx_type,
+            from_addr=from_addr,
+            to_addr=to_addr,
+            amount_drops=<span class="hl-builtin">str</span>(amount_drops),
+            raw_json=raw_json,
+            ledger_date=datetime.utcnow(),
+        )
+        db.add(tx)
+        db.commit()
+
+<span class="hl-comment"># --- Example: look up transaction history from local cache ---</span>
+<span class="hl-keyword">def</span> get_wallet_history(address: <span class="hl-builtin">str</span>):
+    <span class="hl-keyword">with</span> Session() <span class="hl-keyword">as</span> db:
+        <span class="hl-keyword">return</span> db.query(Transaction).<span class="hl-builtin">filter</span>(
+            (Transaction.from_addr == address) | (Transaction.to_addr == address)
+        ).order_by(Transaction.ledger_date.desc()).<span class="hl-builtin">all</span>()</code></pre>
+</div>
+    </div>
+  </div>
+</div></div>
+  </main>
+</div>
+<script>
+(function() {
+  // Restore saved theme preference before first paint
+  var saved = localStorage.getItem("pyoffline-theme");
+  if (saved === "light") {
+    document.documentElement.classList.add("light"); // apply class immediately
+  }
+  // Once DOM is ready, sync the checkbox state
+  document.addEventListener("DOMContentLoaded", function() {
+    var toggle = document.getElementById("themeToggle");
+    if (!toggle) return;
+    toggle.checked = (localStorage.getItem("pyoffline-theme") === "light");
+    toggle.addEventListener("change", function() {
+      if (this.checked) {
+        document.documentElement.classList.add("light");    // switch to light
+        localStorage.setItem("pyoffline-theme", "light");  // remember the choice
+      } else {
+        document.documentElement.classList.remove("light"); // back to dark
+        localStorage.setItem("pyoffline-theme", "dark");
+      }
+    });
+  });
+})();
+
+function switchTab(stepId, idx) {
+  // Find all tab buttons and panels belonging to this step
+  var step   = document.getElementById(stepId);
+  var btns   = step.querySelectorAll(".tab-btn");
+  var panels = step.querySelectorAll(".tab-panel");
+  // Remove active from all, then add it to the clicked one
+  btns.forEach(function(b) { b.classList.remove("active"); });
+  panels.forEach(function(p) { p.classList.remove("active"); });
+  btns[idx].classList.add("active");
+  panels[idx].classList.add("active");
+}
+
+function copyCode(btn) {
+  // Walk up to the panel, find the code block, copy its plain text (no HTML tags)
+  var code = btn.closest(".tab-panel").querySelector("code").innerText;
+  navigator.clipboard.writeText(code).then(function() {
+    var orig = btn.textContent;
+    btn.textContent = "Copied!";                              // briefly show confirmation
+    setTimeout(function() { btn.textContent = orig; }, 1500); // restore after 1.5s
+  });
+}
+
+// ── Responsive sidebar ──────────────────────────────────────
+function toggleSidebar() {
+  var sidebar = document.getElementById("guideSidebar");
+  var overlay = document.getElementById("sidebarOverlay");
+  if (!sidebar) return;
+  sidebar.classList.toggle("open");
+  overlay.classList.toggle("open");
+}
+
+// Close sidebar automatically when a step link is clicked (so the scroll happens cleanly)
+document.addEventListener("DOMContentLoaded", function() {
+  var sidebar = document.getElementById("guideSidebar");
+  if (!sidebar) return;
+  sidebar.querySelectorAll("nav a").forEach(function(a) {
+    a.addEventListener("click", function() {
+      sidebar.classList.remove("open");
+      var overlay = document.getElementById("sidebarOverlay");
+      if (overlay) overlay.classList.remove("open");
+    });
+  });
+});
+</script>
+</body>
+</html>

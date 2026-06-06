@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<!--
+  This file lives at: templates/index.html
+  FastAPI renders it via Jinja2 when the browser visits GET /
+  The Python function that serves this page is:
+
+      @app.get("/", response_class=HTMLResponse)
+      def index(request: Request):
+          return templates.TemplateResponse("index.html", {
+              "request": request,
+              "items": list(db.values())
+          })
+
+  Everything inside {{ }} is Jinja2 syntax — Python fills these in before
+  sending the HTML to the browser. The browser never sees {{ }}, only the result.
+-->
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>FastDev — CRUD</title>
+
+  <!--
+    /static/ maps to your static/ folder on disk.
+    Configured in main.py with:
+        app.mount("/static", StaticFiles(directory="static"), name="static")
+  -->
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+
+  <header>
+    <h1>FastDev</h1>
+    <p>A no-JavaScript CRUD frontend for FastAPI</p>
+  </header>
+
+  <main>
+
+    <!-- ════════════════════════════════════════════════════════════════
+         SECTION 1 — CREATE
+         ════════════════════════════════════════════════════════════════
+
+         This form triggers:
+             @app.post("/items/create")
+             def create_item(name: str = Form(...), description: str = Form(None)):
+
+         How the form connects to Python:
+           - method="post"         → HTTP POST request
+           - action="/items/create" → the URL of the FastAPI route
+           - name="name"           → must match the Python parameter: name: str = Form(...)
+           - name="description"    → must match: description: str = Form(None)
+
+         After saving, Python calls:
+             return RedirectResponse("/", status_code=303)
+         which sends the browser back here with fresh data.
+    -->
+    <section>
+      <h2>Add an Item</h2>
+
+      <form method="post" action="/items/create">
+
+        <!--
+          name="name" links this input to the Python parameter:
+              name: str = Form(...)
+          The ... means required — submitting without this field causes a 422 error.
+        -->
+        <label for="name">Name <span class="required">*</span></label>
+        <input
+          type="text"
+          id="name"
+          name="name"
+          placeholder="Item name"
+          required
+        >
+
+        <!--
+          name="description" links to:
+              description: str = Form(None)
+          Form(None) means optional — leaving this blank sends None to Python.
+        -->
+        <label for="description">Description</label>
+        <input
+          type="text"
+          id="description"
+          name="description"
+          placeholder="Optional description"
+        >
+
+        <!--
+          type="submit" sends the form. The browser packages all <input> values
+          into the POST request body as key=value pairs.
+        -->
+        <button type="submit" class="btn btn-create">Add Item</button>
+
+      </form>
+    </section>
+
+
+    <!-- ════════════════════════════════════════════════════════════════
+         SECTION 2 — READ (ALL ITEMS)
+         ════════════════════════════════════════════════════════════════
+
+         No form needed here. The items list is passed from Python when
+         the page first loads via:
+             "items": list(db.values())
+
+         Jinja2 {% for %} loops over that list and renders one card per item.
+         {{ item.name }} outputs the value of the "name" key in each dict.
+         {% if %} / {% else %} / {% endif %} is Jinja2 conditional syntax.
+         These tags are processed by Python on the server — the browser
+         only receives the finished HTML.
+    -->
+    <section>
+      <h2>All Items</h2>
+
+      <!--
+        {% if items %} — Jinja2 checks whether the items list is non-empty.
+        Python equivalent: if items:
+      -->
+      {% if items %}
+
+        <div class="item-list">
+
+          <!--
+            {% for item in items %} — loops over the list passed from Python.
+            Python equivalent: for item in items:
+            Each iteration makes one dict available as `item`.
+          -->
+          {% for item in items %}
+
+          <div class="item-card">
+
+            <div class="item-info">
+              <!-- {{ item.id }} outputs the "id" key from the dict -->
+              <span class="item-id">#{{ item.id }}</span>
+
+              <!-- {{ item.name }} outputs the "name" key -->
+              <strong>{{ item.name }}</strong>
+
+              <!--
+                {% if item.description %} — only show the description paragraph
+                if the value is not None and not an empty string.
+                Python equivalent: if item.description:
+              -->
+              {% if item.description %}
+                <p class="item-desc">{{ item.description }}</p>
+              {% endif %}
+            </div>
+
+            <div class="item-actions">
+
+              <!-- ── UPDATE FORM ─────────────────────────────────────────────
+                   This form triggers:
+                       @app.post("/items/update")
+                       def update_item(item_id: int = Form(...), name: str = Form(None), ...):
+
+                   Because HTML forms only support GET and POST (not PUT),
+                   we use POST and a dedicated /items/update route.
+
+                   The hidden input passes item_id to Python without showing
+                   a visible field to the user.
+              -->
+              <form method="post" action="/items/update" class="inline-form">
+
+                <!--
+                  type="hidden" — the user never sees this field, but it is
+                  included in the form submission.
+                  value="{{ item.id }}" — Jinja2 fills in this item's ID.
+                  Python receives it as: item_id: int = Form(...)
+                -->
+                <input type="hidden" name="item_id" value="{{ item.id }}">
+
+                <!--
+                  placeholder="{{ item.name }}" shows the current value as a hint.
+                  If the user leaves this blank, Python receives None and skips
+                  the update for that field (see the `if name:` check in main.py).
+                -->
+                <input
+                  type="text"
+                  name="name"
+                  placeholder="{{ item.name }}"
+                  class="inline-input"
+                >
+                <input
+                  type="text"
+                  name="description"
+                  placeholder="{{ item.description or 'description' }}"
+                  class="inline-input"
+                >
+
+                <button type="submit" class="btn btn-update">Save</button>
+              </form>
+
+              <!-- ── DELETE FORM ─────────────────────────────────────────────
+                   This form triggers:
+                       @app.post("/items/delete")
+                       def delete_item(item_id: int = Form(...)):
+
+                   Again, HTML can't send DELETE requests, so we use POST.
+                   The hidden input carries the item ID to Python.
+                   A single submit button is the whole form.
+              -->
+              <form method="post" action="/items/delete" class="inline-form">
+                <input type="hidden" name="item_id" value="{{ item.id }}">
+                <button type="submit" class="btn btn-delete">Delete</button>
+              </form>
+
+            </div><!-- /item-actions -->
+          </div><!-- /item-card -->
+
+          {% endfor %}
+          <!-- {% endfor %} closes the for loop — Python equivalent: (end of for block) -->
+
+        </div><!-- /item-list -->
+
+      {% else %}
+        <!-- Shown when items list is empty -->
+        <p class="empty">No items yet — add one above.</p>
+      {% endif %}
+
+    </section>
+
+
+    <!-- ════════════════════════════════════════════════════════════════
+         HOW FORMS TALK TO FASTAPI — QUICK REFERENCE
+         ════════════════════════════════════════════════════════════════
+
+         HTML attribute       →  FastAPI / Python equivalent
+         ─────────────────────────────────────────────────────────────
+         method="post"        →  @app.post(...)
+         method="get"         →  @app.get(...)
+         action="/items/create" →  the URL string in @app.post("/items/create")
+         name="name"          →  parameter name: name: str = Form(...)
+         name="item_id"       →  parameter name: item_id: int = Form(...)
+         required (HTML attr) →  enforced by browser before submitting
+         Form(...)            →  required in Python; 422 error if missing
+         Form(None)           →  optional in Python; None if not submitted
+         type="hidden"        →  invisible field, still sent with the form
+         RedirectResponse("/")→  sends browser back to GET / after POST
+
+         WHY NO PUT OR DELETE?
+         HTML <form> only supports method="get" and method="post".
+         PUT and DELETE are HTTP methods that require JavaScript (fetch/axios)
+         or a REST client (curl, Postman, /docs page).
+         For a no-JS frontend, every write operation uses POST with a
+         dedicated route in FastAPI (/items/update, /items/delete).
+    -->
+
+  </main>
+
+  <footer>
+    <p>FastAPI running at <a href="http://localhost:8000/docs">localhost:8000/docs</a> — test raw JSON routes there</p>
+  </footer>
+
+</body>
+</html>

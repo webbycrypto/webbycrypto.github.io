@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>pyoffline Knowledge Base</title>
+<style>
+/* ── Theme variables ───────────────────────────────────────── */
+:root {
+  --bg:          #121212;
+  --surface:     #1e1e1e;
+  --surface2:    #2a2a2a;
+  --sidebar-bg:  #1a1a1a;
+  --text:        #e0e0e0;
+  --text-muted:  #aaa;
+  --text-dim:    #666;
+  --border:      #333;
+  --code-bg:     #1e1e1e;
+  --code-text:   #d4d4d4;
+  --shadow:      rgba(0,0,0,.4);
+  /* syntax - dark (VSCode Dark+) */
+  --hl-keyword:  #569cd6;
+  --hl-string:   #ce9178;
+  --hl-comment:  #6a9955;
+  --hl-number:   #b5cea8;
+  --hl-decorator:#dcdcaa;
+  --hl-builtin:  #4ec9b0;
+  --hl-tag:      #4ec9b0;
+  --hl-attr:     #9cdcfe;
+  --hl-template: #c586c0;
+}
+html.light {
+  --bg:          #f5f7fa;
+  --surface:     #ffffff;
+  --surface2:    #eef0f3;
+  --sidebar-bg:  #ffffff;
+  --text:        #1a1a1a;
+  --text-muted:  #555;
+  --text-dim:    #888;
+  --border:      #dde1e7;
+  --code-bg:     #f8f8f8;
+  --code-text:   #24292e;
+  --shadow:      rgba(0,0,0,.1);
+  /* syntax - light (VSCode Light) */
+  --hl-keyword:  #0000ff;
+  --hl-string:   #a31515;
+  --hl-comment:  #008000;
+  --hl-number:   #098658;
+  --hl-decorator:#795e26;
+  --hl-builtin:  #267f99;
+  --hl-tag:      #800000;
+  --hl-attr:     #e50000;
+  --hl-template: #af00db;
+}
+
+/* ── Syntax span classes ───────────────────────────────────── */
+.hl-keyword  { color: var(--hl-keyword);  }
+.hl-string   { color: var(--hl-string);   }
+.hl-comment  { color: #adb4a7; font-size: 12px; font-style: italic; }
+.hl-number   { color: var(--hl-number);   }
+.hl-decorator{ color: var(--hl-decorator);}
+.hl-builtin  { color: var(--hl-builtin);  }
+.hl-tag      { color: var(--hl-tag);      }
+.hl-attr     { color: var(--hl-attr);     }
+.hl-template { color: var(--hl-template); }
+
+/* ── Base ──────────────────────────────────────────────────── */
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: var(--bg); color: var(--text); font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; transition: background .2s, color .2s; }
+a { color: #555; }
+
+/* ── Layout ────────────────────────────────────────────────── */
+.layout { display: flex; min-height: 100vh; }
+.sidebar { width: 260px; min-width: 260px; background: var(--sidebar-bg); border-right: 1px solid var(--border); padding: 24px 16px; position: sticky; top: 0; height: 100vh; overflow-y: auto; }
+.sidebar h2 { font-size: 1.1rem; margin: 16px 0 8px; color: var(--text); }
+.sidebar nav ol { padding-left: 18px; }
+.sidebar nav li { margin: 6px 0; }
+.sidebar nav a { color: var(--text-muted); text-decoration: none; font-size: 0.85rem; }
+.sidebar nav a:hover { color: #555; }
+.back-link { color: var(--text-dim); text-decoration: none; font-size: 0.85rem; display: block; margin-bottom: 8px; }
+.install-box { margin-top: 24px; background: var(--bg); border: 1px solid var(--border); padding: 12px; border-radius: 6px; font-size: 0.8rem; }
+.install-box code { display: block; word-break: break-all; color: var(--hl-comment); font-family: monospace; }
+main { flex: 1; padding: 40px; max-width: 860px; }
+.guide-header { padding: 20px 20px 20px 24px; background: var(--surface); border-radius: 8px; margin-bottom: 32px; box-shadow: 0 1px 3px var(--shadow); }
+.guide-header h1 { font-size: 1.8rem; margin-bottom: 8px; }
+.guide-header p { color: var(--text-muted); }
+
+/* ── Steps ─────────────────────────────────────────────────── */
+.step { display: flex; gap: 16px; margin-bottom: 40px; }
+.step-number { width: 32px; min-width: 32px; height: 32px; background: #555; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 0.9rem; margin-top: 4px; color: #fff; }
+.step-content { flex: 1; min-width: 0; }
+.step-content h3 { font-size: 1.1rem; margin-bottom: 8px; color: var(--text); }
+.explanation { color: var(--text-muted); font-size: 0.9rem; line-height: 1.6; margin-bottom: 14px; }
+
+/* ── Code tabs ─────────────────────────────────────────────── */
+.tabs { background: var(--surface); border-radius: 6px; overflow: hidden; border: 1px solid var(--border); }
+.tab-bar { display: flex; background: var(--surface2); overflow-x: auto; border-bottom: 1px solid var(--border); }
+.tab-btn { padding: 8px 16px; background: none; border: none; color: var(--text-muted); cursor: pointer; font-size: 0.8rem; white-space: nowrap; border-bottom: 2px solid transparent; margin-bottom: -1px; }
+.tab-btn.active { color: var(--text); border-bottom-color: #555; }
+.tab-panel { display: none; }
+.tab-panel.active { display: block; }
+.code-header { display: flex; justify-content: space-between; align-items: center; padding: 5px 12px; background: var(--surface2); border-bottom: 1px solid var(--border); }
+.lang-label { font-size: 0.72rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: .04em; }
+.copy-btn { background: none; border: 1px solid var(--border); color: var(--text-muted); padding: 2px 8px; cursor: pointer; border-radius: 3px; font-size: 0.72rem; }
+.copy-btn:hover { color: var(--text); border-color: var(--text-muted); }
+pre { overflow-x: auto; padding: 16px; background: var(--code-bg); }
+code { font-family: "Fira Code", "Cascadia Code", "Consolas", monospace; font-size: 0.82rem; line-height: 1.65; color: var(--code-text); }
+
+/* ── Theme toggle switch ───────────────────────────────────── */
+.theme-row { display: flex; align-items: center; gap: 8px; margin-top: 20px; }
+.theme-label { font-size: 0.78rem; color: var(--text-muted); }
+.toggle-switch { position: relative; display: inline-block; width: 40px; height: 22px; }
+.toggle-switch input { opacity: 0; width: 0; height: 0; }
+.slider { position: absolute; cursor: pointer; inset: 0; background: var(--surface2); border: 1px solid var(--border); border-radius: 22px; transition: background .2s; }
+.slider:before { content: ""; position: absolute; width: 16px; height: 16px; left: 2px; top: 2px; background: var(--text-muted); border-radius: 50%; transition: transform .2s, background .2s; }
+.toggle-switch input:checked + .slider { background: #555; border-color: #555; }
+.toggle-switch input:checked + .slider:before { transform: translateX(18px); background: #fff; }
+
+/* ── Responsive sidebar ────────────────────────────────────── */
+/* Toggle button - hidden on wide screens, shown on narrow */
+.sidebar-toggle {
+  display: none;
+  position: fixed; top: 12px; left: 12px; z-index: 300;
+  background: #555; color: #fff; border: none;
+  padding: 7px 14px; border-radius: 6px; cursor: pointer;
+  font-size: 0.85rem; font-weight: 600;
+  box-shadow: 0 2px 8px var(--shadow);
+  align-items: center; gap: 6px;
+}
+/* Backdrop - covers main content when sidebar is open on narrow screens */
+.sidebar-overlay {
+  display: none; position: fixed; inset: 0;
+  background: rgba(0,0,0,.45); z-index: 190;
+}
+.sidebar-overlay.open { display: block; }
+
+@media (max-width: 900px) {
+  .sidebar-toggle { display: flex; }
+  .layout { display: block; }
+  .sidebar {
+    position: fixed; left: -280px; top: 0;
+    height: 100vh; z-index: 200;
+    transition: left .25s ease;
+    box-shadow: 2px 0 16px var(--shadow);
+    min-width: 260px;
+  }
+  .sidebar.open { left: 0; }
+  main { padding: 60px 20px 40px; max-width: 100%; }
+  /* Prevent wide code lines from breaking the page layout */
+  pre { overflow-x: auto; max-width: 100%; white-space: pre-wrap; word-break: break-word; }
+  .tabs { max-width: 100%; }
+}
+</style>
+<style>
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; padding: 0 40px 40px; }
+  .card { background: var(--surface); padding: 24px; border-radius: 8px; text-decoration: none; color: inherit; display: block; transition: transform .15s, box-shadow .15s; box-shadow: 0 1px 4px var(--shadow); }
+  .card:hover { transform: translateY(-3px); box-shadow: 0 4px 12px var(--shadow); }
+  .card h2 { margin: 0 0 8px; font-size: 1.3rem; }
+  .card p { color: var(--text-muted); font-size: 0.9rem; margin: 0 0 12px; }
+  .badge { background: var(--surface2); padding: 3px 8px; border-radius: 12px; font-size: 0.8rem; color: var(--text-dim); }
+  .hero { padding: 48px 40px 28px; text-align: center; }
+  .hero h1 { font-size: 2.2rem; margin-bottom: 8px; }
+  .hero p { color: var(--text-muted); font-size: 1rem; margin-bottom: 20px; }
+</style>
+</head>
+<body>
+<div class="hero">
+  <h1>pyoffline Knowledge Base</h1>
+  <p>Step-by-step guides for building real apps - works fully offline</p>
+  <div class="theme-row" style="justify-content:center">
+    <span class="theme-label">Dark</span>
+    <label class="toggle-switch">
+      <input type="checkbox" id="themeToggle">
+      <span class="slider"></span>
+    </label>
+    <span class="theme-label">Light</span>
+  </div>
+</div>
+<div class="grid">
+<a href="fastapi.html" class="card" style="border-top: 4px solid #009688">
+  <h2 style="color:#009688">FastAPI</h2>
+  <p>Build a REST API with JWT authentication, SQLite database, and interactive HTML pages that talk to your API.</p>
+  <span class="badge">8 steps</span>
+</a>
+<a href="django.html" class="card" style="border-top: 4px solid #092e20">
+  <h2 style="color:#092e20">Django</h2>
+  <p>Build a full web app with models, views, templates, forms, pagination, search, signals, and custom middleware.</p>
+  <span class="badge">8 steps</span>
+</a>
+<a href="flask.html" class="card" style="border-top: 4px solid #000000">
+  <h2 style="color:#000000">Flask</h2>
+  <p>Build a web app using the application factory pattern, Blueprints, Jinja2 templates, WTForms, file uploads, and custom error pages.</p>
+  <span class="badge">7 steps</span>
+</a>
+<a href="xrpl.html" class="card" style="border-top: 4px solid #346AA9">
+  <h2 style="color:#346AA9">XRPL</h2>
+  <p>Interact with the XRP Ledger testnet - create wallets, check balances, send payments, set trust lines, create escrows, and mint NFTs. All examples use a thin FastAPI backend with HTML pages.</p>
+  <span class="badge">8 steps</span>
+</a>
+<a href="sqlalchemy.html" class="card" style="border-top: 4px solid #ca2323">
+  <h2 style="color:#ca2323">SQLAlchemy</h2>
+  <p>Master SQLAlchemy from first connection to async sessions - models, CRUD, relationships, Alembic migrations, and how to wire it into FastAPI, Flask, Django, and XRPL.</p>
+  <span class="badge">9 steps</span>
+</a>
+<a href="todo-flask.html" class="card" style="border-top: 4px solid #000000">
+  <h2 style="color:#000000">Todo App - Flask</h2>
+  <p>Build a simple todo app with Flask, SQLite via Flask-SQLAlchemy, Jinja2 templates, and full CRUD - add, complete, and delete tasks.</p>
+  <span class="badge">6 steps</span>
+</a>
+<a href="todo-fastapi.html" class="card" style="border-top: 4px solid #009688">
+  <h2 style="color:#009688">Todo App - FastAPI</h2>
+  <p>Build a todo API as a standalone backend service with full REST endpoints, auto-generated docs, and an HTML frontend. Also shows how FastAPI acts as a middleman - calling external APIs and returning the results to your frontend.</p>
+  <span class="badge">7 steps</span>
+</a>
+<a href="todo-django.html" class="card" style="border-top: 4px solid #092e20">
+  <h2 style="color:#092e20">Todo App - Django</h2>
+  <p>Build a todo app the Django way - model, views, URL routing, and templates. Focus is entirely on the frontend and database, using Django&#x27;s built-in ORM, form handling, and admin panel.</p>
+  <span class="badge">8 steps</span>
+</a>
+
+<div style="grid-column: 1 / -1; margin-top: 16px; padding-bottom: 4px; border-bottom: 1px solid var(--border);">
+  <h2 style="font-size: 1rem; color: var(--text-muted); font-weight: 600; letter-spacing: .04em; text-transform: uppercase;">FastAPI Learning Series</h2>
+  <p style="font-size: 0.85rem; color: var(--text-dim); margin-top: 4px;">Five connected guides — start with CRUD, add a UI and AI chat, call external APIs, integrate a CRM, and wire up a real database.</p>
+</div>
+
+<a href="crud-fastapi.html" class="card" style="border-top: 4px solid #009688">
+  <h2 style="color:#009688">CRUD + HTML Frontend</h2>
+  <p>Learn Create, Read, Update, Delete with FastAPI — in-memory storage, REST naming conventions, type hints, routers, CORS, environment variables, and a working no-JavaScript HTML frontend with Jinja2.</p>
+  <span class="badge">16 steps</span>
+</a>
+<a href="task-ai-fastapi.html" class="card" style="border-top: 4px solid #009688">
+  <h2 style="color:#009688">Task App + AI Chat</h2>
+  <p>Extend CRUD into a real app — persist notes to a JSON file so data survives restarts, build a two-column UI with a task list and AI chat panel, and wire up OpenAI or Claude with no JavaScript.</p>
+  <span class="badge">14 steps</span>
+</a>
+<a href="crm-fastapi.html" class="card" style="border-top: 4px solid #9c27b0">
+  <h2 style="color:#9c27b0">CRM Integration</h2>
+  <p>Learn the universal patterns behind CRM APIs using HubSpot as the example — API key vs OAuth2, reading and writing contacts, deduplication, webhook handling, and Unified.to for multi-CRM support.</p>
+  <span class="badge">12 steps</span>
+</a>
+<a href="public-api-fastapi.html" class="card" style="border-top: 4px solid #2196f3">
+  <h2 style="color:#2196f3">Public API Integration</h2>
+  <p>Call any external API with httpx — three real examples: PokéAPI (no auth), OpenWeatherMap (API key), and NewsAPI (key + query params). Covers error handling, in-memory caching, and a mini no-JS dashboard.</p>
+  <span class="badge">10 steps</span>
+</a>
+<a href="database-fastapi.html" class="card" style="border-top: 4px solid #ff9800">
+  <h2 style="color:#ff9800">SQLite + PostgreSQL</h2>
+  <p>Move beyond dicts and JSON files — define two related tables with SQLAlchemy ORM, wire a foreign key, filter and join queries, enforce a status flow, and swap SQLite for PostgreSQL with one line.</p>
+  <span class="badge">13 steps</span>
+</a>
+
+<div style="grid-column: 1 / -1; margin-top: 16px; padding-bottom: 4px; border-bottom: 1px solid var(--border);">
+  <h2 style="font-size: 1rem; color: var(--text-muted); font-weight: 600; letter-spacing: .04em; text-transform: uppercase;">Auth + Security</h2>
+  <p style="font-size: 0.85rem; color: var(--text-dim); margin-top: 4px;">Five guides covering the full authentication stack — from hashing passwords to JWT tokens, refresh rotation, email verification, and role-based access control.</p>
+</div>
+
+<a href="auth-passwords.html" class="card" style="border-top: 4px solid #f44336">
+  <h2 style="color:#f44336">Hashing Passwords</h2>
+  <p>Why plaintext passwords are catastrophic, what bcrypt does to protect them, and how to build a register + login flow that does it correctly with passlib.</p>
+  <span class="badge">8 steps</span>
+</a>
+<a href="auth-jwt.html" class="card" style="border-top: 4px solid #f44336">
+  <h2 style="color:#f44336">JWT Access Tokens</h2>
+  <p>Create and decode signed tokens with python-jose, protect routes with <code>Depends(get_current_user)</code>, and test the full auth flow using FastAPI's built-in /docs Authorize button.</p>
+  <span class="badge">9 steps</span>
+</a>
+<a href="auth-refresh.html" class="card" style="border-top: 4px solid #f44336">
+  <h2 style="color:#f44336">Refresh Token Rotation</h2>
+  <p>Short-lived access tokens + long-lived refresh tokens — the two-token pattern that keeps users logged in without security compromises. Covers rotation, revocation, and theft detection.</p>
+  <span class="badge">8 steps</span>
+</a>
+<a href="auth-email.html" class="card" style="border-top: 4px solid #f44336">
+  <h2 style="color:#f44336">Email Verification</h2>
+  <p>Require users to confirm their email before logging in. Covers token generation, sending via Resend or smtplib, the verify endpoint, blocking unverified logins, and resend.</p>
+  <span class="badge">8 steps</span>
+</a>
+<a href="auth-roles.html" class="card" style="border-top: 4px solid #f44336">
+  <h2 style="color:#f44336">Role-Based Access</h2>
+  <p>Add admin and user roles to your User model, build a reusable <code>require_role()</code> dependency factory, and combine role checks with resource ownership for fine-grained control.</p>
+  <span class="badge">8 steps</span>
+</a>
+
+<div style="grid-column: 1 / -1; margin-top: 16px; padding-bottom: 4px; border-bottom: 1px solid var(--border);">
+  <h2 style="font-size: 1rem; color: var(--text-muted); font-weight: 600; letter-spacing: .04em; text-transform: uppercase;">Deployment + DevOps</h2>
+  <p style="font-size: 0.85rem; color: var(--text-dim); margin-top: 4px;">Five guides taking a FastAPI app from a local server to a production VPS with HTTPS, systemd process management, and automated CI/CD deploys on push to GitHub.</p>
+</div>
+
+<a href="deploy-vps.html" class="card" style="border-top: 4px solid #607d8b">
+  <h2 style="color:#607d8b">VPS Setup + SSH</h2>
+  <p>Rent a Linux server, log in with SSH, create a non-root user, configure the firewall, install Python, upload your app, and run uvicorn for the first time on a real server.</p>
+  <span class="badge">9 steps</span>
+</a>
+<a href="deploy-nginx.html" class="card" style="border-top: 4px solid #607d8b">
+  <h2 style="color:#607d8b">Nginx Reverse Proxy</h2>
+  <p>Put Nginx in front of uvicorn so your app runs on port 80 instead of :8000. Covers site config, proxy_pass, static file serving, enabling the site, and fixing 502/403 errors.</p>
+  <span class="badge">7 steps</span>
+</a>
+<a href="deploy-ssl.html" class="card" style="border-top: 4px solid #607d8b">
+  <h2 style="color:#607d8b">HTTPS with Certbot</h2>
+  <p>Get a free TLS certificate from Let's Encrypt, have Certbot automatically configure Nginx for HTTPS, and set up auto-renewal so the cert never expires.</p>
+  <span class="badge">6 steps</span>
+</a>
+<a href="deploy-systemd.html" class="card" style="border-top: 4px solid #607d8b">
+  <h2 style="color:#607d8b">systemd + Env Vars</h2>
+  <p>Keep uvicorn alive as a permanent background service that auto-starts on boot and restarts on crash. Manage production secrets securely with a permission-restricted env file.</p>
+  <span class="badge">7 steps</span>
+</a>
+<a href="deploy-cicd.html" class="card" style="border-top: 4px solid #607d8b">
+  <h2 style="color:#607d8b">GitHub Actions CI/CD</h2>
+  <p>Push to GitHub → tests run → if green → deploy to your server automatically. Covers the deploy SSH key, GitHub Secrets, the workflow YAML file, and running migrations in CI.</p>
+  <span class="badge">8 steps</span>
+</a>
+</div>
+<script>
+(function() {
+  // Restore saved theme preference before first paint
+  var saved = localStorage.getItem("pyoffline-theme");
+  if (saved === "light") {
+    document.documentElement.classList.add("light"); // apply class immediately
+  }
+  // Once DOM is ready, sync the checkbox state
+  document.addEventListener("DOMContentLoaded", function() {
+    var toggle = document.getElementById("themeToggle");
+    if (!toggle) return;
+    toggle.checked = (localStorage.getItem("pyoffline-theme") === "light");
+    toggle.addEventListener("change", function() {
+      if (this.checked) {
+        document.documentElement.classList.add("light");    // switch to light
+        localStorage.setItem("pyoffline-theme", "light");  // remember the choice
+      } else {
+        document.documentElement.classList.remove("light"); // back to dark
+        localStorage.setItem("pyoffline-theme", "dark");
+      }
+    });
+  });
+})();
+
+function switchTab(stepId, idx) {
+  // Find all tab buttons and panels belonging to this step
+  var step   = document.getElementById(stepId);
+  var btns   = step.querySelectorAll(".tab-btn");
+  var panels = step.querySelectorAll(".tab-panel");
+  // Remove active from all, then add it to the clicked one
+  btns.forEach(function(b) { b.classList.remove("active"); });
+  panels.forEach(function(p) { p.classList.remove("active"); });
+  btns[idx].classList.add("active");
+  panels[idx].classList.add("active");
+}
+
+function copyCode(btn) {
+  // Walk up to the panel, find the code block, copy its plain text (no HTML tags)
+  var code = btn.closest(".tab-panel").querySelector("code").innerText;
+  navigator.clipboard.writeText(code).then(function() {
+    var orig = btn.textContent;
+    btn.textContent = "Copied!";                              // briefly show confirmation
+    setTimeout(function() { btn.textContent = orig; }, 1500); // restore after 1.5s
+  });
+}
+
+// ── Responsive sidebar ──────────────────────────────────────
+function toggleSidebar() {
+  var sidebar = document.getElementById("guideSidebar");
+  var overlay = document.getElementById("sidebarOverlay");
+  if (!sidebar) return;
+  sidebar.classList.toggle("open");
+  overlay.classList.toggle("open");
+}
+
+// Close sidebar automatically when a step link is clicked (so the scroll happens cleanly)
+document.addEventListener("DOMContentLoaded", function() {
+  var sidebar = document.getElementById("guideSidebar");
+  if (!sidebar) return;
+  sidebar.querySelectorAll("nav a").forEach(function(a) {
+    a.addEventListener("click", function() {
+      sidebar.classList.remove("open");
+      var overlay = document.getElementById("sidebarOverlay");
+      if (overlay) overlay.classList.remove("open");
+    });
+  });
+});
+</script>
+</body>
+</html>

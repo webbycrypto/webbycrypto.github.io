@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Role-Based Access - Auth Series - pyoffline</title>
+<style>
+:root{--bg:#121212;--surface:#1e1e1e;--surface2:#2a2a2a;--sidebar-bg:#1a1a1a;--text:#e0e0e0;--text-muted:#aaa;--text-dim:#666;--border:#333;--code-bg:#1e1e1e;--code-text:#d4d4d4;--shadow:rgba(0,0,0,.4);--accent:#f44336;--hl-keyword:#569cd6;--hl-string:#ce9178;--hl-comment:#6a9955;--hl-number:#b5cea8;--hl-decorator:#dcdcaa;--hl-builtin:#4ec9b0}
+html.light{--bg:#f5f7fa;--surface:#fff;--surface2:#eef0f3;--sidebar-bg:#fff;--text:#1a1a1a;--text-muted:#555;--text-dim:#888;--border:#dde1e7;--code-bg:#f8f8f8;--code-text:#24292e;--shadow:rgba(0,0,0,.1);--hl-keyword:#00f;--hl-string:#a31515;--hl-comment:#008000;--hl-number:#098658;--hl-decorator:#795e26;--hl-builtin:#267f99}
+.hl-keyword{color:var(--hl-keyword)}.hl-string{color:var(--hl-string)}.hl-comment{color:#adb4a7;font-size:12px;font-style:italic}.hl-number{color:var(--hl-number)}.hl-decorator{color:var(--hl-decorator)}.hl-builtin{color:var(--hl-builtin)}
+*{box-sizing:border-box;margin:0;padding:0}body{background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;transition:background .2s,color .2s}a{color:var(--accent)}
+.layout{display:flex;min-height:100vh}.sidebar{width:260px;min-width:260px;background:var(--sidebar-bg);border-right:1px solid var(--border);padding:24px 16px;position:sticky;top:0;height:100vh;overflow-y:auto}.sidebar h2{font-size:1.1rem;margin:16px 0 8px;color:var(--text)}.sidebar nav ol{padding-left:18px}.sidebar nav li{margin:6px 0}.sidebar nav a{color:var(--text-muted);text-decoration:none;font-size:.85rem}.sidebar nav a:hover{color:var(--accent)}.back-link{color:var(--text-dim);text-decoration:none;font-size:.85rem;display:block;margin-bottom:8px}
+.install-box{margin-top:24px;background:var(--bg);border:1px solid var(--border);padding:12px;border-radius:6px;font-size:.8rem}.install-box code{display:block;word-break:break-all;color:var(--hl-comment);font-family:monospace;margin-top:4px}
+.series-box{margin-top:16px;background:var(--bg);border:1px solid var(--border);padding:12px;border-radius:6px;font-size:.8rem}.series-box p{color:var(--text-muted);margin-bottom:6px;font-weight:600}.series-box a{display:block;color:var(--text-muted);text-decoration:none;padding:2px 0;font-size:.8rem}.series-box a:hover{color:var(--accent)}.series-box a.current{color:var(--accent);font-weight:600}
+main{flex:1;padding:40px;max-width:860px}.guide-header{padding:20px 20px 20px 24px;background:var(--surface);border-radius:8px;margin-bottom:32px;box-shadow:0 1px 3px var(--shadow)}.guide-header h1{font-size:1.8rem;margin-bottom:8px}.guide-header p{color:var(--text-muted)}
+.step{display:flex;gap:16px;margin-bottom:40px}.step-number{width:32px;min-width:32px;height:32px;background:var(--accent);border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:bold;font-size:.9rem;margin-top:4px;color:#fff}.step-content{flex:1;min-width:0}.step-content h3{font-size:1.1rem;margin-bottom:8px;color:var(--text)}.explanation{color:var(--text-muted);font-size:.9rem;line-height:1.6;margin-bottom:14px}
+.info-box{background:var(--surface);border-left:3px solid var(--accent);border-radius:0 6px 6px 0;padding:12px 16px;margin-bottom:14px;font-size:.88rem;color:var(--text-muted);line-height:1.6}.info-box strong{color:var(--text)}
+.tabs{background:var(--surface);border-radius:6px;overflow:hidden;border:1px solid var(--border)}.tab-bar{display:flex;background:var(--surface2);overflow-x:auto;border-bottom:1px solid var(--border)}.tab-btn{padding:8px 16px;background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:.8rem;white-space:nowrap;border-bottom:2px solid transparent;margin-bottom:-1px}.tab-btn.active{color:var(--text);border-bottom-color:var(--accent)}.tab-panel{display:none}.tab-panel.active{display:block}
+.code-header{display:flex;justify-content:space-between;align-items:center;padding:5px 12px;background:var(--surface2);border-bottom:1px solid var(--border)}.lang-label{font-size:.72rem;color:var(--text-dim);text-transform:uppercase;letter-spacing:.04em}.copy-btn{background:none;border:1px solid var(--border);color:var(--text-muted);padding:2px 8px;cursor:pointer;border-radius:3px;font-size:.72rem}.copy-btn:hover{color:var(--text);border-color:var(--text-muted)}
+pre{overflow-x:auto;padding:16px;background:var(--code-bg)}code{font-family:"Fira Code","Cascadia Code",Consolas,monospace;font-size:.82rem;line-height:1.65;color:var(--code-text)}
+.theme-row{display:flex;align-items:center;gap:8px;margin-top:20px}.theme-label{font-size:.78rem;color:var(--text-muted)}.toggle-switch{position:relative;display:inline-block;width:40px;height:22px}.toggle-switch input{opacity:0;width:0;height:0}.slider{position:absolute;cursor:pointer;inset:0;background:var(--surface2);border:1px solid var(--border);border-radius:22px;transition:background .2s}.slider:before{content:"";position:absolute;width:16px;height:16px;left:2px;top:2px;background:var(--text-muted);border-radius:50%;transition:transform .2s,background .2s}.toggle-switch input:checked+.slider{background:var(--accent);border-color:var(--accent)}.toggle-switch input:checked+.slider:before{transform:translateX(18px);background:#fff}
+.sidebar-toggle{display:none;position:fixed;top:12px;left:12px;z-index:300;background:var(--accent);color:#fff;border:none;padding:7px 14px;border-radius:6px;cursor:pointer;font-size:.85rem;font-weight:600;box-shadow:0 2px 8px var(--shadow);align-items:center;gap:6px}
+.sidebar-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:190}.sidebar-overlay.open{display:block}
+@media(max-width:900px){.sidebar-toggle{display:flex}.layout{display:block}.sidebar{position:fixed;left:-280px;top:0;height:100vh;z-index:200;transition:left .25s ease;box-shadow:2px 0 16px var(--shadow);min-width:260px}.sidebar.open{left:0}main{padding:60px 20px 40px;max-width:100%}pre{overflow-x:auto;max-width:100%;white-space:pre-wrap;word-break:break-word}.tabs{max-width:100%}}
+</style>
+</head>
+<body>
+<button class="sidebar-toggle" id="sidebarToggle" onclick="toggleSidebar()">&#9776; Steps</button>
+<div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+<div class="layout">
+  <aside class="sidebar" id="guideSidebar">
+    <a href="index.html" class="back-link">← All Guides</a>
+    <h2>Auth + Security</h2>
+    <nav><ol>
+      <li><a href="#step1">What Is Role-Based Access?</a></li>
+      <li><a href="#step2">role Column on User</a></li>
+      <li><a href="#step3">require_role() Factory</a></li>
+      <li><a href="#step4">Admin-Only Route</a></li>
+      <li><a href="#step5">Multi-Role Check</a></li>
+      <li><a href="#step6">Resource Ownership</a></li>
+      <li><a href="#step7">Ownership + Role Combined</a></li>
+      <li><a href="#step8">What's Next</a></li>
+    </ol></nav>
+    <div class="install-box">
+      <p><strong>Install</strong></p>
+      <code>pip install fastapi uvicorn sqlalchemy passlib[bcrypt] python-jose[cryptography] python-dotenv</code>
+    </div>
+    <div class="series-box">
+      <p>Auth + Security series</p>
+      <a href="auth-passwords.html">Hashing Passwords</a>
+      <a href="auth-jwt.html">JWT Access Tokens</a>
+      <a href="auth-refresh.html">Refresh Token Rotation</a>
+      <a href="auth-email.html">Email Verification</a>
+      <a href="auth-roles.html" class="current">&#10003; Role-Based Access</a>
+    </div>
+    <div class="theme-row">
+      <span class="theme-label">Dark</span>
+      <label class="toggle-switch"><input type="checkbox" id="themeToggle"><span class="slider"></span></label>
+      <span class="theme-label">Light</span>
+    </div>
+  </aside>
+
+  <main>
+    <header class="guide-header" style="border-left:5px solid #f44336">
+      <h1>Role-Based Access Control</h1>
+      <p>Control who can do what. Add a role to the User model, build a reusable <code>require_role()</code> dependency, protect routes by role and by resource ownership — and learn how to combine both patterns.</p>
+    </header>
+    <div class="steps">
+
+      <div class="step" id="step1">
+        <div class="step-number">1</div>
+        <div class="step-content">
+          <h3>What Is Role-Based Access Control?</h3>
+          <p class="explanation">Role-based access control (RBAC) assigns each user a role — like <code>user</code> or <code>admin</code> — and uses that role to decide what they can do. A regular user can read and edit their own data. An admin can read and edit everyone's data, access the admin panel, and perform destructive operations like deleting accounts.</p>
+          <div class="info-box"><strong>Two access patterns:</strong> (1) <strong>Role</strong> — does this user's role permit this action? (2) <strong>Ownership</strong> — does this user own this resource? Most real apps combine both: a user can edit their own content (ownership), an admin can edit everything (role override).</div>
+        </div>
+      </div>
+
+      <div class="step" id="step2">
+        <div class="step-number">2</div>
+        <div class="step-content">
+          <h3>role Column on User</h3>
+          <p class="explanation">Add a role enum column to the User model. Use a Python enum so the values are validated by SQLAlchemy and visible in code.</p>
+          <div class="tabs">
+            <div class="tab-bar"><button class="tab-btn active" onclick="switchTab('step2',0)">models.py — role enum + User update</button></div>
+            <div class="tab-panel active">
+              <div class="code-header"><span class="lang-label">python</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-keyword">import</span> enum
+<span class="hl-keyword">from</span> sqlalchemy <span class="hl-keyword">import</span> Column, Integer, String, Boolean, DateTime, Enum
+
+<span class="hl-keyword">class</span> <span class="hl-builtin">UserRole</span>(str, enum.Enum):
+    user  = <span class="hl-string">"user"</span>
+    admin = <span class="hl-string">"admin"</span>
+    <span class="hl-comment"># Add more roles as needed: moderator = "moderator"</span>
+
+<span class="hl-keyword">class</span> <span class="hl-builtin">User</span>(Base):
+    __tablename__ = <span class="hl-string">"users"</span>
+    id              = Column(Integer, primary_key=<span class="hl-keyword">True</span>, index=<span class="hl-keyword">True</span>)
+    email           = Column(String, unique=<span class="hl-keyword">True</span>, nullable=<span class="hl-keyword">False</span>, index=<span class="hl-keyword">True</span>)
+    hashed_password = Column(String, nullable=<span class="hl-keyword">False</span>)
+    is_active       = Column(Boolean, default=<span class="hl-keyword">True</span>)
+    email_verified  = Column(Boolean, default=<span class="hl-keyword">False</span>)
+    role            = Column(Enum(UserRole), default=UserRole.user)   <span class="hl-comment"># ← new</span>
+    created_at      = Column(DateTime, default=<span class="hl-keyword">lambda</span>: datetime.now(timezone.utc))
+
+<span class="hl-comment"># To make the first admin: update directly in the DB or add a one-time script:</span>
+<span class="hl-comment"># db.query(User).filter(User.email == "you@example.com").first().role = UserRole.admin</span></code></pre>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="step" id="step3">
+        <div class="step-number">3</div>
+        <div class="step-content">
+          <h3>require_role() Factory</h3>
+          <p class="explanation">A factory function returns a FastAPI dependency. This means you call <code>require_role("admin")</code> and it returns a function that FastAPI will call — which checks the current user's role. This pattern avoids duplicating the check in every route.</p>
+          <div class="tabs">
+            <div class="tab-bar"><button class="tab-btn active" onclick="switchTab('step3',0)">auth.py — require_role()</button></div>
+            <div class="tab-panel active">
+              <div class="code-header"><span class="lang-label">python</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-keyword">from</span> fastapi <span class="hl-keyword">import</span> Depends, HTTPException, status
+<span class="hl-keyword">from</span> models <span class="hl-keyword">import</span> User, UserRole
+
+<span class="hl-keyword">def</span> <span class="hl-builtin">require_role</span>(*roles: str):
+    <span class="hl-comment">"""
+    Returns a FastAPI dependency that checks the current user has one of the given roles.
+
+    Usage:
+        @app.delete("/users/{id}", dependencies=[Depends(require_role("admin"))])
+        @app.post("/moderate", dependencies=[Depends(require_role("admin", "moderator"))])
+    """</span>
+    <span class="hl-keyword">def</span> <span class="hl-builtin">check_role</span>(current_user: User = Depends(get_current_user)):
+        <span class="hl-keyword">if</span> current_user.role <span class="hl-keyword">not in</span> roles:
+            <span class="hl-keyword">raise</span> HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail=<span class="hl-string">f"Required role: {' or '.join(roles)}"</span>,
+            )
+        <span class="hl-keyword">return</span> current_user   <span class="hl-comment"># return so routes can use the user if needed</span>
+    <span class="hl-keyword">return</span> check_role   <span class="hl-comment"># return the inner function — this is the dependency</span></code></pre>
+            </div>
+          </div>
+          <div class="info-box" style="margin-top:12px"><strong>Why a factory?</strong> If you just wrote <code>def require_admin(user = Depends(get_current_user))</code> you'd have to write a separate function for each role combination. The factory pattern lets you call <code>require_role("admin")</code>, <code>require_role("moderator")</code>, or <code>require_role("admin", "moderator")</code> with the same function.</div>
+        </div>
+      </div>
+
+      <div class="step" id="step4">
+        <div class="step-number">4</div>
+        <div class="step-content">
+          <h3>Admin-Only Route</h3>
+          <p class="explanation">Two ways to apply the dependency: in the route parameters (you get the user object) or in the <code>dependencies=[]</code> list (just enforces the check, doesn't inject the user).</p>
+          <div class="tabs">
+            <div class="tab-bar">
+              <button class="tab-btn active" onclick="switchTab('step4',0)">Via parameter (access the user)</button>
+              <button class="tab-btn" onclick="switchTab('step4',1)">Via dependencies (check only)</button>
+            </div>
+            <div class="tab-panel active">
+              <div class="code-header"><span class="lang-label">python</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-keyword">from</span> auth <span class="hl-keyword">import</span> require_role
+
+<span class="hl-comment"># Inject the user — useful when you need current_user inside the route</span>
+<span class="hl-decorator">@app.get</span>(<span class="hl-string">"/admin/users"</span>)
+<span class="hl-keyword">def</span> <span class="hl-builtin">list_all_users</span>(
+    admin: models.User = Depends(require_role(<span class="hl-string">"admin"</span>)),
+    db: Session = Depends(get_db),
+):
+    <span class="hl-comment"># Only admins reach here — non-admins get 403 before this runs</span>
+    users = db.query(models.User).all()
+    <span class="hl-keyword">return</span> [{<span class="hl-string">"id"</span>: u.id, <span class="hl-string">"email"</span>: u.email, <span class="hl-string">"role"</span>: u.role} <span class="hl-keyword">for</span> u <span class="hl-keyword">in</span> users]</code></pre>
+            </div>
+            <div class="tab-panel">
+              <div class="code-header"><span class="lang-label">python</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-comment"># dependencies=[] — runs the check but doesn't inject the value</span>
+<span class="hl-decorator">@app.delete</span>(<span class="hl-string">"/admin/users/{user_id}"</span>, dependencies=[Depends(require_role(<span class="hl-string">"admin"</span>))])
+<span class="hl-keyword">def</span> <span class="hl-builtin">delete_user</span>(user_id: int, db: Session = Depends(get_db)):
+    user = db.query(models.User).filter(models.User.id == user_id).first()
+    <span class="hl-keyword">if not</span> user:
+        <span class="hl-keyword">raise</span> HTTPException(status_code=<span class="hl-number">404</span>, detail=<span class="hl-string">"User not found"</span>)
+    db.delete(user)
+    db.commit()
+    <span class="hl-keyword">return</span> {<span class="hl-string">"deleted"</span>: user_id}</code></pre>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="step" id="step5">
+        <div class="step-number">5</div>
+        <div class="step-content">
+          <h3>Multi-Role Check</h3>
+          <p class="explanation">Pass multiple role strings to <code>require_role()</code> to allow any of them.</p>
+          <div class="tabs">
+            <div class="tab-bar"><button class="tab-btn active" onclick="switchTab('step5',0)">Multiple allowed roles</button></div>
+            <div class="tab-panel active">
+              <div class="code-header"><span class="lang-label">python</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-comment"># Admins and moderators can both access this route</span>
+<span class="hl-decorator">@app.post</span>(<span class="hl-string">"/moderate/hide/{post_id}"</span>)
+<span class="hl-keyword">def</span> <span class="hl-builtin">hide_post</span>(
+    post_id: int,
+    moderator: models.User = Depends(require_role(<span class="hl-string">"admin"</span>, <span class="hl-string">"moderator"</span>)),
+    db: Session = Depends(get_db),
+):
+    <span class="hl-comment"># Both admins and moderators reach here</span>
+    ...
+
+<span class="hl-comment"># Inside require_role, "admin" or "moderator" both pass the check:</span>
+<span class="hl-comment"># if current_user.role not in ("admin", "moderator"):  → 403</span></code></pre>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="step" id="step6">
+        <div class="step-number">6</div>
+        <div class="step-content">
+          <h3>Resource Ownership</h3>
+          <p class="explanation">Roles control what type of action is allowed. Ownership controls which resources the user can act on. A user with role <code>"user"</code> should only be able to edit their own notes — not everyone else's.</p>
+          <div class="tabs">
+            <div class="tab-bar"><button class="tab-btn active" onclick="switchTab('step6',0)">Ownership check pattern</button></div>
+            <div class="tab-panel active">
+              <div class="code-header"><span class="lang-label">python</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-decorator">@app.patch</span>(<span class="hl-string">"/notes/{note_id}"</span>)
+<span class="hl-keyword">def</span> <span class="hl-builtin">update_note</span>(
+    note_id:      int,
+    text:         str,
+    current_user: models.User = Depends(get_current_user),
+    db:           Session     = Depends(get_db),
+):
+    note = db.query(models.Note).filter(models.Note.id == note_id).first()
+    <span class="hl-keyword">if not</span> note:
+        <span class="hl-keyword">raise</span> HTTPException(status_code=<span class="hl-number">404</span>, detail=<span class="hl-string">"Note not found"</span>)
+
+    <span class="hl-comment"># Ownership check: this note must belong to the current user</span>
+    <span class="hl-keyword">if</span> note.owner_id != current_user.id:
+        <span class="hl-keyword">raise</span> HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail=<span class="hl-string">"You don't own this note"</span>
+        )
+
+    note.text = text
+    db.commit()
+    <span class="hl-keyword">return</span> {<span class="hl-string">"id"</span>: note.id, <span class="hl-string">"text"</span>: note.text}</code></pre>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="step" id="step7">
+        <div class="step-number">7</div>
+        <div class="step-content">
+          <h3>Ownership + Role Combined</h3>
+          <p class="explanation">Most real apps allow owners to edit their own resources AND admins to edit anything. Combine both checks with an <code>or</code>.</p>
+          <div class="tabs">
+            <div class="tab-bar"><button class="tab-btn active" onclick="switchTab('step7',0)">Combined check</button></div>
+            <div class="tab-panel active">
+              <div class="code-header"><span class="lang-label">python</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-decorator">@app.delete</span>(<span class="hl-string">"/notes/{note_id}"</span>)
+<span class="hl-keyword">def</span> <span class="hl-builtin">delete_note</span>(
+    note_id:      int,
+    current_user: models.User = Depends(get_current_user),
+    db:           Session     = Depends(get_db),
+):
+    note = db.query(models.Note).filter(models.Note.id == note_id).first()
+    <span class="hl-keyword">if not</span> note:
+        <span class="hl-keyword">raise</span> HTTPException(status_code=<span class="hl-number">404</span>, detail=<span class="hl-string">"Note not found"</span>)
+
+    <span class="hl-comment"># Allow: owner OR admin</span>
+    is_owner = note.owner_id == current_user.id
+    is_admin = current_user.role == models.UserRole.admin
+
+    <span class="hl-keyword">if not</span> (is_owner <span class="hl-keyword">or</span> is_admin):
+        <span class="hl-keyword">raise</span> HTTPException(status_code=<span class="hl-number">403</span>, detail=<span class="hl-string">"Not allowed"</span>)
+
+    db.delete(note)
+    db.commit()
+    <span class="hl-keyword">return</span> {<span class="hl-string">"deleted"</span>: note_id}
+
+<span class="hl-comment"># Pattern: is_owner OR is_admin</span>
+<span class="hl-comment"># This appears in almost every real CRUD app with multi-user data</span></code></pre>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="step" id="step8">
+        <div class="step-number">8</div>
+        <div class="step-content">
+          <h3>What's Next</h3>
+          <p class="explanation">You now have the complete auth stack: passwords, JWT tokens, refresh rotation, email verification, and role-based access. The natural next step is deployment — get your app running on a real server with HTTPS.</p>
+          <div class="info-box">
+            <strong>OAuth2 scopes:</strong> For API products (not user-facing apps), scopes are more granular than roles — e.g. <code>read:contacts write:contacts</code>. FastAPI has built-in OAuth2 scope support via <code>SecurityScopes</code>. Worth exploring once you're comfortable with the basics here.
+          </div>
+          <div class="info-box">
+            <strong>Permissions table (fine-grained):</strong> For complex apps, roles become limiting. Add a <code>permissions</code> table and assign individual permissions (like <code>can_export_data</code>, <code>can_invite_users</code>) to users or roles. Same <code>Depends</code> pattern, different data model.
+          </div>
+          <div class="info-box">
+            <strong>Ready to deploy?</strong> Head to the <a href="deploy-vps.html">Deployment + DevOps series</a> to get this auth stack running on a live HTTPS server.
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </main>
+</div>
+<script>
+(function(){var s=localStorage.getItem("pyoffline-theme");if(s==="light")document.documentElement.classList.add("light");document.addEventListener("DOMContentLoaded",function(){var t=document.getElementById("themeToggle");if(!t)return;t.checked=(localStorage.getItem("pyoffline-theme")==="light");t.addEventListener("change",function(){if(this.checked){document.documentElement.classList.add("light");localStorage.setItem("pyoffline-theme","light")}else{document.documentElement.classList.remove("light");localStorage.setItem("pyoffline-theme","dark")}})})})();
+function switchTab(s,i){var el=document.getElementById(s);var b=el.querySelectorAll(".tab-btn");var p=el.querySelectorAll(".tab-panel");b.forEach(function(x){x.classList.remove("active")});p.forEach(function(x){x.classList.remove("active")});b[i].classList.add("active");p[i].classList.add("active")}
+function copyCode(btn){var c=btn.closest(".tab-panel").querySelector("code").innerText;navigator.clipboard.writeText(c).then(function(){var o=btn.textContent;btn.textContent="Copied!";setTimeout(function(){btn.textContent=o},1500)})}
+function toggleSidebar(){var s=document.getElementById("guideSidebar");var o=document.getElementById("sidebarOverlay");if(!s)return;s.classList.toggle("open");o.classList.toggle("open")}
+document.addEventListener("DOMContentLoaded",function(){var s=document.getElementById("guideSidebar");if(!s)return;s.querySelectorAll("nav a").forEach(function(a){a.addEventListener("click",function(){s.classList.remove("open");var o=document.getElementById("sidebarOverlay");if(o)o.classList.remove("open")})})});
+</script>
+</body>
+</html>

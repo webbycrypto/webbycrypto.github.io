@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>HTTPS with Certbot - Deployment Series - pyoffline</title>
+<style>
+:root{--bg:#121212;--surface:#1e1e1e;--surface2:#2a2a2a;--sidebar-bg:#1a1a1a;--text:#e0e0e0;--text-muted:#aaa;--text-dim:#666;--border:#333;--code-bg:#1e1e1e;--code-text:#d4d4d4;--shadow:rgba(0,0,0,.4);--accent:#607d8b;--hl-keyword:#569cd6;--hl-string:#ce9178;--hl-comment:#6a9955;--hl-number:#b5cea8;--hl-decorator:#dcdcaa;--hl-builtin:#4ec9b0}
+html.light{--bg:#f5f7fa;--surface:#fff;--surface2:#eef0f3;--sidebar-bg:#fff;--text:#1a1a1a;--text-muted:#555;--text-dim:#888;--border:#dde1e7;--code-bg:#f8f8f8;--code-text:#24292e;--shadow:rgba(0,0,0,.1);--hl-keyword:#00f;--hl-string:#a31515;--hl-comment:#008000;--hl-number:#098658;--hl-decorator:#795e26;--hl-builtin:#267f99}
+.hl-keyword{color:var(--hl-keyword)}.hl-string{color:var(--hl-string)}.hl-comment{color:#adb4a7;font-size:12px;font-style:italic}.hl-number{color:var(--hl-number)}.hl-decorator{color:var(--hl-decorator)}.hl-builtin{color:var(--hl-builtin)}
+*{box-sizing:border-box;margin:0;padding:0}body{background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;transition:background .2s,color .2s}a{color:var(--accent)}
+.layout{display:flex;min-height:100vh}.sidebar{width:260px;min-width:260px;background:var(--sidebar-bg);border-right:1px solid var(--border);padding:24px 16px;position:sticky;top:0;height:100vh;overflow-y:auto}.sidebar h2{font-size:1.1rem;margin:16px 0 8px;color:var(--text)}.sidebar nav ol{padding-left:18px}.sidebar nav li{margin:6px 0}.sidebar nav a{color:var(--text-muted);text-decoration:none;font-size:.85rem}.sidebar nav a:hover{color:var(--accent)}.back-link{color:var(--text-dim);text-decoration:none;font-size:.85rem;display:block;margin-bottom:8px}
+.install-box{margin-top:24px;background:var(--bg);border:1px solid var(--border);padding:12px;border-radius:6px;font-size:.8rem}.install-box code{display:block;word-break:break-all;color:var(--hl-comment);font-family:monospace;margin-top:4px}
+.series-box{margin-top:16px;background:var(--bg);border:1px solid var(--border);padding:12px;border-radius:6px;font-size:.8rem}.series-box p{color:var(--text-muted);margin-bottom:6px;font-weight:600}.series-box a{display:block;color:var(--text-muted);text-decoration:none;padding:2px 0;font-size:.8rem}.series-box a:hover{color:var(--accent)}.series-box a.current{color:var(--accent);font-weight:600}
+main{flex:1;padding:40px;max-width:860px}.guide-header{padding:20px 20px 20px 24px;background:var(--surface);border-radius:8px;margin-bottom:32px;box-shadow:0 1px 3px var(--shadow)}.guide-header h1{font-size:1.8rem;margin-bottom:8px}.guide-header p{color:var(--text-muted)}
+.step{display:flex;gap:16px;margin-bottom:40px}.step-number{width:32px;min-width:32px;height:32px;background:var(--accent);border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:bold;font-size:.9rem;margin-top:4px;color:#fff}.step-content{flex:1;min-width:0}.step-content h3{font-size:1.1rem;margin-bottom:8px;color:var(--text)}.explanation{color:var(--text-muted);font-size:.9rem;line-height:1.6;margin-bottom:14px}
+.info-box{background:var(--surface);border-left:3px solid var(--accent);border-radius:0 6px 6px 0;padding:12px 16px;margin-bottom:14px;font-size:.88rem;color:var(--text-muted);line-height:1.6}.info-box strong{color:var(--text)}
+.warn-box{background:var(--surface);border-left:3px solid #ff9800;border-radius:0 6px 6px 0;padding:12px 16px;margin-bottom:14px;font-size:.88rem;color:var(--text-muted);line-height:1.6}.warn-box strong{color:var(--text)}
+.tabs{background:var(--surface);border-radius:6px;overflow:hidden;border:1px solid var(--border)}.tab-bar{display:flex;background:var(--surface2);overflow-x:auto;border-bottom:1px solid var(--border)}.tab-btn{padding:8px 16px;background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:.8rem;white-space:nowrap;border-bottom:2px solid transparent;margin-bottom:-1px}.tab-btn.active{color:var(--text);border-bottom-color:var(--accent)}.tab-panel{display:none}.tab-panel.active{display:block}
+.code-header{display:flex;justify-content:space-between;align-items:center;padding:5px 12px;background:var(--surface2);border-bottom:1px solid var(--border)}.lang-label{font-size:.72rem;color:var(--text-dim);text-transform:uppercase;letter-spacing:.04em}.copy-btn{background:none;border:1px solid var(--border);color:var(--text-muted);padding:2px 8px;cursor:pointer;border-radius:3px;font-size:.72rem}.copy-btn:hover{color:var(--text);border-color:var(--text-muted)}
+pre{overflow-x:auto;padding:16px;background:var(--code-bg)}code{font-family:"Fira Code","Cascadia Code",Consolas,monospace;font-size:.82rem;line-height:1.65;color:var(--code-text)}
+.theme-row{display:flex;align-items:center;gap:8px;margin-top:20px}.theme-label{font-size:.78rem;color:var(--text-muted)}.toggle-switch{position:relative;display:inline-block;width:40px;height:22px}.toggle-switch input{opacity:0;width:0;height:0}.slider{position:absolute;cursor:pointer;inset:0;background:var(--surface2);border:1px solid var(--border);border-radius:22px;transition:background .2s}.slider:before{content:"";position:absolute;width:16px;height:16px;left:2px;top:2px;background:var(--text-muted);border-radius:50%;transition:transform .2s,background .2s}.toggle-switch input:checked+.slider{background:var(--accent);border-color:var(--accent)}.toggle-switch input:checked+.slider:before{transform:translateX(18px);background:#fff}
+.sidebar-toggle{display:none;position:fixed;top:12px;left:12px;z-index:300;background:var(--accent);color:#fff;border:none;padding:7px 14px;border-radius:6px;cursor:pointer;font-size:.85rem;font-weight:600;box-shadow:0 2px 8px var(--shadow);align-items:center;gap:6px}
+.sidebar-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:190}.sidebar-overlay.open{display:block}
+@media(max-width:900px){.sidebar-toggle{display:flex}.layout{display:block}.sidebar{position:fixed;left:-280px;top:0;height:100vh;z-index:200;transition:left .25s ease;box-shadow:2px 0 16px var(--shadow);min-width:260px}.sidebar.open{left:0}main{padding:60px 20px 40px;max-width:100%}pre{overflow-x:auto;max-width:100%;white-space:pre-wrap;word-break:break-word}.tabs{max-width:100%}}
+</style>
+</head>
+<body>
+<button class="sidebar-toggle" id="sidebarToggle" onclick="toggleSidebar()">&#9776; Steps</button>
+<div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+<div class="layout">
+  <aside class="sidebar" id="guideSidebar">
+    <a href="index.html" class="back-link">← All Guides</a>
+    <h2>Deployment + DevOps</h2>
+    <nav><ol>
+      <li><a href="#step1">What HTTPS Is</a></li>
+      <li><a href="#step2">Point Your Domain</a></li>
+      <li><a href="#step3">Install Certbot</a></li>
+      <li><a href="#step4">Get a Certificate</a></li>
+      <li><a href="#step5">Auto-Renewal</a></li>
+      <li><a href="#step6">Verify + Check Expiry</a></li>
+    </ol></nav>
+    <div class="install-box">
+      <p><strong>Install on server</strong></p>
+      <code>sudo apt install certbot python3-certbot-nginx</code>
+      <p style="margin-top:10px"><strong>Requirement</strong></p>
+      <code>A domain pointing to your server IP</code>
+      <p style="margin-top:10px"><strong>Free cert from</strong></p>
+      <code>Let's Encrypt (letsencrypt.org)</code>
+    </div>
+    <div class="series-box">
+      <p>Deployment + DevOps series</p>
+      <a href="deploy-vps.html">VPS Setup + SSH</a>
+      <a href="deploy-nginx.html">Nginx Reverse Proxy</a>
+      <a href="deploy-ssl.html" class="current">&#10003; HTTPS with Certbot</a>
+      <a href="deploy-systemd.html">systemd + Env Vars</a>
+      <a href="deploy-cicd.html">GitHub Actions CI/CD</a>
+    </div>
+    <div class="theme-row">
+      <span class="theme-label">Dark</span>
+      <label class="toggle-switch"><input type="checkbox" id="themeToggle"><span class="slider"></span></label>
+      <span class="theme-label">Light</span>
+    </div>
+  </aside>
+
+  <main>
+    <header class="guide-header" style="border-left:5px solid #607d8b">
+      <h1>HTTPS with Certbot + Let's Encrypt</h1>
+      <p>Get a free TLS certificate from Let's Encrypt, configure Nginx to serve HTTPS, and set up auto-renewal. The whole process takes about 5 minutes once your domain is pointed at the server.</p>
+    </header>
+    <div class="steps">
+
+      <div class="step" id="step1">
+        <div class="step-number">1</div>
+        <div class="step-content">
+          <h3>What HTTPS Is (and Why It Matters)</h3>
+          <p class="explanation">HTTPS encrypts traffic between the browser and your server. Without it, every password, JWT token, and piece of data travels in plaintext — readable by anyone on the same network. Browsers show a "Not Secure" warning for HTTP sites, and modern features (cookies with <code>Secure</code> flag, service workers, geolocation) require HTTPS.</p>
+          <div class="info-box"><strong>Let's Encrypt:</strong> A free, automated certificate authority. Certbot is the official client that requests the certificate, proves you own the domain, and configures Nginx automatically. Certificates last 90 days and auto-renew. Completely free.</div>
+        </div>
+      </div>
+
+      <div class="step" id="step2">
+        <div class="step-number">2</div>
+        <div class="step-content">
+          <h3>Point Your Domain at the Server</h3>
+          <p class="explanation">Before Certbot can issue a certificate, Let's Encrypt needs to verify you control the domain by making an HTTP request to it. That means the domain must already be pointing to your server's IP.</p>
+          <div class="tabs">
+            <div class="tab-bar"><button class="tab-btn active" onclick="switchTab('step2',0)">DNS setup</button></div>
+            <div class="tab-panel active">
+              <div class="code-header"><span class="lang-label">text — DNS records to add</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code>In your domain registrar's DNS settings, add:
+
+  Type   Name    Value
+  A      @       YOUR_SERVER_IP     (for yourdomain.com)
+  A      www     YOUR_SERVER_IP     (for www.yourdomain.com)
+
+Where to do this:
+  Namecheap: Domain List → Manage → Advanced DNS
+  GoDaddy:   My Products → DNS → Manage DNS
+  Cloudflare: DNS → Records
+
+DNS propagation takes 1–60 minutes. Check with:
+  nslookup yourdomain.com
+  <span class="hl-comment"># Should return your server IP</span>
+
+Or: dig yourdomain.com +short</code></pre>
+            </div>
+          </div>
+          <div class="warn-box" style="margin-top:12px"><strong>Must point before running Certbot.</strong> If the domain doesn't resolve to your server when you run <code>certbot</code>, the certificate request will fail.</div>
+        </div>
+      </div>
+
+      <div class="step" id="step3">
+        <div class="step-number">3</div>
+        <div class="step-content">
+          <h3>Install Certbot</h3>
+          <div class="tabs">
+            <div class="tab-bar"><button class="tab-btn active" onclick="switchTab('step3',0)">bash</button></div>
+            <div class="tab-panel active">
+              <div class="code-header"><span class="lang-label">bash</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code>sudo apt install -y certbot python3-certbot-nginx
+
+<span class="hl-comment"># python3-certbot-nginx is the Nginx plugin — it automatically</span>
+<span class="hl-comment"># edits your Nginx config to enable HTTPS</span></code></pre>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="step" id="step4">
+        <div class="step-number">4</div>
+        <div class="step-content">
+          <h3>Get a Certificate</h3>
+          <p class="explanation">One command. Certbot handles domain verification, certificate download, Nginx config update, and reloading Nginx.</p>
+          <div class="tabs">
+            <div class="tab-bar">
+              <button class="tab-btn active" onclick="switchTab('step4',0)">Run certbot</button>
+              <button class="tab-btn" onclick="switchTab('step4',1)">What Nginx looks like after</button>
+            </div>
+            <div class="tab-panel active">
+              <div class="code-header"><span class="lang-label">bash</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-comment"># Replace yourdomain.com with your actual domain</span>
+sudo certbot --nginx -d yourdomain.com -d www.yourdomain.com
+
+<span class="hl-comment"># Certbot will ask:</span>
+<span class="hl-comment">#   1. Your email (for renewal reminders and urgent notices)</span>
+<span class="hl-comment">#   2. Agree to terms of service</span>
+<span class="hl-comment">#   3. Whether to redirect HTTP to HTTPS (choose Yes = option 2)</span>
+
+<span class="hl-comment"># After it finishes:</span>
+<span class="hl-comment">#   - Certificate stored in /etc/letsencrypt/live/yourdomain.com/</span>
+<span class="hl-comment">#   - Nginx config updated with ssl_certificate lines</span>
+<span class="hl-comment">#   - Nginx reloaded automatically</span>
+
+<span class="hl-comment"># Test: https://yourdomain.com should now work with a padlock</span></code></pre>
+            </div>
+            <div class="tab-panel">
+              <div class="code-header"><span class="lang-label">nginx — what certbot adds to your config</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code>server {
+    server_name yourdomain.com www.yourdomain.com;
+
+    location / {
+        proxy_pass http://127.0.0.1:8000;
+        <span class="hl-comment"># ... headers ...</span>
+    }
+
+    <span class="hl-comment"># Certbot adds these lines automatically:</span>
+    listen 443 ssl;
+    ssl_certificate     /etc/letsencrypt/live/yourdomain.com/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/yourdomain.com/privkey.pem;
+    include /etc/letsencrypt/options-ssl-nginx.conf;
+    ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem;
+}
+
+server {
+    <span class="hl-comment"># Certbot also adds this redirect block:</span>
+    if ($host = yourdomain.com) { return 301 https://$host$request_uri; }
+    listen 80;
+    server_name yourdomain.com www.yourdomain.com;
+    return 404;
+}</code></pre>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="step" id="step5">
+        <div class="step-number">5</div>
+        <div class="step-content">
+          <h3>Auto-Renewal</h3>
+          <p class="explanation">Let's Encrypt certificates expire after 90 days. Certbot installs a systemd timer (or cron job) that automatically renews them. Test the renewal process works.</p>
+          <div class="tabs">
+            <div class="tab-bar"><button class="tab-btn active" onclick="switchTab('step5',0)">bash — check and test renewal</button></div>
+            <div class="tab-panel active">
+              <div class="code-header"><span class="lang-label">bash</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-comment"># Test the renewal process (dry run — doesn't actually renew)</span>
+sudo certbot renew --dry-run
+<span class="hl-comment"># Should say "Congratulations, all simulated renewals succeeded"</span>
+
+<span class="hl-comment"># Check the auto-renewal timer is active</span>
+sudo systemctl status certbot.timer
+<span class="hl-comment"># Should show "active (waiting)"</span>
+<span class="hl-comment"># Certbot runs twice daily and renews if expiry is within 30 days</span>
+
+<span class="hl-comment"># See all installed certificates and their expiry dates</span>
+sudo certbot certificates</code></pre>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="step" id="step6">
+        <div class="step-number">6</div>
+        <div class="step-content">
+          <h3>Verify + Check Your HTTPS</h3>
+          <div class="tabs">
+            <div class="tab-bar"><button class="tab-btn active" onclick="switchTab('step6',0)">Verification steps</button></div>
+            <div class="tab-panel active">
+              <div class="code-header"><span class="lang-label">text</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code>1. Visit https://yourdomain.com in your browser
+   → Padlock icon in the address bar
+   → No "Not Secure" warning
+
+2. Visit http://yourdomain.com
+   → Should redirect to https:// automatically (Certbot added this)
+
+3. Check certificate details
+   → Click the padlock → Certificate → inspect the issuer (Let's Encrypt)
+      and expiry date (90 days from issue)
+
+4. Run an SSL test (optional but useful):
+   https://www.ssllabs.com/ssltest/analyze.html?d=yourdomain.com
+   → Should score A or A+
+
+FastAPI: add to main.py for proper X-Forwarded-Proto handling
+  from fastapi.middleware.httpsredirect import HTTPSRedirectMiddleware
+  app.add_middleware(HTTPSRedirectMiddleware)
+  <span class="hl-comment"># Only add this if you want FastAPI to also enforce HTTPS internally</span></code></pre>
+            </div>
+          </div>
+          <div class="info-box" style="margin-top:12px"><strong>Next:</strong> <a href="deploy-systemd.html">systemd + Env Vars</a> — keep uvicorn running permanently as a background service with your production environment variables managed securely.</div>
+        </div>
+      </div>
+
+    </div>
+  </main>
+</div>
+<script>
+(function(){var s=localStorage.getItem("pyoffline-theme");if(s==="light")document.documentElement.classList.add("light");document.addEventListener("DOMContentLoaded",function(){var t=document.getElementById("themeToggle");if(!t)return;t.checked=(localStorage.getItem("pyoffline-theme")==="light");t.addEventListener("change",function(){if(this.checked){document.documentElement.classList.add("light");localStorage.setItem("pyoffline-theme","light")}else{document.documentElement.classList.remove("light");localStorage.setItem("pyoffline-theme","dark")}})})})();
+function switchTab(s,i){var el=document.getElementById(s);var b=el.querySelectorAll(".tab-btn");var p=el.querySelectorAll(".tab-panel");b.forEach(function(x){x.classList.remove("active")});p.forEach(function(x){x.classList.remove("active")});b[i].classList.add("active");p[i].classList.add("active")}
+function copyCode(btn){var c=btn.closest(".tab-panel").querySelector("code").innerText;navigator.clipboard.writeText(c).then(function(){var o=btn.textContent;btn.textContent="Copied!";setTimeout(function(){btn.textContent=o},1500)})}
+function toggleSidebar(){var s=document.getElementById("guideSidebar");var o=document.getElementById("sidebarOverlay");if(!s)return;s.classList.toggle("open");o.classList.toggle("open")}
+document.addEventListener("DOMContentLoaded",function(){var s=document.getElementById("guideSidebar");if(!s)return;s.querySelectorAll("nav a").forEach(function(a){a.addEventListener("click",function(){s.classList.remove("open");var o=document.getElementById("sidebarOverlay");if(o)o.classList.remove("open")})})});
+</script>
+</body>
+</html>

@@ -1,0 +1,976 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SQLite + PostgreSQL - FastAPI Guide - pyoffline</title>
+<style>
+:root {
+  --bg:          #121212;
+  --surface:     #1e1e1e;
+  --surface2:    #2a2a2a;
+  --sidebar-bg:  #1a1a1a;
+  --text:        #e0e0e0;
+  --text-muted:  #aaa;
+  --text-dim:    #666;
+  --border:      #333;
+  --code-bg:     #1e1e1e;
+  --code-text:   #d4d4d4;
+  --shadow:      rgba(0,0,0,.4);
+  --accent:      #009688;
+  --hl-keyword:  #569cd6;
+  --hl-string:   #ce9178;
+  --hl-comment:  #6a9955;
+  --hl-number:   #b5cea8;
+  --hl-decorator:#dcdcaa;
+  --hl-builtin:  #4ec9b0;
+  --hl-tag:      #4ec9b0;
+  --hl-attr:     #9cdcfe;
+  --hl-template: #c586c0;
+}
+html.light {
+  --bg:          #f5f7fa;
+  --surface:     #ffffff;
+  --surface2:    #eef0f3;
+  --sidebar-bg:  #ffffff;
+  --text:        #1a1a1a;
+  --text-muted:  #555;
+  --text-dim:    #888;
+  --border:      #dde1e7;
+  --code-bg:     #f8f8f8;
+  --code-text:   #24292e;
+  --shadow:      rgba(0,0,0,.1);
+  --hl-keyword:  #0000ff;
+  --hl-string:   #a31515;
+  --hl-comment:  #008000;
+  --hl-number:   #098658;
+  --hl-decorator:#795e26;
+  --hl-builtin:  #267f99;
+  --hl-tag:      #800000;
+  --hl-attr:     #e50000;
+  --hl-template: #af00db;
+}
+.hl-keyword  { color: var(--hl-keyword);  }
+.hl-string   { color: var(--hl-string);   }
+.hl-comment  { color: #adb4a7; font-size: 12px; font-style: italic; }
+.hl-number   { color: var(--hl-number);   }
+.hl-decorator{ color: var(--hl-decorator);}
+.hl-builtin  { color: var(--hl-builtin);  }
+.hl-tag      { color: var(--hl-tag);      }
+.hl-attr     { color: var(--hl-attr);     }
+.hl-template { color: var(--hl-template); }
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: var(--bg); color: var(--text); font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; transition: background .2s, color .2s; }
+a { color: var(--accent); }
+.layout { display: flex; min-height: 100vh; }
+.sidebar { width: 260px; min-width: 260px; background: var(--sidebar-bg); border-right: 1px solid var(--border); padding: 24px 16px; position: sticky; top: 0; height: 100vh; overflow-y: auto; }
+.sidebar h2 { font-size: 1.1rem; margin: 16px 0 8px; color: var(--text); }
+.sidebar nav ol { padding-left: 18px; }
+.sidebar nav li { margin: 6px 0; }
+.sidebar nav a { color: var(--text-muted); text-decoration: none; font-size: 0.85rem; }
+.sidebar nav a:hover { color: var(--accent); }
+.back-link { color: var(--text-dim); text-decoration: none; font-size: 0.85rem; display: block; margin-bottom: 8px; }
+.install-box { margin-top: 24px; background: var(--bg); border: 1px solid var(--border); padding: 12px; border-radius: 6px; font-size: 0.8rem; }
+.install-box code { display: block; word-break: break-all; color: var(--hl-comment); font-family: monospace; margin-top: 4px; }
+.series-box { margin-top: 16px; background: var(--bg); border: 1px solid var(--border); padding: 12px; border-radius: 6px; font-size: 0.8rem; }
+.series-box p { color: var(--text-muted); margin-bottom: 6px; font-weight: 600; }
+.series-box a { display: block; color: var(--text-muted); text-decoration: none; padding: 2px 0; font-size: 0.8rem; }
+.series-box a:hover { color: var(--accent); }
+.series-box a.current { color: var(--accent); font-weight: 600; }
+main { flex: 1; padding: 40px; max-width: 860px; }
+.guide-header { padding: 20px 20px 20px 24px; background: var(--surface); border-radius: 8px; margin-bottom: 32px; box-shadow: 0 1px 3px var(--shadow); }
+.guide-header h1 { font-size: 1.8rem; margin-bottom: 8px; }
+.guide-header p { color: var(--text-muted); }
+.step { display: flex; gap: 16px; margin-bottom: 40px; }
+.step-number { width: 32px; min-width: 32px; height: 32px; background: var(--accent); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 0.9rem; margin-top: 4px; color: #fff; }
+.step-content { flex: 1; min-width: 0; }
+.step-content h3 { font-size: 1.1rem; margin-bottom: 8px; color: var(--text); }
+.explanation { color: var(--text-muted); font-size: 0.9rem; line-height: 1.6; margin-bottom: 14px; }
+.info-box { background: var(--surface); border-left: 3px solid var(--accent); border-radius: 0 6px 6px 0; padding: 12px 16px; margin-bottom: 14px; font-size: 0.88rem; color: var(--text-muted); line-height: 1.6; }
+.info-box strong { color: var(--text); }
+.warn-box { background: var(--surface); border-left: 3px solid #ff9800; border-radius: 0 6px 6px 0; padding: 12px 16px; margin-bottom: 14px; font-size: 0.88rem; color: var(--text-muted); line-height: 1.6; }
+.warn-box strong { color: var(--text); }
+.concept-table { width: 100%; border-collapse: collapse; margin-bottom: 14px; font-size: 0.85rem; }
+.concept-table th { background: var(--surface2); color: var(--text-muted); text-align: left; padding: 8px 12px; border: 1px solid var(--border); font-weight: 600; }
+.concept-table td { padding: 8px 12px; border: 1px solid var(--border); color: var(--text); vertical-align: top; }
+.concept-table tr:nth-child(even) td { background: var(--surface); }
+.tabs { background: var(--surface); border-radius: 6px; overflow: hidden; border: 1px solid var(--border); }
+.tab-bar { display: flex; background: var(--surface2); overflow-x: auto; border-bottom: 1px solid var(--border); }
+.tab-btn { padding: 8px 16px; background: none; border: none; color: var(--text-muted); cursor: pointer; font-size: 0.8rem; white-space: nowrap; border-bottom: 2px solid transparent; margin-bottom: -1px; }
+.tab-btn.active { color: var(--text); border-bottom-color: var(--accent); }
+.tab-panel { display: none; }
+.tab-panel.active { display: block; }
+.code-header { display: flex; justify-content: space-between; align-items: center; padding: 5px 12px; background: var(--surface2); border-bottom: 1px solid var(--border); }
+.lang-label { font-size: 0.72rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: .04em; }
+.copy-btn { background: none; border: 1px solid var(--border); color: var(--text-muted); padding: 2px 8px; cursor: pointer; border-radius: 3px; font-size: 0.72rem; }
+.copy-btn:hover { color: var(--text); border-color: var(--text-muted); }
+pre { overflow-x: auto; padding: 16px; background: var(--code-bg); }
+code { font-family: "Fira Code", "Cascadia Code", "Consolas", monospace; font-size: 0.82rem; line-height: 1.65; color: var(--code-text); }
+.theme-row { display: flex; align-items: center; gap: 8px; margin-top: 20px; }
+.theme-label { font-size: 0.78rem; color: var(--text-muted); }
+.toggle-switch { position: relative; display: inline-block; width: 40px; height: 22px; }
+.toggle-switch input { opacity: 0; width: 0; height: 0; }
+.slider { position: absolute; cursor: pointer; inset: 0; background: var(--surface2); border: 1px solid var(--border); border-radius: 22px; transition: background .2s; }
+.slider:before { content: ""; position: absolute; width: 16px; height: 16px; left: 2px; top: 2px; background: var(--text-muted); border-radius: 50%; transition: transform .2s, background .2s; }
+.toggle-switch input:checked + .slider { background: var(--accent); border-color: var(--accent); }
+.toggle-switch input:checked + .slider:before { transform: translateX(18px); background: #fff; }
+.sidebar-toggle {
+  display: none; position: fixed; top: 12px; left: 12px; z-index: 300;
+  background: var(--accent); color: #fff; border: none;
+  padding: 7px 14px; border-radius: 6px; cursor: pointer;
+  font-size: 0.85rem; font-weight: 600; box-shadow: 0 2px 8px var(--shadow);
+  align-items: center; gap: 6px;
+}
+.sidebar-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.45); z-index: 190; }
+.sidebar-overlay.open { display: block; }
+@media (max-width: 900px) {
+  .sidebar-toggle { display: flex; }
+  .layout { display: block; }
+  .sidebar { position: fixed; left: -280px; top: 0; height: 100vh; z-index: 200; transition: left .25s ease; box-shadow: 2px 0 16px var(--shadow); min-width: 260px; }
+  .sidebar.open { left: 0; }
+  main { padding: 60px 20px 40px; max-width: 100%; }
+  pre { overflow-x: auto; max-width: 100%; white-space: pre-wrap; word-break: break-word; }
+  .tabs { max-width: 100%; }
+}
+</style>
+</head>
+<body>
+<button class="sidebar-toggle" id="sidebarToggle" onclick="toggleSidebar()">&#9776; Steps</button>
+<div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+<div class="layout">
+  <aside class="sidebar" id="guideSidebar">
+    <a href="index.html" class="back-link">← All Guides</a>
+    <h2>SQLite + PostgreSQL</h2>
+    <nav><ol>
+      <li><a href="#step1">Why a Real Database?</a></li>
+      <li><a href="#step2">SQLAlchemy in 30 Seconds</a></li>
+      <li><a href="#step3">Project Setup</a></li>
+      <li><a href="#step4">database.py — Connecting</a></li>
+      <li><a href="#step5">models.py — Two Tables</a></li>
+      <li><a href="#step6">Creating Tables</a></li>
+      <li><a href="#step7">Adding a Company</a></li>
+      <li><a href="#step8">Adding an Application</a></li>
+      <li><a href="#step9">Reading with Filters</a></li>
+      <li><a href="#step10">Joining Tables</a></li>
+      <li><a href="#step11">Updating Status</a></li>
+      <li><a href="#step12">SQLite to PostgreSQL</a></li>
+      <li><a href="#step13">What's Next</a></li>
+    </ol></nav>
+    <div class="install-box">
+      <p><strong>SQLite (dev)</strong></p>
+      <code>pip install fastapi uvicorn sqlalchemy python-dotenv</code>
+      <p style="margin-top:10px"><strong>PostgreSQL (prod)</strong></p>
+      <code>pip install psycopg2-binary</code>
+      <p style="margin-top:10px"><strong>Migrations</strong></p>
+      <code>pip install alembic</code>
+      <p style="margin-top:12px"><strong>Run</strong></p>
+      <code>uvicorn main:app --reload</code>
+    </div>
+    <div class="series-box">
+      <p>Also in this series</p>
+      <a href="crud-fastapi.html">CRUD + HTML Frontend</a>
+      <a href="task-ai-fastapi.html">Task App + AI Chat</a>
+      <a href="crm-fastapi.html">CRM Integration</a>
+      <a href="public-api-fastapi.html">Public API Integration</a>
+      <a href="database-fastapi.html" class="current">&#10003; SQLite + PostgreSQL</a>
+    </div>
+    <div class="theme-row">
+      <span class="theme-label">Dark</span>
+      <label class="toggle-switch">
+        <input type="checkbox" id="themeToggle">
+        <span class="slider"></span>
+      </label>
+      <span class="theme-label">Light</span>
+    </div>
+  </aside>
+
+  <main>
+    <header class="guide-header" style="border-left: 5px solid #ff9800">
+      <h1>SQLite + PostgreSQL with FastAPI</h1>
+      <p>Move beyond in-memory dicts and JSON files. Learn SQLAlchemy's ORM, define two related tables (Companies and Applications), and build a Job Application Tracker — a two-table status-flow app whose pattern repeats in CRMs, order systems, task boards, and almost every real project.</p>
+    </header>
+
+    <div class="steps">
+
+      <!-- ── STEP 1 ── -->
+      <div class="step" id="step1">
+        <div class="step-number">1</div>
+        <div class="step-content">
+          <h3>Why a Real Database?</h3>
+          <p class="explanation">The first two approaches in this series each have a scaling limit. An in-memory Python dict resets every time the server restarts — you lose all your data. A JSON file on disk persists, but breaks if two users write at the same time (a race condition). A real database solves both problems: it persists automatically, handles concurrent writes safely, lets you query millions of rows efficiently, and evolves its schema as your app changes.</p>
+          <table class="concept-table">
+            <tr><th>Storage</th><th>Persists on restart</th><th>Handles concurrency</th><th>Queryable</th><th>When to use</th></tr>
+            <tr><td><code>db = {}</code></td><td>No</td><td>Yes (single thread)</td><td>Manual loops</td><td>Quick prototypes only</td></tr>
+            <tr><td>JSON file</td><td>Yes</td><td>No (race conditions)</td><td>Manual loops</td><td>Single-user scripts</td></tr>
+            <tr><td>SQLite</td><td>Yes</td><td>Yes (file lock)</td><td>Full SQL</td><td>Dev, single-server apps</td></tr>
+            <tr><td>PostgreSQL</td><td>Yes</td><td>Yes (full ACID)</td><td>Full SQL</td><td>Production, multiple workers</td></tr>
+          </table>
+          <div class="info-box"><strong>SQLite is a file.</strong> There is no server to install or start. The database is a single file on disk (<code>jobs.db</code>). It behaves like a full SQL database for everything you'll do in this guide. When you're ready for production, you swap one line in your <code>.env</code> and it works with PostgreSQL instead.</div>
+        </div>
+      </div>
+
+      <!-- ── STEP 2 ── -->
+      <div class="step" id="step2">
+        <div class="step-number">2</div>
+        <div class="step-content">
+          <h3>SQLAlchemy in 30 Seconds</h3>
+          <p class="explanation">SQLAlchemy is a Python library with two layers. The <strong>Core</strong> layer is a thin wrapper around SQL — you write SQL-ish expressions. The <strong>ORM</strong> layer lets you define tables as Python classes and write queries in Python. This guide uses the ORM, which is what most FastAPI apps use in practice.</p>
+          <div class="tabs">
+            <div class="tab-bar">
+              <button class="tab-btn active" onclick="switchTab('step2',0)">The three moving parts</button>
+            </div>
+            <div class="tab-panel active">
+              <div class="code-header"><span class="lang-label">text</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code>1. ENGINE
+   The connection to the database file/server.
+   Created once at app startup from DATABASE_URL.
+   SQLite:     sqlite:///./jobs.db
+   PostgreSQL: postgresql://user:password@localhost/dbname
+
+2. SESSION
+   A short-lived connection you open per request.
+   You make changes through a session.
+   When you call db.commit(), changes are saved to disk.
+   When the request ends, the session closes.
+
+3. MODELS (your tables)
+   Python classes that inherit from Base.
+   Each class = one database table.
+   Each attribute = one column.
+   SQLAlchemy reads the classes and knows how to
+   create the tables and translate queries.</code></pre>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── STEP 3 ── -->
+      <div class="step" id="step3">
+        <div class="step-number">3</div>
+        <div class="step-content">
+          <h3>Project Setup</h3>
+          <p class="explanation">Split the database code across three files so each has one job. This is the standard FastAPI + SQLAlchemy layout and is what you'll see in almost every real project.</p>
+          <div class="tabs">
+            <div class="tab-bar">
+              <button class="tab-btn active" onclick="switchTab('step3',0)">File tree</button>
+            </div>
+            <div class="tab-panel active">
+              <div class="code-header"><span class="lang-label">text</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code>job-tracker/
+├── main.py        ← FastAPI app + all routes
+├── database.py    ← engine, SessionLocal, get_db() dependency
+├── models.py      ← Company and Application table definitions
+├── .env           ← DATABASE_URL
+└── jobs.db        ← created automatically by SQLAlchemy on first run
+
+Optionally add:
+└── schemas.py     ← Pydantic models for request/response validation
+                     (not required for a learning project — we use
+                      plain parameters in this guide)</code></pre>
+            </div>
+          </div>
+          <div class="info-box" style="margin-top:12px"><strong>Why separate files?</strong> If you put everything in <code>main.py</code>, circular imports break things quickly — <code>main.py</code> imports models, models import the Base from database, database imports from main... Keeping them separate avoids this entirely.</div>
+        </div>
+      </div>
+
+      <!-- ── STEP 4 ── -->
+      <div class="step" id="step4">
+        <div class="step-number">4</div>
+        <div class="step-content">
+          <h3>database.py — Connecting to the DB</h3>
+          <p class="explanation">Three things happen in this file: the engine is created (the connection to the DB), the session factory is defined (how to open a session per request), and <code>get_db()</code> is written — a FastAPI dependency that automatically opens a session at the start of a request and closes it when the request finishes, even if an error occurs.</p>
+          <div class="tabs">
+            <div class="tab-bar">
+              <button class="tab-btn active" onclick="switchTab('step4',0)">database.py</button>
+              <button class="tab-btn" onclick="switchTab('step4',1)">.env — connection strings</button>
+            </div>
+            <div class="tab-panel active">
+              <div class="code-header"><span class="lang-label">python</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-comment"># database.py</span>
+<span class="hl-keyword">import</span> os
+<span class="hl-keyword">from</span> sqlalchemy <span class="hl-keyword">import</span> create_engine
+<span class="hl-keyword">from</span> sqlalchemy.ext.declarative <span class="hl-keyword">import</span> declarative_base
+<span class="hl-keyword">from</span> sqlalchemy.orm <span class="hl-keyword">import</span> sessionmaker
+<span class="hl-keyword">from</span> dotenv <span class="hl-keyword">import</span> load_dotenv
+load_dotenv()
+
+DATABASE_URL = os.getenv(<span class="hl-string">"DATABASE_URL"</span>, <span class="hl-string">"sqlite:///./jobs.db"</span>)
+<span class="hl-comment"># The default is SQLite so the app works without any .env file at all</span>
+
+engine = create_engine(
+    DATABASE_URL,
+    connect_args={<span class="hl-string">"check_same_thread"</span>: <span class="hl-keyword">False</span>} <span class="hl-keyword">if</span> <span class="hl-string">"sqlite"</span> <span class="hl-keyword">in</span> DATABASE_URL <span class="hl-keyword">else</span> {},
+    <span class="hl-comment"># check_same_thread=False is SQLite-only — it allows FastAPI's async</span>
+    <span class="hl-comment"># thread pool to reuse the same SQLite connection. Not needed for PostgreSQL.</span>
+)
+
+SessionLocal = sessionmaker(autocommit=<span class="hl-keyword">False</span>, autoflush=<span class="hl-keyword">False</span>, bind=engine)
+<span class="hl-comment"># autocommit=False  → changes only save when you call db.commit() explicitly</span>
+<span class="hl-comment"># autoflush=False   → don't auto-send pending changes before every query</span>
+
+Base = declarative_base()
+<span class="hl-comment"># Base is the parent class all your models will inherit from</span>
+
+<span class="hl-keyword">def</span> <span class="hl-builtin">get_db</span>():
+    <span class="hl-comment">"""FastAPI dependency: open a DB session, yield it, then close it."""</span>
+    db = SessionLocal()
+    <span class="hl-keyword">try</span>:
+        <span class="hl-keyword">yield</span> db       <span class="hl-comment"># FastAPI injects this into routes that ask for it</span>
+    <span class="hl-keyword">finally</span>:
+        db.close()   <span class="hl-comment"># always closes, even if an exception was raised</span></code></pre>
+            </div>
+            <div class="tab-panel">
+              <div class="code-header"><span class="lang-label">.env — SQLite vs PostgreSQL</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-comment"># SQLite — no server needed, just a file on disk (dev)</span>
+DATABASE_URL=sqlite:///./jobs.db
+
+<span class="hl-comment"># PostgreSQL — local server (dev with Docker or local install)</span>
+<span class="hl-comment"># DATABASE_URL=postgresql://postgres:password@localhost:5432/jobs</span>
+
+<span class="hl-comment"># PostgreSQL — hosted (production, e.g. Supabase, Render, Railway)</span>
+<span class="hl-comment"># DATABASE_URL=postgresql://user:pass@db.xyz.supabase.co:5432/postgres</span>
+
+<span class="hl-comment"># The ORM code in models.py and all your routes stay EXACTLY the same.</span>
+<span class="hl-comment"># Only this one line changes between SQLite and PostgreSQL.</span></code></pre>
+            </div>
+          </div>
+          <div class="info-box" style="margin-top:12px"><strong>What is <code>yield</code>?</strong> A function that uses <code>yield</code> instead of <code>return</code> is a generator. FastAPI uses this pattern for dependencies — code before the <code>yield</code> runs before the route, the yielded value is injected into the route, and code after the <code>yield</code> (in the <code>finally</code> block) runs after the route finishes. It's guaranteed cleanup.</div>
+        </div>
+      </div>
+
+      <!-- ── STEP 5 ── -->
+      <div class="step" id="step5">
+        <div class="step-number">5</div>
+        <div class="step-content">
+          <h3>models.py — Two Tables</h3>
+          <p class="explanation">Each table is a Python class. Columns are class attributes using SQLAlchemy types. The <code>ForeignKey</code> links the two tables. The <code>relationship()</code> lets you navigate between them in Python — <code>application.company</code> returns the full Company object without writing a JOIN yourself.</p>
+          <div class="tabs">
+            <div class="tab-bar">
+              <button class="tab-btn active" onclick="switchTab('step5',0)">models.py</button>
+              <button class="tab-btn" onclick="switchTab('step5',1)">Column types explained</button>
+              <button class="tab-btn" onclick="switchTab('step5',2)">Status flow diagram</button>
+            </div>
+            <div class="tab-panel active">
+              <div class="code-header"><span class="lang-label">python</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-comment"># models.py</span>
+<span class="hl-keyword">from</span> sqlalchemy <span class="hl-keyword">import</span> Column, Integer, String, DateTime, ForeignKey, Enum
+<span class="hl-keyword">from</span> sqlalchemy.orm <span class="hl-keyword">import</span> relationship
+<span class="hl-keyword">from</span> datetime <span class="hl-keyword">import</span> datetime, timezone
+<span class="hl-keyword">import</span> enum
+<span class="hl-keyword">from</span> database <span class="hl-keyword">import</span> Base
+
+<span class="hl-comment"># ── Status enum — defines the allowed values for Application.status ──</span>
+<span class="hl-keyword">class</span> <span class="hl-builtin">AppStatus</span>(str, enum.Enum):
+    applied    = <span class="hl-string">"applied"</span>
+    interview  = <span class="hl-string">"interview"</span>
+    offer      = <span class="hl-string">"offer"</span>
+    rejected   = <span class="hl-string">"rejected"</span>
+    withdrawn  = <span class="hl-string">"withdrawn"</span>
+
+<span class="hl-comment"># ── TABLE 1: Company ──────────────────────────────────────────────────</span>
+<span class="hl-keyword">class</span> <span class="hl-builtin">Company</span>(Base):
+    __tablename__ = <span class="hl-string">"companies"</span>          <span class="hl-comment"># actual SQL table name</span>
+
+    id         = Column(Integer, primary_key=<span class="hl-keyword">True</span>, index=<span class="hl-keyword">True</span>)
+    name       = Column(String, nullable=<span class="hl-keyword">False</span>, unique=<span class="hl-keyword">True</span>)
+    website    = Column(String, nullable=<span class="hl-keyword">True</span>)
+    created_at = Column(DateTime, default=<span class="hl-keyword">lambda</span>: datetime.now(timezone.utc))
+
+    <span class="hl-comment"># Relationship: from a Company, get its list of Applications</span>
+    applications = relationship(<span class="hl-string">"Application"</span>, back_populates=<span class="hl-string">"company"</span>)
+
+<span class="hl-comment"># ── TABLE 2: Application ─────────────────────────────────────────────</span>
+<span class="hl-keyword">class</span> <span class="hl-builtin">Application</span>(Base):
+    __tablename__ = <span class="hl-string">"applications"</span>
+
+    id           = Column(Integer, primary_key=<span class="hl-keyword">True</span>, index=<span class="hl-keyword">True</span>)
+    company_id   = Column(Integer, ForeignKey(<span class="hl-string">"companies.id"</span>), nullable=<span class="hl-keyword">False</span>)
+    role         = Column(String, nullable=<span class="hl-keyword">False</span>)
+    status       = Column(Enum(AppStatus), default=AppStatus.applied)
+    applied_date = Column(DateTime, default=<span class="hl-keyword">lambda</span>: datetime.now(timezone.utc))
+    notes        = Column(String, nullable=<span class="hl-keyword">True</span>)
+
+    <span class="hl-comment"># Relationship: from an Application, get its Company object</span>
+    company = relationship(<span class="hl-string">"Company"</span>, back_populates=<span class="hl-string">"applications"</span>)
+    <span class="hl-comment"># Usage: application.company.name  → no JOIN needed in code</span></code></pre>
+            </div>
+            <div class="tab-panel">
+              <div class="code-header"><span class="lang-label">text — column types</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code>Column(Integer, primary_key=True, index=True)
+  → Auto-incrementing integer ID. index=True speeds up lookups by ID.
+
+Column(String, nullable=False)
+  → Text field, required. nullable=True means the value can be NULL.
+
+Column(String, unique=True)
+  → Text field, must be unique across all rows (like an email or username).
+
+Column(DateTime, default=lambda: datetime.now(timezone.utc))
+  → Stores a date and time. The lambda means "call this function at insert
+    time" — not at class definition time, which would freeze the timestamp.
+
+Column(Enum(AppStatus), default=AppStatus.applied)
+  → Only allows the values defined in the AppStatus enum.
+    Stored as a string in the DB, validated by SQLAlchemy.
+
+Column(Integer, ForeignKey("companies.id"), nullable=False)
+  → Links this column to the "id" column in the "companies" table.
+    If you try to insert a company_id that doesn't exist, the DB rejects it.</code></pre>
+            </div>
+            <div class="tab-panel">
+              <div class="code-header"><span class="lang-label">text — status flow</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code>                ┌──────────┐
+                │ applied  │  ← initial status on create
+                └────┬─────┘
+                     │
+              ┌──────▼──────┐
+              │  interview  │
+              └──┬──────┬───┘
+                 │      │
+          ┌──────▼─┐  ┌─▼──────────┐
+          │ offer  │  │  rejected  │
+          └────────┘  └────────────┘
+
+  Any status → withdrawn  (pulled out before decision)
+
+This pattern is identical to:
+  CRM deals:    lead → qualified → proposal → closed_won / closed_lost
+  Orders:       pending → processing → shipped → delivered / cancelled
+  Tasks:        todo → in_progress → review → done / blocked</code></pre>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── STEP 6 ── -->
+      <div class="step" id="step6">
+        <div class="step-number">6</div>
+        <div class="step-content">
+          <h3>Creating Tables</h3>
+          <p class="explanation">One line tells SQLAlchemy to look at all your models and create the corresponding tables in the database if they don't already exist. Put it in <code>main.py</code> so it runs on startup.</p>
+          <div class="tabs">
+            <div class="tab-bar">
+              <button class="tab-btn active" onclick="switchTab('step6',0)">main.py — startup</button>
+            </div>
+            <div class="tab-panel active">
+              <div class="code-header"><span class="lang-label">python</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-comment"># main.py</span>
+<span class="hl-keyword">from</span> fastapi <span class="hl-keyword">import</span> FastAPI, Depends, HTTPException
+<span class="hl-keyword">from</span> sqlalchemy.orm <span class="hl-keyword">import</span> Session
+<span class="hl-keyword">from</span> database <span class="hl-keyword">import</span> engine, get_db, Base
+<span class="hl-keyword">import</span> models   <span class="hl-comment"># importing models registers them with Base</span>
+
+app = FastAPI()
+
+<span class="hl-comment"># Create all tables that don't yet exist</span>
+<span class="hl-comment"># This is safe to run every startup — it skips tables that already exist</span>
+Base.metadata.create_all(bind=engine)
+
+<span class="hl-comment"># After running uvicorn for the first time, check your project folder —</span>
+<span class="hl-comment"># you'll see jobs.db has been created. That file IS the database.</span></code></pre>
+            </div>
+          </div>
+          <div class="warn-box" style="margin-top:12px"><strong>Dev only — use Alembic in production.</strong> <code>create_all()</code> creates missing tables but never modifies existing ones. If you add a new column to a model in production, the table already exists and <code>create_all()</code> does nothing — the column won't appear. Use Alembic migrations for any schema change in production: <code>alembic revision --autogenerate -m "add notes column"</code> then <code>alembic upgrade head</code>.</div>
+        </div>
+      </div>
+
+      <!-- ── STEP 7 ── -->
+      <div class="step" id="step7">
+        <div class="step-number">7</div>
+        <div class="step-content">
+          <h3>Adding a Company</h3>
+          <p class="explanation">The write cycle has three steps: <code>db.add()</code> stages the new object, <code>db.commit()</code> saves it to disk, and <code>db.refresh()</code> reloads the object from the database to get the auto-generated <code>id</code> back. Without <code>refresh()</code>, the <code>id</code> field is still <code>None</code>.</p>
+          <div class="tabs">
+            <div class="tab-bar">
+              <button class="tab-btn active" onclick="switchTab('step7',0)">main.py — POST /companies</button>
+              <button class="tab-btn" onclick="switchTab('step7',1)">The write cycle visualised</button>
+            </div>
+            <div class="tab-panel active">
+              <div class="code-header"><span class="lang-label">python</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-decorator">@app.post</span>(<span class="hl-string">"/companies"</span>)
+<span class="hl-keyword">def</span> <span class="hl-builtin">create_company</span>(
+    name:    str,
+    website: str = <span class="hl-keyword">None</span>,
+    db: Session = Depends(get_db),   <span class="hl-comment"># FastAPI injects the DB session here</span>
+):
+    <span class="hl-comment"># Check for duplicate name before inserting</span>
+    existing = db.query(models.Company).filter(
+        models.Company.name == name
+    ).first()
+    <span class="hl-keyword">if</span> existing:
+        <span class="hl-keyword">raise</span> HTTPException(status_code=<span class="hl-number">400</span>, detail=<span class="hl-string">"Company already exists"</span>)
+
+    company = models.Company(name=name, website=website)
+
+    db.add(company)        <span class="hl-comment"># stage: "I want to save this object"</span>
+    db.commit()            <span class="hl-comment"># write: actually saves to the database file</span>
+    db.refresh(company)    <span class="hl-comment"># reload: fetches the auto-generated id from the DB</span>
+
+    <span class="hl-keyword">return</span> {<span class="hl-string">"id"</span>: company.id, <span class="hl-string">"name"</span>: company.name, <span class="hl-string">"website"</span>: company.website}
+
+<span class="hl-comment"># Test: POST http://localhost:8000/companies?name=Google&amp;website=google.com</span>
+<span class="hl-comment"># Or via /docs page — FastAPI auto-generates a form for every route</span></code></pre>
+            </div>
+            <div class="tab-panel">
+              <div class="code-header"><span class="lang-label">text — write cycle</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code>company = Company(name="Google")
+  → Python object exists in memory only. DB knows nothing yet.
+  → company.id is None
+
+db.add(company)
+  → SQLAlchemy marks this object as "pending".
+  → Still nothing written to disk.
+
+db.commit()
+  → SQL: INSERT INTO companies (name, ...) VALUES ('Google', ...)
+  → Row is written to the database.
+  → The database assigns id = 1 (auto-increment).
+  → But company.id in Python is STILL None — Python doesn't know yet.
+
+db.refresh(company)
+  → SQL: SELECT * FROM companies WHERE id = 1
+  → SQLAlchemy re-reads the row and updates the Python object.
+  → Now company.id = 1 ✓
+
+This is why refresh() matters: whenever you need the DB-generated
+id (or any server-side default) immediately after an insert.</code></pre>
+            </div>
+          </div>
+          <div class="info-box" style="margin-top:12px"><strong><code>Depends(get_db)</code>:</strong> This is FastAPI's dependency injection. Instead of creating a DB session inside the route function, you declare it as a parameter with <code>Depends(get_db)</code>. FastAPI calls <code>get_db()</code> automatically, passes the session in, and runs the cleanup (<code>finally: db.close()</code>) after the route finishes.</div>
+        </div>
+      </div>
+
+      <!-- ── STEP 8 ── -->
+      <div class="step" id="step8">
+        <div class="step-number">8</div>
+        <div class="step-content">
+          <h3>Adding an Application</h3>
+          <p class="explanation">Before creating an Application, validate that the referenced Company exists. If someone passes a <code>company_id</code> that doesn't exist in the DB, raise a <code>404</code> instead of letting the database raise a foreign key error — a <code>404</code> is a much clearer message for the caller.</p>
+          <div class="tabs">
+            <div class="tab-bar">
+              <button class="tab-btn active" onclick="switchTab('step8',0)">main.py — POST /applications</button>
+            </div>
+            <div class="tab-panel active">
+              <div class="code-header"><span class="lang-label">python</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-keyword">from</span> models <span class="hl-keyword">import</span> AppStatus
+
+<span class="hl-decorator">@app.post</span>(<span class="hl-string">"/applications"</span>)
+<span class="hl-keyword">def</span> <span class="hl-builtin">create_application</span>(
+    company_id: int,
+    role:       str,
+    notes:      str = <span class="hl-keyword">None</span>,
+    db: Session = Depends(get_db),
+):
+    <span class="hl-comment"># Step 1: verify the company exists</span>
+    company = db.query(models.Company).filter(
+        models.Company.id == company_id
+    ).first()
+    <span class="hl-keyword">if not</span> company:
+        <span class="hl-keyword">raise</span> HTTPException(
+            status_code=<span class="hl-number">404</span>,
+            detail=f<span class="hl-string">"Company with id {company_id} not found"</span>
+        )
+
+    <span class="hl-comment"># Step 2: create the application</span>
+    application = models.Application(
+        company_id=company_id,
+        role=role,
+        notes=notes,
+        status=AppStatus.applied,   <span class="hl-comment"># always starts as "applied"</span>
+    )
+    db.add(application)
+    db.commit()
+    db.refresh(application)
+
+    <span class="hl-keyword">return</span> {
+        <span class="hl-string">"id"</span>:           application.id,
+        <span class="hl-string">"company"</span>:      company.name,
+        <span class="hl-string">"role"</span>:         application.role,
+        <span class="hl-string">"status"</span>:       application.status,
+        <span class="hl-string">"applied_date"</span>: application.applied_date,
+    }
+
+<span class="hl-comment"># Test: POST /applications?company_id=1&amp;role=Backend+Engineer</span></code></pre>
+            </div>
+          </div>
+          <div class="info-box" style="margin-top:12px"><strong>Pattern to memorise:</strong> Any time a route creates a record that references another table (<code>company_id</code>, <code>user_id</code>, <code>project_id</code>), always do a <code>db.query(...).first()</code> check first and raise <code>404</code> if missing. This pattern is in every real project.</div>
+        </div>
+      </div>
+
+      <!-- ── STEP 9 ── -->
+      <div class="step" id="step9">
+        <div class="step-number">9</div>
+        <div class="step-content">
+          <h3>Reading with Filters</h3>
+          <p class="explanation">Filters are chained using <code>.filter()</code>. Multiple <code>.filter()</code> calls combine with AND. Optional filters — where the query param might not be provided — use a conditional to only apply the filter if the value was given.</p>
+          <div class="tabs">
+            <div class="tab-bar">
+              <button class="tab-btn active" onclick="switchTab('step9',0)">main.py — GET /applications</button>
+              <button class="tab-btn" onclick="switchTab('step9',1)">Filter patterns</button>
+            </div>
+            <div class="tab-panel active">
+              <div class="code-header"><span class="lang-label">python</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-keyword">from</span> fastapi <span class="hl-keyword">import</span> Query
+<span class="hl-keyword">from</span> typing <span class="hl-keyword">import</span> Optional
+
+<span class="hl-decorator">@app.get</span>(<span class="hl-string">"/applications"</span>)
+<span class="hl-keyword">def</span> <span class="hl-builtin">list_applications</span>(
+    status:     Optional[AppStatus] = Query(<span class="hl-keyword">None</span>),  <span class="hl-comment"># filter by status</span>
+    company_id: Optional[int]       = Query(<span class="hl-keyword">None</span>),  <span class="hl-comment"># filter by company</span>
+    db: Session = Depends(get_db),
+):
+    query = db.query(models.Application)
+
+    <span class="hl-comment"># Only apply each filter if the caller provided a value</span>
+    <span class="hl-keyword">if</span> status:
+        query = query.filter(models.Application.status == status)
+    <span class="hl-keyword">if</span> company_id:
+        query = query.filter(models.Application.company_id == company_id)
+
+    applications = query.order_by(
+        models.Application.applied_date.desc()  <span class="hl-comment"># newest first</span>
+    ).all()
+
+    <span class="hl-keyword">return</span> [
+        {
+            <span class="hl-string">"id"</span>:           a.id,
+            <span class="hl-string">"company_id"</span>:   a.company_id,
+            <span class="hl-string">"role"</span>:         a.role,
+            <span class="hl-string">"status"</span>:       a.status,
+            <span class="hl-string">"applied_date"</span>: a.applied_date,
+        }
+        <span class="hl-keyword">for</span> a <span class="hl-keyword">in</span> applications
+    ]
+
+<span class="hl-comment"># All:           GET /applications</span>
+<span class="hl-comment"># By status:     GET /applications?status=interview</span>
+<span class="hl-comment"># By company:    GET /applications?company_id=1</span>
+<span class="hl-comment"># Both:          GET /applications?status=offer&amp;company_id=2</span></code></pre>
+            </div>
+            <div class="tab-panel">
+              <div class="code-header"><span class="lang-label">python — common filter patterns</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-comment"># Exact match</span>
+.filter(Application.status == <span class="hl-string">"interview"</span>)
+
+<span class="hl-comment"># Not equal</span>
+.filter(Application.status != <span class="hl-string">"rejected"</span>)
+
+<span class="hl-comment"># In a list</span>
+.filter(Application.status.in_([<span class="hl-string">"interview"</span>, <span class="hl-string">"offer"</span>]))
+
+<span class="hl-comment"># Text search (case-insensitive LIKE)</span>
+.filter(Application.role.ilike(<span class="hl-string">"%engineer%"</span>))
+<span class="hl-comment"># % means "any characters" — like * in a file glob</span>
+<span class="hl-comment"># ilike is case-insensitive; like is case-sensitive</span>
+
+<span class="hl-comment"># Date range</span>
+<span class="hl-keyword">from</span> datetime <span class="hl-keyword">import</span> datetime
+.filter(Application.applied_date >= datetime(<span class="hl-number">2024</span>, <span class="hl-number">1</span>, <span class="hl-number">1</span>))
+
+<span class="hl-comment"># Count instead of fetch</span>
+db.query(models.Application).filter(...).count()
+
+<span class="hl-comment"># First match only</span>
+db.query(models.Application).filter(...).first()  <span class="hl-comment"># None if not found</span></code></pre>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── STEP 10 ── -->
+      <div class="step" id="step10">
+        <div class="step-number">10</div>
+        <div class="step-content">
+          <h3>Joining Tables</h3>
+          <p class="explanation">Getting the company name alongside each application can be done two ways. The <strong>relationship</strong> approach uses the <code>application.company</code> attribute — clean but triggers an extra query per row (N+1 problem). The <strong>join</strong> approach fetches both tables in one query — slightly more code but more efficient for large lists.</p>
+          <div class="tabs">
+            <div class="tab-bar">
+              <button class="tab-btn active" onclick="switchTab('step10',0)">Relationship (simple)</button>
+              <button class="tab-btn" onclick="switchTab('step10',1)">ORM join (efficient)</button>
+            </div>
+            <div class="tab-panel active">
+              <div class="code-header"><span class="lang-label">python — via relationship (lazy load)</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-decorator">@app.get</span>(<span class="hl-string">"/applications/full"</span>)
+<span class="hl-keyword">def</span> <span class="hl-builtin">list_applications_with_company</span>(db: Session = Depends(get_db)):
+    applications = db.query(models.Application).all()
+
+    <span class="hl-keyword">return</span> [
+        {
+            <span class="hl-string">"id"</span>:      a.id,
+            <span class="hl-string">"role"</span>:    a.role,
+            <span class="hl-string">"status"</span>:  a.status,
+            <span class="hl-string">"company"</span>: a.company.name,   <span class="hl-comment"># SQLAlchemy auto-loads the Company row</span>
+        }
+        <span class="hl-keyword">for</span> a <span class="hl-keyword">in</span> applications
+    ]
+
+<span class="hl-comment"># Simple to write. But: for each application, SQLAlchemy runs a</span>
+<span class="hl-comment"># separate SELECT to load the company — that's N+1 queries total.</span>
+<span class="hl-comment"># Fine for small lists (under 100 rows). Use the join for larger ones.</span></code></pre>
+            </div>
+            <div class="tab-panel">
+              <div class="code-header"><span class="lang-label">python — explicit ORM join</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-keyword">from</span> sqlalchemy.orm <span class="hl-keyword">import</span> joinedload
+
+<span class="hl-decorator">@app.get</span>(<span class="hl-string">"/applications/full"</span>)
+<span class="hl-keyword">def</span> <span class="hl-builtin">list_applications_with_company</span>(db: Session = Depends(get_db)):
+    applications = (
+        db.query(models.Application)
+        .options(joinedload(models.Application.company))  <span class="hl-comment"># one query with JOIN</span>
+        .all()
+    )
+    <span class="hl-keyword">return</span> [
+        {
+            <span class="hl-string">"id"</span>:      a.id,
+            <span class="hl-string">"role"</span>:    a.role,
+            <span class="hl-string">"status"</span>:  a.status,
+            <span class="hl-string">"company"</span>: a.company.name,   <span class="hl-comment"># same syntax, but loaded in one query</span>
+        }
+        <span class="hl-keyword">for</span> a <span class="hl-keyword">in</span> applications
+    ]
+
+<span class="hl-comment"># joinedload() tells SQLAlchemy: "fetch companies in the same SQL query</span>
+<span class="hl-comment"># using a JOIN — don't make a separate query per row".</span>
+<span class="hl-comment"># SQL generated: SELECT ... FROM applications JOIN companies ON ...</span></code></pre>
+            </div>
+          </div>
+          <div class="info-box" style="margin-top:12px"><strong>N+1 explained:</strong> With 50 applications and no join, SQLAlchemy runs 1 query to get all applications, then 50 more queries (one per row) to load each company — 51 total. With <code>joinedload</code>, it runs 1 query that joins both tables. Use the relationship approach while learning; switch to <code>joinedload</code> when performance matters.</div>
+        </div>
+      </div>
+
+      <!-- ── STEP 11 ── -->
+      <div class="step" id="step11">
+        <div class="step-number">11</div>
+        <div class="step-content">
+          <h3>Updating Status</h3>
+          <p class="explanation">Updates fetch the row first, change the field, and commit. The pattern is: find it, change it, save it. Never skip the fetch — you need the object in SQLAlchemy's session for changes to be tracked.</p>
+          <div class="tabs">
+            <div class="tab-bar">
+              <button class="tab-btn active" onclick="switchTab('step11',0)">main.py — PATCH /applications/{id}/status</button>
+              <button class="tab-btn" onclick="switchTab('step11',1)">Validate status transitions</button>
+            </div>
+            <div class="tab-panel active">
+              <div class="code-header"><span class="lang-label">python</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-decorator">@app.patch</span>(<span class="hl-string">"/applications/{application_id}/status"</span>)
+<span class="hl-keyword">def</span> <span class="hl-builtin">update_status</span>(
+    application_id: int,
+    new_status:     AppStatus,     <span class="hl-comment"># FastAPI validates this is a valid enum value</span>
+    db: Session = Depends(get_db),
+):
+    <span class="hl-comment"># Step 1: fetch the row</span>
+    application = db.query(models.Application).filter(
+        models.Application.id == application_id
+    ).first()
+
+    <span class="hl-keyword">if not</span> application:
+        <span class="hl-keyword">raise</span> HTTPException(status_code=<span class="hl-number">404</span>, detail=<span class="hl-string">"Application not found"</span>)
+
+    <span class="hl-comment"># Step 2: change the field</span>
+    old_status         = application.status
+    application.status = new_status
+
+    <span class="hl-comment"># Step 3: commit</span>
+    db.commit()
+    db.refresh(application)
+
+    <span class="hl-keyword">return</span> {
+        <span class="hl-string">"id"</span>:         application.id,
+        <span class="hl-string">"role"</span>:       application.role,
+        <span class="hl-string">"old_status"</span>: old_status,
+        <span class="hl-string">"new_status"</span>: application.status,
+    }
+
+<span class="hl-comment"># Test: PATCH /applications/1/status?new_status=interview</span></code></pre>
+            </div>
+            <div class="tab-panel">
+              <div class="code-header"><span class="lang-label">python — optional: enforce valid transitions</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-comment"># For simple apps, any status → any status is fine.</span>
+<span class="hl-comment"># For stricter apps, validate the transition is allowed:</span>
+
+VALID_TRANSITIONS = {
+    AppStatus.applied:   {AppStatus.interview, AppStatus.rejected, AppStatus.withdrawn},
+    AppStatus.interview: {AppStatus.offer, AppStatus.rejected, AppStatus.withdrawn},
+    AppStatus.offer:     {AppStatus.withdrawn},   <span class="hl-comment"># can still withdraw an offer</span>
+    AppStatus.rejected:  set(),                   <span class="hl-comment"># terminal — no further transitions</span>
+    AppStatus.withdrawn: set(),                   <span class="hl-comment"># terminal</span>
+}
+
+<span class="hl-comment"># Inside the route, before committing:</span>
+<span class="hl-keyword">if</span> new_status <span class="hl-keyword">not in</span> VALID_TRANSITIONS[application.status]:
+    <span class="hl-keyword">raise</span> HTTPException(
+        status_code=<span class="hl-number">400</span>,
+        detail=f<span class="hl-string">"Cannot move from {application.status} to {new_status}"</span>
+    )
+
+<span class="hl-comment"># This is the same pattern as ProofDrop's article status flow:</span>
+<span class="hl-comment"># verified → grace_period → verified / mismatch</span>
+<span class="hl-comment"># The status machine lives in a dict, not scattered across routes.</span></code></pre>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── STEP 12 ── -->
+      <div class="step" id="step12">
+        <div class="step-number">12</div>
+        <div class="step-content">
+          <h3>SQLite → PostgreSQL</h3>
+          <p class="explanation">The entire migration from SQLite to PostgreSQL is one line in your <code>.env</code> file. All your models, routes, queries, and filters work identically on both databases. This is the main value of using an ORM — you write against a standard interface, not against a specific database.</p>
+          <div class="tabs">
+            <div class="tab-bar">
+              <button class="tab-btn active" onclick="switchTab('step12',0)">The one-line change</button>
+              <button class="tab-btn" onclick="switchTab('step12',1)">Alembic migrations</button>
+              <button class="tab-btn" onclick="switchTab('step12',2)">Free hosted PostgreSQL</button>
+            </div>
+            <div class="tab-panel active">
+              <div class="code-header"><span class="lang-label">.env — before and after</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-comment"># BEFORE (dev — SQLite file)</span>
+DATABASE_URL=sqlite:///./jobs.db
+
+<span class="hl-comment"># AFTER (prod — PostgreSQL server)</span>
+DATABASE_URL=postgresql://myuser:mypassword@localhost:5432/jobs
+
+<span class="hl-comment"># That's it. No code changes needed.</span>
+
+<span class="hl-comment"># One extra package for PostgreSQL:</span>
+<span class="hl-comment"># pip install psycopg2-binary</span>
+<span class="hl-comment"># (psycopg2 is the PostgreSQL driver SQLAlchemy uses)</span>
+
+<span class="hl-comment"># For async PostgreSQL (faster, works with async FastAPI routes):</span>
+<span class="hl-comment"># pip install asyncpg</span>
+<span class="hl-comment"># DATABASE_URL=postgresql+asyncpg://user:pass@localhost/jobs</span></code></pre>
+            </div>
+            <div class="tab-panel">
+              <div class="code-header"><span class="lang-label">bash — Alembic for schema changes</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-comment"># Install</span>
+pip install alembic
+
+<span class="hl-comment"># One-time setup inside your project folder</span>
+alembic init alembic
+
+<span class="hl-comment"># Edit alembic/env.py — point it at your models:</span>
+<span class="hl-comment"># from database import Base</span>
+<span class="hl-comment"># target_metadata = Base.metadata</span>
+
+<span class="hl-comment"># When you change a model (add a column, rename a field):</span>
+alembic revision --autogenerate -m "add notes column to applications"
+<span class="hl-comment"># Alembic reads your models, compares to the current DB schema,</span>
+<span class="hl-comment"># and generates a migration file with the ALTER TABLE SQL.</span>
+
+<span class="hl-comment"># Apply the migration</span>
+alembic upgrade head
+
+<span class="hl-comment"># See migration history</span>
+alembic history</code></pre>
+            </div>
+            <div class="tab-panel">
+              <div class="code-header"><span class="lang-label">text — free PostgreSQL options</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code>Supabase (supabase.com)
+  Free tier: 500MB PostgreSQL
+  Connection string format:
+  postgresql://postgres:[password]@db.[project].supabase.co:5432/postgres
+
+Neon (neon.tech)
+  Free tier: 512MB PostgreSQL, serverless (auto-pauses when idle)
+  Good for hobby projects and prototypes
+
+Railway (railway.app)
+  Free tier: $5 credit/month, PostgreSQL plugin
+  Good for full deployments (app + DB together)
+
+Render (render.com)
+  Free tier: PostgreSQL databases (expire after 90 days on free plan)
+  Good for learning and demos
+
+All of these give you a DATABASE_URL to paste into your .env.
+Your code doesn't change at all.</code></pre>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── STEP 13 ── -->
+      <div class="step" id="step13">
+        <div class="step-number">13</div>
+        <div class="step-content">
+          <h3>What's Next</h3>
+          <p class="explanation">You've built the foundation that every real FastAPI project stands on — a typed schema, two related tables, filtered queries, and a status flow. These same patterns run CRMs, order management systems, project trackers, and booking apps. The only things that change are the model names and the business rules.</p>
+          <div class="info-box">
+            <strong>Add an HTML frontend:</strong> Wire the CRUD routes to a Jinja2 template using the same patterns from the CRUD guide. Add a Kanban board view grouped by status: <code>db.query(Application).filter(Application.status == s).all()</code> for each column.
+          </div>
+          <div class="info-box">
+            <strong>Search by role or company name:</strong> Add a <code>search: str = Query(None)</code> parameter and apply <code>.filter(Application.role.ilike(f"%{search}%"))</code>. This is the same pattern as CRM contact search.
+          </div>
+          <div class="info-box">
+            <strong>Connect to AI chat:</strong> Pass all "interview" status applications to the AI chat guide's <code>call_ai()</code> function and ask: "I have interviews at these companies for these roles. What questions should I prepare?" — same <code>httpx.post()</code> call, just different data.
+          </div>
+          <div class="info-box">
+            <strong>Add a third table:</strong> Add a <code>Note</code> model with a FK to <code>Application</code> — one application can have many notes. This is the same Companies → Applications relationship, one level deeper. It introduces many-to-one relationships and is the core pattern of a real CRM (contacts → activities, orders → line items).
+          </div>
+          <div class="info-box">
+            <strong>Deploy with the database:</strong> Push to Render or Railway, add a PostgreSQL database as a plugin, set <code>DATABASE_URL</code> as an environment variable, and run <code>alembic upgrade head</code> as a deploy step. The app works exactly the same — one connection string change.
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /steps -->
+  </main>
+</div>
+
+<script>
+(function() {
+  var saved = localStorage.getItem("pyoffline-theme");
+  if (saved === "light") { document.documentElement.classList.add("light"); }
+  document.addEventListener("DOMContentLoaded", function() {
+    var toggle = document.getElementById("themeToggle");
+    if (!toggle) return;
+    toggle.checked = (localStorage.getItem("pyoffline-theme") === "light");
+    toggle.addEventListener("change", function() {
+      if (this.checked) {
+        document.documentElement.classList.add("light");
+        localStorage.setItem("pyoffline-theme", "light");
+      } else {
+        document.documentElement.classList.remove("light");
+        localStorage.setItem("pyoffline-theme", "dark");
+      }
+    });
+  });
+})();
+function switchTab(stepId, idx) {
+  var step = document.getElementById(stepId);
+  var btns = step.querySelectorAll(".tab-btn");
+  var panels = step.querySelectorAll(".tab-panel");
+  btns.forEach(function(b) { b.classList.remove("active"); });
+  panels.forEach(function(p) { p.classList.remove("active"); });
+  btns[idx].classList.add("active");
+  panels[idx].classList.add("active");
+}
+function copyCode(btn) {
+  var code = btn.closest(".tab-panel").querySelector("code").innerText;
+  navigator.clipboard.writeText(code).then(function() {
+    var orig = btn.textContent;
+    btn.textContent = "Copied!";
+    setTimeout(function() { btn.textContent = orig; }, 1500);
+  });
+}
+function toggleSidebar() {
+  var sidebar = document.getElementById("guideSidebar");
+  var overlay = document.getElementById("sidebarOverlay");
+  if (!sidebar) return;
+  sidebar.classList.toggle("open");
+  overlay.classList.toggle("open");
+}
+document.addEventListener("DOMContentLoaded", function() {
+  var sidebar = document.getElementById("guideSidebar");
+  if (!sidebar) return;
+  sidebar.querySelectorAll("nav a").forEach(function(a) {
+    a.addEventListener("click", function() {
+      sidebar.classList.remove("open");
+      var overlay = document.getElementById("sidebarOverlay");
+      if (overlay) overlay.classList.remove("open");
+    });
+  });
+});
+</script>
+</body>
+</html>

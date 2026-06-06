@@ -1,0 +1,697 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Flask Guide - pyoffline</title>
+<style>
+/* ── Theme variables ───────────────────────────────────────── */
+:root {
+  --bg:          #121212;
+  --surface:     #1e1e1e;
+  --surface2:    #2a2a2a;
+  --sidebar-bg:  #1a1a1a;
+  --text:        #e0e0e0;
+  --text-muted:  #aaa;
+  --text-dim:    #666;
+  --border:      #333;
+  --code-bg:     #1e1e1e;
+  --code-text:   #d4d4d4;
+  --shadow:      rgba(0,0,0,.4);
+  /* syntax - dark (VSCode Dark+) */
+  --hl-keyword:  #569cd6;
+  --hl-string:   #ce9178;
+  --hl-comment:  #6a9955;
+  --hl-number:   #b5cea8;
+  --hl-decorator:#dcdcaa;
+  --hl-builtin:  #4ec9b0;
+  --hl-tag:      #4ec9b0;
+  --hl-attr:     #9cdcfe;
+  --hl-template: #c586c0;
+}
+html.light {
+  --bg:          #f5f7fa;
+  --surface:     #ffffff;
+  --surface2:    #eef0f3;
+  --sidebar-bg:  #ffffff;
+  --text:        #1a1a1a;
+  --text-muted:  #555;
+  --text-dim:    #888;
+  --border:      #dde1e7;
+  --code-bg:     #f8f8f8;
+  --code-text:   #24292e;
+  --shadow:      rgba(0,0,0,.1);
+  /* syntax - light (VSCode Light) */
+  --hl-keyword:  #0000ff;
+  --hl-string:   #a31515;
+  --hl-comment:  #008000;
+  --hl-number:   #098658;
+  --hl-decorator:#795e26;
+  --hl-builtin:  #267f99;
+  --hl-tag:      #800000;
+  --hl-attr:     #e50000;
+  --hl-template: #af00db;
+}
+
+/* ── Syntax span classes ───────────────────────────────────── */
+.hl-keyword  { color: var(--hl-keyword);  }
+.hl-string   { color: var(--hl-string);   }
+.hl-comment  { color: #adb4a7; font-size: 12px; font-style: italic; }
+.hl-number   { color: var(--hl-number);   }
+.hl-decorator{ color: var(--hl-decorator);}
+.hl-builtin  { color: var(--hl-builtin);  }
+.hl-tag      { color: var(--hl-tag);      }
+.hl-attr     { color: var(--hl-attr);     }
+.hl-template { color: var(--hl-template); }
+
+/* ── Base ──────────────────────────────────────────────────── */
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: var(--bg); color: var(--text); font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; transition: background .2s, color .2s; }
+a { color: #000000; }
+
+/* ── Layout ────────────────────────────────────────────────── */
+.layout { display: flex; min-height: 100vh; }
+.sidebar { width: 260px; min-width: 260px; background: var(--sidebar-bg); border-right: 1px solid var(--border); padding: 24px 16px; position: sticky; top: 0; height: 100vh; overflow-y: auto; }
+.sidebar h2 { font-size: 1.1rem; margin: 16px 0 8px; color: var(--text); }
+.sidebar nav ol { padding-left: 18px; }
+.sidebar nav li { margin: 6px 0; }
+.sidebar nav a { color: var(--text-muted); text-decoration: none; font-size: 0.85rem; }
+.sidebar nav a:hover { color: #000000; }
+.back-link { color: var(--text-dim); text-decoration: none; font-size: 0.85rem; display: block; margin-bottom: 8px; }
+.install-box { margin-top: 24px; background: var(--bg); border: 1px solid var(--border); padding: 12px; border-radius: 6px; font-size: 0.8rem; }
+.install-box code { display: block; word-break: break-all; color: var(--hl-comment); font-family: monospace; }
+main { flex: 1; padding: 40px; max-width: 860px; }
+.guide-header { padding: 20px 20px 20px 24px; background: var(--surface); border-radius: 8px; margin-bottom: 32px; box-shadow: 0 1px 3px var(--shadow); }
+.guide-header h1 { font-size: 1.8rem; margin-bottom: 8px; }
+.guide-header p { color: var(--text-muted); }
+
+/* ── Steps ─────────────────────────────────────────────────── */
+.step { display: flex; gap: 16px; margin-bottom: 40px; }
+.step-number { width: 32px; min-width: 32px; height: 32px; background: #000000; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 0.9rem; margin-top: 4px; color: #fff; }
+.step-content { flex: 1; min-width: 0; }
+.step-content h3 { font-size: 1.1rem; margin-bottom: 8px; color: var(--text); }
+.explanation { color: var(--text-muted); font-size: 0.9rem; line-height: 1.6; margin-bottom: 14px; }
+
+/* ── Code tabs ─────────────────────────────────────────────── */
+.tabs { background: var(--surface); border-radius: 6px; overflow: hidden; border: 1px solid var(--border); }
+.tab-bar { display: flex; background: var(--surface2); overflow-x: auto; border-bottom: 1px solid var(--border); }
+.tab-btn { padding: 8px 16px; background: none; border: none; color: var(--text-muted); cursor: pointer; font-size: 0.8rem; white-space: nowrap; border-bottom: 2px solid transparent; margin-bottom: -1px; }
+.tab-btn.active { color: var(--text); border-bottom-color: #000000; }
+.tab-panel { display: none; }
+.tab-panel.active { display: block; }
+.code-header { display: flex; justify-content: space-between; align-items: center; padding: 5px 12px; background: var(--surface2); border-bottom: 1px solid var(--border); }
+.lang-label { font-size: 0.72rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: .04em; }
+.copy-btn { background: none; border: 1px solid var(--border); color: var(--text-muted); padding: 2px 8px; cursor: pointer; border-radius: 3px; font-size: 0.72rem; }
+.copy-btn:hover { color: var(--text); border-color: var(--text-muted); }
+pre { overflow-x: auto; padding: 16px; background: var(--code-bg); }
+code { font-family: "Fira Code", "Cascadia Code", "Consolas", monospace; font-size: 0.82rem; line-height: 1.65; color: var(--code-text); }
+
+/* ── Theme toggle switch ───────────────────────────────────── */
+.theme-row { display: flex; align-items: center; gap: 8px; margin-top: 20px; }
+.theme-label { font-size: 0.78rem; color: var(--text-muted); }
+.toggle-switch { position: relative; display: inline-block; width: 40px; height: 22px; }
+.toggle-switch input { opacity: 0; width: 0; height: 0; }
+.slider { position: absolute; cursor: pointer; inset: 0; background: var(--surface2); border: 1px solid var(--border); border-radius: 22px; transition: background .2s; }
+.slider:before { content: ""; position: absolute; width: 16px; height: 16px; left: 2px; top: 2px; background: var(--text-muted); border-radius: 50%; transition: transform .2s, background .2s; }
+.toggle-switch input:checked + .slider { background: #000000; border-color: #000000; }
+.toggle-switch input:checked + .slider:before { transform: translateX(18px); background: #fff; }
+
+/* ── Responsive sidebar ────────────────────────────────────── */
+/* Toggle button - hidden on wide screens, shown on narrow */
+.sidebar-toggle {
+  display: none;
+  position: fixed; top: 12px; left: 12px; z-index: 300;
+  background: #000000; color: #fff; border: none;
+  padding: 7px 14px; border-radius: 6px; cursor: pointer;
+  font-size: 0.85rem; font-weight: 600;
+  box-shadow: 0 2px 8px var(--shadow);
+  align-items: center; gap: 6px;
+}
+/* Backdrop - covers main content when sidebar is open on narrow screens */
+.sidebar-overlay {
+  display: none; position: fixed; inset: 0;
+  background: rgba(0,0,0,.45); z-index: 190;
+}
+.sidebar-overlay.open { display: block; }
+
+@media (max-width: 900px) {
+  .sidebar-toggle { display: flex; }
+  .layout { display: block; }
+  .sidebar {
+    position: fixed; left: -280px; top: 0;
+    height: 100vh; z-index: 200;
+    transition: left .25s ease;
+    box-shadow: 2px 0 16px var(--shadow);
+    min-width: 260px;
+  }
+  .sidebar.open { left: 0; }
+  main { padding: 60px 20px 40px; max-width: 100%; }
+  /* Prevent wide code lines from breaking the page layout */
+  pre { overflow-x: auto; max-width: 100%; white-space: pre-wrap; word-break: break-word; }
+  .tabs { max-width: 100%; }
+}
+</style>
+</head>
+<body>
+<button class="sidebar-toggle" id="sidebarToggle" onclick="toggleSidebar()">&#9776; Steps</button>
+<div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+<div class="layout">
+  <aside class="sidebar" id="guideSidebar">
+    <a href="index.html" class="back-link">← All Guides</a>
+    <h2>Flask</h2>
+    <nav><ol><li><a href="#step1">Project Structure</a></li><li><a href="#step2">Application Factory &amp; Config</a></li><li><a href="#step3">Model</a></li><li><a href="#step4">WTForms Form</a></li><li><a href="#step5">File Upload</a></li><li><a href="#step6">Blueprints</a></li><li><a href="#step7">Custom Error Pages</a></li></ol></nav>
+    <div class="install-box">
+      <p><strong>Install</strong></p>
+      <code>pyoffline install --bundle flask</code>
+      <p style="margin-top:12px"><strong>Run</strong></p>
+      <code>flask run</code>
+    </div>
+    <div class="theme-row">
+      <span class="theme-label">Dark</span>
+      <label class="toggle-switch">
+        <input type="checkbox" id="themeToggle">
+        <span class="slider"></span>
+      </label>
+      <span class="theme-label">Light</span>
+    </div>
+  </aside>
+  <main>
+    <header class="guide-header" style="border-left: 5px solid #000000">
+      <h1>Flask</h1>
+      <p>Build a web app using the application factory pattern, Blueprints, Jinja2 templates, WTForms, file uploads, and custom error pages.</p>
+    </header>
+    <div class="steps">
+<div class="step" id="step1">
+  <div class="step-number">1</div>
+  <div class="step-content">
+    <h3>Project Structure</h3>
+    <p class="explanation">Flask is unopinionated about structure, but this layout scales well. The application factory (create_app) lets you create different versions of the app for development and production.</p>
+    <div class="tabs" data-step="step1">
+      <div class="tab-bar"><button class="tab-btn active" onclick="switchTab('step1',0)" id="step1_tab0">structure.txt</button></div>
+      
+<div class="tab-panel active" id="step1_panel0">
+  <div class="code-header">
+    <span class="lang-label">text</span>
+    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+  </div>
+  <pre><code>myapp/
+  run.py              ← entry point: python run.py
+  config.py           ← config classes for dev/prod
+  app/
+    __init__.py       ← create_app() factory
+    models.py         ← SQLAlchemy models
+    extensions.py     ← db, login_manager instances
+    auth/
+      __init__.py     ← Blueprint definition
+      routes.py       ← login, register, logout views
+      forms.py        ← WTForms form classes
+    posts/
+      __init__.py
+      routes.py
+      forms.py
+    templates/
+      base.html
+      auth/
+        login.html
+        register.html
+      posts/
+        list.html
+        create.html
+    static/
+      style.css
+  uploads/            ← saved uploaded files</code></pre>
+</div>
+    </div>
+  </div>
+</div>
+<div class="step" id="step2">
+  <div class="step-number">2</div>
+  <div class="step-content">
+    <h3>Application Factory &amp; Config</h3>
+    <p class="explanation">The create_app() pattern lets you create a fresh app instance with different settings - useful for testing or running multiple environments. Extensions like SQLAlchemy are initialized separately and then bound to the app.</p>
+    <div class="tabs" data-step="step2">
+      <div class="tab-bar"><button class="tab-btn active" onclick="switchTab('step2',0)" id="step2_tab0">config.py</button><button class="tab-btn " onclick="switchTab('step2',1)" id="step2_tab1">app/extensions.py</button><button class="tab-btn " onclick="switchTab('step2',2)" id="step2_tab2">app/__init__.py</button><button class="tab-btn " onclick="switchTab('step2',3)" id="step2_tab3">run.py</button></div>
+      
+<div class="tab-panel active" id="step2_panel0">
+  <div class="code-header">
+    <span class="lang-label">python</span>
+    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+  </div>
+  <pre><code><span class="hl-keyword">import</span> os
+
+<span class="hl-keyword">class</span> Config:
+    SECRET_KEY = os.getenv(<span class="hl-string">&quot;SECRET_KEY&quot;</span>, <span class="hl-string">&quot;dev-secret-change-this&quot;</span>)
+    SQLALCHEMY_DATABASE_URI = os.getenv(<span class="hl-string">&quot;DATABASE_URL&quot;</span>, <span class="hl-string">&quot;sqlite:///app.db&quot;</span>)
+    SQLALCHEMY_TRACK_MODIFICATIONS = <span class="hl-keyword">False</span>
+    MAX_CONTENT_LENGTH = <span class="hl-number">2</span> * <span class="hl-number">1024</span> * <span class="hl-number">1024</span>  <span class="hl-comment"># 2 MB max upload size</span>
+    UPLOAD_FOLDER = <span class="hl-string">&quot;uploads&quot;</span>
+
+<span class="hl-keyword">class</span> DevelopmentConfig(Config):
+    DEBUG = <span class="hl-keyword">True</span>
+
+<span class="hl-keyword">class</span> ProductionConfig(Config):
+    DEBUG = <span class="hl-keyword">False</span></code></pre>
+</div>
+<div class="tab-panel " id="step2_panel1">
+  <div class="code-header">
+    <span class="lang-label">python</span>
+    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+  </div>
+  <pre><code><span class="hl-keyword">from</span> flask_sqlalchemy <span class="hl-keyword">import</span> SQLAlchemy
+<span class="hl-keyword">from</span> flask_login <span class="hl-keyword">import</span> LoginManager
+<span class="hl-keyword">from</span> flask_migrate <span class="hl-keyword">import</span> Migrate
+
+<span class="hl-comment"># Create the extension objects here - they get bound to the app in create_app()</span>
+db            = SQLAlchemy()
+login_manager = LoginManager()
+migrate       = Migrate()</code></pre>
+</div>
+<div class="tab-panel " id="step2_panel2">
+  <div class="code-header">
+    <span class="lang-label">python</span>
+    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+  </div>
+  <pre><code><span class="hl-keyword">from</span> flask <span class="hl-keyword">import</span> Flask
+<span class="hl-keyword">from</span> config <span class="hl-keyword">import</span> DevelopmentConfig
+<span class="hl-keyword">from</span> app.extensions <span class="hl-keyword">import</span> db, login_manager, migrate
+<span class="hl-keyword">import</span> os
+
+<span class="hl-keyword">def</span> create_app(config=DevelopmentConfig):
+    app = Flask(__name__)
+    app.config.from_object(config)
+
+    os.makedirs(app.config[<span class="hl-string">&quot;UPLOAD_FOLDER&quot;</span>], exist_ok=<span class="hl-keyword">True</span>)
+
+    <span class="hl-comment"># Bind extensions to this app instance</span>
+    db.init_app(app)
+    login_manager.init_app(app)
+    migrate.init_app(app, db)
+
+    login_manager.login_view = <span class="hl-string">&quot;auth.login&quot;</span>  <span class="hl-comment"># where to redirect unauthenticated users</span>
+
+    <span class="hl-comment"># Register blueprints (groups of related routes)</span>
+    <span class="hl-keyword">from</span> app.auth.routes <span class="hl-keyword">import</span> auth_bp
+    <span class="hl-keyword">from</span> app.posts.routes <span class="hl-keyword">import</span> posts_bp
+    app.register_blueprint(auth_bp, url_prefix=<span class="hl-string">&quot;/auth&quot;</span>)
+    app.register_blueprint(posts_bp, url_prefix=<span class="hl-string">&quot;/posts&quot;</span>)
+
+    <span class="hl-comment"># Register custom error pages</span>
+    <span class="hl-keyword">from</span> app.errors <span class="hl-keyword">import</span> register_errors
+    register_errors(app)
+
+    <span class="hl-keyword">return</span> app</code></pre>
+</div>
+<div class="tab-panel " id="step2_panel3">
+  <div class="code-header">
+    <span class="lang-label">python</span>
+    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+  </div>
+  <pre><code><span class="hl-keyword">from</span> app <span class="hl-keyword">import</span> create_app
+
+app = create_app()
+
+<span class="hl-keyword">if</span> __name__ == <span class="hl-string">&quot;__main__&quot;</span>:
+    app.run(debug=<span class="hl-keyword">True</span>)</code></pre>
+</div>
+    </div>
+  </div>
+</div>
+<div class="step" id="step3">
+  <div class="step-number">3</div>
+  <div class="step-content">
+    <h3>Model</h3>
+    <p class="explanation">SQLAlchemy models work the same as in other frameworks. The load_user function is required by Flask-Login - it tells the login manager how to look up a user by their ID stored in the session.</p>
+    <div class="tabs" data-step="step3">
+      <div class="tab-bar"><button class="tab-btn active" onclick="switchTab('step3',0)" id="step3_tab0">app/models.py</button></div>
+      
+<div class="tab-panel active" id="step3_panel0">
+  <div class="code-header">
+    <span class="lang-label">python</span>
+    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+  </div>
+  <pre><code><span class="hl-keyword">from</span> app.extensions <span class="hl-keyword">import</span> db, login_manager
+<span class="hl-keyword">from</span> flask_login <span class="hl-keyword">import</span> UserMixin
+<span class="hl-keyword">from</span> datetime <span class="hl-keyword">import</span> datetime
+
+<span class="hl-keyword">class</span> User(UserMixin, db.Model):
+    id         = db.Column(db.Integer, primary_key=<span class="hl-keyword">True</span>)
+    email      = db.Column(db.String(<span class="hl-number">120</span>), unique=<span class="hl-keyword">True</span>, nullable=<span class="hl-keyword">False</span>)
+    password   = db.Column(db.String(<span class="hl-number">200</span>), nullable=<span class="hl-keyword">False</span>)
+    posts      = db.relationship(<span class="hl-string">&#x27;Post&#x27;</span>, backref=<span class="hl-string">&#x27;author&#x27;</span>, lazy=<span class="hl-keyword">True</span>)
+
+<span class="hl-keyword">class</span> Post(db.Model):
+    id         = db.Column(db.Integer, primary_key=<span class="hl-keyword">True</span>)
+    title      = db.Column(db.String(<span class="hl-number">200</span>), nullable=<span class="hl-keyword">False</span>)
+    body       = db.Column(db.Text, nullable=<span class="hl-keyword">False</span>)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    user_id    = db.Column(db.Integer, db.ForeignKey(<span class="hl-string">&#x27;user.id&#x27;</span>), nullable=<span class="hl-keyword">False</span>)
+
+<span class="hl-comment"># Flask-Login calls this to get the logged-in user object from their session cookie</span>
+<span class="hl-decorator">@login_manager.user_loader</span>
+<span class="hl-keyword">def</span> load_user(user_id):
+    <span class="hl-keyword">return</span> User.query.get(<span class="hl-builtin">int</span>(user_id))</code></pre>
+</div>
+    </div>
+  </div>
+</div>
+<div class="step" id="step4">
+  <div class="step-number">4</div>
+  <div class="step-content">
+    <h3>WTForms Form</h3>
+    <p class="explanation">WTForms handles form field definitions, validation, and rendering. FlaskForm automatically adds CSRF protection. Validators like DataRequired and Email run on the server before the data touches your database.</p>
+    <div class="tabs" data-step="step4">
+      <div class="tab-bar"><button class="tab-btn active" onclick="switchTab('step4',0)" id="step4_tab0">app/posts/forms.py</button><button class="tab-btn " onclick="switchTab('step4',1)" id="step4_tab1">app/posts/routes.py</button><button class="tab-btn " onclick="switchTab('step4',2)" id="step4_tab2">app/templates/posts/create.html</button></div>
+      
+<div class="tab-panel active" id="step4_panel0">
+  <div class="code-header">
+    <span class="lang-label">python</span>
+    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+  </div>
+  <pre><code><span class="hl-keyword">from</span> flask_wtf <span class="hl-keyword">import</span> FlaskForm
+<span class="hl-keyword">from</span> wtforms <span class="hl-keyword">import</span> StringField, TextAreaField, SubmitField
+<span class="hl-keyword">from</span> wtforms.validators <span class="hl-keyword">import</span> DataRequired, Length
+
+<span class="hl-keyword">class</span> PostForm(FlaskForm):
+    title  = StringField(<span class="hl-string">&#x27;Title&#x27;</span>,   validators=[DataRequired(), Length(<span class="hl-builtin">min</span>=<span class="hl-number">3</span>, <span class="hl-builtin">max</span>=<span class="hl-number">200</span>)])
+    body   = TextAreaField(<span class="hl-string">&#x27;Body&#x27;</span>,  validators=[DataRequired()])
+    submit = SubmitField(<span class="hl-string">&#x27;Save Post&#x27;</span>)</code></pre>
+</div>
+<div class="tab-panel " id="step4_panel1">
+  <div class="code-header">
+    <span class="lang-label">python</span>
+    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+  </div>
+  <pre><code><span class="hl-keyword">from</span> flask <span class="hl-keyword">import</span> Blueprint, render_template, redirect, url_for, flash
+<span class="hl-keyword">from</span> flask_login <span class="hl-keyword">import</span> login_required, current_user
+<span class="hl-keyword">from</span> app.extensions <span class="hl-keyword">import</span> db
+<span class="hl-keyword">from</span> app.models <span class="hl-keyword">import</span> Post
+<span class="hl-keyword">from</span> .forms <span class="hl-keyword">import</span> PostForm
+
+posts_bp = Blueprint(<span class="hl-string">&#x27;posts&#x27;</span>, __name__)
+
+<span class="hl-decorator">@posts_bp.route</span>(<span class="hl-string">&#x27;/&#x27;</span>)
+<span class="hl-keyword">def</span> list_posts():
+    page  = request.args.get(<span class="hl-string">&#x27;page&#x27;</span>, <span class="hl-number">1</span>, <span class="hl-builtin">type</span>=<span class="hl-builtin">int</span>)
+    posts = Post.query.order_by(Post.created_at.desc()).paginate(page=page, per_page=<span class="hl-number">5</span>)
+    <span class="hl-keyword">return</span> render_template(<span class="hl-string">&#x27;posts/list.html&#x27;</span>, posts=posts)
+
+<span class="hl-decorator">@posts_bp.route</span>(<span class="hl-string">&#x27;/create&#x27;</span>, methods=[<span class="hl-string">&#x27;GET&#x27;</span>, <span class="hl-string">&#x27;POST&#x27;</span>])
+<span class="hl-decorator">@login_required</span>
+<span class="hl-keyword">def</span> create_post():
+    form = PostForm()
+    <span class="hl-keyword">if</span> form.validate_on_submit():  <span class="hl-comment"># True only on POST with valid data</span>
+        post = Post(title=form.title.data, body=form.body.data, author=current_user)
+        db.session.add(post)
+        db.session.commit()
+        flash(<span class="hl-string">&#x27;Post created!&#x27;</span>, <span class="hl-string">&#x27;success&#x27;</span>)        <span class="hl-comment"># success message shown on the next page</span>
+        <span class="hl-keyword">return</span> redirect(url_for(<span class="hl-string">&#x27;posts.list_posts&#x27;</span>))  <span class="hl-comment"># redirect to prevent double-submit</span>
+    <span class="hl-keyword">return</span> render_template(<span class="hl-string">&#x27;posts/create.html&#x27;</span>, form=form)</code></pre>
+</div>
+<div class="tab-panel " id="step4_panel2">
+  <div class="code-header">
+    <span class="lang-label">html</span>
+    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+  </div>
+  <pre><code><span class="hl-template">{% extends &quot;base.html&quot; %}</span>
+<span class="hl-template">{% block content %}</span>
+
+&lt;<span <span class="hl-attr">class</span>="hl-tag">h2</span>&gt;New Post&lt;/<span <span class="hl-attr">class</span>="hl-tag">h2</span>&gt;
+
+&lt;<span <span class="hl-attr">class</span>="hl-tag">form</span> <span class="hl-attr">method</span>=<span class="hl-string">&quot;post&quot;</span> novalidate&gt;
+  <span class="hl-template">{{ form.hidden_tag() }}</span>  <span class="hl-comment">{# renders the CSRF token hidden field #}</span>
+
+  &lt;<span <span class="hl-attr">class</span>="hl-tag">div</span>&gt;
+    <span class="hl-template">{{ form.title.label }}</span>
+    <span class="hl-template">{{ form.title(placeholder=&quot;Post title&quot;) }}</span>
+    <span class="hl-template">{% for error in form.title.errors %}</span>
+      &lt;<span <span class="hl-attr">class</span>="hl-tag">span</span> <span class="hl-attr">class</span>=<span class="hl-string">&quot;error&quot;</span>&gt;<span class="hl-template">{{ error }}</span>&lt;/<span <span class="hl-attr">class</span>="hl-tag">span</span>&gt;  <span class="hl-comment">{# show validation errors inline #}</span>
+    <span class="hl-template">{% endfor %}</span>
+  &lt;/<span <span class="hl-attr">class</span>="hl-tag">div</span>&gt;
+
+  &lt;<span <span class="hl-attr">class</span>="hl-tag">div</span>&gt;
+    <span class="hl-template">{{ form.body.label }}</span>
+    <span class="hl-template">{{ form.body(rows=8) }}</span>
+    <span class="hl-template">{% for error in form.body.errors %}</span>
+      &lt;<span <span class="hl-attr">class</span>="hl-tag">span</span> <span class="hl-attr">class</span>=<span class="hl-string">&quot;error&quot;</span>&gt;<span class="hl-template">{{ error }}</span>&lt;/<span <span class="hl-attr">class</span>="hl-tag">span</span>&gt;
+    <span class="hl-template">{% endfor %}</span>
+  &lt;/<span <span class="hl-attr">class</span>="hl-tag">div</span>&gt;
+
+  <span class="hl-template">{{ form.submit() }}</span>
+&lt;/<span <span class="hl-attr">class</span>="hl-tag">form</span>&gt;
+
+<span class="hl-template">{% endblock %}</span></code></pre>
+</div>
+    </div>
+  </div>
+</div>
+<div class="step" id="step5">
+  <div class="step-number">5</div>
+  <div class="step-content">
+    <h3>File Upload</h3>
+    <p class="explanation">Flask reads uploaded files from request.files. werkzeug&#x27;s secure_filename sanitizes the filename to prevent directory traversal attacks (e.g. someone naming their file ../../etc/passwd).</p>
+    <div class="tabs" data-step="step5">
+      <div class="tab-bar"><button class="tab-btn active" onclick="switchTab('step5',0)" id="step5_tab0">app/posts/routes.py (upload)</button><button class="tab-btn " onclick="switchTab('step5',1)" id="step5_tab1">app/templates/posts/upload.html</button></div>
+      
+<div class="tab-panel active" id="step5_panel0">
+  <div class="code-header">
+    <span class="lang-label">python</span>
+    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+  </div>
+  <pre><code><span class="hl-keyword">from</span> flask <span class="hl-keyword">import</span> request, current_app
+<span class="hl-keyword">from</span> werkzeug.utils <span class="hl-keyword">import</span> secure_filename
+<span class="hl-keyword">import</span> os
+
+ALLOWED_EXTENSIONS = {<span class="hl-string">&#x27;png&#x27;</span>, <span class="hl-string">&#x27;jpg&#x27;</span>, <span class="hl-string">&#x27;jpeg&#x27;</span>, <span class="hl-string">&#x27;gif&#x27;</span>, <span class="hl-string">&#x27;pdf&#x27;</span>}
+
+<span class="hl-keyword">def</span> allowed_file(filename):
+    <span class="hl-comment"># Check that there&#x27;s a dot in the name and the extension is in our allowed set</span>
+    <span class="hl-keyword">return</span> <span class="hl-string">&#x27;.&#x27;</span> <span class="hl-keyword">in</span> filename <span class="hl-keyword">and</span> filename.rsplit(<span class="hl-string">&#x27;.&#x27;</span>, <span class="hl-number">1</span>)[<span class="hl-number">1</span>].lower() <span class="hl-keyword">in</span> ALLOWED_EXTENSIONS
+
+<span class="hl-decorator">@posts_bp.route</span>(<span class="hl-string">&#x27;/upload&#x27;</span>, methods=[<span class="hl-string">&#x27;GET&#x27;</span>, <span class="hl-string">&#x27;POST&#x27;</span>])
+<span class="hl-decorator">@login_required</span>
+<span class="hl-keyword">def</span> upload_file():
+    <span class="hl-keyword">if</span> request.method == <span class="hl-string">&#x27;POST&#x27;</span>:
+        file = request.files.get(<span class="hl-string">&#x27;file&#x27;</span>)
+        <span class="hl-keyword">if</span> <span class="hl-keyword">not</span> file <span class="hl-keyword">or</span> file.filename == <span class="hl-string">&#x27;&#x27;</span>:
+            flash(<span class="hl-string">&#x27;No file selected&#x27;</span>, <span class="hl-string">&#x27;error&#x27;</span>)
+            <span class="hl-keyword">return</span> redirect(request.url)
+        <span class="hl-keyword">if</span> <span class="hl-keyword">not</span> allowed_file(file.filename):
+            flash(<span class="hl-string">&#x27;File type not allowed&#x27;</span>, <span class="hl-string">&#x27;error&#x27;</span>)
+            <span class="hl-keyword">return</span> redirect(request.url)
+        filename = secure_filename(file.filename)  <span class="hl-comment"># removes dangerous characters</span>
+        file.save(os.path.join(current_app.config[<span class="hl-string">&#x27;UPLOAD_FOLDER&#x27;</span>], filename))
+        flash(f<span class="hl-string">&#x27;Uploaded: {filename}&#x27;</span>, <span class="hl-string">&#x27;success&#x27;</span>)
+        <span class="hl-keyword">return</span> redirect(url_for(<span class="hl-string">&#x27;posts.upload_file&#x27;</span>))
+    <span class="hl-keyword">return</span> render_template(<span class="hl-string">&#x27;posts/upload.html&#x27;</span>)</code></pre>
+</div>
+<div class="tab-panel " id="step5_panel1">
+  <div class="code-header">
+    <span class="lang-label">html</span>
+    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+  </div>
+  <pre><code><span class="hl-template">{% extends &quot;base.html&quot; %}</span>
+<span class="hl-template">{% block content %}</span>
+
+&lt;<span <span class="hl-attr">class</span>="hl-tag">h2</span>&gt;Upload a File&lt;/<span <span class="hl-attr">class</span>="hl-tag">h2</span>&gt;
+
+<span class="hl-template">{% with messages = get_flashed_messages(with_categories=true) %}</span>
+  <span class="hl-template">{% for category, message in messages %}</span>
+    &lt;<span <span class="hl-attr">class</span>="hl-tag">p</span> <span class="hl-attr">class</span>=<span class="hl-string">&quot;{{ category }}&quot;</span>&gt;<span class="hl-template">{{ message }}</span>&lt;/<span <span class="hl-attr">class</span>="hl-tag">p</span>&gt;
+  <span class="hl-template">{% endfor %}</span>
+<span class="hl-template">{% endwith %}</span>
+
+<span class="hl-comment">&lt;!-- enctype=&quot;multipart/form-data&quot; is required for file uploads --&gt;</span>
+&lt;<span <span class="hl-attr">class</span>="hl-tag">form</span> <span class="hl-attr">method</span>=<span class="hl-string">&quot;post&quot;</span> <span class="hl-attr">enctype</span>=<span class="hl-string">&quot;multipart/form-data&quot;</span>&gt;
+  <span class="hl-template">{{ form.hidden_tag() if form is defined else &quot;&quot; }}</span>
+  &lt;<span <span class="hl-attr">class</span>="hl-tag">input</span> <span class="hl-attr">type</span>=<span class="hl-string">&quot;file&quot;</span> <span class="hl-attr">name</span>=<span class="hl-string">&quot;file&quot;</span> <span class="hl-attr">accept</span>=<span class="hl-string">&quot;.png,.jpg,.jpeg,.gif,.pdf&quot;</span>&gt;
+  &lt;<span <span class="hl-attr">class</span>="hl-tag">button</span> <span class="hl-attr">type</span>=<span class="hl-string">&quot;submit&quot;</span>&gt;Upload&lt;/<span <span class="hl-attr">class</span>="hl-tag">button</span>&gt;
+&lt;/<span <span class="hl-attr">class</span>="hl-tag">form</span>&gt;
+
+<span class="hl-template">{% endblock %}</span></code></pre>
+</div>
+    </div>
+  </div>
+</div>
+<div class="step" id="step6">
+  <div class="step-number">6</div>
+  <div class="step-content">
+    <h3>Blueprints</h3>
+    <p class="explanation">Blueprints group related routes into separate modules. This keeps your code organized as the project grows. Each blueprint gets its own URL prefix, templates folder, and routes file.</p>
+    <div class="tabs" data-step="step6">
+      <div class="tab-bar"><button class="tab-btn active" onclick="switchTab('step6',0)" id="step6_tab0">app/auth/routes.py</button></div>
+      
+<div class="tab-panel active" id="step6_panel0">
+  <div class="code-header">
+    <span class="lang-label">python</span>
+    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+  </div>
+  <pre><code><span class="hl-keyword">from</span> flask <span class="hl-keyword">import</span> Blueprint, render_template, redirect, url_for, flash
+<span class="hl-keyword">from</span> flask_login <span class="hl-keyword">import</span> login_user, logout_user, login_required
+<span class="hl-keyword">from</span> werkzeug.security <span class="hl-keyword">import</span> generate_password_hash, check_password_hash
+<span class="hl-keyword">from</span> app.extensions <span class="hl-keyword">import</span> db
+<span class="hl-keyword">from</span> app.models <span class="hl-keyword">import</span> User
+<span class="hl-keyword">from</span> .forms <span class="hl-keyword">import</span> LoginForm, RegisterForm
+
+auth_bp = Blueprint(<span class="hl-string">&#x27;auth&#x27;</span>, __name__, template_folder=<span class="hl-string">&#x27;templates&#x27;</span>)
+
+<span class="hl-decorator">@auth_bp.route</span>(<span class="hl-string">&#x27;/register&#x27;</span>, methods=[<span class="hl-string">&#x27;GET&#x27;</span>, <span class="hl-string">&#x27;POST&#x27;</span>])
+<span class="hl-keyword">def</span> register():
+    form = RegisterForm()
+    <span class="hl-keyword">if</span> form.validate_on_submit():
+        user = User(
+            email    = form.email.data,
+            password = generate_password_hash(form.password.data)
+        )
+        db.session.add(user)
+        db.session.commit()
+        flash(<span class="hl-string">&#x27;Account created. Please log in.&#x27;</span>, <span class="hl-string">&#x27;success&#x27;</span>)
+        <span class="hl-keyword">return</span> redirect(url_for(<span class="hl-string">&#x27;auth.login&#x27;</span>))
+    <span class="hl-keyword">return</span> render_template(<span class="hl-string">&#x27;auth/register.html&#x27;</span>, form=form)
+
+<span class="hl-decorator">@auth_bp.route</span>(<span class="hl-string">&#x27;/login&#x27;</span>, methods=[<span class="hl-string">&#x27;GET&#x27;</span>, <span class="hl-string">&#x27;POST&#x27;</span>])
+<span class="hl-keyword">def</span> login():
+    form = LoginForm()
+    <span class="hl-keyword">if</span> form.validate_on_submit():
+        user = User.query.filter_by(email=form.email.data).first()
+        <span class="hl-keyword">if</span> user <span class="hl-keyword">and</span> check_password_hash(user.password, form.password.data):
+            login_user(user)  <span class="hl-comment"># creates the session cookie</span>
+            <span class="hl-keyword">return</span> redirect(url_for(<span class="hl-string">&#x27;posts.list_posts&#x27;</span>))
+        flash(<span class="hl-string">&#x27;Invalid email or password&#x27;</span>, <span class="hl-string">&#x27;error&#x27;</span>)
+    <span class="hl-keyword">return</span> render_template(<span class="hl-string">&#x27;auth/login.html&#x27;</span>, form=form)
+
+<span class="hl-decorator">@auth_bp.route</span>(<span class="hl-string">&#x27;/logout&#x27;</span>)
+<span class="hl-decorator">@login_required</span>
+<span class="hl-keyword">def</span> logout():
+    logout_user()  <span class="hl-comment"># clears the session cookie</span>
+    <span class="hl-keyword">return</span> redirect(url_for(<span class="hl-string">&#x27;auth.login&#x27;</span>))</code></pre>
+</div>
+    </div>
+  </div>
+</div>
+<div class="step" id="step7">
+  <div class="step-number">7</div>
+  <div class="step-content">
+    <h3>Custom Error Pages</h3>
+    <p class="explanation">Flask lets you register custom HTML pages for HTTP errors like 404 (not found) and 500 (server error). Without these, users see a plain white error page from the browser.</p>
+    <div class="tabs" data-step="step7">
+      <div class="tab-bar"><button class="tab-btn active" onclick="switchTab('step7',0)" id="step7_tab0">app/errors.py</button><button class="tab-btn " onclick="switchTab('step7',1)" id="step7_tab1">app/templates/errors/404.html</button><button class="tab-btn " onclick="switchTab('step7',2)" id="step7_tab2">app/templates/errors/500.html</button></div>
+      
+<div class="tab-panel active" id="step7_panel0">
+  <div class="code-header">
+    <span class="lang-label">python</span>
+    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+  </div>
+  <pre><code><span class="hl-keyword">from</span> flask <span class="hl-keyword">import</span> render_template
+
+<span class="hl-keyword">def</span> register_errors(app):
+    <span class="hl-decorator">@app.errorhandler</span>(<span class="hl-number">404</span>)
+    <span class="hl-keyword">def</span> not_found(e):
+        <span class="hl-keyword">return</span> render_template(<span class="hl-string">&#x27;errors/404.html&#x27;</span>), <span class="hl-number">404</span>
+
+    <span class="hl-decorator">@app.errorhandler</span>(<span class="hl-number">500</span>)
+    <span class="hl-keyword">def</span> server_error(e):
+        <span class="hl-keyword">return</span> render_template(<span class="hl-string">&#x27;errors/500.html&#x27;</span>), <span class="hl-number">500</span></code></pre>
+</div>
+<div class="tab-panel " id="step7_panel1">
+  <div class="code-header">
+    <span class="lang-label">html</span>
+    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+  </div>
+  <pre><code><span class="hl-template">{% extends &quot;base.html&quot; %}</span>
+<span class="hl-template">{% block content %}</span>
+&lt;<span <span class="hl-attr">class</span>="hl-tag">div</span> <span class="hl-attr">style</span>=<span class="hl-string">&quot;text-align:center; padding: 60px 0;&quot;</span>&gt;
+  &lt;<span <span class="hl-attr">class</span>="hl-tag">h1</span> <span class="hl-attr">style</span>=<span class="hl-string">&quot;font-size: 5rem; margin:0;&quot;</span>&gt;404&lt;/<span <span class="hl-attr">class</span>="hl-tag">h1</span>&gt;
+  &lt;<span <span class="hl-attr">class</span>="hl-tag">p</span>&gt;That page doesn&#x27;t exist.&lt;/<span <span class="hl-attr">class</span>="hl-tag">p</span>&gt;
+  &lt;<span <span class="hl-attr">class</span>="hl-tag">a</span> <span class="hl-attr">href</span>=&quot;{{ url_for(&#x27;posts.list_posts&#x27;) }}&quot;&gt;Go back home&lt;/<span <span class="hl-attr">class</span>="hl-tag">a</span>&gt;
+&lt;/<span <span class="hl-attr">class</span>="hl-tag">div</span>&gt;
+<span class="hl-template">{% endblock %}</span></code></pre>
+</div>
+<div class="tab-panel " id="step7_panel2">
+  <div class="code-header">
+    <span class="lang-label">html</span>
+    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+  </div>
+  <pre><code><span class="hl-template">{% extends &quot;base.html&quot; %}</span>
+<span class="hl-template">{% block content %}</span>
+&lt;<span <span class="hl-attr">class</span>="hl-tag">div</span> <span class="hl-attr">style</span>=<span class="hl-string">&quot;text-align:center; padding: 60px 0;&quot;</span>&gt;
+  &lt;<span <span class="hl-attr">class</span>="hl-tag">h1</span> <span class="hl-attr">style</span>=<span class="hl-string">&quot;font-size: 5rem; margin:0;&quot;</span>&gt;500&lt;/<span <span class="hl-attr">class</span>="hl-tag">h1</span>&gt;
+  &lt;<span <span class="hl-attr">class</span>="hl-tag">p</span>&gt;Something went wrong on our end. Try again shortly.&lt;/<span <span class="hl-attr">class</span>="hl-tag">p</span>&gt;
+  &lt;<span <span class="hl-attr">class</span>="hl-tag">a</span> <span class="hl-attr">href</span>=&quot;{{ url_for(&#x27;posts.list_posts&#x27;) }}&quot;&gt;Go back home&lt;/<span <span class="hl-attr">class</span>="hl-tag">a</span>&gt;
+&lt;/<span <span class="hl-attr">class</span>="hl-tag">div</span>&gt;
+<span class="hl-template">{% endblock %}</span></code></pre>
+</div>
+    </div>
+  </div>
+</div></div>
+  </main>
+</div>
+<script>
+(function() {
+  // Restore saved theme preference before first paint
+  var saved = localStorage.getItem("pyoffline-theme");
+  if (saved === "light") {
+    document.documentElement.classList.add("light"); // apply class immediately
+  }
+  // Once DOM is ready, sync the checkbox state
+  document.addEventListener("DOMContentLoaded", function() {
+    var toggle = document.getElementById("themeToggle");
+    if (!toggle) return;
+    toggle.checked = (localStorage.getItem("pyoffline-theme") === "light");
+    toggle.addEventListener("change", function() {
+      if (this.checked) {
+        document.documentElement.classList.add("light");    // switch to light
+        localStorage.setItem("pyoffline-theme", "light");  // remember the choice
+      } else {
+        document.documentElement.classList.remove("light"); // back to dark
+        localStorage.setItem("pyoffline-theme", "dark");
+      }
+    });
+  });
+})();
+
+function switchTab(stepId, idx) {
+  // Find all tab buttons and panels belonging to this step
+  var step   = document.getElementById(stepId);
+  var btns   = step.querySelectorAll(".tab-btn");
+  var panels = step.querySelectorAll(".tab-panel");
+  // Remove active from all, then add it to the clicked one
+  btns.forEach(function(b) { b.classList.remove("active"); });
+  panels.forEach(function(p) { p.classList.remove("active"); });
+  btns[idx].classList.add("active");
+  panels[idx].classList.add("active");
+}
+
+function copyCode(btn) {
+  // Walk up to the panel, find the code block, copy its plain text (no HTML tags)
+  var code = btn.closest(".tab-panel").querySelector("code").innerText;
+  navigator.clipboard.writeText(code).then(function() {
+    var orig = btn.textContent;
+    btn.textContent = "Copied!";                              // briefly show confirmation
+    setTimeout(function() { btn.textContent = orig; }, 1500); // restore after 1.5s
+  });
+}
+
+// ── Responsive sidebar ──────────────────────────────────────
+function toggleSidebar() {
+  var sidebar = document.getElementById("guideSidebar");
+  var overlay = document.getElementById("sidebarOverlay");
+  if (!sidebar) return;
+  sidebar.classList.toggle("open");
+  overlay.classList.toggle("open");
+}
+
+// Close sidebar automatically when a step link is clicked (so the scroll happens cleanly)
+document.addEventListener("DOMContentLoaded", function() {
+  var sidebar = document.getElementById("guideSidebar");
+  if (!sidebar) return;
+  sidebar.querySelectorAll("nav a").forEach(function(a) {
+    a.addEventListener("click", function() {
+      sidebar.classList.remove("open");
+      var overlay = document.getElementById("sidebarOverlay");
+      if (overlay) overlay.classList.remove("open");
+    });
+  });
+});
+</script>
+</body>
+</html>

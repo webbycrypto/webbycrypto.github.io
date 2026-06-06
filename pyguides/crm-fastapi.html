@@ -1,0 +1,880 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CRM Integration - FastAPI Guide - pyoffline</title>
+<style>
+:root {
+  --bg:          #121212;
+  --surface:     #1e1e1e;
+  --surface2:    #2a2a2a;
+  --sidebar-bg:  #1a1a1a;
+  --text:        #e0e0e0;
+  --text-muted:  #aaa;
+  --text-dim:    #666;
+  --border:      #333;
+  --code-bg:     #1e1e1e;
+  --code-text:   #d4d4d4;
+  --shadow:      rgba(0,0,0,.4);
+  --accent:      #009688;
+  --hl-keyword:  #569cd6;
+  --hl-string:   #ce9178;
+  --hl-comment:  #6a9955;
+  --hl-number:   #b5cea8;
+  --hl-decorator:#dcdcaa;
+  --hl-builtin:  #4ec9b0;
+  --hl-tag:      #4ec9b0;
+  --hl-attr:     #9cdcfe;
+  --hl-template: #c586c0;
+}
+html.light {
+  --bg:          #f5f7fa;
+  --surface:     #ffffff;
+  --surface2:    #eef0f3;
+  --sidebar-bg:  #ffffff;
+  --text:        #1a1a1a;
+  --text-muted:  #555;
+  --text-dim:    #888;
+  --border:      #dde1e7;
+  --code-bg:     #f8f8f8;
+  --code-text:   #24292e;
+  --shadow:      rgba(0,0,0,.1);
+  --hl-keyword:  #0000ff;
+  --hl-string:   #a31515;
+  --hl-comment:  #008000;
+  --hl-number:   #098658;
+  --hl-decorator:#795e26;
+  --hl-builtin:  #267f99;
+  --hl-tag:      #800000;
+  --hl-attr:     #e50000;
+  --hl-template: #af00db;
+}
+.hl-keyword  { color: var(--hl-keyword);  }
+.hl-string   { color: var(--hl-string);   }
+.hl-comment  { color: #adb4a7; font-size: 12px; font-style: italic; }
+.hl-number   { color: var(--hl-number);   }
+.hl-decorator{ color: var(--hl-decorator);}
+.hl-builtin  { color: var(--hl-builtin);  }
+.hl-tag      { color: var(--hl-tag);      }
+.hl-attr     { color: var(--hl-attr);     }
+.hl-template { color: var(--hl-template); }
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: var(--bg); color: var(--text); font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; transition: background .2s, color .2s; }
+a { color: var(--accent); }
+.layout { display: flex; min-height: 100vh; }
+.sidebar { width: 260px; min-width: 260px; background: var(--sidebar-bg); border-right: 1px solid var(--border); padding: 24px 16px; position: sticky; top: 0; height: 100vh; overflow-y: auto; }
+.sidebar h2 { font-size: 1.1rem; margin: 16px 0 8px; color: var(--text); }
+.sidebar nav ol { padding-left: 18px; }
+.sidebar nav li { margin: 6px 0; }
+.sidebar nav a { color: var(--text-muted); text-decoration: none; font-size: 0.85rem; }
+.sidebar nav a:hover { color: var(--accent); }
+.back-link { color: var(--text-dim); text-decoration: none; font-size: 0.85rem; display: block; margin-bottom: 8px; }
+.install-box { margin-top: 24px; background: var(--bg); border: 1px solid var(--border); padding: 12px; border-radius: 6px; font-size: 0.8rem; }
+.install-box code { display: block; word-break: break-all; color: var(--hl-comment); font-family: monospace; margin-top: 4px; }
+.series-box { margin-top: 16px; background: var(--bg); border: 1px solid var(--border); padding: 12px; border-radius: 6px; font-size: 0.8rem; }
+.series-box p { color: var(--text-muted); margin-bottom: 6px; font-weight: 600; }
+.series-box a { display: block; color: var(--text-muted); text-decoration: none; padding: 2px 0; font-size: 0.8rem; }
+.series-box a:hover { color: var(--accent); }
+.series-box a.current { color: var(--accent); font-weight: 600; }
+main { flex: 1; padding: 40px; max-width: 860px; }
+.guide-header { padding: 20px 20px 20px 24px; background: var(--surface); border-radius: 8px; margin-bottom: 32px; box-shadow: 0 1px 3px var(--shadow); }
+.guide-header h1 { font-size: 1.8rem; margin-bottom: 8px; }
+.guide-header p { color: var(--text-muted); }
+.step { display: flex; gap: 16px; margin-bottom: 40px; }
+.step-number { width: 32px; min-width: 32px; height: 32px; background: var(--accent); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 0.9rem; margin-top: 4px; color: #fff; }
+.step-content { flex: 1; min-width: 0; }
+.step-content h3 { font-size: 1.1rem; margin-bottom: 8px; color: var(--text); }
+.explanation { color: var(--text-muted); font-size: 0.9rem; line-height: 1.6; margin-bottom: 14px; }
+.info-box { background: var(--surface); border-left: 3px solid var(--accent); border-radius: 0 6px 6px 0; padding: 12px 16px; margin-bottom: 14px; font-size: 0.88rem; color: var(--text-muted); line-height: 1.6; }
+.info-box strong { color: var(--text); }
+.crm-map { background: var(--surface); border-left: 3px solid #9c27b0; border-radius: 0 6px 6px 0; padding: 12px 16px; margin-bottom: 14px; font-size: 0.88rem; color: var(--text-muted); line-height: 1.6; }
+.crm-map strong { color: var(--text); }
+.warn-box { background: var(--surface); border-left: 3px solid #ff9800; border-radius: 0 6px 6px 0; padding: 12px 16px; margin-bottom: 14px; font-size: 0.88rem; color: var(--text-muted); line-height: 1.6; }
+.warn-box strong { color: var(--text); }
+.crm-table { width: 100%; border-collapse: collapse; margin-bottom: 14px; font-size: 0.85rem; }
+.crm-table th { background: var(--surface2); color: var(--text-muted); text-align: left; padding: 8px 12px; border: 1px solid var(--border); font-weight: 600; }
+.crm-table td { padding: 8px 12px; border: 1px solid var(--border); color: var(--text); }
+.crm-table tr:nth-child(even) td { background: var(--surface); }
+.tabs { background: var(--surface); border-radius: 6px; overflow: hidden; border: 1px solid var(--border); }
+.tab-bar { display: flex; background: var(--surface2); overflow-x: auto; border-bottom: 1px solid var(--border); }
+.tab-btn { padding: 8px 16px; background: none; border: none; color: var(--text-muted); cursor: pointer; font-size: 0.8rem; white-space: nowrap; border-bottom: 2px solid transparent; margin-bottom: -1px; }
+.tab-btn.active { color: var(--text); border-bottom-color: var(--accent); }
+.tab-panel { display: none; }
+.tab-panel.active { display: block; }
+.code-header { display: flex; justify-content: space-between; align-items: center; padding: 5px 12px; background: var(--surface2); border-bottom: 1px solid var(--border); }
+.lang-label { font-size: 0.72rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: .04em; }
+.copy-btn { background: none; border: 1px solid var(--border); color: var(--text-muted); padding: 2px 8px; cursor: pointer; border-radius: 3px; font-size: 0.72rem; }
+.copy-btn:hover { color: var(--text); border-color: var(--text-muted); }
+pre { overflow-x: auto; padding: 16px; background: var(--code-bg); }
+code { font-family: "Fira Code", "Cascadia Code", "Consolas", monospace; font-size: 0.82rem; line-height: 1.65; color: var(--code-text); }
+.theme-row { display: flex; align-items: center; gap: 8px; margin-top: 20px; }
+.theme-label { font-size: 0.78rem; color: var(--text-muted); }
+.toggle-switch { position: relative; display: inline-block; width: 40px; height: 22px; }
+.toggle-switch input { opacity: 0; width: 0; height: 0; }
+.slider { position: absolute; cursor: pointer; inset: 0; background: var(--surface2); border: 1px solid var(--border); border-radius: 22px; transition: background .2s; }
+.slider:before { content: ""; position: absolute; width: 16px; height: 16px; left: 2px; top: 2px; background: var(--text-muted); border-radius: 50%; transition: transform .2s, background .2s; }
+.toggle-switch input:checked + .slider { background: var(--accent); border-color: var(--accent); }
+.toggle-switch input:checked + .slider:before { transform: translateX(18px); background: #fff; }
+.sidebar-toggle {
+  display: none; position: fixed; top: 12px; left: 12px; z-index: 300;
+  background: var(--accent); color: #fff; border: none;
+  padding: 7px 14px; border-radius: 6px; cursor: pointer;
+  font-size: 0.85rem; font-weight: 600; box-shadow: 0 2px 8px var(--shadow);
+  align-items: center; gap: 6px;
+}
+.sidebar-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.45); z-index: 190; }
+.sidebar-overlay.open { display: block; }
+@media (max-width: 900px) {
+  .sidebar-toggle { display: flex; }
+  .layout { display: block; }
+  .sidebar { position: fixed; left: -280px; top: 0; height: 100vh; z-index: 200; transition: left .25s ease; box-shadow: 2px 0 16px var(--shadow); min-width: 260px; }
+  .sidebar.open { left: 0; }
+  main { padding: 60px 20px 40px; max-width: 100%; }
+  pre { overflow-x: auto; max-width: 100%; white-space: pre-wrap; word-break: break-word; }
+  .tabs { max-width: 100%; }
+}
+</style>
+</head>
+<body>
+<button class="sidebar-toggle" id="sidebarToggle" onclick="toggleSidebar()">&#9776; Steps</button>
+<div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+<div class="layout">
+  <aside class="sidebar" id="guideSidebar">
+    <a href="index.html" class="back-link">← All Guides</a>
+    <h2>CRM Integration</h2>
+    <nav><ol>
+      <li><a href="#step1">What CRMs Expose</a></li>
+      <li><a href="#step2">Auth: API Key vs OAuth2</a></li>
+      <li><a href="#step3">Getting a HubSpot Sandbox</a></li>
+      <li><a href="#step4">Project Setup</a></li>
+      <li><a href="#step5">Your First CRM Read</a></li>
+      <li><a href="#step6">Wrapping It in FastAPI</a></li>
+      <li><a href="#step7">Creating a Contact</a></li>
+      <li><a href="#step8">Updating a Contact</a></li>
+      <li><a href="#step9">Webhooks: CRM Pushes to You</a></li>
+      <li><a href="#step10">Unified.to: One SDK for All CRMs</a></li>
+      <li><a href="#step11">Syncing to Your Local Database</a></li>
+      <li><a href="#step12">What's Next</a></li>
+    </ol></nav>
+    <div class="install-box">
+      <p><strong>Install</strong></p>
+      <code>pip install fastapi uvicorn python-dotenv httpx</code>
+      <p style="margin-top:8px"><strong>Unified.to (optional)</strong></p>
+      <code>pip install unified-python-sdk</code>
+      <p style="margin-top:12px"><strong>Run</strong></p>
+      <code>uvicorn main:app --reload</code>
+    </div>
+    <div class="series-box">
+      <p>Also in this series</p>
+      <a href="crud-fastapi.html">CRUD + HTML Frontend</a>
+      <a href="task-ai-fastapi.html">Task App + AI Chat</a>
+      <a href="crm-fastapi.html" class="current">&#10003; CRM Integration</a>
+      <a href="public-api-fastapi.html">Public API Integration</a>
+      <a href="database-fastapi.html">SQLite + PostgreSQL</a>
+    </div>
+    <div class="theme-row">
+      <span class="theme-label">Dark</span>
+      <label class="toggle-switch">
+        <input type="checkbox" id="themeToggle">
+        <span class="slider"></span>
+      </label>
+      <span class="theme-label">Light</span>
+    </div>
+  </aside>
+
+  <main>
+    <header class="guide-header" style="border-left: 5px solid #9c27b0">
+      <h1>CRM Integration with FastAPI</h1>
+      <p>Learn the universal patterns behind CRM APIs — reading and writing contacts, OAuth2 vs API keys, webhook handling, deduplication, and Unified.to. Uses HubSpot as the primary example with notes showing how every concept maps to Salesforce, Zoho, and Pipedrive.</p>
+    </header>
+
+    <div class="steps">
+
+      <!-- ── STEP 1 ── -->
+      <div class="step" id="step1">
+        <div class="step-number">1</div>
+        <div class="step-content">
+          <h3>What CRMs Expose</h3>
+          <p class="explanation">Every CRM, regardless of brand, stores roughly the same objects: <strong>Contacts</strong> (people), <strong>Companies</strong> (organisations), <strong>Deals</strong> or Opportunities (sales pipeline), and <strong>Activities</strong> (calls, emails, notes). The field names differ, but the data model is nearly identical across HubSpot, Salesforce, Zoho, and Pipedrive. Learn the pattern once and it transfers everywhere.</p>
+          <table class="crm-table">
+            <tr><th>Concept</th><th>HubSpot</th><th>Salesforce</th><th>Zoho</th><th>Pipedrive</th></tr>
+            <tr><td>A person</td><td>Contact</td><td>Contact / Lead</td><td>Contact / Lead</td><td>Person</td></tr>
+            <tr><td>A company</td><td>Company</td><td>Account</td><td>Account</td><td>Organization</td></tr>
+            <tr><td>A sales opportunity</td><td>Deal</td><td>Opportunity</td><td>Deal</td><td>Deal</td></tr>
+            <tr><td>An email/call log</td><td>Engagement / Activity</td><td>Activity / Task</td><td>Activity</td><td>Activity</td></tr>
+          </table>
+          <div class="info-box"><strong>REST pattern:</strong> Almost all CRM APIs follow REST. The URL pattern is <code>/objects/{type}</code> for a list and <code>/objects/{type}/{id}</code> for one record. HubSpot example: <code>GET /crm/v3/objects/contacts</code> returns a paginated list; <code>GET /crm/v3/objects/contacts/123</code> returns contact 123.</div>
+        </div>
+      </div>
+
+      <!-- ── STEP 2 ── -->
+      <div class="step" id="step2">
+        <div class="step-number">2</div>
+        <div class="step-content">
+          <h3>Auth: API Key vs OAuth2</h3>
+          <p class="explanation">CRMs use two main auth methods. Start with the simpler one for your first integration — you can add OAuth2 later once you understand the data flow.</p>
+          <div class="tabs">
+            <div class="tab-bar">
+              <button class="tab-btn active" onclick="switchTab('step2',0)">API Key (Bearer token)</button>
+              <button class="tab-btn" onclick="switchTab('step2',1)">OAuth2 flow</button>
+            </div>
+            <div class="tab-panel active">
+              <div class="code-header"><span class="lang-label">python — API key</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-comment"># HubSpot Private App token — easiest way to get started</span>
+<span class="hl-comment"># Also used by: Pipedrive (API token), Zoho (self-client token)</span>
+
+<span class="hl-keyword">import</span> httpx, os
+<span class="hl-keyword">from</span> dotenv <span class="hl-keyword">import</span> load_dotenv
+load_dotenv()
+
+HUBSPOT_TOKEN = os.getenv(<span class="hl-string">"HUBSPOT_TOKEN"</span>)
+
+<span class="hl-keyword">def</span> <span class="hl-builtin">hs_headers</span>():
+    <span class="hl-keyword">return</span> {
+        <span class="hl-string">"Authorization"</span>: f<span class="hl-string">"Bearer {HUBSPOT_TOKEN}"</span>,
+        <span class="hl-string">"Content-Type"</span>: <span class="hl-string">"application/json"</span>,
+    }
+
+<span class="hl-comment"># Every API call passes these headers. That's it.</span></code></pre>
+            </div>
+            <div class="tab-panel">
+              <div class="code-header"><span class="lang-label">python — OAuth2 flow overview</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-comment"># OAuth2 is required for Salesforce and multi-tenant HubSpot apps</span>
+<span class="hl-comment"># The three steps:</span>
+
+<span class="hl-comment"># 1. Redirect the user to the CRM's authorization URL</span>
+auth_url = (
+    <span class="hl-string">"https://app.hubspot.com/oauth/authorize"</span>
+    <span class="hl-string">"?client_id=YOUR_CLIENT_ID"</span>
+    <span class="hl-string">"&amp;redirect_uri=https://yourapp.com/oauth/callback"</span>
+    <span class="hl-string">"&amp;scope=crm.objects.contacts.read"</span>
+)
+
+<span class="hl-comment"># 2. CRM redirects back to your callback URL with a code</span>
+<span class="hl-decorator">@app.get</span>(<span class="hl-string">"/oauth/callback"</span>)
+<span class="hl-keyword">def</span> <span class="hl-builtin">oauth_callback</span>(code: str):
+    <span class="hl-comment"># Exchange the code for an access token + refresh token</span>
+    token_resp = httpx.post(
+        <span class="hl-string">"https://api.hubapi.com/oauth/v1/token"</span>,
+        data={
+            <span class="hl-string">"grant_type"</span>: <span class="hl-string">"authorization_code"</span>,
+            <span class="hl-string">"client_id"</span>: os.getenv(<span class="hl-string">"CLIENT_ID"</span>),
+            <span class="hl-string">"client_secret"</span>: os.getenv(<span class="hl-string">"CLIENT_SECRET"</span>),
+            <span class="hl-string">"redirect_uri"</span>: <span class="hl-string">"https://yourapp.com/oauth/callback"</span>,
+            <span class="hl-string">"code"</span>: code,
+        }
+    )
+    tokens = token_resp.json()
+    access_token  = tokens[<span class="hl-string">"access_token"</span>]
+    refresh_token = tokens[<span class="hl-string">"refresh_token"</span>]
+    <span class="hl-comment"># TODO: save both tokens to your database</span>
+
+<span class="hl-comment"># 3. Use access_token for API calls; use refresh_token to get a new</span>
+<span class="hl-comment">#    access_token when it expires (usually after 30 minutes)</span></code></pre>
+            </div>
+          </div>
+          <div class="crm-map" style="margin-top:12px"><strong>Salesforce:</strong> Always requires OAuth2. Uses <code>https://login.salesforce.com/services/oauth2/authorize</code>. Access tokens expire after a few hours; the refresh token is long-lived. <strong>Zoho:</strong> Offers both a "self-client" token (like an API key, good for your own account) and full OAuth2 for multi-user apps.</div>
+        </div>
+      </div>
+
+      <!-- ── STEP 3 ── -->
+      <div class="step" id="step3">
+        <div class="step-number">3</div>
+        <div class="step-content">
+          <h3>Getting a HubSpot Sandbox</h3>
+          <p class="explanation">HubSpot's free developer account gives you a sandbox CRM with sample data. It takes about 3 minutes to set up and you'll have a real API token in your hands.</p>
+          <div class="tabs">
+            <div class="tab-bar">
+              <button class="tab-btn active" onclick="switchTab('step3',0)">Setup steps</button>
+            </div>
+            <div class="tab-panel active">
+              <div class="code-header"><span class="lang-label">text — one-time setup</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code>1. Go to developers.hubspot.com → Create a developer account (free)
+
+2. Inside the developer portal → click "Create a test account"
+   (this gives you a sample CRM with fake contacts and deals)
+
+3. In that test account → Settings → Integrations → Private Apps
+   → "Create a private app"
+
+4. Under Scopes, enable:
+   - crm.objects.contacts.read
+   - crm.objects.contacts.write
+   (add more scopes later as needed)
+
+5. Click "Create app" → copy the Access Token
+
+6. Paste it in your .env file:
+   HUBSPOT_TOKEN=pat-na1-xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx</code></pre>
+            </div>
+          </div>
+          <div class="info-box" style="margin-top:12px"><strong>Free forever:</strong> HubSpot developer accounts and test accounts don't expire. The test account has 100 sample contacts already in it, which is perfect for learning.</div>
+        </div>
+      </div>
+
+      <!-- ── STEP 4 ── -->
+      <div class="step" id="step4">
+        <div class="step-number">4</div>
+        <div class="step-content">
+          <h3>Project Setup</h3>
+          <p class="explanation">Split CRM calls into their own file — <code>crm_client.py</code> — so your routes in <code>main.py</code> stay clean. Routes decide <em>what</em> to do; the client handles <em>how</em> to talk to the API.</p>
+          <div class="tabs">
+            <div class="tab-bar">
+              <button class="tab-btn active" onclick="switchTab('step4',0)">File tree</button>
+              <button class="tab-btn" onclick="switchTab('step4',1)">crm_client.py — skeleton</button>
+            </div>
+            <div class="tab-panel active">
+              <div class="code-header"><span class="lang-label">text</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code>crm-integration/
+├── main.py          ← FastAPI app + routes
+├── crm_client.py    ← all HubSpot / CRM API calls live here
+├── .env             ← HUBSPOT_TOKEN
+└── requirements.txt</code></pre>
+            </div>
+            <div class="tab-panel">
+              <div class="code-header"><span class="lang-label">python</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-comment"># crm_client.py — wraps every HubSpot call in one place</span>
+<span class="hl-keyword">import</span> httpx, os
+<span class="hl-keyword">from</span> dotenv <span class="hl-keyword">import</span> load_dotenv
+load_dotenv()
+
+BASE_URL = <span class="hl-string">"https://api.hubapi.com"</span>
+TOKEN    = os.getenv(<span class="hl-string">"HUBSPOT_TOKEN"</span>)
+
+<span class="hl-keyword">def</span> <span class="hl-builtin">_headers</span>():
+    <span class="hl-keyword">return</span> {
+        <span class="hl-string">"Authorization"</span>: f<span class="hl-string">"Bearer {TOKEN}"</span>,
+        <span class="hl-string">"Content-Type"</span>: <span class="hl-string">"application/json"</span>,
+    }
+
+<span class="hl-comment"># Functions added in the next steps:</span>
+<span class="hl-comment">#   list_contacts()       → Step 5</span>
+<span class="hl-comment">#   create_contact()      → Step 7</span>
+<span class="hl-comment">#   update_contact()      → Step 8</span>
+<span class="hl-comment">#   contact_exists()      → Step 7 (deduplication)</span></code></pre>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── STEP 5 ── -->
+      <div class="step" id="step5">
+        <div class="step-number">5</div>
+        <div class="step-content">
+          <h3>Your First CRM Read</h3>
+          <p class="explanation">Reading contacts is the most common first operation. HubSpot's v3 API returns paginated results in a <code>results</code> array. Each contact has a <code>properties</code> object with the actual field values.</p>
+          <div class="tabs">
+            <div class="tab-bar">
+              <button class="tab-btn active" onclick="switchTab('step5',0)">crm_client.py — list_contacts()</button>
+              <button class="tab-btn" onclick="switchTab('step5',1)">JSON response shape</button>
+            </div>
+            <div class="tab-panel active">
+              <div class="code-header"><span class="lang-label">python</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-keyword">def</span> <span class="hl-builtin">list_contacts</span>(limit: int = <span class="hl-number">10</span>, after: str = <span class="hl-keyword">None</span>) -> dict:
+    <span class="hl-comment">"""Fetch a page of contacts. 'after' is the pagination cursor."""</span>
+    params = {
+        <span class="hl-string">"limit"</span>: limit,
+        <span class="hl-string">"properties"</span>: <span class="hl-string">"firstname,lastname,email,phone"</span>,  <span class="hl-comment"># fields to include</span>
+    }
+    <span class="hl-keyword">if</span> after:
+        params[<span class="hl-string">"after"</span>] = after   <span class="hl-comment"># pass cursor for page 2, 3, etc.</span>
+
+    resp = httpx.get(
+        f<span class="hl-string">"{BASE_URL}/crm/v3/objects/contacts"</span>,
+        headers=_headers(),
+        params=params,
+    )
+    resp.raise_for_status()
+    data = resp.json()
+
+    <span class="hl-comment"># Flatten each contact to a clean dict</span>
+    contacts = [
+        {
+            <span class="hl-string">"id"</span>:        c[<span class="hl-string">"id"</span>],
+            <span class="hl-string">"first_name"</span>: c[<span class="hl-string">"properties"</span>].get(<span class="hl-string">"firstname"</span>, <span class="hl-string">""</span>),
+            <span class="hl-string">"last_name"</span>:  c[<span class="hl-string">"properties"</span>].get(<span class="hl-string">"lastname"</span>, <span class="hl-string">""</span>),
+            <span class="hl-string">"email"</span>:      c[<span class="hl-string">"properties"</span>].get(<span class="hl-string">"email"</span>, <span class="hl-string">""</span>),
+        }
+        <span class="hl-keyword">for</span> c <span class="hl-keyword">in</span> data[<span class="hl-string">"results"</span>]
+    ]
+    next_cursor = data.get(<span class="hl-string">"paging"</span>, {}).get(<span class="hl-string">"next"</span>, {}).get(<span class="hl-string">"after"</span>)
+    <span class="hl-keyword">return</span> {<span class="hl-string">"contacts"</span>: contacts, <span class="hl-string">"next_cursor"</span>: next_cursor}</code></pre>
+            </div>
+            <div class="tab-panel">
+              <div class="code-header"><span class="lang-label">json — HubSpot response shape</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code>{
+  "results": [
+    {
+      "id": "101",
+      "properties": {
+        "firstname":    "Jane",
+        "lastname":     "Smith",
+        "email":        "jane@example.com",
+        "phone":        "+1 555 0100",
+        "createdate":   "2024-01-15T10:30:00.000Z",
+        "hs_object_id": "101"
+      },
+      "createdAt": "2024-01-15T10:30:00.000Z",
+      "updatedAt": "2024-06-01T08:00:00.000Z"
+    }
+  ],
+  "paging": {
+    "next": {
+      "after": "NTI1Cg%3D%3D",    &lt;-- cursor token for next page
+      "link":  "https://api.hubapi.com/crm/v3/objects/contacts?after=..."
+    }
+  }
+}</code></pre>
+            </div>
+          </div>
+          <div class="crm-map" style="margin-top:12px"><strong>Salesforce equivalent:</strong> <code>GET /services/data/v58.0/query?q=SELECT+Id,FirstName,LastName,Email+FROM+Contact+LIMIT+10</code> — Salesforce uses SOQL (a SQL-like query language) instead of filter params. The concept is identical: paginated list of records with a cursor (called <code>nextRecordsUrl</code>).</div>
+        </div>
+      </div>
+
+      <!-- ── STEP 6 ── -->
+      <div class="step" id="step6">
+        <div class="step-number">6</div>
+        <div class="step-content">
+          <h3>Wrapping It in FastAPI</h3>
+          <p class="explanation">Your FastAPI routes are thin — they call <code>crm_client.py</code> functions and return the results. This keeps business logic out of routes and makes the CRM client easy to swap later.</p>
+          <div class="tabs">
+            <div class="tab-bar">
+              <button class="tab-btn active" onclick="switchTab('step6',0)">main.py — contacts route</button>
+            </div>
+            <div class="tab-panel active">
+              <div class="code-header"><span class="lang-label">python</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-keyword">from</span> fastapi <span class="hl-keyword">import</span> FastAPI, HTTPException, Query
+<span class="hl-keyword">import</span> crm_client
+
+app = FastAPI()
+
+<span class="hl-decorator">@app.get</span>(<span class="hl-string">"/contacts"</span>)
+<span class="hl-keyword">def</span> <span class="hl-builtin">get_contacts</span>(
+    limit: int = Query(<span class="hl-number">10</span>, ge=<span class="hl-number">1</span>, le=<span class="hl-number">100</span>),   <span class="hl-comment"># query param with validation</span>
+    after: str = Query(<span class="hl-keyword">None</span>),                 <span class="hl-comment"># pagination cursor, optional</span>
+):
+    <span class="hl-keyword">try</span>:
+        <span class="hl-keyword">return</span> crm_client.list_contacts(limit=limit, after=after)
+    <span class="hl-keyword">except</span> httpx.HTTPStatusError <span class="hl-keyword">as</span> e:
+        <span class="hl-keyword">raise</span> HTTPException(status_code=e.response.status_code,
+                            detail=<span class="hl-string">"CRM API error"</span>)
+
+<span class="hl-comment"># Test it: http://localhost:8000/contacts</span>
+<span class="hl-comment"># Next page:  http://localhost:8000/contacts?after=NTI1Cg%3D%3D</span></code></pre>
+            </div>
+          </div>
+          <div class="info-box" style="margin-top:12px"><strong>Why catch <code>HTTPStatusError</code>?</strong> If the CRM API returns a 401 or 429, <code>raise_for_status()</code> throws this error. Catching it lets you return a clean FastAPI response instead of an unhandled 500 crash.</div>
+        </div>
+      </div>
+
+      <!-- ── STEP 7 ── -->
+      <div class="step" id="step7">
+        <div class="step-number">7</div>
+        <div class="step-content">
+          <h3>Creating a Contact</h3>
+          <p class="explanation">Before creating a contact, always check if one already exists with that email — otherwise every re-run of your sync script creates duplicates. This deduplication pattern is the same across every CRM integration you'll ever build.</p>
+          <div class="tabs">
+            <div class="tab-bar">
+              <button class="tab-btn active" onclick="switchTab('step7',0)">crm_client.py — create + dedupe</button>
+              <button class="tab-btn" onclick="switchTab('step7',1)">main.py — POST /contacts</button>
+            </div>
+            <div class="tab-panel active">
+              <div class="code-header"><span class="lang-label">python</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-keyword">def</span> <span class="hl-builtin">find_contact_by_email</span>(email: str) -> str | <span class="hl-keyword">None</span>:
+    <span class="hl-comment">"""Return the HubSpot contact ID if found, else None."""</span>
+    resp = httpx.post(
+        f<span class="hl-string">"{BASE_URL}/crm/v3/objects/contacts/search"</span>,
+        headers=_headers(),
+        json={
+            <span class="hl-string">"filterGroups"</span>: [{
+                <span class="hl-string">"filters"</span>: [{
+                    <span class="hl-string">"propertyName"</span>: <span class="hl-string">"email"</span>,
+                    <span class="hl-string">"operator"</span>: <span class="hl-string">"EQ"</span>,
+                    <span class="hl-string">"value"</span>: email
+                }]
+            }]
+        }
+    )
+    resp.raise_for_status()
+    results = resp.json()[<span class="hl-string">"results"</span>]
+    <span class="hl-keyword">return</span> results[<span class="hl-number">0</span>][<span class="hl-string">"id"</span>] <span class="hl-keyword">if</span> results <span class="hl-keyword">else</span> <span class="hl-keyword">None</span>
+
+
+<span class="hl-keyword">def</span> <span class="hl-builtin">create_contact</span>(first: str, last: str, email: str, phone: str = <span class="hl-string">""</span>) -> dict:
+    <span class="hl-comment">"""Create or return existing contact — never creates duplicates."""</span>
+    existing_id = find_contact_by_email(email)
+    <span class="hl-keyword">if</span> existing_id:
+        <span class="hl-keyword">return</span> {<span class="hl-string">"id"</span>: existing_id, <span class="hl-string">"created"</span>: <span class="hl-keyword">False</span>}   <span class="hl-comment"># already exists</span>
+
+    resp = httpx.post(
+        f<span class="hl-string">"{BASE_URL}/crm/v3/objects/contacts"</span>,
+        headers=_headers(),
+        json={
+            <span class="hl-string">"properties"</span>: {
+                <span class="hl-string">"firstname"</span>: first,
+                <span class="hl-string">"lastname"</span>:  last,
+                <span class="hl-string">"email"</span>:     email,
+                <span class="hl-string">"phone"</span>:     phone,
+            }
+        }
+    )
+    resp.raise_for_status()
+    <span class="hl-keyword">return</span> {<span class="hl-string">"id"</span>: resp.json()[<span class="hl-string">"id"</span>], <span class="hl-string">"created"</span>: <span class="hl-keyword">True</span>}</code></pre>
+            </div>
+            <div class="tab-panel">
+              <div class="code-header"><span class="lang-label">python</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-decorator">@app.post</span>(<span class="hl-string">"/contacts"</span>)
+<span class="hl-keyword">def</span> <span class="hl-builtin">post_contact</span>(
+    first: str,
+    last:  str,
+    email: str,
+    phone: str = <span class="hl-string">""</span>,
+):
+    result = crm_client.create_contact(first, last, email, phone)
+    <span class="hl-keyword">if</span> result[<span class="hl-string">"created"</span>]:
+        <span class="hl-keyword">return</span> {<span class="hl-string">"status"</span>: <span class="hl-string">"created"</span>, <span class="hl-string">"id"</span>: result[<span class="hl-string">"id"</span>]}
+    <span class="hl-keyword">return</span> {<span class="hl-string">"status"</span>: <span class="hl-string">"already_exists"</span>, <span class="hl-string">"id"</span>: result[<span class="hl-string">"id"</span>]}</code></pre>
+            </div>
+          </div>
+          <div class="crm-map" style="margin-top:12px"><strong>Salesforce equivalent:</strong> Use SOQL <code>SELECT Id FROM Contact WHERE Email = 'x@y.com'</code> before creating. Salesforce also has an <code>upsert</code> API that does both steps in one call using an external ID field.</div>
+        </div>
+      </div>
+
+      <!-- ── STEP 8 ── -->
+      <div class="step" id="step8">
+        <div class="step-number">8</div>
+        <div class="step-content">
+          <h3>Updating a Contact</h3>
+          <p class="explanation">Updates use <code>PATCH</code> — you only send the fields you want to change, not the entire record. This is standard across all modern CRM APIs.</p>
+          <div class="tabs">
+            <div class="tab-bar">
+              <button class="tab-btn active" onclick="switchTab('step8',0)">crm_client.py — update_contact()</button>
+            </div>
+            <div class="tab-panel active">
+              <div class="code-header"><span class="lang-label">python</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-keyword">def</span> <span class="hl-builtin">update_contact</span>(contact_id: str, fields: dict) -> dict:
+    <span class="hl-comment">"""Update specific fields on a contact by HubSpot ID.
+
+    Example:
+        update_contact("101", {"phone": "+1 555 9999", "jobtitle": "CEO"})
+    """</span>
+    resp = httpx.patch(
+        f<span class="hl-string">"{BASE_URL}/crm/v3/objects/contacts/{contact_id}"</span>,
+        headers=_headers(),
+        json={<span class="hl-string">"properties"</span>: fields},   <span class="hl-comment"># only the fields to change</span>
+    )
+    resp.raise_for_status()
+    <span class="hl-keyword">return</span> resp.json()
+
+<span class="hl-comment"># ─── HubSpot vs Salesforce field names ──────────────────────────────</span>
+<span class="hl-comment">#</span>
+<span class="hl-comment"># Concept          HubSpot property     Salesforce field</span>
+<span class="hl-comment"># ──────────────   ─────────────────    ────────────────</span>
+<span class="hl-comment"># First name       firstname            FirstName</span>
+<span class="hl-comment"># Last name        lastname             LastName</span>
+<span class="hl-comment"># Email            email                Email</span>
+<span class="hl-comment"># Phone            phone                Phone</span>
+<span class="hl-comment"># Job title        jobtitle             Title</span>
+<span class="hl-comment"># Company name     company              Account.Name (related object)</span>
+<span class="hl-comment">#</span>
+<span class="hl-comment"># Always check the CRM's property/field list — custom fields vary per account</span></code></pre>
+            </div>
+          </div>
+          <div class="info-box" style="margin-top:12px"><strong>PATCH vs PUT:</strong> <code>PATCH</code> updates only the fields you send. <code>PUT</code> replaces the entire record (any field you don't send gets wiped). Always use <code>PATCH</code> for CRM updates unless the docs specifically say otherwise.</div>
+        </div>
+      </div>
+
+      <!-- ── STEP 9 ── -->
+      <div class="step" id="step9">
+        <div class="step-number">9</div>
+        <div class="step-content">
+          <h3>Webhooks: CRM Pushes to You</h3>
+          <p class="explanation">Instead of polling the CRM every few minutes, you register a webhook URL and the CRM calls <em>you</em> whenever something changes. Your endpoint must return <code>200 OK</code> quickly — process the work in the background so the CRM doesn't time out and retry.</p>
+          <div class="tabs">
+            <div class="tab-bar">
+              <button class="tab-btn active" onclick="switchTab('step9',0)">main.py — webhook endpoint</button>
+              <button class="tab-btn" onclick="switchTab('step9',1)">Signature verification</button>
+            </div>
+            <div class="tab-panel active">
+              <div class="code-header"><span class="lang-label">python</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-keyword">from</span> fastapi <span class="hl-keyword">import</span> BackgroundTasks, Request
+
+<span class="hl-decorator">@app.post</span>(<span class="hl-string">"/webhooks/hubspot"</span>)
+<span class="hl-keyword">async def</span> <span class="hl-builtin">hubspot_webhook</span>(
+    request:    Request,
+    background: BackgroundTasks,
+):
+    body = <span class="hl-keyword">await</span> request.body()
+
+    <span class="hl-comment"># Verify the webhook came from HubSpot (see tab 2)</span>
+    signature = request.headers.get(<span class="hl-string">"X-HubSpot-Signature-v3"</span>, <span class="hl-string">""</span>)
+    <span class="hl-keyword">if not</span> verify_hubspot_signature(body, signature):
+        <span class="hl-keyword">raise</span> HTTPException(status_code=<span class="hl-number">401</span>, detail=<span class="hl-string">"Bad signature"</span>)
+
+    events = <span class="hl-keyword">await</span> request.json()
+
+    <span class="hl-comment"># Respond immediately — process in background</span>
+    background.add_task(process_webhook_events, events)
+    <span class="hl-keyword">return</span> {<span class="hl-string">"status"</span>: <span class="hl-string">"ok"</span>}
+
+
+<span class="hl-keyword">def</span> <span class="hl-builtin">process_webhook_events</span>(events: list):
+    <span class="hl-keyword">for</span> event <span class="hl-keyword">in</span> events:
+        event_type = event.get(<span class="hl-string">"subscriptionType"</span>)
+        object_id  = event.get(<span class="hl-string">"objectId"</span>)
+        <span class="hl-keyword">if</span> event_type == <span class="hl-string">"contact.creation"</span>:
+            print(f<span class="hl-string">"New contact: {object_id}"</span>)
+            <span class="hl-comment"># TODO: sync to your local database</span>
+        <span class="hl-keyword">elif</span> event_type == <span class="hl-string">"contact.propertyChange"</span>:
+            print(f<span class="hl-string">"Contact updated: {object_id}"</span>)</code></pre>
+            </div>
+            <div class="tab-panel">
+              <div class="code-header"><span class="lang-label">python — HMAC signature check</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-keyword">import</span> hmac, hashlib, base64
+
+CLIENT_SECRET = os.getenv(<span class="hl-string">"HUBSPOT_CLIENT_SECRET"</span>)
+
+<span class="hl-keyword">def</span> <span class="hl-builtin">verify_hubspot_signature</span>(body: bytes, signature: str) -> bool:
+    <span class="hl-comment">"""Check that the webhook was signed by HubSpot with your client secret."""</span>
+    <span class="hl-keyword">if not</span> CLIENT_SECRET <span class="hl-keyword">or not</span> signature:
+        <span class="hl-keyword">return</span> <span class="hl-keyword">False</span>
+    expected = base64.b64encode(
+        hmac.new(
+            CLIENT_SECRET.encode(),
+            body,
+            hashlib.sha256
+        ).digest()
+    ).decode()
+    <span class="hl-keyword">return</span> hmac.compare_digest(expected, signature)
+<span class="hl-comment"># hmac.compare_digest() prevents timing attacks —</span>
+<span class="hl-comment"># always use it instead of == for security comparisons</span></code></pre>
+            </div>
+          </div>
+          <div class="crm-map" style="margin-top:12px"><strong>Salesforce equivalent:</strong> Called "Outbound Messages" (SOAP) or "Platform Events". Salesforce also supports REST webhooks via Flow. The same <code>BackgroundTasks</code> pattern applies — always return 200 fast.</div>
+        </div>
+      </div>
+
+      <!-- ── STEP 10 ── -->
+      <div class="step" id="step10">
+        <div class="step-number">10</div>
+        <div class="step-content">
+          <h3>Unified.to: One SDK for All CRMs</h3>
+          <p class="explanation">Unified.to is a middleware layer that normalises CRM APIs. You write code once against the Unified.to SDK and it works with HubSpot, Salesforce, Zoho, Pipedrive, and 30+ others. Worth it when you need to support multiple CRMs without maintaining separate clients for each.</p>
+          <div class="tabs">
+            <div class="tab-bar">
+              <button class="tab-btn active" onclick="switchTab('step10',0)">Unified.to — list contacts</button>
+              <button class="tab-btn" onclick="switchTab('step10',1)">When to use it vs direct API</button>
+            </div>
+            <div class="tab-panel active">
+              <div class="code-header"><span class="lang-label">python</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-comment"># pip install unified-python-sdk</span>
+<span class="hl-keyword">import</span> unified_to
+<span class="hl-keyword">from</span> unified_to.models <span class="hl-keyword">import</span> shared
+
+<span class="hl-comment"># Connect — use the connection_id from the Unified.to dashboard</span>
+sdk = unified_to.UnifiedTo(
+    security=shared.Security(jwt=os.getenv(<span class="hl-string">"UNIFIED_API_KEY"</span>))
+)
+
+<span class="hl-comment"># List contacts — same code works for ANY connected CRM</span>
+response = sdk.crm.list_crm_contacts(
+    unified_to.models.operations.ListCrmContactsRequest(
+        connection_id=os.getenv(<span class="hl-string">"CRM_CONNECTION_ID"</span>)  <span class="hl-comment"># which CRM account</span>
+    )
+)
+
+<span class="hl-keyword">for</span> contact <span class="hl-keyword">in</span> response.crm_contacts:
+    print(contact.name, contact.emails)
+
+<span class="hl-comment"># Create a contact — same code, different CRM</span>
+sdk.crm.create_crm_contact(
+    unified_to.models.operations.CreateCrmContactRequest(
+        connection_id=os.getenv(<span class="hl-string">"CRM_CONNECTION_ID"</span>),
+        crm_contact=shared.CrmContact(
+            name=<span class="hl-string">"Jane Smith"</span>,
+            emails=[shared.CrmEmail(email=<span class="hl-string">"jane@example.com"</span>)],
+        )
+    )
+)</code></pre>
+            </div>
+            <div class="tab-panel">
+              <div class="code-header"><span class="lang-label">text — decision guide</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code>Use DIRECT API when:
+  ✓ You only need to support one CRM
+  ✓ You need access to CRM-specific features
+    (HubSpot sequences, Salesforce reports, etc.)
+  ✓ You want zero extra dependencies or accounts
+  ✓ You're learning — direct API teaches you
+    how APIs actually work
+
+Use UNIFIED.TO when:
+  ✓ Your app needs to support 3+ different CRMs
+  ✓ You're building a SaaS product where customers
+    bring their own CRM
+  ✓ You want one webhook to cover all CRMs
+  ✓ You don't want to maintain separate clients
+    for each CRM's quirks</code></pre>
+            </div>
+          </div>
+          <div class="info-box" style="margin-top:12px"><strong>Free tier:</strong> Unified.to has a free plan for development. Sign up at <a href="https://unified.to" target="_blank">unified.to</a>, connect your HubSpot sandbox, and you'll have a <code>connection_id</code> in minutes.</div>
+        </div>
+      </div>
+
+      <!-- ── STEP 11 ── -->
+      <div class="step" id="step11">
+        <div class="step-number">11</div>
+        <div class="step-content">
+          <h3>Syncing to Your Local Database</h3>
+          <p class="explanation">When you pull contacts from a CRM into your own database, you need a way to match records on future syncs without creating duplicates. Store the CRM's ID alongside your local record and use it as the uniqueness key on every upsert.</p>
+          <div class="tabs">
+            <div class="tab-bar">
+              <button class="tab-btn active" onclick="switchTab('step11',0)">SQLite upsert pattern</button>
+              <button class="tab-btn" onclick="switchTab('step11',1)">Bulk sync route</button>
+            </div>
+            <div class="tab-panel active">
+              <div class="code-header"><span class="lang-label">python — SQLite upsert</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-keyword">import</span> sqlite3
+
+<span class="hl-comment"># Create table with crm_id as the uniqueness key</span>
+<span class="hl-keyword">def</span> <span class="hl-builtin">init_db</span>():
+    conn = sqlite3.connect(<span class="hl-string">"local.db"</span>)
+    conn.execute(<span class="hl-string">"""
+        CREATE TABLE IF NOT EXISTS contacts (
+            id      INTEGER PRIMARY KEY AUTOINCREMENT,
+            crm_id  TEXT UNIQUE,    -- HubSpot/Salesforce record ID
+            name    TEXT,
+            email   TEXT,
+            synced_at TEXT
+        )
+    """</span>)
+    conn.commit()
+    conn.close()
+
+<span class="hl-keyword">def</span> <span class="hl-builtin">upsert_contact</span>(crm_id: str, name: str, email: str):
+    <span class="hl-comment">"""Insert or update — never creates duplicates."""</span>
+    conn = sqlite3.connect(<span class="hl-string">"local.db"</span>)
+    conn.execute(<span class="hl-string">"""
+        INSERT INTO contacts (crm_id, name, email, synced_at)
+        VALUES (?, ?, ?, datetime('now'))
+        ON CONFLICT(crm_id) DO UPDATE SET
+            name      = excluded.name,
+            email     = excluded.email,
+            synced_at = excluded.synced_at
+    """</span>, (crm_id, name, email))
+    conn.commit()
+    conn.close()
+
+<span class="hl-comment"># ON CONFLICT(crm_id) → if crm_id already exists, update instead of insert</span>
+<span class="hl-comment"># This is called an "upsert" — update-or-insert</span></code></pre>
+            </div>
+            <div class="tab-panel">
+              <div class="code-header"><span class="lang-label">python — bulk sync endpoint</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-decorator">@app.post</span>(<span class="hl-string">"/sync/contacts"</span>)
+<span class="hl-keyword">def</span> <span class="hl-builtin">bulk_sync_contacts</span>():
+    <span class="hl-comment">"""Pull ALL contacts from HubSpot and upsert into local DB."""</span>
+    synced = <span class="hl-number">0</span>
+    cursor = <span class="hl-keyword">None</span>
+
+    <span class="hl-keyword">while True</span>:
+        result = crm_client.list_contacts(limit=<span class="hl-number">100</span>, after=cursor)
+        <span class="hl-keyword">for</span> c <span class="hl-keyword">in</span> result[<span class="hl-string">"contacts"</span>]:
+            upsert_contact(
+                crm_id=c[<span class="hl-string">"id"</span>],
+                name=f<span class="hl-string">"{c['first_name']} {c['last_name']}"</span>.strip(),
+                email=c[<span class="hl-string">"email"</span>],
+            )
+            synced += <span class="hl-number">1</span>
+
+        cursor = result[<span class="hl-string">"next_cursor"</span>]
+        <span class="hl-keyword">if not</span> cursor:
+            <span class="hl-keyword">break</span>   <span class="hl-comment"># no more pages</span>
+
+    <span class="hl-keyword">return</span> {<span class="hl-string">"synced"</span>: synced}</code></pre>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── STEP 12 ── -->
+      <div class="step" id="step12">
+        <div class="step-number">12</div>
+        <div class="step-content">
+          <h3>What's Next</h3>
+          <p class="explanation">You now understand the core patterns that power every CRM integration: auth, CRUD, webhooks, deduplication, and upsert syncing. These four things repeat in every integration job you'll see.</p>
+          <div class="info-box">
+            <strong>Pagination:</strong> The bulk sync above handles it with a <code>while True / break</code> loop. For very large CRMs (100k+ contacts), run this in a background task via <code>BackgroundTasks</code> so the HTTP request doesn't time out.
+          </div>
+          <div class="info-box">
+            <strong>Rate limiting:</strong> HubSpot allows 110 requests per 10 seconds on the free plan. Salesforce has per-org daily limits. Add a simple counter and <code>time.sleep()</code> between batches, or use the <code>httpx</code> retry logic with exponential backoff.
+          </div>
+          <div class="info-box">
+            <strong>Scheduling:</strong> Run the sync on a schedule with a cron job calling <code>POST /sync/contacts</code>. On a VPS: <code>*/30 * * * * curl -s -X POST http://localhost:8000/sync/contacts</code>. See the Public API guide for caching patterns that reduce API calls between syncs.
+          </div>
+          <div class="info-box">
+            <strong>Companies and Deals:</strong> The same patterns — <code>list_*</code>, <code>create_*</code>, <code>update_*</code>, upsert — apply to <code>/crm/v3/objects/companies</code> and <code>/crm/v3/objects/deals</code>. Try adding a <code>list_deals()</code> function to <code>crm_client.py</code> as practice.
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /steps -->
+  </main>
+</div>
+
+<script>
+(function() {
+  var saved = localStorage.getItem("pyoffline-theme");
+  if (saved === "light") { document.documentElement.classList.add("light"); }
+  document.addEventListener("DOMContentLoaded", function() {
+    var toggle = document.getElementById("themeToggle");
+    if (!toggle) return;
+    toggle.checked = (localStorage.getItem("pyoffline-theme") === "light");
+    toggle.addEventListener("change", function() {
+      if (this.checked) {
+        document.documentElement.classList.add("light");
+        localStorage.setItem("pyoffline-theme", "light");
+      } else {
+        document.documentElement.classList.remove("light");
+        localStorage.setItem("pyoffline-theme", "dark");
+      }
+    });
+  });
+})();
+function switchTab(stepId, idx) {
+  var step = document.getElementById(stepId);
+  var btns = step.querySelectorAll(".tab-btn");
+  var panels = step.querySelectorAll(".tab-panel");
+  btns.forEach(function(b) { b.classList.remove("active"); });
+  panels.forEach(function(p) { p.classList.remove("active"); });
+  btns[idx].classList.add("active");
+  panels[idx].classList.add("active");
+}
+function copyCode(btn) {
+  var code = btn.closest(".tab-panel").querySelector("code").innerText;
+  navigator.clipboard.writeText(code).then(function() {
+    var orig = btn.textContent;
+    btn.textContent = "Copied!";
+    setTimeout(function() { btn.textContent = orig; }, 1500);
+  });
+}
+function toggleSidebar() {
+  var sidebar = document.getElementById("guideSidebar");
+  var overlay = document.getElementById("sidebarOverlay");
+  if (!sidebar) return;
+  sidebar.classList.toggle("open");
+  overlay.classList.toggle("open");
+}
+document.addEventListener("DOMContentLoaded", function() {
+  var sidebar = document.getElementById("guideSidebar");
+  if (!sidebar) return;
+  sidebar.querySelectorAll("nav a").forEach(function(a) {
+    a.addEventListener("click", function() {
+      sidebar.classList.remove("open");
+      var overlay = document.getElementById("sidebarOverlay");
+      if (overlay) overlay.classList.remove("open");
+    });
+  });
+});
+</script>
+</body>
+</html>

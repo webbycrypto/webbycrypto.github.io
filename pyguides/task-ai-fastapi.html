@@ -1,0 +1,883 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Task App + AI Chat - FastAPI Guide - pyoffline</title>
+<style>
+/* ── Theme variables ───────────────────────────────────────── */
+:root {
+  --bg:          #121212;
+  --surface:     #1e1e1e;
+  --surface2:    #2a2a2a;
+  --sidebar-bg:  #1a1a1a;
+  --text:        #e0e0e0;
+  --text-muted:  #aaa;
+  --text-dim:    #666;
+  --border:      #333;
+  --code-bg:     #1e1e1e;
+  --code-text:   #d4d4d4;
+  --shadow:      rgba(0,0,0,.4);
+  --accent:      #009688;
+  --hl-keyword:  #569cd6;
+  --hl-string:   #ce9178;
+  --hl-comment:  #6a9955;
+  --hl-number:   #b5cea8;
+  --hl-decorator:#dcdcaa;
+  --hl-builtin:  #4ec9b0;
+  --hl-tag:      #4ec9b0;
+  --hl-attr:     #9cdcfe;
+  --hl-template: #c586c0;
+}
+html.light {
+  --bg:          #f5f7fa;
+  --surface:     #ffffff;
+  --surface2:    #eef0f3;
+  --sidebar-bg:  #ffffff;
+  --text:        #1a1a1a;
+  --text-muted:  #555;
+  --text-dim:    #888;
+  --border:      #dde1e7;
+  --code-bg:     #f8f8f8;
+  --code-text:   #24292e;
+  --shadow:      rgba(0,0,0,.1);
+  --hl-keyword:  #0000ff;
+  --hl-string:   #a31515;
+  --hl-comment:  #008000;
+  --hl-number:   #098658;
+  --hl-decorator:#795e26;
+  --hl-builtin:  #267f99;
+  --hl-tag:      #800000;
+  --hl-attr:     #e50000;
+  --hl-template: #af00db;
+}
+.hl-keyword  { color: var(--hl-keyword);  }
+.hl-string   { color: var(--hl-string);   }
+.hl-comment  { color: #adb4a7; font-size: 12px; font-style: italic; }
+.hl-number   { color: var(--hl-number);   }
+.hl-decorator{ color: var(--hl-decorator);}
+.hl-builtin  { color: var(--hl-builtin);  }
+.hl-tag      { color: var(--hl-tag);      }
+.hl-attr     { color: var(--hl-attr);     }
+.hl-template { color: var(--hl-template); }
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: var(--bg); color: var(--text); font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; transition: background .2s, color .2s; }
+a { color: var(--accent); }
+.layout { display: flex; min-height: 100vh; }
+.sidebar { width: 260px; min-width: 260px; background: var(--sidebar-bg); border-right: 1px solid var(--border); padding: 24px 16px; position: sticky; top: 0; height: 100vh; overflow-y: auto; }
+.sidebar h2 { font-size: 1.1rem; margin: 16px 0 8px; color: var(--text); }
+.sidebar nav ol { padding-left: 18px; }
+.sidebar nav li { margin: 6px 0; }
+.sidebar nav a { color: var(--text-muted); text-decoration: none; font-size: 0.85rem; }
+.sidebar nav a:hover { color: var(--accent); }
+.back-link { color: var(--text-dim); text-decoration: none; font-size: 0.85rem; display: block; margin-bottom: 8px; }
+.install-box { margin-top: 24px; background: var(--bg); border: 1px solid var(--border); padding: 12px; border-radius: 6px; font-size: 0.8rem; }
+.install-box code { display: block; word-break: break-all; color: var(--hl-comment); font-family: monospace; margin-top: 4px; }
+.series-box { margin-top: 16px; background: var(--bg); border: 1px solid var(--border); padding: 12px; border-radius: 6px; font-size: 0.8rem; }
+.series-box p { color: var(--text-muted); margin-bottom: 6px; font-weight: 600; }
+.series-box a { display: block; color: var(--text-muted); text-decoration: none; padding: 2px 0; font-size: 0.8rem; }
+.series-box a:hover { color: var(--accent); }
+.series-box a.current { color: var(--accent); font-weight: 600; }
+main { flex: 1; padding: 40px; max-width: 860px; }
+.guide-header { padding: 20px 20px 20px 24px; background: var(--surface); border-radius: 8px; margin-bottom: 32px; box-shadow: 0 1px 3px var(--shadow); }
+.guide-header h1 { font-size: 1.8rem; margin-bottom: 8px; }
+.guide-header p { color: var(--text-muted); }
+.step { display: flex; gap: 16px; margin-bottom: 40px; }
+.step-number { width: 32px; min-width: 32px; height: 32px; background: var(--accent); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 0.9rem; margin-top: 4px; color: #fff; }
+.step-content { flex: 1; min-width: 0; }
+.step-content h3 { font-size: 1.1rem; margin-bottom: 8px; color: var(--text); }
+.explanation { color: var(--text-muted); font-size: 0.9rem; line-height: 1.6; margin-bottom: 14px; }
+.info-box { background: var(--surface); border-left: 3px solid var(--accent); border-radius: 0 6px 6px 0; padding: 12px 16px; margin-bottom: 14px; font-size: 0.88rem; color: var(--text-muted); line-height: 1.6; }
+.info-box strong { color: var(--text); }
+.warn-box { background: var(--surface); border-left: 3px solid #ff9800; border-radius: 0 6px 6px 0; padding: 12px 16px; margin-bottom: 14px; font-size: 0.88rem; color: var(--text-muted); line-height: 1.6; }
+.warn-box strong { color: var(--text); }
+.tabs { background: var(--surface); border-radius: 6px; overflow: hidden; border: 1px solid var(--border); }
+.tab-bar { display: flex; background: var(--surface2); overflow-x: auto; border-bottom: 1px solid var(--border); }
+.tab-btn { padding: 8px 16px; background: none; border: none; color: var(--text-muted); cursor: pointer; font-size: 0.8rem; white-space: nowrap; border-bottom: 2px solid transparent; margin-bottom: -1px; }
+.tab-btn.active { color: var(--text); border-bottom-color: var(--accent); }
+.tab-panel { display: none; }
+.tab-panel.active { display: block; }
+.code-header { display: flex; justify-content: space-between; align-items: center; padding: 5px 12px; background: var(--surface2); border-bottom: 1px solid var(--border); }
+.lang-label { font-size: 0.72rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: .04em; }
+.copy-btn { background: none; border: 1px solid var(--border); color: var(--text-muted); padding: 2px 8px; cursor: pointer; border-radius: 3px; font-size: 0.72rem; }
+.copy-btn:hover { color: var(--text); border-color: var(--text-muted); }
+pre { overflow-x: auto; padding: 16px; background: var(--code-bg); }
+code { font-family: "Fira Code", "Cascadia Code", "Consolas", monospace; font-size: 0.82rem; line-height: 1.65; color: var(--code-text); }
+.theme-row { display: flex; align-items: center; gap: 8px; margin-top: 20px; }
+.theme-label { font-size: 0.78rem; color: var(--text-muted); }
+.toggle-switch { position: relative; display: inline-block; width: 40px; height: 22px; }
+.toggle-switch input { opacity: 0; width: 0; height: 0; }
+.slider { position: absolute; cursor: pointer; inset: 0; background: var(--surface2); border: 1px solid var(--border); border-radius: 22px; transition: background .2s; }
+.slider:before { content: ""; position: absolute; width: 16px; height: 16px; left: 2px; top: 2px; background: var(--text-muted); border-radius: 50%; transition: transform .2s, background .2s; }
+.toggle-switch input:checked + .slider { background: var(--accent); border-color: var(--accent); }
+.toggle-switch input:checked + .slider:before { transform: translateX(18px); background: #fff; }
+.sidebar-toggle {
+  display: none;
+  position: fixed; top: 12px; left: 12px; z-index: 300;
+  background: var(--accent); color: #fff; border: none;
+  padding: 7px 14px; border-radius: 6px; cursor: pointer;
+  font-size: 0.85rem; font-weight: 600;
+  box-shadow: 0 2px 8px var(--shadow);
+  align-items: center; gap: 6px;
+}
+.sidebar-overlay {
+  display: none; position: fixed; inset: 0;
+  background: rgba(0,0,0,.45); z-index: 190;
+}
+.sidebar-overlay.open { display: block; }
+@media (max-width: 900px) {
+  .sidebar-toggle { display: flex; }
+  .layout { display: block; }
+  .sidebar { position: fixed; left: -280px; top: 0; height: 100vh; z-index: 200; transition: left .25s ease; box-shadow: 2px 0 16px var(--shadow); min-width: 260px; }
+  .sidebar.open { left: 0; }
+  main { padding: 60px 20px 40px; max-width: 100%; }
+  pre { overflow-x: auto; max-width: 100%; white-space: pre-wrap; word-break: break-word; }
+  .tabs { max-width: 100%; }
+}
+</style>
+</head>
+<body>
+<button class="sidebar-toggle" id="sidebarToggle" onclick="toggleSidebar()">&#9776; Steps</button>
+<div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+<div class="layout">
+  <aside class="sidebar" id="guideSidebar">
+    <a href="index.html" class="back-link">← All Guides</a>
+    <h2>Task App + AI Chat</h2>
+    <nav><ol>
+      <li><a href="#step1">What We're Building</a></li>
+      <li><a href="#step2">File Structure</a></li>
+      <li><a href="#step3">Persisting Notes (JSON)</a></li>
+      <li><a href="#step4">Notes CRUD Routes</a></li>
+      <li><a href="#step5">The HTML Template</a></li>
+      <li><a href="#step6">Jinja2 Recap</a></li>
+      <li><a href="#step7">CSS for the App</a></li>
+      <li><a href="#step8">What is an AI API?</a></li>
+      <li><a href="#step9">Setting Up .env</a></li>
+      <li><a href="#step10">The /chat Route</a></li>
+      <li><a href="#step11">Calling OpenAI / Claude</a></li>
+      <li><a href="#step12">The Chat UI</a></li>
+      <li><a href="#step13">Connecting Notes to AI</a></li>
+      <li><a href="#step14">What's Next</a></li>
+    </ol></nav>
+    <div class="install-box">
+      <p><strong>Install</strong></p>
+      <code>pip install fastapi uvicorn jinja2 python-dotenv httpx openai</code>
+      <p style="margin-top:12px"><strong>Run</strong></p>
+      <code>uvicorn main:app --reload</code>
+      <p style="margin-top:12px"><strong>Docs</strong></p>
+      <code>http://localhost:8000/docs</code>
+    </div>
+    <div class="series-box">
+      <p>Also in this series</p>
+      <a href="crud-fastapi.html">CRUD + HTML Frontend</a>
+      <a href="task-ai-fastapi.html" class="current">&#10003; Task App + AI Chat</a>
+      <a href="crm-fastapi.html">CRM Integration</a>
+      <a href="public-api-fastapi.html">Public API Integration</a>
+      <a href="database-fastapi.html">SQLite + PostgreSQL</a>
+    </div>
+    <div class="theme-row">
+      <span class="theme-label">Dark</span>
+      <label class="toggle-switch">
+        <input type="checkbox" id="themeToggle">
+        <span class="slider"></span>
+      </label>
+      <span class="theme-label">Light</span>
+    </div>
+  </aside>
+
+  <main>
+    <header class="guide-header" style="border-left: 5px solid #009688">
+      <h1>Task / Note App with UI + AI Chat</h1>
+      <p>Build on the CRUD fundamentals: add JSON file persistence so notes survive restarts, build a two-column UI with a task list and a live AI chat panel, and wire it all to OpenAI or the Claude API with no JavaScript required.</p>
+    </header>
+
+    <div class="steps">
+
+      <!-- ── STEP 1 ── -->
+      <div class="step" id="step1">
+        <div class="step-number">1</div>
+        <div class="step-content">
+          <h3>What We're Building</h3>
+          <p class="explanation">This guide extends the FastAPI CRUD pattern into a real mini-app with two parts running side by side on one page: a <strong>note list</strong> on the left where you add, complete, and delete notes, and an <strong>AI chat panel</strong> on the right where you can type a question or click "Summarise my notes" to get an AI-generated summary. Everything runs through FastAPI with Jinja2 templates — no JavaScript frameworks, no React, no fetch() calls from the browser.</p>
+          <div class="info-box"><strong>What this teaches you:</strong> Persisting data between restarts with a JSON file, building multi-section HTML UIs with Jinja2, calling an AI API from a FastAPI route with httpx, and managing a conversation without JavaScript.</div>
+        </div>
+      </div>
+
+      <!-- ── STEP 2 ── -->
+      <div class="step" id="step2">
+        <div class="step-number">2</div>
+        <div class="step-content">
+          <h3>File Structure</h3>
+          <p class="explanation">Keep it simple — one Python file, one template, one CSS file, one data file, and a <code>.env</code> for your API key.</p>
+          <div class="tabs">
+            <div class="tab-bar">
+              <button class="tab-btn active" onclick="switchTab('step2',0)">File tree</button>
+            </div>
+            <div class="tab-panel active">
+              <div class="code-header"><span class="lang-label">text</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code>my-task-app/
+├── main.py             ← FastAPI routes + AI call
+├── notes.json          ← created automatically on first run
+├── .env                ← AI API key (never commit this)
+├── templates/
+│   └── index.html      ← two-column UI (Jinja2 template)
+└── static/
+    └── style.css       ← all the CSS</code></pre>
+            </div>
+          </div>
+          <div class="info-box" style="margin-top:12px"><strong>Why a JSON file?</strong> In the CRUD guide, notes lived in <code>db = {}</code> in memory. That dict disappears every time you restart uvicorn. A JSON file on disk persists forever — no database setup required. For a production app you'd use SQLite or PostgreSQL, but JSON is perfect for learning.</div>
+        </div>
+      </div>
+
+      <!-- ── STEP 3 ── -->
+      <div class="step" id="step3">
+        <div class="step-number">3</div>
+        <div class="step-content">
+          <h3>Persisting Notes (JSON File)</h3>
+          <p class="explanation">Two helper functions replace the in-memory <code>db = {}</code> dict. <code>load_notes()</code> reads the JSON file from disk every time a route needs the data. <code>save_notes()</code> writes the whole list back after any change. This is the simplest possible persistence without a database.</p>
+          <div class="tabs">
+            <div class="tab-bar">
+              <button class="tab-btn active" onclick="switchTab('step3',0)">main.py — helpers</button>
+            </div>
+            <div class="tab-panel active">
+              <div class="code-header"><span class="lang-label">python</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-keyword">import</span> json, os, time
+<span class="hl-keyword">from</span> pathlib <span class="hl-keyword">import</span> Path
+
+<span class="hl-comment"># Path to the data file — sits next to main.py</span>
+DATA_FILE = Path(<span class="hl-string">"notes.json"</span>)
+
+<span class="hl-keyword">def</span> <span class="hl-builtin">load_notes</span>() -> list:
+    <span class="hl-comment">"""Read notes from disk. Return empty list if file doesn't exist yet."""</span>
+    <span class="hl-keyword">if not</span> DATA_FILE.exists():
+        <span class="hl-keyword">return</span> []
+    <span class="hl-keyword">with</span> <span class="hl-builtin">open</span>(DATA_FILE) <span class="hl-keyword">as</span> f:
+        <span class="hl-keyword">return</span> json.load(f)   <span class="hl-comment"># parse JSON → Python list of dicts</span>
+
+<span class="hl-keyword">def</span> <span class="hl-builtin">save_notes</span>(notes: list):
+    <span class="hl-comment">"""Write the full list back to disk as JSON."""</span>
+    <span class="hl-keyword">with</span> <span class="hl-builtin">open</span>(DATA_FILE, <span class="hl-string">"w"</span>) <span class="hl-keyword">as</span> f:
+        json.dump(notes, f, indent=<span class="hl-number">2</span>)   <span class="hl-comment"># indent=2 makes the file human-readable</span>
+
+<span class="hl-comment"># Each note is a plain dict:</span>
+<span class="hl-comment"># {"id": 1, "text": "Buy milk", "done": False, "created": 1717000000.0}</span></code></pre>
+            </div>
+          </div>
+          <div class="info-box" style="margin-top:12px"><strong>What is <code>Path</code>?</strong> <code>pathlib.Path</code> is Python's built-in tool for working with file paths. <code>Path("notes.json").exists()</code> checks if the file is there. It's cleaner than the old <code>os.path.exists()</code> style.</div>
+        </div>
+      </div>
+
+      <!-- ── STEP 4 ── -->
+      <div class="step" id="step4">
+        <div class="step-number">4</div>
+        <div class="step-content">
+          <h3>Notes CRUD Routes</h3>
+          <p class="explanation">Four routes handle everything. Each one loads the notes from the JSON file, makes a change, saves the file back, and redirects to <code>GET /</code> so the page refreshes with the latest data. This is the same Post-Redirect-Get pattern from the CRUD guide — it prevents the browser resubmitting the form if you hit refresh.</p>
+          <div class="tabs">
+            <div class="tab-bar">
+              <button class="tab-btn active" onclick="switchTab('step4',0)">main.py — routes</button>
+            </div>
+            <div class="tab-panel active">
+              <div class="code-header"><span class="lang-label">python</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-keyword">from</span> fastapi <span class="hl-keyword">import</span> FastAPI, Form, Request
+<span class="hl-keyword">from</span> fastapi.responses <span class="hl-keyword">import</span> HTMLResponse, RedirectResponse
+<span class="hl-keyword">from</span> fastapi.staticfiles <span class="hl-keyword">import</span> StaticFiles
+<span class="hl-keyword">from</span> fastapi.templating <span class="hl-keyword">import</span> Jinja2Templates
+
+app = FastAPI()
+app.mount(<span class="hl-string">"/static"</span>, StaticFiles(directory=<span class="hl-string">"static"</span>), name=<span class="hl-string">"static"</span>)
+templates = Jinja2Templates(directory=<span class="hl-string">"templates"</span>)
+
+<span class="hl-comment"># ── READ: serve the page with the current notes ──────────────────</span>
+<span class="hl-decorator">@app.get</span>(<span class="hl-string">"/"</span>, response_class=HTMLResponse)
+<span class="hl-keyword">def</span> <span class="hl-builtin">index</span>(request: Request, chat_reply: str = <span class="hl-string">""</span>, chat_history: str = <span class="hl-string">"[]"</span>):
+    notes = load_notes()
+    <span class="hl-keyword">return</span> templates.TemplateResponse(<span class="hl-string">"index.html"</span>, {
+        <span class="hl-string">"request"</span>: request,
+        <span class="hl-string">"notes"</span>: notes,
+        <span class="hl-string">"chat_reply"</span>: chat_reply,
+        <span class="hl-string">"chat_history"</span>: chat_history,  <span class="hl-comment"># JSON string of past messages</span>
+    })
+
+<span class="hl-comment"># ── CREATE: add a new note ────────────────────────────────────────</span>
+<span class="hl-decorator">@app.post</span>(<span class="hl-string">"/notes/create"</span>)
+<span class="hl-keyword">def</span> <span class="hl-builtin">create_note</span>(text: str = Form(...)):
+    notes = load_notes()
+    new_id = (notes[-<span class="hl-number">1</span>][<span class="hl-string">"id"</span>] + <span class="hl-number">1</span>) <span class="hl-keyword">if</span> notes <span class="hl-keyword">else</span> <span class="hl-number">1</span>   <span class="hl-comment"># next ID</span>
+    notes.append({<span class="hl-string">"id"</span>: new_id, <span class="hl-string">"text"</span>: text, <span class="hl-string">"done"</span>: <span class="hl-keyword">False</span>, <span class="hl-string">"created"</span>: time.time()})
+    save_notes(notes)
+    <span class="hl-keyword">return</span> RedirectResponse(<span class="hl-string">"/"</span>, status_code=<span class="hl-number">303</span>)
+
+<span class="hl-comment"># ── TOGGLE: flip done/undone ──────────────────────────────────────</span>
+<span class="hl-decorator">@app.post</span>(<span class="hl-string">"/notes/toggle"</span>)
+<span class="hl-keyword">def</span> <span class="hl-builtin">toggle_note</span>(note_id: int = Form(...)):
+    notes = load_notes()
+    <span class="hl-keyword">for</span> n <span class="hl-keyword">in</span> notes:
+        <span class="hl-keyword">if</span> n[<span class="hl-string">"id"</span>] == note_id:
+            n[<span class="hl-string">"done"</span>] = <span class="hl-keyword">not</span> n[<span class="hl-string">"done"</span>]   <span class="hl-comment"># flip True↔False</span>
+    save_notes(notes)
+    <span class="hl-keyword">return</span> RedirectResponse(<span class="hl-string">"/"</span>, status_code=<span class="hl-number">303</span>)
+
+<span class="hl-comment"># ── DELETE: remove a note ─────────────────────────────────────────</span>
+<span class="hl-decorator">@app.post</span>(<span class="hl-string">"/notes/delete"</span>)
+<span class="hl-keyword">def</span> <span class="hl-builtin">delete_note</span>(note_id: int = Form(...)):
+    notes = load_notes()
+    notes = [n <span class="hl-keyword">for</span> n <span class="hl-keyword">in</span> notes <span class="hl-keyword">if</span> n[<span class="hl-string">"id"</span>] != note_id]   <span class="hl-comment"># keep everything except this ID</span>
+    save_notes(notes)
+    <span class="hl-keyword">return</span> RedirectResponse(<span class="hl-string">"/"</span>, status_code=<span class="hl-number">303</span>)</code></pre>
+            </div>
+          </div>
+          <div class="info-box" style="margin-top:12px"><strong>List comprehension for delete:</strong> <code>[n for n in notes if n["id"] != note_id]</code> builds a new list that includes every note <em>except</em> the one being deleted. It's the Python equivalent of <code>WHERE id != X</code> in SQL.</div>
+        </div>
+      </div>
+
+      <!-- ── STEP 5 ── -->
+      <div class="step" id="step5">
+        <div class="step-number">5</div>
+        <div class="step-content">
+          <h3>The HTML Template</h3>
+          <p class="explanation">The page is split into two columns: notes on the left, AI chat on the right. Both are standard HTML forms — no JavaScript. The left column loops through notes from Python; the right column shows the chat history and a text input.</p>
+          <div class="tabs">
+            <div class="tab-bar">
+              <button class="tab-btn active" onclick="switchTab('step5',0)">templates/index.html — structure</button>
+            </div>
+            <div class="tab-panel active">
+              <div class="code-header"><span class="lang-label">html</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-tag">&lt;!DOCTYPE html&gt;</span>
+<span class="hl-tag">&lt;html&gt;</span>
+<span class="hl-tag">&lt;head&gt;</span>
+  <span class="hl-tag">&lt;link</span> <span class="hl-attr">rel</span>=<span class="hl-string">"stylesheet"</span> <span class="hl-attr">href</span>=<span class="hl-string">"/static/style.css"</span><span class="hl-tag">&gt;</span>
+<span class="hl-tag">&lt;/head&gt;</span>
+<span class="hl-tag">&lt;body&gt;</span>
+
+<span class="hl-tag">&lt;header&gt;</span>
+  <span class="hl-tag">&lt;h1&gt;</span>My Notes<span class="hl-tag">&lt;/h1&gt;</span>
+<span class="hl-tag">&lt;/header&gt;</span>
+
+<span class="hl-tag">&lt;div</span> <span class="hl-attr">class</span>=<span class="hl-string">"two-col"</span><span class="hl-tag">&gt;</span>
+
+  <span class="hl-comment">&lt;!-- LEFT COLUMN: Notes --&gt;</span>
+  <span class="hl-tag">&lt;section</span> <span class="hl-attr">class</span>=<span class="hl-string">"notes-panel"</span><span class="hl-tag">&gt;</span>
+
+    <span class="hl-comment">&lt;!-- Add note form --&gt;</span>
+    <span class="hl-tag">&lt;form</span> <span class="hl-attr">method</span>=<span class="hl-string">"post"</span> <span class="hl-attr">action</span>=<span class="hl-string">"/notes/create"</span> <span class="hl-attr">class</span>=<span class="hl-string">"add-form"</span><span class="hl-tag">&gt;</span>
+      <span class="hl-tag">&lt;input</span> <span class="hl-attr">type</span>=<span class="hl-string">"text"</span> <span class="hl-attr">name</span>=<span class="hl-string">"text"</span> <span class="hl-attr">placeholder</span>=<span class="hl-string">"Add a note..."</span> <span class="hl-attr">required</span><span class="hl-tag">&gt;</span>
+      <span class="hl-tag">&lt;button</span> <span class="hl-attr">type</span>=<span class="hl-string">"submit"</span><span class="hl-tag">&gt;</span>Add<span class="hl-tag">&lt;/button&gt;</span>
+    <span class="hl-tag">&lt;/form&gt;</span>
+
+    <span class="hl-comment">&lt;!-- Note list --&gt;</span>
+    <span class="hl-template">{% for note in notes %}</span>
+    <span class="hl-tag">&lt;div</span> <span class="hl-attr">class</span>=<span class="hl-string">"note-card <span class="hl-template">{% if note.done %}done{% endif %}</span>"</span><span class="hl-tag">&gt;</span>
+      <span class="hl-tag">&lt;span&gt;</span><span class="hl-template">{{ note.text }}</span><span class="hl-tag">&lt;/span&gt;</span>
+      <span class="hl-comment">&lt;!-- Toggle done/undone --&gt;</span>
+      <span class="hl-tag">&lt;form</span> <span class="hl-attr">method</span>=<span class="hl-string">"post"</span> <span class="hl-attr">action</span>=<span class="hl-string">"/notes/toggle"</span> <span class="hl-attr">style</span>=<span class="hl-string">"display:inline"</span><span class="hl-tag">&gt;</span>
+        <span class="hl-tag">&lt;input</span> <span class="hl-attr">type</span>=<span class="hl-string">"hidden"</span> <span class="hl-attr">name</span>=<span class="hl-string">"note_id"</span> <span class="hl-attr">value</span>=<span class="hl-string">"<span class="hl-template">{{ note.id }}</span>"</span><span class="hl-tag">&gt;</span>
+        <span class="hl-tag">&lt;button</span> <span class="hl-attr">type</span>=<span class="hl-string">"submit"</span> <span class="hl-attr">class</span>=<span class="hl-string">"btn-toggle"</span><span class="hl-tag">&gt;</span><span class="hl-template">{% if note.done %}</span>Undo<span class="hl-template">{% else %}</span>Done<span class="hl-template">{% endif %}</span><span class="hl-tag">&lt;/button&gt;</span>
+      <span class="hl-tag">&lt;/form&gt;</span>
+      <span class="hl-comment">&lt;!-- Delete --&gt;</span>
+      <span class="hl-tag">&lt;form</span> <span class="hl-attr">method</span>=<span class="hl-string">"post"</span> <span class="hl-attr">action</span>=<span class="hl-string">"/notes/delete"</span> <span class="hl-attr">style</span>=<span class="hl-string">"display:inline"</span><span class="hl-tag">&gt;</span>
+        <span class="hl-tag">&lt;input</span> <span class="hl-attr">type</span>=<span class="hl-string">"hidden"</span> <span class="hl-attr">name</span>=<span class="hl-string">"note_id"</span> <span class="hl-attr">value</span>=<span class="hl-string">"<span class="hl-template">{{ note.id }}</span>"</span><span class="hl-tag">&gt;</span>
+        <span class="hl-tag">&lt;button</span> <span class="hl-attr">type</span>=<span class="hl-string">"submit"</span> <span class="hl-attr">class</span>=<span class="hl-string">"btn-delete"</span><span class="hl-tag">&gt;</span>✕<span class="hl-tag">&lt;/button&gt;</span>
+      <span class="hl-tag">&lt;/form&gt;</span>
+    <span class="hl-tag">&lt;/div&gt;</span>
+    <span class="hl-template">{% endfor %}</span>
+
+  <span class="hl-tag">&lt;/section&gt;</span>
+
+  <span class="hl-comment">&lt;!-- RIGHT COLUMN: AI Chat (see Steps 12-13) --&gt;</span>
+  <span class="hl-tag">&lt;section</span> <span class="hl-attr">class</span>=<span class="hl-string">"chat-panel"</span><span class="hl-tag">&gt;</span>
+    <span class="hl-comment">&lt;!-- filled in at Step 12 --&gt;</span>
+  <span class="hl-tag">&lt;/section&gt;</span>
+
+<span class="hl-tag">&lt;/div&gt;</span>
+<span class="hl-tag">&lt;/body&gt;</span>
+<span class="hl-tag">&lt;/html&gt;</span></code></pre>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── STEP 6 ── -->
+      <div class="step" id="step6">
+        <div class="step-number">6</div>
+        <div class="step-content">
+          <h3>Jinja2 Recap</h3>
+          <p class="explanation">Two Jinja2 patterns make the notes list dynamic. The <code>{% if note.done %}</code> block adds a CSS class to a card so you can style completed notes differently. The button label also changes between "Done" and "Undo" based on the same flag.</p>
+          <div class="tabs">
+            <div class="tab-bar">
+              <button class="tab-btn active" onclick="switchTab('step6',0)">Jinja2 cheatsheet</button>
+            </div>
+            <div class="tab-panel active">
+              <div class="code-header"><span class="lang-label">html + jinja2</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-comment">&lt;!-- Output a value --&gt;</span>
+<span class="hl-template">{{ note.text }}</span>          <span class="hl-comment">&lt;!-- prints the text key from the dict --&gt;</span>
+<span class="hl-template">{{ note.id }}</span>            <span class="hl-comment">&lt;!-- prints the id --&gt;</span>
+
+<span class="hl-comment">&lt;!-- Loop --&gt;</span>
+<span class="hl-template">{% for note in notes %}</span>
+  ...one card per note...
+<span class="hl-template">{% endfor %}</span>
+
+<span class="hl-comment">&lt;!-- Conditional class on a card --&gt;</span>
+<span class="hl-tag">&lt;div</span> <span class="hl-attr">class</span>=<span class="hl-string">"note-card <span class="hl-template">{% if note.done %}done{% endif %}</span>"</span><span class="hl-tag">&gt;</span>
+<span class="hl-comment">&lt;!-- adds class "done" when note["done"] is True --&gt;</span>
+
+<span class="hl-comment">&lt;!-- Conditional button label --&gt;</span>
+<span class="hl-template">{% if note.done %}</span>Undo<span class="hl-template">{% else %}</span>Done<span class="hl-template">{% endif %}</span>
+
+<span class="hl-comment">&lt;!-- Empty state --&gt;</span>
+<span class="hl-template">{% if notes %}</span>
+  ...loop...
+<span class="hl-template">{% else %}</span>
+  <span class="hl-tag">&lt;p&gt;</span>No notes yet.<span class="hl-tag">&lt;/p&gt;</span>
+<span class="hl-template">{% endif %}</span></code></pre>
+            </div>
+          </div>
+          <div class="info-box" style="margin-top:12px"><strong>Remember:</strong> <code>{{ }}</code> outputs a value. <code>{% %}</code> is logic (loops, if/else). The browser never sees these tags — Python replaces them with real HTML before sending the page.</div>
+        </div>
+      </div>
+
+      <!-- ── STEP 7 ── -->
+      <div class="step" id="step7">
+        <div class="step-number">7</div>
+        <div class="step-content">
+          <h3>CSS for the App</h3>
+          <p class="explanation">The two-column layout uses CSS Grid. The <code>.done</code> class strikes through the note text. Chat bubbles use different background colours to distinguish user messages from AI replies.</p>
+          <div class="tabs">
+            <div class="tab-bar">
+              <button class="tab-btn active" onclick="switchTab('step7',0)">static/style.css</button>
+            </div>
+            <div class="tab-panel active">
+              <div class="code-header"><span class="lang-label">css</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code>* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+       background: #f5f7fa; color: #1a1a1a; }
+
+header { background: #009688; color: white; padding: 20px 32px; }
+header h1 { font-size: 1.5rem; }
+
+/* Two-column grid */
+.two-col {
+  display: grid;
+  grid-template-columns: 1fr 1fr;  /* equal halves */
+  gap: 24px;
+  max-width: 1000px;
+  margin: 28px auto;
+  padding: 0 20px;
+}
+
+/* Notes panel */
+.notes-panel, .chat-panel {
+  background: white;
+  border-radius: 8px;
+  padding: 20px;
+  box-shadow: 0 1px 4px rgba(0,0,0,.08);
+  min-height: 500px;
+}
+
+.add-form { display: flex; gap: 8px; margin-bottom: 16px; }
+.add-form input { flex: 1; padding: 9px 12px; border: 1px solid #dde1e7;
+                  border-radius: 6px; font-size: 0.95rem; }
+.add-form button { background: #009688; color: white; border: none;
+                   padding: 9px 18px; border-radius: 6px; cursor: pointer; }
+
+/* Note cards */
+.note-card { display: flex; align-items: center; gap: 8px;
+             padding: 10px 0; border-bottom: 1px solid #f0f0f0; }
+.note-card span { flex: 1; font-size: 0.95rem; }
+.note-card.done span { text-decoration: line-through; color: #aaa; }
+
+.btn-toggle { background: #e8f5e9; color: #2e7d32; border: none;
+              padding: 4px 10px; border-radius: 5px; cursor: pointer; font-size: 0.8rem; }
+.btn-delete { background: #fdecea; color: #c62828; border: none;
+              padding: 4px 10px; border-radius: 5px; cursor: pointer; font-size: 0.8rem; }
+
+/* Chat panel */
+.chat-history { display: flex; flex-direction: column; gap: 10px;
+                min-height: 340px; margin-bottom: 16px; }
+.bubble { padding: 10px 14px; border-radius: 12px; font-size: 0.9rem;
+          max-width: 85%; line-height: 1.5; }
+.bubble.user { background: #009688; color: white; align-self: flex-end; border-bottom-right-radius: 3px; }
+.bubble.ai   { background: #f0f4f8; color: #1a1a1a; align-self: flex-start; border-bottom-left-radius: 3px; }
+
+.chat-form input { width: 100%; padding: 9px 12px; border: 1px solid #dde1e7;
+                   border-radius: 6px; font-size: 0.95rem; margin-bottom: 8px; }
+.chat-form button { background: #009688; color: white; border: none;
+                    padding: 9px 18px; border-radius: 6px; cursor: pointer; width: 100%; }
+.btn-summarise { background: #e8f5e9; color: #2e7d32; border: none;
+                 padding: 7px 14px; border-radius: 6px; cursor: pointer;
+                 font-size: 0.85rem; margin-bottom: 10px; width: 100%; }
+
+@media (max-width: 700px) { .two-col { grid-template-columns: 1fr; } }</code></pre>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── STEP 8 ── -->
+      <div class="step" id="step8">
+        <div class="step-number">8</div>
+        <div class="step-content">
+          <h3>What is an AI API?</h3>
+          <p class="explanation">An AI API is just a URL you POST text to and get text back. You send a JSON payload with a model name and a list of messages. The model returns its reply as JSON. That's it. The "AI" is entirely on their servers — you're just making an HTTP request the same way you'd call a weather API or a CRM.</p>
+          <div class="tabs">
+            <div class="tab-bar">
+              <button class="tab-btn active" onclick="switchTab('step8',0)">The request shape (OpenAI)</button>
+              <button class="tab-btn" onclick="switchTab('step8',1)">The request shape (Claude)</button>
+            </div>
+            <div class="tab-panel active">
+              <div class="code-header"><span class="lang-label">json — what you send</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code>POST https://api.openai.com/v1/chat/completions
+Authorization: Bearer YOUR_API_KEY
+
+{
+  "model": "gpt-4o-mini",
+  "messages": [
+    {"role": "system", "content": "You are a helpful assistant."},
+    {"role": "user",   "content": "Summarise my three notes for today."}
+  ]
+}</code></pre>
+            </div>
+            <div class="tab-panel">
+              <div class="code-header"><span class="lang-label">json — Claude (Anthropic)</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code>POST https://api.anthropic.com/v1/messages
+x-api-key: YOUR_API_KEY
+anthropic-version: 2023-06-01
+
+{
+  "model": "claude-haiku-4-5",
+  "max_tokens": 1024,
+  "messages": [
+    {"role": "user", "content": "Summarise my three notes for today."}
+  ]
+}</code></pre>
+            </div>
+          </div>
+          <div class="warn-box" style="margin-top:12px"><strong>Never hardcode your API key.</strong> If you put <code>api_key = "sk-..."</code> directly in your Python file and push it to GitHub, bots will find it within minutes and run up charges on your account. Always load it from a <code>.env</code> file — see the next step.</div>
+        </div>
+      </div>
+
+      <!-- ── STEP 9 ── -->
+      <div class="step" id="step9">
+        <div class="step-number">9</div>
+        <div class="step-content">
+          <h3>Setting Up .env</h3>
+          <p class="explanation">A <code>.env</code> file stores secrets outside your code. <code>python-dotenv</code> reads it into environment variables so Python can access them with <code>os.getenv()</code>. Add <code>.env</code> to your <code>.gitignore</code> so it never gets committed.</p>
+          <div class="tabs">
+            <div class="tab-bar">
+              <button class="tab-btn active" onclick="switchTab('step9',0)">.env file</button>
+              <button class="tab-btn" onclick="switchTab('step9',1)">main.py — load it</button>
+              <button class="tab-btn" onclick="switchTab('step9',2)">.gitignore</button>
+            </div>
+            <div class="tab-panel active">
+              <div class="code-header"><span class="lang-label">.env</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-comment"># Use ONE of these depending on which API you choose</span>
+OPENAI_API_KEY=sk-proj-your-key-here
+<span class="hl-comment"># ANTHROPIC_API_KEY=sk-ant-your-key-here</span></code></pre>
+            </div>
+            <div class="tab-panel">
+              <div class="code-header"><span class="lang-label">python</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-keyword">import</span> os
+<span class="hl-keyword">from</span> dotenv <span class="hl-keyword">import</span> load_dotenv
+
+load_dotenv()   <span class="hl-comment"># reads .env into environment variables</span>
+
+AI_KEY = os.getenv(<span class="hl-string">"OPENAI_API_KEY"</span>)   <span class="hl-comment"># returns None if not set</span>
+<span class="hl-keyword">if not</span> AI_KEY:
+    <span class="hl-keyword">raise</span> <span class="hl-builtin">ValueError</span>(<span class="hl-string">"OPENAI_API_KEY not set in .env"</span>)</code></pre>
+            </div>
+            <div class="tab-panel">
+              <div class="code-header"><span class="lang-label">.gitignore</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code>.env
+__pycache__/
+*.pyc
+notes.json</code></pre>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── STEP 10 ── -->
+      <div class="step" id="step10">
+        <div class="step-number">10</div>
+        <div class="step-content">
+          <h3>The /chat Route</h3>
+          <p class="explanation">The chat route receives the user's message from the form, builds a list of messages including any previous conversation history, calls the AI API, and redirects back to <code>GET /</code> with the reply and history passed as query parameters — a no-JS way to carry state between page loads.</p>
+          <div class="tabs">
+            <div class="tab-bar">
+              <button class="tab-btn active" onclick="switchTab('step10',0)">main.py — /chat route</button>
+            </div>
+            <div class="tab-panel active">
+              <div class="code-header"><span class="lang-label">python</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-keyword">import</span> httpx, json
+<span class="hl-keyword">from</span> urllib.parse <span class="hl-keyword">import</span> quote   <span class="hl-comment"># encode strings safely for URLs</span>
+
+<span class="hl-decorator">@app.post</span>(<span class="hl-string">"/chat"</span>)
+<span class="hl-keyword">def</span> <span class="hl-builtin">chat</span>(
+    message:     str = Form(...),
+    history_raw: str = Form(<span class="hl-string">"[]"</span>),  <span class="hl-comment"># JSON string of past messages, default empty</span>
+):
+    <span class="hl-comment"># Parse the history back into a Python list</span>
+    history = json.loads(history_raw)
+
+    <span class="hl-comment"># Add the new user message to the list</span>
+    history.append({<span class="hl-string">"role"</span>: <span class="hl-string">"user"</span>, <span class="hl-string">"content"</span>: message})
+
+    <span class="hl-comment"># Call the AI API — see Step 11 for the call_openai() function</span>
+    reply = call_ai(history)
+
+    <span class="hl-comment"># Add the AI reply to history so the next message has context</span>
+    history.append({<span class="hl-string">"role"</span>: <span class="hl-string">"assistant"</span>, <span class="hl-string">"content"</span>: reply})
+
+    <span class="hl-comment"># Redirect back to the page, passing reply and history as query params</span>
+    encoded_reply   = quote(reply)
+    encoded_history = quote(json.dumps(history))
+    <span class="hl-keyword">return</span> RedirectResponse(
+        f<span class="hl-string">"/?chat_reply={encoded_reply}&amp;chat_history={encoded_history}"</span>,
+        status_code=<span class="hl-number">303</span>
+    )</code></pre>
+            </div>
+          </div>
+          <div class="info-box" style="margin-top:12px"><strong>Why <code>quote()</code>?</strong> The reply and history need to be passed in a URL. Spaces, quotes, and special characters would break the URL. <code>urllib.parse.quote()</code> encodes them safely (e.g. <code>" "</code> → <code>%20</code>). FastAPI automatically decodes them when they arrive at <code>GET /</code>.</div>
+        </div>
+      </div>
+
+      <!-- ── STEP 11 ── -->
+      <div class="step" id="step11">
+        <div class="step-number">11</div>
+        <div class="step-content">
+          <h3>Calling OpenAI (or Claude)</h3>
+          <p class="explanation">The <code>call_ai()</code> function makes the HTTP request to whichever AI API you're using. Both providers accept the same messages list format — only the URL, headers, and how you extract the reply text differ slightly.</p>
+          <div class="tabs">
+            <div class="tab-bar">
+              <button class="tab-btn active" onclick="switchTab('step11',0)">OpenAI</button>
+              <button class="tab-btn" onclick="switchTab('step11',1)">Claude (Anthropic)</button>
+            </div>
+            <div class="tab-panel active">
+              <div class="code-header"><span class="lang-label">python — call_ai() for OpenAI</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-keyword">def</span> <span class="hl-builtin">call_ai</span>(messages: list) -> str:
+    <span class="hl-comment">"""Send messages to OpenAI, return the reply text."""</span>
+    response = httpx.post(
+        <span class="hl-string">"https://api.openai.com/v1/chat/completions"</span>,
+        headers={
+            <span class="hl-string">"Authorization"</span>: f<span class="hl-string">"Bearer {AI_KEY}"</span>,
+            <span class="hl-string">"Content-Type"</span>: <span class="hl-string">"application/json"</span>,
+        },
+        json={
+            <span class="hl-string">"model"</span>: <span class="hl-string">"gpt-4o-mini"</span>,
+            <span class="hl-string">"messages"</span>: [{<span class="hl-string">"role"</span>: <span class="hl-string">"system"</span>, <span class="hl-string">"content"</span>: <span class="hl-string">"You are a helpful assistant."</span>}]
+                       + messages,
+        },
+        timeout=<span class="hl-number">30</span>,
+    )
+    response.raise_for_status()   <span class="hl-comment"># raises an error if the API returned 4xx/5xx</span>
+    data = response.json()
+    <span class="hl-keyword">return</span> data[<span class="hl-string">"choices"</span>][<span class="hl-number">0</span>][<span class="hl-string">"message"</span>][<span class="hl-string">"content"</span>]   <span class="hl-comment"># extract reply text</span></code></pre>
+            </div>
+            <div class="tab-panel">
+              <div class="code-header"><span class="lang-label">python — call_ai() for Claude</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-keyword">def</span> <span class="hl-builtin">call_ai</span>(messages: list) -> str:
+    <span class="hl-comment">"""Send messages to Claude, return the reply text."""</span>
+    response = httpx.post(
+        <span class="hl-string">"https://api.anthropic.com/v1/messages"</span>,
+        headers={
+            <span class="hl-string">"x-api-key"</span>: AI_KEY,
+            <span class="hl-string">"anthropic-version"</span>: <span class="hl-string">"2023-06-01"</span>,
+            <span class="hl-string">"Content-Type"</span>: <span class="hl-string">"application/json"</span>,
+        },
+        json={
+            <span class="hl-string">"model"</span>: <span class="hl-string">"claude-haiku-4-5"</span>,
+            <span class="hl-string">"max_tokens"</span>: <span class="hl-number">1024</span>,
+            <span class="hl-string">"messages"</span>: messages,
+        },
+        timeout=<span class="hl-number">30</span>,
+    )
+    response.raise_for_status()
+    data = response.json()
+    <span class="hl-keyword">return</span> data[<span class="hl-string">"content"</span>][<span class="hl-number">0</span>][<span class="hl-string">"text"</span>]   <span class="hl-comment"># Claude's response shape is slightly different</span></code></pre>
+            </div>
+          </div>
+          <div class="info-box" style="margin-top:12px"><strong>Why <code>raise_for_status()</code>?</strong> If the API returns a <code>401 Unauthorized</code> (bad key), <code>429 Too Many Requests</code>, or any error, this line throws a Python exception instead of silently giving you broken data. Always include it on API calls.</div>
+        </div>
+      </div>
+
+      <!-- ── STEP 12 ── -->
+      <div class="step" id="step12">
+        <div class="step-number">12</div>
+        <div class="step-content">
+          <h3>The Chat UI</h3>
+          <p class="explanation">The right-column chat panel shows conversation history as styled bubbles, then a text input. The conversation history is passed back to Python as a hidden field containing a JSON string — no JavaScript needed to maintain state between page loads.</p>
+          <div class="tabs">
+            <div class="tab-bar">
+              <button class="tab-btn active" onclick="switchTab('step12',0)">templates/index.html — chat section</button>
+            </div>
+            <div class="tab-panel active">
+              <div class="code-header"><span class="lang-label">html + jinja2</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-tag">&lt;section</span> <span class="hl-attr">class</span>=<span class="hl-string">"chat-panel"</span><span class="hl-tag">&gt;</span>
+  <span class="hl-tag">&lt;h2&gt;</span>AI Chat<span class="hl-tag">&lt;/h2&gt;</span>
+
+  <span class="hl-comment">&lt;!-- Show conversation history as bubbles --&gt;</span>
+  <span class="hl-tag">&lt;div</span> <span class="hl-attr">class</span>=<span class="hl-string">"chat-history"</span><span class="hl-tag">&gt;</span>
+    <span class="hl-template">{% set history = chat_history | from_json %}</span>
+    <span class="hl-template">{% for msg in history %}</span>
+      <span class="hl-tag">&lt;div</span> <span class="hl-attr">class</span>=<span class="hl-string">"bubble <span class="hl-template">{{ msg.role }}</span>"</span><span class="hl-tag">&gt;</span><span class="hl-template">{{ msg.content }}</span><span class="hl-tag">&lt;/div&gt;</span>
+    <span class="hl-template">{% endfor %}</span>
+    <span class="hl-template">{% if not history %}</span>
+      <span class="hl-tag">&lt;p</span> <span class="hl-attr">style</span>=<span class="hl-string">"color:#aaa;font-size:.9rem"</span><span class="hl-tag">&gt;</span>Ask me anything about your notes...<span class="hl-tag">&lt;/p&gt;</span>
+    <span class="hl-template">{% endif %}</span>
+  <span class="hl-tag">&lt;/div&gt;</span>
+
+  <span class="hl-comment">&lt;!-- Chat form --&gt;</span>
+  <span class="hl-tag">&lt;form</span> <span class="hl-attr">method</span>=<span class="hl-string">"post"</span> <span class="hl-attr">action</span>=<span class="hl-string">"/chat"</span> <span class="hl-attr">class</span>=<span class="hl-string">"chat-form"</span><span class="hl-tag">&gt;</span>
+
+    <span class="hl-comment">&lt;!-- history_raw carries the full conversation back to Python invisibly --&gt;</span>
+    <span class="hl-tag">&lt;input</span> <span class="hl-attr">type</span>=<span class="hl-string">"hidden"</span> <span class="hl-attr">name</span>=<span class="hl-string">"history_raw"</span> <span class="hl-attr">value</span>=<span class="hl-string">'<span class="hl-template">{{ chat_history }}</span>'</span><span class="hl-tag">&gt;</span>
+
+    <span class="hl-tag">&lt;input</span> <span class="hl-attr">type</span>=<span class="hl-string">"text"</span> <span class="hl-attr">name</span>=<span class="hl-string">"message"</span> <span class="hl-attr">placeholder</span>=<span class="hl-string">"Type a message..."</span> <span class="hl-attr">required</span><span class="hl-tag">&gt;</span>
+    <span class="hl-tag">&lt;button</span> <span class="hl-attr">type</span>=<span class="hl-string">"submit"</span><span class="hl-tag">&gt;</span>Send<span class="hl-tag">&lt;/button&gt;</span>
+  <span class="hl-tag">&lt;/form&gt;</span>
+<span class="hl-tag">&lt;/section&gt;</span></code></pre>
+            </div>
+          </div>
+          <div class="info-box" style="margin-top:12px"><strong><code>| from_json</code>:</strong> Jinja2 doesn't have a built-in JSON parser, so you need to register one. Add this to <code>main.py</code>: <code>templates.env.filters["from_json"] = json.loads</code> — this makes <code>| from_json</code> available in all templates.</div>
+        </div>
+      </div>
+
+      <!-- ── STEP 13 ── -->
+      <div class="step" id="step13">
+        <div class="step-number">13</div>
+        <div class="step-content">
+          <h3>Connecting Notes to AI</h3>
+          <p class="explanation">The "Summarise my notes" button is a separate form that pre-builds the message before submitting. It posts to <code>/chat</code> with a message that lists all the current note texts. The AI receives them as context and replies with a summary or priority suggestions.</p>
+          <div class="tabs">
+            <div class="tab-bar">
+              <button class="tab-btn active" onclick="switchTab('step13',0)">HTML — summarise button</button>
+              <button class="tab-btn" onclick="switchTab('step13',1)">main.py — /summarise shortcut</button>
+            </div>
+            <div class="tab-panel active">
+              <div class="code-header"><span class="lang-label">html + jinja2</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-comment">&lt;!-- Above the chat form, inside .chat-panel --&gt;</span>
+<span class="hl-tag">&lt;form</span> <span class="hl-attr">method</span>=<span class="hl-string">"post"</span> <span class="hl-attr">action</span>=<span class="hl-string">"/summarise"</span><span class="hl-tag">&gt;</span>
+  <span class="hl-comment">&lt;!-- Pass note IDs so the server can fetch the latest texts --&gt;</span>
+  <span class="hl-tag">&lt;input</span> <span class="hl-attr">type</span>=<span class="hl-string">"hidden"</span> <span class="hl-attr">name</span>=<span class="hl-string">"history_raw"</span> <span class="hl-attr">value</span>=<span class="hl-string">'<span class="hl-template">{{ chat_history }}</span>'</span><span class="hl-tag">&gt;</span>
+  <span class="hl-tag">&lt;button</span> <span class="hl-attr">type</span>=<span class="hl-string">"submit"</span> <span class="hl-attr">class</span>=<span class="hl-string">"btn-summarise"</span><span class="hl-tag">&gt;</span>
+    ✨ Summarise my notes
+  <span class="hl-tag">&lt;/button&gt;</span>
+<span class="hl-tag">&lt;/form&gt;</span></code></pre>
+            </div>
+            <div class="tab-panel">
+              <div class="code-header"><span class="lang-label">python — /summarise route</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-decorator">@app.post</span>(<span class="hl-string">"/summarise"</span>)
+<span class="hl-keyword">def</span> <span class="hl-builtin">summarise</span>(history_raw: str = Form(<span class="hl-string">"[]"</span>)):
+    notes = load_notes()
+    <span class="hl-keyword">if not</span> notes:
+        reply = <span class="hl-string">"You have no notes yet!"</span>
+    <span class="hl-keyword">else</span>:
+        <span class="hl-comment"># Build a message that lists all note texts</span>
+        note_lines = <span class="hl-string">"\n"</span>.join(
+            f<span class="hl-string">"- {'[done] ' if n['done'] else ''}{n['text']}"</span>
+            <span class="hl-keyword">for</span> n <span class="hl-keyword">in</span> notes
+        )
+        prompt = f<span class="hl-string">"Here are my current notes:\n{note_lines}\n\nPlease summarise them and suggest which ones to prioritise."</span>
+        history = json.loads(history_raw)
+        history.append({<span class="hl-string">"role"</span>: <span class="hl-string">"user"</span>, <span class="hl-string">"content"</span>: prompt})
+        reply = call_ai(history)
+        history.append({<span class="hl-string">"role"</span>: <span class="hl-string">"assistant"</span>, <span class="hl-string">"content"</span>: reply})
+
+    encoded_reply   = quote(reply)
+    encoded_history = quote(json.dumps(history <span class="hl-keyword">if</span> notes <span class="hl-keyword">else</span> []))
+    <span class="hl-keyword">return</span> RedirectResponse(
+        f<span class="hl-string">"/?chat_reply={encoded_reply}&amp;chat_history={encoded_history}"</span>,
+        status_code=<span class="hl-number">303</span>
+    )</code></pre>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── STEP 14 ── -->
+      <div class="step" id="step14">
+        <div class="step-number">14</div>
+        <div class="step-content">
+          <h3>What's Next</h3>
+          <p class="explanation">You've built a persistent task app with a real AI integration — without a database or JavaScript. Here are the natural next steps to level it up:</p>
+          <div class="info-box">
+            <strong>Swap JSON for a real database:</strong> Replace <code>load_notes()</code> / <code>save_notes()</code> with SQLAlchemy + SQLite. The routes don't change — only the two helper functions. See the SQLAlchemy docs: <code>pip install sqlalchemy</code>.
+          </div>
+          <div class="info-box">
+            <strong>Add user accounts:</strong> Right now all notes are shared. Add a <code>publisher_id</code> (or just a session cookie) to each note dict so each user sees only their own notes.
+          </div>
+          <div class="info-box">
+            <strong>Stream AI responses:</strong> Instead of waiting for the full reply, use FastAPI's <code>StreamingResponse</code> with OpenAI's streaming API so text appears word by word. Requires a little JavaScript (<code>EventSource</code> or <code>fetch</code> with a readable stream).
+          </div>
+          <div class="info-box">
+            <strong>Tags and filtering:</strong> Add a <code>tags</code> field to each note (list of strings). Add a <code>GET /?tag=work</code> query parameter that filters the notes list before passing it to the template.
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /steps -->
+  </main>
+</div>
+
+<script>
+(function() {
+  var saved = localStorage.getItem("pyoffline-theme");
+  if (saved === "light") { document.documentElement.classList.add("light"); }
+  document.addEventListener("DOMContentLoaded", function() {
+    var toggle = document.getElementById("themeToggle");
+    if (!toggle) return;
+    toggle.checked = (localStorage.getItem("pyoffline-theme") === "light");
+    toggle.addEventListener("change", function() {
+      if (this.checked) {
+        document.documentElement.classList.add("light");
+        localStorage.setItem("pyoffline-theme", "light");
+      } else {
+        document.documentElement.classList.remove("light");
+        localStorage.setItem("pyoffline-theme", "dark");
+      }
+    });
+  });
+})();
+
+function switchTab(stepId, idx) {
+  var step   = document.getElementById(stepId);
+  var btns   = step.querySelectorAll(".tab-btn");
+  var panels = step.querySelectorAll(".tab-panel");
+  btns.forEach(function(b) { b.classList.remove("active"); });
+  panels.forEach(function(p) { p.classList.remove("active"); });
+  btns[idx].classList.add("active");
+  panels[idx].classList.add("active");
+}
+
+function copyCode(btn) {
+  var code = btn.closest(".tab-panel").querySelector("code").innerText;
+  navigator.clipboard.writeText(code).then(function() {
+    var orig = btn.textContent;
+    btn.textContent = "Copied!";
+    setTimeout(function() { btn.textContent = orig; }, 1500);
+  });
+}
+
+function toggleSidebar() {
+  var sidebar = document.getElementById("guideSidebar");
+  var overlay = document.getElementById("sidebarOverlay");
+  if (!sidebar) return;
+  sidebar.classList.toggle("open");
+  overlay.classList.toggle("open");
+}
+
+document.addEventListener("DOMContentLoaded", function() {
+  var sidebar = document.getElementById("guideSidebar");
+  if (!sidebar) return;
+  sidebar.querySelectorAll("nav a").forEach(function(a) {
+    a.addEventListener("click", function() {
+      sidebar.classList.remove("open");
+      var overlay = document.getElementById("sidebarOverlay");
+      if (overlay) overlay.classList.remove("open");
+    });
+  });
+});
+</script>
+</body>
+</html>

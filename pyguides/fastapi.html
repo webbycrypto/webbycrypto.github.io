@@ -1,0 +1,765 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>FastAPI Guide - pyoffline</title>
+<style>
+/* ── Theme variables ───────────────────────────────────────── */
+:root {
+  --bg:          #121212;
+  --surface:     #1e1e1e;
+  --surface2:    #2a2a2a;
+  --sidebar-bg:  #1a1a1a;
+  --text:        #e0e0e0;
+  --text-muted:  #aaa;
+  --text-dim:    #666;
+  --border:      #333;
+  --code-bg:     #1e1e1e;
+  --code-text:   #d4d4d4;
+  --shadow:      rgba(0,0,0,.4);
+  /* syntax - dark (VSCode Dark+) */
+  --hl-keyword:  #569cd6;
+  --hl-string:   #ce9178;
+  --hl-comment:  #6a9955;
+  --hl-number:   #b5cea8;
+  --hl-decorator:#dcdcaa;
+  --hl-builtin:  #4ec9b0;
+  --hl-tag:      #4ec9b0;
+  --hl-attr:     #9cdcfe;
+  --hl-template: #c586c0;
+}
+html.light {
+  --bg:          #f5f7fa;
+  --surface:     #ffffff;
+  --surface2:    #eef0f3;
+  --sidebar-bg:  #ffffff;
+  --text:        #1a1a1a;
+  --text-muted:  #555;
+  --text-dim:    #888;
+  --border:      #dde1e7;
+  --code-bg:     #f8f8f8;
+  --code-text:   #24292e;
+  --shadow:      rgba(0,0,0,.1);
+  /* syntax - light (VSCode Light) */
+  --hl-keyword:  #0000ff;
+  --hl-string:   #a31515;
+  --hl-comment:  #008000;
+  --hl-number:   #098658;
+  --hl-decorator:#795e26;
+  --hl-builtin:  #267f99;
+  --hl-tag:      #800000;
+  --hl-attr:     #e50000;
+  --hl-template: #af00db;
+}
+
+/* ── Syntax span classes ───────────────────────────────────── */
+.hl-keyword  { color: var(--hl-keyword);  }
+.hl-string   { color: var(--hl-string);   }
+.hl-comment  { color: #adb4a7; font-size: 12px; font-style: italic; }
+.hl-number   { color: var(--hl-number);   }
+.hl-decorator{ color: var(--hl-decorator);}
+.hl-builtin  { color: var(--hl-builtin);  }
+.hl-tag      { color: var(--hl-tag);      }
+.hl-attr     { color: var(--hl-attr);     }
+.hl-template { color: var(--hl-template); }
+
+/* ── Base ──────────────────────────────────────────────────── */
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: var(--bg); color: var(--text); font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; transition: background .2s, color .2s; }
+a { color: #009688; }
+
+/* ── Layout ────────────────────────────────────────────────── */
+.layout { display: flex; min-height: 100vh; }
+.sidebar { width: 260px; min-width: 260px; background: var(--sidebar-bg); border-right: 1px solid var(--border); padding: 24px 16px; position: sticky; top: 0; height: 100vh; overflow-y: auto; }
+.sidebar h2 { font-size: 1.1rem; margin: 16px 0 8px; color: var(--text); }
+.sidebar nav ol { padding-left: 18px; }
+.sidebar nav li { margin: 6px 0; }
+.sidebar nav a { color: var(--text-muted); text-decoration: none; font-size: 0.85rem; }
+.sidebar nav a:hover { color: #009688; }
+.back-link { color: var(--text-dim); text-decoration: none; font-size: 0.85rem; display: block; margin-bottom: 8px; }
+.install-box { margin-top: 24px; background: var(--bg); border: 1px solid var(--border); padding: 12px; border-radius: 6px; font-size: 0.8rem; }
+.install-box code { display: block; word-break: break-all; color: var(--hl-comment); font-family: monospace; }
+main { flex: 1; padding: 40px; max-width: 860px; }
+.guide-header { padding: 20px 20px 20px 24px; background: var(--surface); border-radius: 8px; margin-bottom: 32px; box-shadow: 0 1px 3px var(--shadow); }
+.guide-header h1 { font-size: 1.8rem; margin-bottom: 8px; }
+.guide-header p { color: var(--text-muted); }
+
+/* ── Steps ─────────────────────────────────────────────────── */
+.step { display: flex; gap: 16px; margin-bottom: 40px; }
+.step-number { width: 32px; min-width: 32px; height: 32px; background: #009688; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 0.9rem; margin-top: 4px; color: #fff; }
+.step-content { flex: 1; min-width: 0; }
+.step-content h3 { font-size: 1.1rem; margin-bottom: 8px; color: var(--text); }
+.explanation { color: var(--text-muted); font-size: 0.9rem; line-height: 1.6; margin-bottom: 14px; }
+
+/* ── Code tabs ─────────────────────────────────────────────── */
+.tabs { background: var(--surface); border-radius: 6px; overflow: hidden; border: 1px solid var(--border); }
+.tab-bar { display: flex; background: var(--surface2); overflow-x: auto; border-bottom: 1px solid var(--border); }
+.tab-btn { padding: 8px 16px; background: none; border: none; color: var(--text-muted); cursor: pointer; font-size: 0.8rem; white-space: nowrap; border-bottom: 2px solid transparent; margin-bottom: -1px; }
+.tab-btn.active { color: var(--text); border-bottom-color: #009688; }
+.tab-panel { display: none; }
+.tab-panel.active { display: block; }
+.code-header { display: flex; justify-content: space-between; align-items: center; padding: 5px 12px; background: var(--surface2); border-bottom: 1px solid var(--border); }
+.lang-label { font-size: 0.72rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: .04em; }
+.copy-btn { background: none; border: 1px solid var(--border); color: var(--text-muted); padding: 2px 8px; cursor: pointer; border-radius: 3px; font-size: 0.72rem; }
+.copy-btn:hover { color: var(--text); border-color: var(--text-muted); }
+pre { overflow-x: auto; padding: 16px; background: var(--code-bg); }
+code { font-family: "Fira Code", "Cascadia Code", "Consolas", monospace; font-size: 0.82rem; line-height: 1.65; color: var(--code-text); }
+
+/* ── Theme toggle switch ───────────────────────────────────── */
+.theme-row { display: flex; align-items: center; gap: 8px; margin-top: 20px; }
+.theme-label { font-size: 0.78rem; color: var(--text-muted); }
+.toggle-switch { position: relative; display: inline-block; width: 40px; height: 22px; }
+.toggle-switch input { opacity: 0; width: 0; height: 0; }
+.slider { position: absolute; cursor: pointer; inset: 0; background: var(--surface2); border: 1px solid var(--border); border-radius: 22px; transition: background .2s; }
+.slider:before { content: ""; position: absolute; width: 16px; height: 16px; left: 2px; top: 2px; background: var(--text-muted); border-radius: 50%; transition: transform .2s, background .2s; }
+.toggle-switch input:checked + .slider { background: #009688; border-color: #009688; }
+.toggle-switch input:checked + .slider:before { transform: translateX(18px); background: #fff; }
+
+/* ── Responsive sidebar ────────────────────────────────────── */
+/* Toggle button - hidden on wide screens, shown on narrow */
+.sidebar-toggle {
+  display: none;
+  position: fixed; top: 12px; left: 12px; z-index: 300;
+  background: #009688; color: #fff; border: none;
+  padding: 7px 14px; border-radius: 6px; cursor: pointer;
+  font-size: 0.85rem; font-weight: 600;
+  box-shadow: 0 2px 8px var(--shadow);
+  align-items: center; gap: 6px;
+}
+/* Backdrop - covers main content when sidebar is open on narrow screens */
+.sidebar-overlay {
+  display: none; position: fixed; inset: 0;
+  background: rgba(0,0,0,.45); z-index: 190;
+}
+.sidebar-overlay.open { display: block; }
+
+@media (max-width: 900px) {
+  .sidebar-toggle { display: flex; }
+  .layout { display: block; }
+  .sidebar {
+    position: fixed; left: -280px; top: 0;
+    height: 100vh; z-index: 200;
+    transition: left .25s ease;
+    box-shadow: 2px 0 16px var(--shadow);
+    min-width: 260px;
+  }
+  .sidebar.open { left: 0; }
+  main { padding: 60px 20px 40px; max-width: 100%; }
+  /* Prevent wide code lines from breaking the page layout */
+  pre { overflow-x: auto; max-width: 100%; white-space: pre-wrap; word-break: break-word; }
+  .tabs { max-width: 100%; }
+}
+</style>
+</head>
+<body>
+<button class="sidebar-toggle" id="sidebarToggle" onclick="toggleSidebar()">&#9776; Steps</button>
+<div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+<div class="layout">
+  <aside class="sidebar" id="guideSidebar">
+    <a href="index.html" class="back-link">← All Guides</a>
+    <h2>FastAPI</h2>
+    <nav><ol><li><a href="#step1">Project Structure</a></li><li><a href="#step2">Database Setup</a></li><li><a href="#step3">Models &amp; Schemas</a></li><li><a href="#step4">JWT Authentication Helpers</a></li><li><a href="#step5">Main App - Routes</a></li><li><a href="#step6">Login Page</a></li><li><a href="#step7">Data Table with Delete Button</a></li><li><a href="#step8">File Upload Page</a></li></ol></nav>
+    <div class="install-box">
+      <p><strong>Install</strong></p>
+      <code>pyoffline install --bundle fastapi</code>
+      <p style="margin-top:12px"><strong>Run</strong></p>
+      <code>uvicorn main:app --reload</code>
+    </div>
+    <div class="theme-row">
+      <span class="theme-label">Dark</span>
+      <label class="toggle-switch">
+        <input type="checkbox" id="themeToggle">
+        <span class="slider"></span>
+      </label>
+      <span class="theme-label">Light</span>
+    </div>
+  </aside>
+  <main>
+    <header class="guide-header" style="border-left: 5px solid #009688">
+      <h1>FastAPI</h1>
+      <p>Build a REST API with JWT authentication, SQLite database, and interactive HTML pages that talk to your API.</p>
+    </header>
+    <div class="steps">
+<div class="step" id="step1">
+  <div class="step-number">1</div>
+  <div class="step-content">
+    <h3>Project Structure</h3>
+    <p class="explanation">Create this folder layout before writing any code. Each file has one job - keeping them separate makes the project easy to navigate.</p>
+    <div class="tabs" data-step="step1">
+      <div class="tab-bar"><button class="tab-btn active" onclick="switchTab('step1',0)" id="step1_tab0">structure.txt</button></div>
+      
+<div class="tab-panel active" id="step1_panel0">
+  <div class="code-header">
+    <span class="lang-label">text</span>
+    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+  </div>
+  <pre><code>myapp/
+  main.py          ← FastAPI app, routes
+  database.py      ← database connection setup
+  models.py        ← SQLAlchemy table definitions
+  schemas.py       ← Pydantic request/response shapes
+  auth.py          ← JWT token helpers
+  static/
+    login.html     ← login page
+    items.html     ← protected data table page
+    upload.html    ← file upload page
+  uploads/         ← saved uploaded files
+  .env             ← SECRET_KEY and other settings
+  requirements.txt</code></pre>
+</div>
+    </div>
+  </div>
+</div>
+<div class="step" id="step2">
+  <div class="step-number">2</div>
+  <div class="step-content">
+    <h3>Database Setup</h3>
+    <p class="explanation">database.py creates the connection to SQLite (a single file database - no server needed). get_db() is a helper that opens and closes the database session automatically for each request.</p>
+    <div class="tabs" data-step="step2">
+      <div class="tab-bar"><button class="tab-btn active" onclick="switchTab('step2',0)" id="step2_tab0">database.py</button></div>
+      
+<div class="tab-panel active" id="step2_panel0">
+  <div class="code-header">
+    <span class="lang-label">python</span>
+    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+  </div>
+  <pre><code><span class="hl-keyword">from</span> sqlalchemy <span class="hl-keyword">import</span> create_engine
+<span class="hl-keyword">from</span> sqlalchemy.orm <span class="hl-keyword">import</span> sessionmaker, DeclarativeBase
+
+<span class="hl-comment"># SQLite stores everything in a single file called app.db</span>
+DATABASE_URL = <span class="hl-string">&quot;sqlite:///./app.db&quot;</span>
+
+engine = create_engine(DATABASE_URL, connect_args={<span class="hl-string">&quot;check_same_thread&quot;</span>: <span class="hl-keyword">False</span>})
+SessionLocal = sessionmaker(autocommit=<span class="hl-keyword">False</span>, autoflush=<span class="hl-keyword">False</span>, bind=engine)
+
+<span class="hl-keyword">class</span> Base(DeclarativeBase):
+    <span class="hl-keyword">pass</span>
+
+<span class="hl-comment"># This function is used as a FastAPI dependency.</span>
+<span class="hl-comment"># It opens a database session, yields it to the route, then closes it.</span>
+<span class="hl-keyword">def</span> get_db():
+    db = SessionLocal()
+    <span class="hl-keyword">try</span>:
+        <span class="hl-keyword">yield</span> db
+    <span class="hl-keyword">finally</span>:
+        db.close()</code></pre>
+</div>
+    </div>
+  </div>
+</div>
+<div class="step" id="step3">
+  <div class="step-number">3</div>
+  <div class="step-content">
+    <h3>Models &amp; Schemas</h3>
+    <p class="explanation">models.py defines the actual database tables using SQLAlchemy. schemas.py defines what data looks like when it comes in from the user (request) or goes out in a response - Pydantic validates this automatically.</p>
+    <div class="tabs" data-step="step3">
+      <div class="tab-bar"><button class="tab-btn active" onclick="switchTab('step3',0)" id="step3_tab0">models.py</button><button class="tab-btn " onclick="switchTab('step3',1)" id="step3_tab1">schemas.py</button></div>
+      
+<div class="tab-panel active" id="step3_panel0">
+  <div class="code-header">
+    <span class="lang-label">python</span>
+    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+  </div>
+  <pre><code><span class="hl-keyword">from</span> sqlalchemy <span class="hl-keyword">import</span> Column, Integer, String, Boolean
+<span class="hl-keyword">from</span> database <span class="hl-keyword">import</span> Base
+
+<span class="hl-keyword">class</span> User(Base):
+    __tablename__ = <span class="hl-string">&quot;users&quot;</span>
+    id       = Column(Integer, primary_key=<span class="hl-keyword">True</span>, index=<span class="hl-keyword">True</span>)
+    email    = Column(String, unique=<span class="hl-keyword">True</span>, index=<span class="hl-keyword">True</span>)
+    password = Column(String)  <span class="hl-comment"># stored as a bcrypt hash, never plain text</span>
+
+<span class="hl-keyword">class</span> Item(Base):
+    __tablename__ = <span class="hl-string">&quot;items&quot;</span>
+    id      = Column(Integer, primary_key=<span class="hl-keyword">True</span>, index=<span class="hl-keyword">True</span>)
+    title   = Column(String)
+    done    = Column(Boolean, default=<span class="hl-keyword">False</span>)
+    user_id = Column(Integer)  <span class="hl-comment"># which user owns this item</span></code></pre>
+</div>
+<div class="tab-panel " id="step3_panel1">
+  <div class="code-header">
+    <span class="lang-label">python</span>
+    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+  </div>
+  <pre><code><span class="hl-keyword">from</span> pydantic <span class="hl-keyword">import</span> BaseModel, EmailStr
+
+<span class="hl-comment"># Used when a user registers - what we expect them to send</span>
+<span class="hl-keyword">class</span> UserCreate(BaseModel):
+    email: EmailStr
+    password: <span class="hl-builtin">str</span>
+
+<span class="hl-comment"># Used in responses - we never send the password back</span>
+<span class="hl-keyword">class</span> UserOut(BaseModel):
+    id: <span class="hl-builtin">int</span>
+    email: <span class="hl-builtin">str</span>
+    model_config = {<span class="hl-string">&quot;from_attributes&quot;</span>: <span class="hl-keyword">True</span>}
+
+<span class="hl-keyword">class</span> ItemCreate(BaseModel):
+    title: <span class="hl-builtin">str</span>
+
+<span class="hl-keyword">class</span> ItemOut(BaseModel):
+    id: <span class="hl-builtin">int</span>
+    title: <span class="hl-builtin">str</span>
+    done: <span class="hl-builtin">bool</span>
+    model_config = {<span class="hl-string">&quot;from_attributes&quot;</span>: <span class="hl-keyword">True</span>}</code></pre>
+</div>
+    </div>
+  </div>
+</div>
+<div class="step" id="step4">
+  <div class="step-number">4</div>
+  <div class="step-content">
+    <h3>JWT Authentication Helpers</h3>
+    <p class="explanation">auth.py handles password hashing and JWT token creation. A JWT (JSON Web Token) is a small signed string the user gets after logging in - they send it with every request so the server knows who they are.</p>
+    <div class="tabs" data-step="step4">
+      <div class="tab-bar"><button class="tab-btn active" onclick="switchTab('step4',0)" id="step4_tab0">auth.py</button></div>
+      
+<div class="tab-panel active" id="step4_panel0">
+  <div class="code-header">
+    <span class="lang-label">python</span>
+    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+  </div>
+  <pre><code><span class="hl-keyword">from</span> datetime <span class="hl-keyword">import</span> datetime, timedelta
+<span class="hl-keyword">from</span> jose <span class="hl-keyword">import</span> jwt, JWTError
+<span class="hl-keyword">from</span> passlib.context <span class="hl-keyword">import</span> CryptContext
+<span class="hl-keyword">from</span> fastapi <span class="hl-keyword">import</span> Depends, HTTPException, status
+<span class="hl-keyword">from</span> fastapi.security <span class="hl-keyword">import</span> OAuth2PasswordBearer
+<span class="hl-keyword">from</span> sqlalchemy.orm <span class="hl-keyword">import</span> Session
+<span class="hl-keyword">from</span> database <span class="hl-keyword">import</span> get_db
+<span class="hl-keyword">import</span> models, os
+
+SECRET_KEY = os.getenv(<span class="hl-string">&quot;SECRET_KEY&quot;</span>, <span class="hl-string">&quot;change-this-in-production&quot;</span>)
+ALGORITHM  = <span class="hl-string">&quot;HS256&quot;</span>
+TOKEN_EXPIRE_HOURS = <span class="hl-number">48</span>
+
+pwd_context    = CryptContext(schemes=[<span class="hl-string">&quot;bcrypt&quot;</span>], deprecated=<span class="hl-string">&quot;auto&quot;</span>)
+oauth2_scheme  = OAuth2PasswordBearer(tokenUrl=<span class="hl-string">&quot;/auth/token&quot;</span>)
+
+<span class="hl-keyword">def</span> hash_password(plain: <span class="hl-builtin">str</span>) -&gt; <span class="hl-builtin">str</span>:
+    <span class="hl-keyword">return</span> pwd_context.hash(plain)
+
+<span class="hl-keyword">def</span> verify_password(plain: <span class="hl-builtin">str</span>, hashed: <span class="hl-builtin">str</span>) -&gt; <span class="hl-builtin">bool</span>:
+    <span class="hl-keyword">return</span> pwd_context.verify(plain, hashed)
+
+<span class="hl-keyword">def</span> create_token(data: <span class="hl-builtin">dict</span>) -&gt; <span class="hl-builtin">str</span>:
+    payload = data.copy()
+    payload[<span class="hl-string">&quot;exp&quot;</span>] = datetime.utcnow() + timedelta(hours=TOKEN_EXPIRE_HOURS)
+    <span class="hl-keyword">return</span> jwt.encode(payload, SECRET_KEY, algorithm=ALGORITHM)
+
+<span class="hl-comment"># Dependency - add this to any route that needs a logged-in user</span>
+<span class="hl-keyword">def</span> get_current_user(token: <span class="hl-builtin">str</span> = Depends(oauth2_scheme), db: Session = Depends(get_db)):
+    <span class="hl-keyword">try</span>:
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        user_id: <span class="hl-builtin">int</span> = payload.get(<span class="hl-string">&quot;sub&quot;</span>)
+    <span class="hl-keyword">except</span> JWTError:
+        <span class="hl-keyword">raise</span> HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail=<span class="hl-string">&quot;Invalid token&quot;</span>)
+    user = db.query(models.User).<span class="hl-builtin">filter</span>(models.User.id == user_id).first()
+    <span class="hl-keyword">if</span> <span class="hl-keyword">not</span> user:
+        <span class="hl-keyword">raise</span> HTTPException(status_code=<span class="hl-number">404</span>, detail=<span class="hl-string">&quot;User not found&quot;</span>)
+    <span class="hl-keyword">return</span> user</code></pre>
+</div>
+    </div>
+  </div>
+</div>
+<div class="step" id="step5">
+  <div class="step-number">5</div>
+  <div class="step-content">
+    <h3>Main App - Routes</h3>
+    <p class="explanation">main.py wires everything together. The /auth routes handle register and login. The /items routes are protected - only logged-in users can access them. FastAPI serves the HTML pages from the static/ folder.</p>
+    <div class="tabs" data-step="step5">
+      <div class="tab-bar"><button class="tab-btn active" onclick="switchTab('step5',0)" id="step5_tab0">main.py</button></div>
+      
+<div class="tab-panel active" id="step5_panel0">
+  <div class="code-header">
+    <span class="lang-label">python</span>
+    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+  </div>
+  <pre><code><span class="hl-keyword">from</span> fastapi <span class="hl-keyword">import</span> FastAPI, Depends, HTTPException, UploadFile, File, BackgroundTasks
+<span class="hl-keyword">from</span> fastapi.staticfiles <span class="hl-keyword">import</span> StaticFiles
+<span class="hl-keyword">from</span> fastapi.security <span class="hl-keyword">import</span> OAuth2PasswordRequestForm
+<span class="hl-keyword">from</span> sqlalchemy.orm <span class="hl-keyword">import</span> Session
+<span class="hl-keyword">from</span> database <span class="hl-keyword">import</span> engine, get_db
+<span class="hl-keyword">import</span> models, schemas, auth, shutil, os
+
+models.Base.metadata.create_all(bind=engine)  <span class="hl-comment"># creates tables if they don&#x27;t exist</span>
+
+app = FastAPI(title=<span class="hl-string">&quot;My App&quot;</span>)
+app.mount(<span class="hl-string">&quot;/static&quot;</span>, StaticFiles(directory=<span class="hl-string">&quot;static&quot;</span>), name=<span class="hl-string">&quot;static&quot;</span>)
+
+<span class="hl-comment"># --- Auth routes ---</span>
+
+<span class="hl-decorator">@app.post</span>(<span class="hl-string">&quot;/auth/register&quot;</span>, response_model=schemas.UserOut)
+<span class="hl-keyword">def</span> register(data: schemas.UserCreate, db: Session = Depends(get_db)):
+    <span class="hl-keyword">if</span> db.query(models.User).<span class="hl-builtin">filter</span>(models.User.email == data.email).first():
+        <span class="hl-keyword">raise</span> HTTPException(status_code=<span class="hl-number">400</span>, detail=<span class="hl-string">&quot;Email already registered&quot;</span>)
+    user = models.User(email=data.email, password=auth.hash_password(data.password))
+    db.add(user)
+    db.commit()
+    db.refresh(user)
+    <span class="hl-keyword">return</span> user
+
+<span class="hl-decorator">@app.post</span>(<span class="hl-string">&quot;/auth/token&quot;</span>)
+<span class="hl-keyword">def</span> login(form: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
+    user = db.query(models.User).<span class="hl-builtin">filter</span>(models.User.email == form.username).first()
+    <span class="hl-keyword">if</span> <span class="hl-keyword">not</span> user <span class="hl-keyword">or</span> <span class="hl-keyword">not</span> auth.verify_password(form.password, user.password):
+        <span class="hl-keyword">raise</span> HTTPException(status_code=<span class="hl-number">400</span>, detail=<span class="hl-string">&quot;Incorrect email or password&quot;</span>)
+    token = auth.create_token({<span class="hl-string">&quot;sub&quot;</span>: user.id})
+    <span class="hl-keyword">return</span> {<span class="hl-string">&quot;access_token&quot;</span>: token, <span class="hl-string">&quot;token_type&quot;</span>: <span class="hl-string">&quot;bearer&quot;</span>}
+
+<span class="hl-comment"># --- Item routes (protected) ---</span>
+
+<span class="hl-decorator">@app.get</span>(<span class="hl-string">&quot;/items&quot;</span>, response_model=<span class="hl-builtin">list</span>[schemas.ItemOut])
+<span class="hl-keyword">def</span> list_items(current_user=Depends(auth.get_current_user), db: Session = Depends(get_db)):
+    <span class="hl-keyword">return</span> db.query(models.Item).<span class="hl-builtin">filter</span>(models.Item.user_id == current_user.id).<span class="hl-builtin">all</span>()
+
+<span class="hl-decorator">@app.post</span>(<span class="hl-string">&quot;/items&quot;</span>, response_model=schemas.ItemOut)
+<span class="hl-keyword">def</span> create_item(data: schemas.ItemCreate, current_user=Depends(auth.get_current_user), db: Session = Depends(get_db)):
+    item = models.Item(title=data.title, user_id=current_user.id)
+    db.add(item)
+    db.commit()
+    db.refresh(item)
+    <span class="hl-keyword">return</span> item
+
+<span class="hl-decorator">@app.delete</span>(<span class="hl-string">&quot;/items/{item_id}&quot;</span>)
+<span class="hl-keyword">def</span> delete_item(item_id: <span class="hl-builtin">int</span>, current_user=Depends(auth.get_current_user), db: Session = Depends(get_db)):
+    item = db.query(models.Item).<span class="hl-builtin">filter</span>(models.Item.id == item_id, models.Item.user_id == current_user.id).first()
+    <span class="hl-keyword">if</span> <span class="hl-keyword">not</span> item:
+        <span class="hl-keyword">raise</span> HTTPException(status_code=<span class="hl-number">404</span>, detail=<span class="hl-string">&quot;Item not found&quot;</span>)
+    db.delete(item)
+    db.commit()
+    <span class="hl-keyword">return</span> {<span class="hl-string">&quot;deleted&quot;</span>: item_id}
+
+<span class="hl-comment"># --- File upload ---</span>
+
+os.makedirs(<span class="hl-string">&quot;uploads&quot;</span>, exist_ok=<span class="hl-keyword">True</span>)
+
+<span class="hl-decorator">@app.post</span>(<span class="hl-string">&quot;/upload&quot;</span>)
+<span class="hl-keyword">def</span> upload_file(file: UploadFile = File(...)):
+    allowed = {<span class="hl-string">&quot;.jpg&quot;</span>, <span class="hl-string">&quot;.jpeg&quot;</span>, <span class="hl-string">&quot;.png&quot;</span>, <span class="hl-string">&quot;.pdf&quot;</span>, <span class="hl-string">&quot;.txt&quot;</span>}
+    ext = os.path.splitext(file.filename)[<span class="hl-number">1</span>].lower()
+    <span class="hl-keyword">if</span> ext <span class="hl-keyword">not</span> <span class="hl-keyword">in</span> allowed:
+        <span class="hl-keyword">raise</span> HTTPException(status_code=<span class="hl-number">400</span>, detail=f<span class="hl-string">&quot;File type {ext} not allowed&quot;</span>)
+    save_path = f<span class="hl-string">&quot;uploads/{file.filename}&quot;</span>
+    <span class="hl-keyword">with</span> <span class="hl-builtin">open</span>(save_path, <span class="hl-string">&quot;wb&quot;</span>) <span class="hl-keyword">as</span> f:
+        shutil.copyfileobj(file.file, f)
+    <span class="hl-keyword">return</span> {<span class="hl-string">&quot;filename&quot;</span>: file.filename, <span class="hl-string">&quot;saved_to&quot;</span>: save_path}
+
+<span class="hl-comment"># --- Background task example ---</span>
+
+<span class="hl-keyword">def</span> send_welcome_email(email: <span class="hl-builtin">str</span>):
+    <span class="hl-comment"># In a real app this would call an email service.</span>
+    <span class="hl-comment"># Running as a background task means the HTTP response</span>
+    <span class="hl-comment"># returns immediately without waiting for this to finish.</span>
+    <span class="hl-keyword">print</span>(f<span class="hl-string">&quot;[background] Sending welcome email to {email}&quot;</span>)
+
+<span class="hl-decorator">@app.post</span>(<span class="hl-string">&quot;/auth/register-with-email&quot;</span>, response_model=schemas.UserOut)
+<span class="hl-keyword">def</span> register_with_email(data: schemas.UserCreate, background_tasks: BackgroundTasks, db: Session = Depends(get_db)):
+    <span class="hl-keyword">if</span> db.query(models.User).<span class="hl-builtin">filter</span>(models.User.email == data.email).first():
+        <span class="hl-keyword">raise</span> HTTPException(status_code=<span class="hl-number">400</span>, detail=<span class="hl-string">&quot;Email already registered&quot;</span>)
+    user = models.User(email=data.email, password=auth.hash_password(data.password))
+    db.add(user)
+    db.commit()
+    db.refresh(user)
+    background_tasks.add_task(send_welcome_email, data.email)  <span class="hl-comment"># fires after response is sent</span>
+    <span class="hl-keyword">return</span> user</code></pre>
+</div>
+    </div>
+  </div>
+</div>
+<div class="step" id="step6">
+  <div class="step-number">6</div>
+  <div class="step-content">
+    <h3>Login Page</h3>
+    <p class="explanation">The login form sends the user&#x27;s email and password to /auth/token. When the server responds with a token, JavaScript stores it in localStorage so future requests can include it. Each JS line is commented.</p>
+    <div class="tabs" data-step="step6">
+      <div class="tab-bar"><button class="tab-btn active" onclick="switchTab('step6',0)" id="step6_tab0">static/login.html</button></div>
+      
+<div class="tab-panel active" id="step6_panel0">
+  <div class="code-header">
+    <span class="lang-label">html</span>
+    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+  </div>
+  <pre><code>&lt;!DOCTYPE html&gt;
+&lt;<span <span class="hl-attr">class</span>="hl-tag">html</span> <span class="hl-attr">lang</span>=<span class="hl-string">&quot;en&quot;</span>&gt;
+&lt;<span <span class="hl-attr">class</span>="hl-tag">head</span>&gt;
+  &lt;<span <span class="hl-attr">class</span>="hl-tag">meta</span> <span class="hl-attr">charset</span>=<span class="hl-string">&quot;UTF-8&quot;</span>&gt;
+  &lt;<span <span class="hl-attr">class</span>="hl-tag">title</span>&gt;Login&lt;/<span <span class="hl-attr">class</span>="hl-tag">title</span>&gt;
+  &lt;<span <span class="hl-attr">class</span>="hl-tag">style</span>&gt;
+    body { font-family: sans-serif; max-width: 400px; margin: 80px auto; padding: 0 20px; }
+    input { display: block; width: 100%; padding: 8px; margin: 8px 0; box-sizing: border-box; }
+    button { padding: 10px 20px; background: #009688; color: white; border: none; cursor: pointer; }
+    #msg { color: red; margin-top: 10px; }
+  &lt;/<span <span class="hl-attr">class</span>="hl-tag">style</span>&gt;
+&lt;/<span <span class="hl-attr">class</span>="hl-tag">head</span>&gt;
+&lt;<span <span class="hl-attr">class</span>="hl-tag">body</span>&gt;
+  &lt;<span <span class="hl-attr">class</span>="hl-tag">h2</span>&gt;Login&lt;/<span <span class="hl-attr">class</span>="hl-tag">h2</span>&gt;
+  &lt;<span <span class="hl-attr">class</span>="hl-tag">form</span> <span class="hl-attr">id</span>=<span class="hl-string">&quot;loginForm&quot;</span>&gt;
+    &lt;<span <span class="hl-attr">class</span>="hl-tag">input</span> <span class="hl-attr">type</span>=<span class="hl-string">&quot;email&quot;</span> <span class="hl-attr">id</span>=<span class="hl-string">&quot;email&quot;</span> <span class="hl-attr">placeholder</span>=<span class="hl-string">&quot;Email&quot;</span> required&gt;
+    &lt;<span <span class="hl-attr">class</span>="hl-tag">input</span> <span class="hl-attr">type</span>=<span class="hl-string">&quot;password&quot;</span> <span class="hl-attr">id</span>=<span class="hl-string">&quot;password&quot;</span> <span class="hl-attr">placeholder</span>=<span class="hl-string">&quot;Password&quot;</span> required&gt;
+    &lt;<span <span class="hl-attr">class</span>="hl-tag">button</span> <span class="hl-attr">type</span>=<span class="hl-string">&quot;submit&quot;</span>&gt;Login&lt;/<span <span class="hl-attr">class</span>="hl-tag">button</span>&gt;
+  &lt;/<span <span class="hl-attr">class</span>="hl-tag">form</span>&gt;
+  &lt;<span <span class="hl-attr">class</span>="hl-tag">p</span> <span class="hl-attr">id</span>=<span class="hl-string">&quot;msg&quot;</span>&gt;&lt;/<span <span class="hl-attr">class</span>="hl-tag">p</span>&gt;
+
+  &lt;<span <span class="hl-attr">class</span>="hl-tag">script</span>&gt;
+    // Wait for the form&#x27;s submit event
+    document.getElementById(&quot;loginForm&quot;).addEventListener(&quot;submit&quot;, async function(e) {
+      e.preventDefault(); // stop the page from reloading on submit
+
+      // OAuth2 expects form data, not JSON, so we use URLSearchParams
+      const body = new URLSearchParams({
+        username: document.getElementById(&quot;email&quot;).value,
+        password: document.getElementById(&quot;password&quot;).value
+      });
+
+      // Send a POST request to the login endpoint
+      const response = await fetch(&quot;/auth/token&quot;, {
+        method: &quot;POST&quot;,
+        body: body
+      });
+
+      const data = await response.json(); // parse the JSON the server sends back
+
+      if (response.ok) {
+        // Save the token so we can use it on other pages
+        localStorage.setItem(&quot;token&quot;, data.access_token);
+        // Send the user to the items page
+        window.location.href = &quot;/static/items.html&quot;;
+      } else {
+        // Show the error message from the server
+        document.getElementById(&quot;msg&quot;).textContent = data.detail;
+      }
+    });
+  &lt;/<span <span class="hl-attr">class</span>="hl-tag">script</span>&gt;
+&lt;/<span <span class="hl-attr">class</span>="hl-tag">body</span>&gt;
+&lt;/<span <span class="hl-attr">class</span>="hl-tag">html</span>&gt;</code></pre>
+</div>
+    </div>
+  </div>
+</div>
+<div class="step" id="step7">
+  <div class="step-number">7</div>
+  <div class="step-content">
+    <h3>Data Table with Delete Button</h3>
+    <p class="explanation">items.html loads the user&#x27;s items by calling the API as soon as the page opens, then builds the table rows with JavaScript. The delete button sends a DELETE request and removes the row from the page without refreshing.</p>
+    <div class="tabs" data-step="step7">
+      <div class="tab-bar"><button class="tab-btn active" onclick="switchTab('step7',0)" id="step7_tab0">static/items.html</button></div>
+      
+<div class="tab-panel active" id="step7_panel0">
+  <div class="code-header">
+    <span class="lang-label">html</span>
+    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+  </div>
+  <pre><code>&lt;!DOCTYPE html&gt;
+&lt;<span <span class="hl-attr">class</span>="hl-tag">html</span> <span class="hl-attr">lang</span>=<span class="hl-string">&quot;en&quot;</span>&gt;
+&lt;<span <span class="hl-attr">class</span>="hl-tag">head</span>&gt;
+  &lt;<span <span class="hl-attr">class</span>="hl-tag">meta</span> <span class="hl-attr">charset</span>=<span class="hl-string">&quot;UTF-8&quot;</span>&gt;
+  &lt;<span <span class="hl-attr">class</span>="hl-tag">title</span>&gt;My Items&lt;/<span <span class="hl-attr">class</span>="hl-tag">title</span>&gt;
+  &lt;<span <span class="hl-attr">class</span>="hl-tag">style</span>&gt;
+    body { font-family: sans-serif; max-width: 600px; margin: 40px auto; padding: 0 20px; }
+    table { width: 100%; border-collapse: collapse; }
+    td, th { padding: 8px; border-bottom: 1px solid #ddd; text-align: left; }
+    button.del { background: #e53935; color: white; border: none; padding: 4px 10px; cursor: pointer; }
+    input { padding: 8px; width: 70%; }
+    #addBtn { padding: 8px 16px; background: #009688; color: white; border: none; cursor: pointer; }
+  &lt;/<span <span class="hl-attr">class</span>="hl-tag">style</span>&gt;
+&lt;/<span <span class="hl-attr">class</span>="hl-tag">head</span>&gt;
+&lt;<span <span class="hl-attr">class</span>="hl-tag">body</span>&gt;
+  &lt;<span <span class="hl-attr">class</span>="hl-tag">h2</span>&gt;My Items&lt;/<span <span class="hl-attr">class</span>="hl-tag">h2</span>&gt;
+
+  <span class="hl-comment">&lt;!-- Add new item --&gt;</span>
+  &lt;<span <span class="hl-attr">class</span>="hl-tag">input</span> <span class="hl-attr">type</span>=<span class="hl-string">&quot;text&quot;</span> <span class="hl-attr">id</span>=<span class="hl-string">&quot;newItem&quot;</span> <span class="hl-attr">placeholder</span>=<span class="hl-string">&quot;New item title&quot;</span>&gt;
+  &lt;<span <span class="hl-attr">class</span>="hl-tag">button</span> <span class="hl-attr">id</span>=<span class="hl-string">&quot;addBtn&quot;</span>&gt;Add&lt;/<span <span class="hl-attr">class</span>="hl-tag">button</span>&gt;
+
+  &lt;<span <span class="hl-attr">class</span>="hl-tag">table</span>&gt;
+    &lt;<span <span class="hl-attr">class</span>="hl-tag">thead</span>&gt;&lt;<span <span class="hl-attr">class</span>="hl-tag">tr</span>&gt;&lt;<span <span class="hl-attr">class</span>="hl-tag">th</span>&gt;Title&lt;/<span <span class="hl-attr">class</span>="hl-tag">th</span>&gt;&lt;<span <span class="hl-attr">class</span>="hl-tag">th</span>&gt;&lt;/<span <span class="hl-attr">class</span>="hl-tag">th</span>&gt;&lt;/<span <span class="hl-attr">class</span>="hl-tag">tr</span>&gt;&lt;/<span <span class="hl-attr">class</span>="hl-tag">thead</span>&gt;
+    &lt;<span <span class="hl-attr">class</span>="hl-tag">tbody</span> <span class="hl-attr">id</span>=<span class="hl-string">&quot;itemList&quot;</span>&gt;&lt;/<span <span class="hl-attr">class</span>="hl-tag">tbody</span>&gt;
+  &lt;/<span <span class="hl-attr">class</span>="hl-tag">table</span>&gt;
+
+  &lt;<span <span class="hl-attr">class</span>="hl-tag">script</span>&gt;
+    // Retrieve the token we saved during login
+    const token = localStorage.getItem(&quot;token&quot;);
+
+    // If there&#x27;s no token, send the user back to the login page
+    if (!token) window.location.href = &quot;/static/login.html&quot;;
+
+    // Build the Authorization header - the server requires this on every request
+    const headers = { &quot;Authorization&quot;: &quot;Bearer &quot; + token, &quot;Content-Type&quot;: &quot;application/json&quot; };
+
+    // Load items when the page opens
+    async function loadItems() {
+      const res  = await fetch(&quot;/items&quot;, { headers });       // ask the server for items
+      const items = await res.json();                         // parse the response
+      const tbody = document.getElementById(&quot;itemList&quot;);
+      tbody.innerHTML = &quot;&quot;;                                   // clear old rows first
+
+      items.forEach(item =&gt; {                                 // loop over each item
+        const tr = document.createElement(&quot;tr&quot;);
+        tr.id = &quot;row-&quot; + item.id;                            // store the id on the row
+        tr.innerHTML = `
+          &lt;<span <span class="hl-attr">class</span>="hl-tag">td</span>&gt;${item.title}&lt;/<span <span class="hl-attr">class</span>="hl-tag">td</span>&gt;
+          &lt;<span <span class="hl-attr">class</span>="hl-tag">td</span>&gt;&lt;<span <span class="hl-attr">class</span>="hl-tag">button</span> <span class="hl-attr">class</span>=<span class="hl-string">&quot;del&quot;</span> <span class="hl-attr">onclick</span>=<span class="hl-string">&quot;deleteItem(${item.id})&quot;</span>&gt;Delete&lt;/<span <span class="hl-attr">class</span>="hl-tag">button</span>&gt;&lt;/<span <span class="hl-attr">class</span>="hl-tag">td</span>&gt;`;
+        tbody.appendChild(tr);                               // add row to the table
+      });
+    }
+
+    // Delete an item by id
+    async function deleteItem(id) {
+      await fetch(&quot;/items/&quot; + id, { method: &quot;DELETE&quot;, headers }); // tell the server to delete it
+      document.getElementById(&quot;row-&quot; + id).remove();              // remove the row from the page
+    }
+
+    // Add a new item
+    document.getElementById(&quot;addBtn&quot;).addEventListener(&quot;click&quot;, async () =&gt; {
+      const title = document.getElementById(&quot;newItem&quot;).value.trim();
+      if (!title) return;                                          // do nothing if input is empty
+      await fetch(&quot;/items&quot;, {
+        method: &quot;POST&quot;,
+        headers,
+        body: JSON.stringify({ title })                           // send title as JSON
+      });
+      document.getElementById(&quot;newItem&quot;).value = &quot;&quot;;             // clear the input field
+      loadItems();                                               // refresh the list
+    });
+
+    loadItems(); // run immediately when the page loads
+  &lt;/<span <span class="hl-attr">class</span>="hl-tag">script</span>&gt;
+&lt;/<span <span class="hl-attr">class</span>="hl-tag">body</span>&gt;
+&lt;/<span <span class="hl-attr">class</span>="hl-tag">html</span>&gt;</code></pre>
+</div>
+    </div>
+  </div>
+</div>
+<div class="step" id="step8">
+  <div class="step-number">8</div>
+  <div class="step-content">
+    <h3>File Upload Page</h3>
+    <p class="explanation">A simple upload form. The file is sent as multipart form data - standard browser behaviour. The server validates the file extension before saving it.</p>
+    <div class="tabs" data-step="step8">
+      <div class="tab-bar"><button class="tab-btn active" onclick="switchTab('step8',0)" id="step8_tab0">static/upload.html</button></div>
+      
+<div class="tab-panel active" id="step8_panel0">
+  <div class="code-header">
+    <span class="lang-label">html</span>
+    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+  </div>
+  <pre><code>&lt;!DOCTYPE html&gt;
+&lt;<span <span class="hl-attr">class</span>="hl-tag">html</span> <span class="hl-attr">lang</span>=<span class="hl-string">&quot;en&quot;</span>&gt;
+&lt;<span <span class="hl-attr">class</span>="hl-tag">head</span>&gt;
+  &lt;<span <span class="hl-attr">class</span>="hl-tag">meta</span> <span class="hl-attr">charset</span>=<span class="hl-string">&quot;UTF-8&quot;</span>&gt;
+  &lt;<span <span class="hl-attr">class</span>="hl-tag">title</span>&gt;Upload File&lt;/<span <span class="hl-attr">class</span>="hl-tag">title</span>&gt;
+  &lt;<span <span class="hl-attr">class</span>="hl-tag">style</span>&gt;
+    body { font-family: sans-serif; max-width: 400px; margin: 80px auto; padding: 0 20px; }
+    button { padding: 10px 20px; background: #009688; color: white; border: none; cursor: pointer; }
+    #result { margin-top: 16px; }
+  &lt;/<span <span class="hl-attr">class</span>="hl-tag">style</span>&gt;
+&lt;/<span <span class="hl-attr">class</span>="hl-tag">head</span>&gt;
+&lt;<span <span class="hl-attr">class</span>="hl-tag">body</span>&gt;
+  &lt;<span <span class="hl-attr">class</span>="hl-tag">h2</span>&gt;Upload a File&lt;/<span <span class="hl-attr">class</span>="hl-tag">h2</span>&gt;
+  &lt;<span <span class="hl-attr">class</span>="hl-tag">p</span>&gt;Allowed types: .jpg .jpeg .png .pdf .txt&lt;/<span <span class="hl-attr">class</span>="hl-tag">p</span>&gt;
+
+  <span class="hl-comment">&lt;!-- enctype=&quot;multipart/form-data&quot; is required for file uploads --&gt;</span>
+  &lt;<span <span class="hl-attr">class</span>="hl-tag">form</span> <span class="hl-attr">id</span>=<span class="hl-string">&quot;uploadForm&quot;</span> <span class="hl-attr">enctype</span>=<span class="hl-string">&quot;multipart/form-data&quot;</span>&gt;
+    &lt;<span <span class="hl-attr">class</span>="hl-tag">input</span> <span class="hl-attr">type</span>=<span class="hl-string">&quot;file&quot;</span> <span class="hl-attr">name</span>=<span class="hl-string">&quot;file&quot;</span> <span class="hl-attr">id</span>=<span class="hl-string">&quot;fileInput&quot;</span> required&gt;
+    &lt;<span <span class="hl-attr">class</span>="hl-tag">br</span>&gt;&lt;<span <span class="hl-attr">class</span>="hl-tag">br</span>&gt;
+    &lt;<span <span class="hl-attr">class</span>="hl-tag">button</span> <span class="hl-attr">type</span>=<span class="hl-string">&quot;submit&quot;</span>&gt;Upload&lt;/<span <span class="hl-attr">class</span>="hl-tag">button</span>&gt;
+  &lt;/<span <span class="hl-attr">class</span>="hl-tag">form</span>&gt;
+  &lt;<span <span class="hl-attr">class</span>="hl-tag">div</span> <span class="hl-attr">id</span>=<span class="hl-string">&quot;result&quot;</span>&gt;&lt;/<span <span class="hl-attr">class</span>="hl-tag">div</span>&gt;
+
+  &lt;<span <span class="hl-attr">class</span>="hl-tag">script</span>&gt;
+    document.getElementById(&quot;uploadForm&quot;).addEventListener(&quot;submit&quot;, async function(e) {
+      e.preventDefault();
+
+      // FormData automatically packages the file in the right format
+      const formData = new FormData();
+      formData.append(&quot;file&quot;, document.getElementById(&quot;fileInput&quot;).files[0]);
+
+      const res  = await fetch(&quot;/upload&quot;, { method: &quot;POST&quot;, body: formData });
+      const data = await res.json();
+
+      const result = document.getElementById(&quot;result&quot;);
+      if (res.ok) {
+        result.innerHTML = `&lt;<span <span class="hl-attr">class</span>="hl-tag">p</span> <span class="hl-attr">style</span>=<span class="hl-string">&quot;color:green&quot;</span>&gt;Saved: &lt;<span <span class="hl-attr">class</span>="hl-tag">strong</span>&gt;${data.filename}&lt;/<span <span class="hl-attr">class</span>="hl-tag">strong</span>&gt;&lt;/<span <span class="hl-attr">class</span>="hl-tag">p</span>&gt;`;
+      } else {
+        result.innerHTML = `&lt;<span <span class="hl-attr">class</span>="hl-tag">p</span> <span class="hl-attr">style</span>=<span class="hl-string">&quot;color:red&quot;</span>&gt;Error: ${data.detail}&lt;/<span <span class="hl-attr">class</span>="hl-tag">p</span>&gt;`;
+      }
+    });
+  &lt;/<span <span class="hl-attr">class</span>="hl-tag">script</span>&gt;
+&lt;/<span <span class="hl-attr">class</span>="hl-tag">body</span>&gt;
+&lt;/<span <span class="hl-attr">class</span>="hl-tag">html</span>&gt;</code></pre>
+</div>
+    </div>
+  </div>
+</div></div>
+  </main>
+</div>
+<script>
+(function() {
+  // Restore saved theme preference before first paint
+  var saved = localStorage.getItem("pyoffline-theme");
+  if (saved === "light") {
+    document.documentElement.classList.add("light"); // apply class immediately
+  }
+  // Once DOM is ready, sync the checkbox state
+  document.addEventListener("DOMContentLoaded", function() {
+    var toggle = document.getElementById("themeToggle");
+    if (!toggle) return;
+    toggle.checked = (localStorage.getItem("pyoffline-theme") === "light");
+    toggle.addEventListener("change", function() {
+      if (this.checked) {
+        document.documentElement.classList.add("light");    // switch to light
+        localStorage.setItem("pyoffline-theme", "light");  // remember the choice
+      } else {
+        document.documentElement.classList.remove("light"); // back to dark
+        localStorage.setItem("pyoffline-theme", "dark");
+      }
+    });
+  });
+})();
+
+function switchTab(stepId, idx) {
+  // Find all tab buttons and panels belonging to this step
+  var step   = document.getElementById(stepId);
+  var btns   = step.querySelectorAll(".tab-btn");
+  var panels = step.querySelectorAll(".tab-panel");
+  // Remove active from all, then add it to the clicked one
+  btns.forEach(function(b) { b.classList.remove("active"); });
+  panels.forEach(function(p) { p.classList.remove("active"); });
+  btns[idx].classList.add("active");
+  panels[idx].classList.add("active");
+}
+
+function copyCode(btn) {
+  // Walk up to the panel, find the code block, copy its plain text (no HTML tags)
+  var code = btn.closest(".tab-panel").querySelector("code").innerText;
+  navigator.clipboard.writeText(code).then(function() {
+    var orig = btn.textContent;
+    btn.textContent = "Copied!";                              // briefly show confirmation
+    setTimeout(function() { btn.textContent = orig; }, 1500); // restore after 1.5s
+  });
+}
+
+// ── Responsive sidebar ──────────────────────────────────────
+function toggleSidebar() {
+  var sidebar = document.getElementById("guideSidebar");
+  var overlay = document.getElementById("sidebarOverlay");
+  if (!sidebar) return;
+  sidebar.classList.toggle("open");
+  overlay.classList.toggle("open");
+}
+
+// Close sidebar automatically when a step link is clicked (so the scroll happens cleanly)
+document.addEventListener("DOMContentLoaded", function() {
+  var sidebar = document.getElementById("guideSidebar");
+  if (!sidebar) return;
+  sidebar.querySelectorAll("nav a").forEach(function(a) {
+    a.addEventListener("click", function() {
+      sidebar.classList.remove("open");
+      var overlay = document.getElementById("sidebarOverlay");
+      if (overlay) overlay.classList.remove("open");
+    });
+  });
+});
+</script>
+</body>
+</html>

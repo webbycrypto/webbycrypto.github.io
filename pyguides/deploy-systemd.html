@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>systemd + Env Vars - Deployment Series - pyoffline</title>
+<style>
+:root{--bg:#121212;--surface:#1e1e1e;--surface2:#2a2a2a;--sidebar-bg:#1a1a1a;--text:#e0e0e0;--text-muted:#aaa;--text-dim:#666;--border:#333;--code-bg:#1e1e1e;--code-text:#d4d4d4;--shadow:rgba(0,0,0,.4);--accent:#607d8b;--hl-keyword:#569cd6;--hl-string:#ce9178;--hl-comment:#6a9955;--hl-number:#b5cea8;--hl-decorator:#dcdcaa;--hl-builtin:#4ec9b0}
+html.light{--bg:#f5f7fa;--surface:#fff;--surface2:#eef0f3;--sidebar-bg:#fff;--text:#1a1a1a;--text-muted:#555;--text-dim:#888;--border:#dde1e7;--code-bg:#f8f8f8;--code-text:#24292e;--shadow:rgba(0,0,0,.1);--hl-keyword:#00f;--hl-string:#a31515;--hl-comment:#008000;--hl-number:#098658;--hl-decorator:#795e26;--hl-builtin:#267f99}
+.hl-keyword{color:var(--hl-keyword)}.hl-string{color:var(--hl-string)}.hl-comment{color:#adb4a7;font-size:12px;font-style:italic}.hl-number{color:var(--hl-number)}.hl-decorator{color:var(--hl-decorator)}.hl-builtin{color:var(--hl-builtin)}
+*{box-sizing:border-box;margin:0;padding:0}body{background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;transition:background .2s,color .2s}a{color:var(--accent)}
+.layout{display:flex;min-height:100vh}.sidebar{width:260px;min-width:260px;background:var(--sidebar-bg);border-right:1px solid var(--border);padding:24px 16px;position:sticky;top:0;height:100vh;overflow-y:auto}.sidebar h2{font-size:1.1rem;margin:16px 0 8px;color:var(--text)}.sidebar nav ol{padding-left:18px}.sidebar nav li{margin:6px 0}.sidebar nav a{color:var(--text-muted);text-decoration:none;font-size:.85rem}.sidebar nav a:hover{color:var(--accent)}.back-link{color:var(--text-dim);text-decoration:none;font-size:.85rem;display:block;margin-bottom:8px}
+.install-box{margin-top:24px;background:var(--bg);border:1px solid var(--border);padding:12px;border-radius:6px;font-size:.8rem}.install-box code{display:block;word-break:break-all;color:var(--hl-comment);font-family:monospace;margin-top:4px}
+.series-box{margin-top:16px;background:var(--bg);border:1px solid var(--border);padding:12px;border-radius:6px;font-size:.8rem}.series-box p{color:var(--text-muted);margin-bottom:6px;font-weight:600}.series-box a{display:block;color:var(--text-muted);text-decoration:none;padding:2px 0;font-size:.8rem}.series-box a:hover{color:var(--accent)}.series-box a.current{color:var(--accent);font-weight:600}
+main{flex:1;padding:40px;max-width:860px}.guide-header{padding:20px 20px 20px 24px;background:var(--surface);border-radius:8px;margin-bottom:32px;box-shadow:0 1px 3px var(--shadow)}.guide-header h1{font-size:1.8rem;margin-bottom:8px}.guide-header p{color:var(--text-muted)}
+.step{display:flex;gap:16px;margin-bottom:40px}.step-number{width:32px;min-width:32px;height:32px;background:var(--accent);border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:bold;font-size:.9rem;margin-top:4px;color:#fff}.step-content{flex:1;min-width:0}.step-content h3{font-size:1.1rem;margin-bottom:8px;color:var(--text)}.explanation{color:var(--text-muted);font-size:.9rem;line-height:1.6;margin-bottom:14px}
+.info-box{background:var(--surface);border-left:3px solid var(--accent);border-radius:0 6px 6px 0;padding:12px 16px;margin-bottom:14px;font-size:.88rem;color:var(--text-muted);line-height:1.6}.info-box strong{color:var(--text)}
+.warn-box{background:var(--surface);border-left:3px solid #ff9800;border-radius:0 6px 6px 0;padding:12px 16px;margin-bottom:14px;font-size:.88rem;color:var(--text-muted);line-height:1.6}.warn-box strong{color:var(--text)}
+.tabs{background:var(--surface);border-radius:6px;overflow:hidden;border:1px solid var(--border)}.tab-bar{display:flex;background:var(--surface2);overflow-x:auto;border-bottom:1px solid var(--border)}.tab-btn{padding:8px 16px;background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:.8rem;white-space:nowrap;border-bottom:2px solid transparent;margin-bottom:-1px}.tab-btn.active{color:var(--text);border-bottom-color:var(--accent)}.tab-panel{display:none}.tab-panel.active{display:block}
+.code-header{display:flex;justify-content:space-between;align-items:center;padding:5px 12px;background:var(--surface2);border-bottom:1px solid var(--border)}.lang-label{font-size:.72rem;color:var(--text-dim);text-transform:uppercase;letter-spacing:.04em}.copy-btn{background:none;border:1px solid var(--border);color:var(--text-muted);padding:2px 8px;cursor:pointer;border-radius:3px;font-size:.72rem}.copy-btn:hover{color:var(--text);border-color:var(--text-muted)}
+pre{overflow-x:auto;padding:16px;background:var(--code-bg)}code{font-family:"Fira Code","Cascadia Code",Consolas,monospace;font-size:.82rem;line-height:1.65;color:var(--code-text)}
+.theme-row{display:flex;align-items:center;gap:8px;margin-top:20px}.theme-label{font-size:.78rem;color:var(--text-muted)}.toggle-switch{position:relative;display:inline-block;width:40px;height:22px}.toggle-switch input{opacity:0;width:0;height:0}.slider{position:absolute;cursor:pointer;inset:0;background:var(--surface2);border:1px solid var(--border);border-radius:22px;transition:background .2s}.slider:before{content:"";position:absolute;width:16px;height:16px;left:2px;top:2px;background:var(--text-muted);border-radius:50%;transition:transform .2s,background .2s}.toggle-switch input:checked+.slider{background:var(--accent);border-color:var(--accent)}.toggle-switch input:checked+.slider:before{transform:translateX(18px);background:#fff}
+.sidebar-toggle{display:none;position:fixed;top:12px;left:12px;z-index:300;background:var(--accent);color:#fff;border:none;padding:7px 14px;border-radius:6px;cursor:pointer;font-size:.85rem;font-weight:600;box-shadow:0 2px 8px var(--shadow);align-items:center;gap:6px}
+.sidebar-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:190}.sidebar-overlay.open{display:block}
+@media(max-width:900px){.sidebar-toggle{display:flex}.layout{display:block}.sidebar{position:fixed;left:-280px;top:0;height:100vh;z-index:200;transition:left .25s ease;box-shadow:2px 0 16px var(--shadow);min-width:260px}.sidebar.open{left:0}main{padding:60px 20px 40px;max-width:100%}pre{overflow-x:auto;max-width:100%;white-space:pre-wrap;word-break:break-word}.tabs{max-width:100%}}
+</style>
+</head>
+<body>
+<button class="sidebar-toggle" id="sidebarToggle" onclick="toggleSidebar()">&#9776; Steps</button>
+<div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+<div class="layout">
+  <aside class="sidebar" id="guideSidebar">
+    <a href="index.html" class="back-link">← All Guides</a>
+    <h2>Deployment + DevOps</h2>
+    <nav><ol>
+      <li><a href="#step1">Why systemd?</a></li>
+      <li><a href="#step2">Write the Service File</a></li>
+      <li><a href="#step3">Production Env Vars</a></li>
+      <li><a href="#step4">Enable + Start</a></li>
+      <li><a href="#step5">Status + Logs</a></li>
+      <li><a href="#step6">Restart After Deploy</a></li>
+      <li><a href="#step7">Multiple Workers</a></li>
+    </ol></nav>
+    <div class="install-box">
+      <p><strong>Key commands</strong></p>
+      <code>systemctl start myapp</code>
+      <code style="margin-top:4px">systemctl status myapp</code>
+      <code style="margin-top:4px">journalctl -u myapp -f</code>
+      <p style="margin-top:10px"><strong>Service file location</strong></p>
+      <code>/etc/systemd/system/myapp.service</code>
+    </div>
+    <div class="series-box">
+      <p>Deployment + DevOps series</p>
+      <a href="deploy-vps.html">VPS Setup + SSH</a>
+      <a href="deploy-nginx.html">Nginx Reverse Proxy</a>
+      <a href="deploy-ssl.html">HTTPS with Certbot</a>
+      <a href="deploy-systemd.html" class="current">&#10003; systemd + Env Vars</a>
+      <a href="deploy-cicd.html">GitHub Actions CI/CD</a>
+    </div>
+    <div class="theme-row">
+      <span class="theme-label">Dark</span>
+      <label class="toggle-switch"><input type="checkbox" id="themeToggle"><span class="slider"></span></label>
+      <span class="theme-label">Light</span>
+    </div>
+  </aside>
+
+  <main>
+    <header class="guide-header" style="border-left:5px solid #607d8b">
+      <h1>systemd Service + Production Env Vars</h1>
+      <p>Keep uvicorn alive permanently. Write a systemd service file so the app auto-starts on boot, restarts on crash, and loads your secret environment variables from a protected file — never from a committed <code>.env</code>.</p>
+    </header>
+    <div class="steps">
+
+      <div class="step" id="step1">
+        <div class="step-number">1</div>
+        <div class="step-content">
+          <h3>Why systemd?</h3>
+          <p class="explanation">When you ran uvicorn manually in the VPS guide, it died when you closed the SSH session. systemd is Linux's process supervisor — it starts processes on boot, restarts them if they crash, and logs their output. Think of it as a permanent background runner for your app.</p>
+          <div class="info-box"><strong>What you get:</strong> (1) App starts automatically when the server reboots. (2) App restarts within seconds if it crashes. (3) Logs accessible via <code>journalctl</code>. (4) Environment variables injected securely from a file on disk with restricted permissions.</div>
+        </div>
+      </div>
+
+      <div class="step" id="step2">
+        <div class="step-number">2</div>
+        <div class="step-content">
+          <h3>Write the Service File</h3>
+          <p class="explanation">A service file tells systemd what to run, as which user, in which directory, and what to do if it fails.</p>
+          <div class="tabs">
+            <div class="tab-bar"><button class="tab-btn active" onclick="switchTab('step2',0)">/etc/systemd/system/myapp.service</button></div>
+            <div class="tab-panel active">
+              <div class="code-header"><span class="lang-label">ini — systemd service file</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code>[Unit]
+Description=My FastAPI App
+After=network.target    ; don't start until networking is up
+
+[Service]
+User=deploy             ; run as this user, not root
+Group=deploy
+WorkingDirectory=/home/deploy/apps/yourapp
+
+; Load environment variables from a file (see Step 3)
+EnvironmentFile=/etc/myapp.env
+
+; Full path to the venv's uvicorn binary
+ExecStart=/home/deploy/apps/yourapp/venv/bin/uvicorn main:app --host 127.0.0.1 --port 8000
+
+; Restart policy
+Restart=always          ; restart if the process exits for any reason
+RestartSec=5            ; wait 5 seconds before restarting
+
+; Output logs to journald (readable with journalctl)
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target  ; start at normal boot</code></pre>
+            </div>
+          </div>
+          <div class="info-box" style="margin-top:12px"><strong>Create it:</strong> <code>sudo nano /etc/systemd/system/myapp.service</code> — paste, save, exit. Note: <code>--host 127.0.0.1</code> keeps uvicorn bound to localhost only. Nginx handles external traffic.</div>
+        </div>
+      </div>
+
+      <div class="step" id="step3">
+        <div class="step-number">3</div>
+        <div class="step-content">
+          <h3>Production Environment Variables</h3>
+          <p class="explanation">Your <code>.env</code> file is in your project directory and should never be committed to git. On the server, use a separate file in <code>/etc/</code> with restricted permissions — only root can read it, but systemd runs as root so it can pass the variables to your app.</p>
+          <div class="tabs">
+            <div class="tab-bar"><button class="tab-btn active" onclick="switchTab('step3',0)">/etc/myapp.env</button></div>
+            <div class="tab-panel active">
+              <div class="code-header"><span class="lang-label">bash — create and secure the env file</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-comment"># Create the env file</span>
+sudo nano /etc/myapp.env
+
+<span class="hl-comment"># Contents (no quotes, no export, just KEY=VALUE):</span>
+<span class="hl-comment"># SECRET_KEY=your_production_secret_key_here</span>
+<span class="hl-comment"># DATABASE_URL=postgresql://user:pass@localhost/myapp</span>
+<span class="hl-comment"># OPENAI_API_KEY=sk-prod-...</span>
+<span class="hl-comment"># RESEND_API_KEY=re_...</span>
+<span class="hl-comment"># APP_BASE_URL=https://yourdomain.com</span>
+
+<span class="hl-comment"># Restrict permissions: only root can read/write</span>
+sudo chmod 600 /etc/myapp.env
+sudo chown root:root /etc/myapp.env
+
+<span class="hl-comment"># Verify permissions</span>
+ls -la /etc/myapp.env
+<span class="hl-comment"># → -rw------- 1 root root ... /etc/myapp.env</span>
+
+<span class="hl-comment"># The deploy user cannot read this file directly</span>
+<span class="hl-comment"># But systemd (running as root) reads it and passes vars to your process</span></code></pre>
+            </div>
+          </div>
+          <div class="warn-box" style="margin-top:12px"><strong>Never commit secrets to git.</strong> Add <code>.env</code> and <code>*.env</code> to your <code>.gitignore</code>. The production secrets live only in <code>/etc/myapp.env</code> on the server — not in your repo.</div>
+        </div>
+      </div>
+
+      <div class="step" id="step4">
+        <div class="step-number">4</div>
+        <div class="step-content">
+          <h3>Enable + Start the Service</h3>
+          <div class="tabs">
+            <div class="tab-bar"><button class="tab-btn active" onclick="switchTab('step4',0)">bash</button></div>
+            <div class="tab-panel active">
+              <div class="code-header"><span class="lang-label">bash</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-comment"># Tell systemd to reload service files (after creating/editing the .service file)</span>
+sudo systemctl daemon-reload
+
+<span class="hl-comment"># Enable: start the service at boot</span>
+sudo systemctl enable myapp
+
+<span class="hl-comment"># Start: start it now</span>
+sudo systemctl start myapp
+
+<span class="hl-comment"># Check it started successfully</span>
+sudo systemctl status myapp
+<span class="hl-comment"># → Active: active (running) ...</span>
+
+<span class="hl-comment"># Test: visit https://yourdomain.com — your app should be live</span></code></pre>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="step" id="step5">
+        <div class="step-number">5</div>
+        <div class="step-content">
+          <h3>Check Status + View Logs</h3>
+          <p class="explanation">All app output (print statements, uvicorn logs, Python tracebacks) goes to journald. <code>journalctl</code> reads it.</p>
+          <div class="tabs">
+            <div class="tab-bar"><button class="tab-btn active" onclick="switchTab('step5',0)">bash — log commands</button></div>
+            <div class="tab-panel active">
+              <div class="code-header"><span class="lang-label">bash</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-comment"># Live logs (follow mode — like tail -f)</span>
+sudo journalctl -u myapp -f
+
+<span class="hl-comment"># Last 100 lines</span>
+sudo journalctl -u myapp -n 100
+
+<span class="hl-comment"># Logs since a specific time</span>
+sudo journalctl -u myapp --since "2024-06-01 10:00"
+
+<span class="hl-comment"># Service status (shows recent logs too)</span>
+sudo systemctl status myapp
+
+<span class="hl-comment"># Stop the service</span>
+sudo systemctl stop myapp
+
+<span class="hl-comment"># Restart (useful after code changes)</span>
+sudo systemctl restart myapp</code></pre>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="step" id="step6">
+        <div class="step-number">6</div>
+        <div class="step-content">
+          <h3>Restarting After a Deploy</h3>
+          <p class="explanation">When you pull new code, you need to restart the service so uvicorn loads the updated files. This is the manual deploy process — automated in the CI/CD guide.</p>
+          <div class="tabs">
+            <div class="tab-bar"><button class="tab-btn active" onclick="switchTab('step6',0)">Manual deploy script</button></div>
+            <div class="tab-panel active">
+              <div class="code-header"><span class="lang-label">bash — deploy.sh (run on the server)</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-comment">#!/bin/bash</span>
+<span class="hl-comment"># deploy.sh — run this after SSH-ing to the server</span>
+set -e   <span class="hl-comment"># stop on first error</span>
+
+cd /home/deploy/apps/yourapp
+
+<span class="hl-comment"># Pull latest code</span>
+git pull origin main
+
+<span class="hl-comment"># Install any new dependencies</span>
+source venv/bin/activate
+pip install -r requirements.txt
+
+<span class="hl-comment"># Run database migrations (if using Alembic)</span>
+<span class="hl-comment"># alembic upgrade head</span>
+
+<span class="hl-comment"># Restart the app</span>
+sudo systemctl restart myapp
+
+echo "Deploy complete. Checking status..."
+sudo systemctl status myapp --no-pager</code></pre>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="step" id="step7">
+        <div class="step-number">7</div>
+        <div class="step-content">
+          <h3>Multiple Workers</h3>
+          <p class="explanation">By default uvicorn uses one worker process. For better performance on a multi-core server, use <code>--workers</code> to spawn multiple worker processes.</p>
+          <div class="tabs">
+            <div class="tab-bar">
+              <button class="tab-btn active" onclick="switchTab('step7',0)">uvicorn workers</button>
+              <button class="tab-btn" onclick="switchTab('step7',1)">Gunicorn + uvicorn workers</button>
+            </div>
+            <div class="tab-panel active">
+              <div class="code-header"><span class="lang-label">ini — service file ExecStart</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code>ExecStart=/home/deploy/apps/yourapp/venv/bin/uvicorn \
+    main:app \
+    --host 127.0.0.1 \
+    --port 8000 \
+    --workers 4
+<span class="hl-comment"># Rule of thumb: 2 × CPU cores</span>
+<span class="hl-comment"># A 2-core server: --workers 4</span>
+<span class="hl-comment"># A 4-core server: --workers 8</span>
+<span class="hl-comment"># Note: SQLite doesn't work well with multiple workers — use PostgreSQL</span></code></pre>
+            </div>
+            <div class="tab-panel">
+              <div class="code-header"><span class="lang-label">bash — Gunicorn as process manager</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-comment"># Gunicorn is a more mature process manager than uvicorn's built-in workers</span>
+<span class="hl-comment"># Use it when you need graceful zero-downtime restarts</span>
+pip install gunicorn
+
+<span class="hl-comment"># In the service file ExecStart:</span>
+ExecStart=/home/deploy/apps/yourapp/venv/bin/gunicorn \
+    main:app \
+    -w 4 \
+    -k uvicorn.workers.UvicornWorker \
+    --bind 127.0.0.1:8000
+
+<span class="hl-comment"># -w 4: 4 worker processes</span>
+<span class="hl-comment"># -k uvicorn.workers.UvicornWorker: use uvicorn's async worker</span></code></pre>
+            </div>
+          </div>
+          <div class="info-box" style="margin-top:12px"><strong>Next:</strong> <a href="deploy-cicd.html">GitHub Actions CI/CD</a> — automate the deploy script so pushing to GitHub triggers a deploy automatically.</div>
+        </div>
+      </div>
+
+    </div>
+  </main>
+</div>
+<script>
+(function(){var s=localStorage.getItem("pyoffline-theme");if(s==="light")document.documentElement.classList.add("light");document.addEventListener("DOMContentLoaded",function(){var t=document.getElementById("themeToggle");if(!t)return;t.checked=(localStorage.getItem("pyoffline-theme")==="light");t.addEventListener("change",function(){if(this.checked){document.documentElement.classList.add("light");localStorage.setItem("pyoffline-theme","light")}else{document.documentElement.classList.remove("light");localStorage.setItem("pyoffline-theme","dark")}})})})();
+function switchTab(s,i){var el=document.getElementById(s);var b=el.querySelectorAll(".tab-btn");var p=el.querySelectorAll(".tab-panel");b.forEach(function(x){x.classList.remove("active")});p.forEach(function(x){x.classList.remove("active")});b[i].classList.add("active");p[i].classList.add("active")}
+function copyCode(btn){var c=btn.closest(".tab-panel").querySelector("code").innerText;navigator.clipboard.writeText(c).then(function(){var o=btn.textContent;btn.textContent="Copied!";setTimeout(function(){btn.textContent=o},1500)})}
+function toggleSidebar(){var s=document.getElementById("guideSidebar");var o=document.getElementById("sidebarOverlay");if(!s)return;s.classList.toggle("open");o.classList.toggle("open")}
+document.addEventListener("DOMContentLoaded",function(){var s=document.getElementById("guideSidebar");if(!s)return;s.querySelectorAll("nav a").forEach(function(a){a.addEventListener("click",function(){s.classList.remove("open");var o=document.getElementById("sidebarOverlay");if(o)o.classList.remove("open")})})});
+</script>
+</body>
+</html>

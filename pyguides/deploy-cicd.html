@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>GitHub Actions CI/CD - Deployment Series - pyoffline</title>
+<style>
+:root{--bg:#121212;--surface:#1e1e1e;--surface2:#2a2a2a;--sidebar-bg:#1a1a1a;--text:#e0e0e0;--text-muted:#aaa;--text-dim:#666;--border:#333;--code-bg:#1e1e1e;--code-text:#d4d4d4;--shadow:rgba(0,0,0,.4);--accent:#607d8b;--hl-keyword:#569cd6;--hl-string:#ce9178;--hl-comment:#6a9955;--hl-number:#b5cea8;--hl-decorator:#dcdcaa;--hl-builtin:#4ec9b0}
+html.light{--bg:#f5f7fa;--surface:#fff;--surface2:#eef0f3;--sidebar-bg:#fff;--text:#1a1a1a;--text-muted:#555;--text-dim:#888;--border:#dde1e7;--code-bg:#f8f8f8;--code-text:#24292e;--shadow:rgba(0,0,0,.1);--hl-keyword:#00f;--hl-string:#a31515;--hl-comment:#008000;--hl-number:#098658;--hl-decorator:#795e26;--hl-builtin:#267f99}
+.hl-keyword{color:var(--hl-keyword)}.hl-string{color:var(--hl-string)}.hl-comment{color:#adb4a7;font-size:12px;font-style:italic}.hl-number{color:var(--hl-number)}.hl-decorator{color:var(--hl-decorator)}.hl-builtin{color:var(--hl-builtin)}
+*{box-sizing:border-box;margin:0;padding:0}body{background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;transition:background .2s,color .2s}a{color:var(--accent)}
+.layout{display:flex;min-height:100vh}.sidebar{width:260px;min-width:260px;background:var(--sidebar-bg);border-right:1px solid var(--border);padding:24px 16px;position:sticky;top:0;height:100vh;overflow-y:auto}.sidebar h2{font-size:1.1rem;margin:16px 0 8px;color:var(--text)}.sidebar nav ol{padding-left:18px}.sidebar nav li{margin:6px 0}.sidebar nav a{color:var(--text-muted);text-decoration:none;font-size:.85rem}.sidebar nav a:hover{color:var(--accent)}.back-link{color:var(--text-dim);text-decoration:none;font-size:.85rem;display:block;margin-bottom:8px}
+.install-box{margin-top:24px;background:var(--bg);border:1px solid var(--border);padding:12px;border-radius:6px;font-size:.8rem}.install-box code{display:block;word-break:break-all;color:var(--hl-comment);font-family:monospace;margin-top:4px}
+.series-box{margin-top:16px;background:var(--bg);border:1px solid var(--border);padding:12px;border-radius:6px;font-size:.8rem}.series-box p{color:var(--text-muted);margin-bottom:6px;font-weight:600}.series-box a{display:block;color:var(--text-muted);text-decoration:none;padding:2px 0;font-size:.8rem}.series-box a:hover{color:var(--accent)}.series-box a.current{color:var(--accent);font-weight:600}
+main{flex:1;padding:40px;max-width:860px}.guide-header{padding:20px 20px 20px 24px;background:var(--surface);border-radius:8px;margin-bottom:32px;box-shadow:0 1px 3px var(--shadow)}.guide-header h1{font-size:1.8rem;margin-bottom:8px}.guide-header p{color:var(--text-muted)}
+.step{display:flex;gap:16px;margin-bottom:40px}.step-number{width:32px;min-width:32px;height:32px;background:var(--accent);border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:bold;font-size:.9rem;margin-top:4px;color:#fff}.step-content{flex:1;min-width:0}.step-content h3{font-size:1.1rem;margin-bottom:8px;color:var(--text)}.explanation{color:var(--text-muted);font-size:.9rem;line-height:1.6;margin-bottom:14px}
+.info-box{background:var(--surface);border-left:3px solid var(--accent);border-radius:0 6px 6px 0;padding:12px 16px;margin-bottom:14px;font-size:.88rem;color:var(--text-muted);line-height:1.6}.info-box strong{color:var(--text)}
+.warn-box{background:var(--surface);border-left:3px solid #ff9800;border-radius:0 6px 6px 0;padding:12px 16px;margin-bottom:14px;font-size:.88rem;color:var(--text-muted);line-height:1.6}.warn-box strong{color:var(--text)}
+.tabs{background:var(--surface);border-radius:6px;overflow:hidden;border:1px solid var(--border)}.tab-bar{display:flex;background:var(--surface2);overflow-x:auto;border-bottom:1px solid var(--border)}.tab-btn{padding:8px 16px;background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:.8rem;white-space:nowrap;border-bottom:2px solid transparent;margin-bottom:-1px}.tab-btn.active{color:var(--text);border-bottom-color:var(--accent)}.tab-panel{display:none}.tab-panel.active{display:block}
+.code-header{display:flex;justify-content:space-between;align-items:center;padding:5px 12px;background:var(--surface2);border-bottom:1px solid var(--border)}.lang-label{font-size:.72rem;color:var(--text-dim);text-transform:uppercase;letter-spacing:.04em}.copy-btn{background:none;border:1px solid var(--border);color:var(--text-muted);padding:2px 8px;cursor:pointer;border-radius:3px;font-size:.72rem}.copy-btn:hover{color:var(--text);border-color:var(--text-muted)}
+pre{overflow-x:auto;padding:16px;background:var(--code-bg)}code{font-family:"Fira Code","Cascadia Code",Consolas,monospace;font-size:.82rem;line-height:1.65;color:var(--code-text)}
+.theme-row{display:flex;align-items:center;gap:8px;margin-top:20px}.theme-label{font-size:.78rem;color:var(--text-muted)}.toggle-switch{position:relative;display:inline-block;width:40px;height:22px}.toggle-switch input{opacity:0;width:0;height:0}.slider{position:absolute;cursor:pointer;inset:0;background:var(--surface2);border:1px solid var(--border);border-radius:22px;transition:background .2s}.slider:before{content:"";position:absolute;width:16px;height:16px;left:2px;top:2px;background:var(--text-muted);border-radius:50%;transition:transform .2s,background .2s}.toggle-switch input:checked+.slider{background:var(--accent);border-color:var(--accent)}.toggle-switch input:checked+.slider:before{transform:translateX(18px);background:#fff}
+.sidebar-toggle{display:none;position:fixed;top:12px;left:12px;z-index:300;background:var(--accent);color:#fff;border:none;padding:7px 14px;border-radius:6px;cursor:pointer;font-size:.85rem;font-weight:600;box-shadow:0 2px 8px var(--shadow);align-items:center;gap:6px}
+.sidebar-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:190}.sidebar-overlay.open{display:block}
+@media(max-width:900px){.sidebar-toggle{display:flex}.layout{display:block}.sidebar{position:fixed;left:-280px;top:0;height:100vh;z-index:200;transition:left .25s ease;box-shadow:2px 0 16px var(--shadow);min-width:260px}.sidebar.open{left:0}main{padding:60px 20px 40px;max-width:100%}pre{overflow-x:auto;max-width:100%;white-space:pre-wrap;word-break:break-word}.tabs{max-width:100%}}
+</style>
+</head>
+<body>
+<button class="sidebar-toggle" id="sidebarToggle" onclick="toggleSidebar()">&#9776; Steps</button>
+<div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+<div class="layout">
+  <aside class="sidebar" id="guideSidebar">
+    <a href="index.html" class="back-link">← All Guides</a>
+    <h2>Deployment + DevOps</h2>
+    <nav><ol>
+      <li><a href="#step1">What CI/CD Is</a></li>
+      <li><a href="#step2">The Deploy Flow</a></li>
+      <li><a href="#step3">Generate a Deploy SSH Key</a></li>
+      <li><a href="#step4">GitHub Secrets</a></li>
+      <li><a href="#step5">Write the Workflow</a></li>
+      <li><a href="#step6">Add a Test Step</a></li>
+      <li><a href="#step7">Env Vars in Actions</a></li>
+      <li><a href="#step8">What's Next</a></li>
+    </ol></nav>
+    <div class="install-box">
+      <p><strong>Workflow file location</strong></p>
+      <code>.github/workflows/deploy.yml</code>
+      <p style="margin-top:10px"><strong>GitHub Secrets path</strong></p>
+      <code>Repo → Settings → Secrets and variables → Actions</code>
+    </div>
+    <div class="series-box">
+      <p>Deployment + DevOps series</p>
+      <a href="deploy-vps.html">VPS Setup + SSH</a>
+      <a href="deploy-nginx.html">Nginx Reverse Proxy</a>
+      <a href="deploy-ssl.html">HTTPS with Certbot</a>
+      <a href="deploy-systemd.html">systemd + Env Vars</a>
+      <a href="deploy-cicd.html" class="current">&#10003; GitHub Actions CI/CD</a>
+    </div>
+    <div class="theme-row">
+      <span class="theme-label">Dark</span>
+      <label class="toggle-switch"><input type="checkbox" id="themeToggle"><span class="slider"></span></label>
+      <span class="theme-label">Light</span>
+    </div>
+  </aside>
+
+  <main>
+    <header class="guide-header" style="border-left:5px solid #607d8b">
+      <h1>GitHub Actions CI/CD</h1>
+      <p>Automate your deploy. Push to GitHub → tests run → if green → code deploys to your server automatically. No more SSHing in and running scripts manually.</p>
+    </header>
+    <div class="steps">
+
+      <div class="step" id="step1">
+        <div class="step-number">1</div>
+        <div class="step-content">
+          <h3>What CI/CD Is</h3>
+          <p class="explanation">CI (Continuous Integration) runs your tests automatically on every push. CD (Continuous Deployment) deploys your code automatically when tests pass. Together they mean: push to <code>main</code> → tests run → if green → live in production.</p>
+          <div class="info-box"><strong>Why bother?</strong> Manual deploys are error-prone — you forget a step, push broken code, or deploy from the wrong branch. CI/CD makes deploys boring and reliable. Even on a solo project, it's worth the one-time setup.</div>
+        </div>
+      </div>
+
+      <div class="step" id="step2">
+        <div class="step-number">2</div>
+        <div class="step-content">
+          <h3>The Deploy Flow</h3>
+          <div class="tabs">
+            <div class="tab-bar"><button class="tab-btn active" onclick="switchTab('step2',0)">Step by step</button></div>
+            <div class="tab-panel active">
+              <div class="code-header"><span class="lang-label">text</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code>1. git push origin main
+   → GitHub receives the push
+
+2. GitHub Actions starts the workflow
+   → Spins up a temporary Ubuntu runner (free for public repos)
+
+3. (Optional) Run tests with pytest
+   → If tests fail, stop here. Nothing deploys.
+
+4. SSH into your server
+   → Uses the deploy SSH key stored in GitHub Secrets
+
+5. git pull origin main
+   → Fetch the latest code on the server
+
+6. source venv/bin/activate && pip install -r requirements.txt
+   → Install any new dependencies
+
+7. sudo systemctl restart myapp
+   → Load the new code
+
+8. Done. New version is live.</code></pre>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="step" id="step3">
+        <div class="step-number">3</div>
+        <div class="step-content">
+          <h3>Generate a Deploy SSH Key</h3>
+          <p class="explanation">Create a new SSH key pair specifically for GitHub to use. Never reuse your personal SSH key — if the GitHub secret is ever leaked, you revoke just this key without affecting your own access.</p>
+          <div class="tabs">
+            <div class="tab-bar"><button class="tab-btn active" onclick="switchTab('step3',0)">bash — run on your local machine</button></div>
+            <div class="tab-panel active">
+              <div class="code-header"><span class="lang-label">bash</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-comment"># Generate a new key pair specifically for CI/CD</span>
+ssh-keygen -t ed25519 -C "github-deploy" -f ~/.ssh/github_deploy
+<span class="hl-comment"># No passphrase (GitHub Actions can't enter one interactively)</span>
+
+<span class="hl-comment"># View the PRIVATE key — paste this into GitHub Secrets</span>
+cat ~/.ssh/github_deploy
+<span class="hl-comment"># -----BEGIN OPENSSH PRIVATE KEY-----</span>
+<span class="hl-comment"># b3BlbnNzaC1rZXktdjEA...</span>
+<span class="hl-comment"># -----END OPENSSH PRIVATE KEY-----</span>
+
+<span class="hl-comment"># View the PUBLIC key — add this to authorized_keys on the SERVER</span>
+cat ~/.ssh/github_deploy.pub
+<span class="hl-comment"># ssh-ed25519 AAAAC3... github-deploy</span>
+
+<span class="hl-comment"># On the server: add the public key to authorized_keys</span>
+<span class="hl-comment"># (SSH into the server first)</span>
+echo "ssh-ed25519 AAAAC3... github-deploy" >> ~/.ssh/authorized_keys</code></pre>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="step" id="step4">
+        <div class="step-number">4</div>
+        <div class="step-content">
+          <h3>GitHub Secrets</h3>
+          <p class="explanation">Secrets are encrypted variables that GitHub injects into your workflow. They're never visible in logs or to other users. You reference them as <code>${{ secrets.SECRET_NAME }}</code> in the workflow file.</p>
+          <div class="tabs">
+            <div class="tab-bar"><button class="tab-btn active" onclick="switchTab('step4',0)">Secrets to add</button></div>
+            <div class="tab-panel active">
+              <div class="code-header"><span class="lang-label">text — GitHub → Repo Settings → Secrets → Actions</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code>Secret name: SSH_PRIVATE_KEY
+Value: the full contents of ~/.ssh/github_deploy
+       (the private key, including the -----BEGIN/END lines)
+
+Secret name: SERVER_HOST
+Value: your server's IP address or domain
+       e.g. 203.0.113.42  or  yourdomain.com
+
+Secret name: SERVER_USER
+Value: the non-root username you created
+       e.g. deploy
+
+Secret name: SERVER_APP_PATH
+Value: the path to your app on the server
+       e.g. /home/deploy/apps/yourapp</code></pre>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="step" id="step5">
+        <div class="step-number">5</div>
+        <div class="step-content">
+          <h3>Write the Workflow File</h3>
+          <p class="explanation">Create <code>.github/workflows/deploy.yml</code> in your project. GitHub Actions reads this file and runs it on every push to <code>main</code>.</p>
+          <div class="tabs">
+            <div class="tab-bar">
+              <button class="tab-btn active" onclick="switchTab('step5',0)">deploy.yml (minimal)</button>
+              <button class="tab-btn" onclick="switchTab('step5',1)">deploy.yml (with tests)</button>
+            </div>
+            <div class="tab-panel active">
+              <div class="code-header"><span class="lang-label">yaml — .github/workflows/deploy.yml</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code>name: Deploy
+
+on:
+  push:
+    branches: [main]   # trigger on push to main only
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Deploy to server
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host:     ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER }}
+          key:      ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            cd ${{ secrets.SERVER_APP_PATH }}
+            git pull origin main
+            source venv/bin/activate
+            pip install -r requirements.txt
+            sudo systemctl restart myapp
+            echo "Deploy complete"</code></pre>
+            </div>
+            <div class="tab-panel">
+              <div class="code-header"><span class="lang-label">yaml — with test step</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code>name: Test + Deploy
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: pip install -r requirements.txt
+      - run: pip install pytest httpx
+      - run: pytest tests/ -v
+        env:
+          DATABASE_URL: "sqlite:///./test.db"  # use SQLite for tests
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs: test          # only run if test job passes
+    if: success()
+    steps:
+      - name: Deploy to server
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host:     ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER }}
+          key:      ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            cd ${{ secrets.SERVER_APP_PATH }}
+            git pull origin main
+            source venv/bin/activate
+            pip install -r requirements.txt
+            sudo systemctl restart myapp</code></pre>
+            </div>
+          </div>
+          <div class="info-box" style="margin-top:12px"><strong><code>appleboy/ssh-action</code>:</strong> A GitHub Actions action that SSHs into your server and runs commands. It handles setting up the SSH key automatically. <code>uses: appleboy/ssh-action@v1.0.3</code> pins a specific version so it doesn't break when updated.</div>
+        </div>
+      </div>
+
+      <div class="step" id="step6">
+        <div class="step-number">6</div>
+        <div class="step-content">
+          <h3>Allow sudo systemctl restart in the Deploy Script</h3>
+          <p class="explanation">By default, the <code>deploy</code> user needs a password to run <code>sudo</code>. Since GitHub Actions can't enter a password, grant passwordless sudo for just the one command needed.</p>
+          <div class="tabs">
+            <div class="tab-bar"><button class="tab-btn active" onclick="switchTab('step6',0)">bash — on the server</button></div>
+            <div class="tab-panel active">
+              <div class="code-header"><span class="lang-label">bash</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-comment"># Edit the sudoers file safely</span>
+sudo visudo -f /etc/sudoers.d/deploy-restart
+
+<span class="hl-comment"># Add this single line (replace "deploy" with your username):</span>
+<span class="hl-comment"># deploy ALL=(ALL) NOPASSWD: /bin/systemctl restart myapp</span>
+
+<span class="hl-comment"># This allows the deploy user to run ONLY this specific command</span>
+<span class="hl-comment"># without a password — no other sudo commands are allowed.</span>
+<span class="hl-comment"># More secure than granting full passwordless sudo.</span></code></pre>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="step" id="step7">
+        <div class="step-number">7</div>
+        <div class="step-content">
+          <h3>Environment Variables in Actions</h3>
+          <p class="explanation">Your app's runtime secrets (DATABASE_URL, SECRET_KEY) live in <code>/etc/myapp.env</code> on the server — they don't go in GitHub Secrets. GitHub Secrets are only for things the CI process itself needs (SSH keys, server address). The deployed app reads its secrets from the server's env file as usual.</p>
+          <div class="tabs">
+            <div class="tab-bar"><button class="tab-btn active" onclick="switchTab('step7',0)">What goes where</button></div>
+            <div class="tab-panel active">
+              <div class="code-header"><span class="lang-label">text</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code>GitHub Secrets (for the CI/CD process itself):
+  SSH_PRIVATE_KEY     → GitHub Actions uses this to SSH into the server
+  SERVER_HOST         → IP or domain of the server
+  SERVER_USER         → username on the server
+  SERVER_APP_PATH     → path to the app folder
+
+/etc/myapp.env (for the running app — on the server):
+  SECRET_KEY          → FastAPI JWT signing key
+  DATABASE_URL        → PostgreSQL connection string
+  OPENAI_API_KEY      → AI API key
+  RESEND_API_KEY      → Email API key
+
+The difference:
+  GitHub Secrets → used DURING the deploy (by Actions runners)
+  /etc/myapp.env → used AFTER the deploy (by your FastAPI app)</code></pre>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="step" id="step8">
+        <div class="step-number">8</div>
+        <div class="step-content">
+          <h3>What's Next</h3>
+          <p class="explanation">You now have a complete production pipeline: VPS → Nginx → HTTPS → systemd → auto-deploy. This is the foundation every professional FastAPI deployment is built on.</p>
+          <div class="info-box">
+            <strong>Docker:</strong> Package your app and all its dependencies into a container image. Docker ensures the same code runs identically on every machine — no "works on my laptop" problems. A natural next step once you're comfortable with the manual deployment approach.
+          </div>
+          <div class="info-box">
+            <strong>Staging environment:</strong> Add a second server (or branch) for staging — push to <code>staging</code> branch → deploy to staging server → test → merge to <code>main</code> → deploy to production. Prevents untested code from hitting live users.
+          </div>
+          <div class="info-box">
+            <strong>Notifications:</strong> Add a Slack or Discord notification step at the end of your workflow so your team (or just you) knows when a deploy succeeds or fails. <code>appleboy/discord-action</code> or <code>rtCamp/action-slack-notify</code> are simple options.
+          </div>
+          <div class="info-box">
+            <strong>Database migrations in CI:</strong> Add an Alembic step to the deploy script: <code>alembic upgrade head</code> before <code>systemctl restart myapp</code>. This ensures schema changes are applied before the new code starts loading.
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </main>
+</div>
+<script>
+(function(){var s=localStorage.getItem("pyoffline-theme");if(s==="light")document.documentElement.classList.add("light");document.addEventListener("DOMContentLoaded",function(){var t=document.getElementById("themeToggle");if(!t)return;t.checked=(localStorage.getItem("pyoffline-theme")==="light");t.addEventListener("change",function(){if(this.checked){document.documentElement.classList.add("light");localStorage.setItem("pyoffline-theme","light")}else{document.documentElement.classList.remove("light");localStorage.setItem("pyoffline-theme","dark")}})})})();
+function switchTab(s,i){var el=document.getElementById(s);var b=el.querySelectorAll(".tab-btn");var p=el.querySelectorAll(".tab-panel");b.forEach(function(x){x.classList.remove("active")});p.forEach(function(x){x.classList.remove("active")});b[i].classList.add("active");p[i].classList.add("active")}
+function copyCode(btn){var c=btn.closest(".tab-panel").querySelector("code").innerText;navigator.clipboard.writeText(c).then(function(){var o=btn.textContent;btn.textContent="Copied!";setTimeout(function(){btn.textContent=o},1500)})}
+function toggleSidebar(){var s=document.getElementById("guideSidebar");var o=document.getElementById("sidebarOverlay");if(!s)return;s.classList.toggle("open");o.classList.toggle("open")}
+document.addEventListener("DOMContentLoaded",function(){var s=document.getElementById("guideSidebar");if(!s)return;s.querySelectorAll("nav a").forEach(function(a){a.addEventListener("click",function(){s.classList.remove("open");var o=document.getElementById("sidebarOverlay");if(o)o.classList.remove("open")})})});
+</script>
+</body>
+</html>

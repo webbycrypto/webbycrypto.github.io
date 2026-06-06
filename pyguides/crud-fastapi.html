@@ -1,0 +1,1365 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CRUD + HTML Frontend - FastAPI Guide - pyoffline</title>
+<style>
+/* ── Theme variables ───────────────────────────────────────── */
+:root {
+  --bg:          #121212;
+  --surface:     #1e1e1e;
+  --surface2:    #2a2a2a;
+  --sidebar-bg:  #1a1a1a;
+  --text:        #e0e0e0;
+  --text-muted:  #aaa;
+  --text-dim:    #666;
+  --border:      #333;
+  --code-bg:     #1e1e1e;
+  --code-text:   #d4d4d4;
+  --shadow:      rgba(0,0,0,.4);
+  --accent:      #009688;
+  --hl-keyword:  #569cd6;
+  --hl-string:   #ce9178;
+  --hl-comment:  #6a9955;
+  --hl-number:   #b5cea8;
+  --hl-decorator:#dcdcaa;
+  --hl-builtin:  #4ec9b0;
+  --hl-tag:      #4ec9b0;
+  --hl-attr:     #9cdcfe;
+  --hl-template: #c586c0;
+}
+html.light {
+  --bg:          #f5f7fa;
+  --surface:     #ffffff;
+  --surface2:    #eef0f3;
+  --sidebar-bg:  #ffffff;
+  --text:        #1a1a1a;
+  --text-muted:  #555;
+  --text-dim:    #888;
+  --border:      #dde1e7;
+  --code-bg:     #f8f8f8;
+  --code-text:   #24292e;
+  --shadow:      rgba(0,0,0,.1);
+  --hl-keyword:  #0000ff;
+  --hl-string:   #a31515;
+  --hl-comment:  #008000;
+  --hl-number:   #098658;
+  --hl-decorator:#795e26;
+  --hl-builtin:  #267f99;
+  --hl-tag:      #800000;
+  --hl-attr:     #e50000;
+  --hl-template: #af00db;
+}
+
+/* ── Syntax span classes ───────────────────────────────────── */
+.hl-keyword  { color: var(--hl-keyword);  }
+.hl-string   { color: var(--hl-string);   }
+.hl-comment  { color: #adb4a7; font-size: 12px; font-style: italic; }
+.hl-number   { color: var(--hl-number);   }
+.hl-decorator{ color: var(--hl-decorator);}
+.hl-builtin  { color: var(--hl-builtin);  }
+.hl-tag      { color: var(--hl-tag);      }
+.hl-attr     { color: var(--hl-attr);     }
+.hl-template { color: var(--hl-template); }
+
+/* ── Base ──────────────────────────────────────────────────── */
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: var(--bg); color: var(--text); font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; transition: background .2s, color .2s; }
+a { color: var(--accent); }
+
+/* ── Layout ────────────────────────────────────────────────── */
+.layout { display: flex; min-height: 100vh; }
+.sidebar { width: 260px; min-width: 260px; background: var(--sidebar-bg); border-right: 1px solid var(--border); padding: 24px 16px; position: sticky; top: 0; height: 100vh; overflow-y: auto; }
+.sidebar h2 { font-size: 1.1rem; margin: 16px 0 8px; color: var(--text); }
+.sidebar nav ol { padding-left: 18px; }
+.sidebar nav li { margin: 6px 0; }
+.sidebar nav a { color: var(--text-muted); text-decoration: none; font-size: 0.85rem; }
+.sidebar nav a:hover { color: var(--accent); }
+.back-link { color: var(--text-dim); text-decoration: none; font-size: 0.85rem; display: block; margin-bottom: 8px; }
+.install-box { margin-top: 24px; background: var(--bg); border: 1px solid var(--border); padding: 12px; border-radius: 6px; font-size: 0.8rem; }
+.install-box code { display: block; word-break: break-all; color: var(--hl-comment); font-family: monospace; margin-top: 4px; }
+main { flex: 1; padding: 40px; max-width: 860px; }
+.guide-header { padding: 20px 20px 20px 24px; background: var(--surface); border-radius: 8px; margin-bottom: 32px; box-shadow: 0 1px 3px var(--shadow); }
+.guide-header h1 { font-size: 1.8rem; margin-bottom: 8px; }
+.guide-header p { color: var(--text-muted); }
+
+/* ── Steps ─────────────────────────────────────────────────── */
+.step { display: flex; gap: 16px; margin-bottom: 40px; }
+.step-number { width: 32px; min-width: 32px; height: 32px; background: var(--accent); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 0.9rem; margin-top: 4px; color: #fff; }
+.step-content { flex: 1; min-width: 0; }
+.step-content h3 { font-size: 1.1rem; margin-bottom: 8px; color: var(--text); }
+.explanation { color: var(--text-muted); font-size: 0.9rem; line-height: 1.6; margin-bottom: 14px; }
+
+/* ── Info boxes ─────────────────────────────────────────────── */
+.info-box { background: var(--surface); border-left: 3px solid var(--accent); border-radius: 0 6px 6px 0; padding: 12px 16px; margin-bottom: 14px; font-size: 0.88rem; color: var(--text-muted); line-height: 1.6; }
+.info-box strong { color: var(--text); }
+
+/* ── CRUD table ─────────────────────────────────────────────── */
+.crud-table { width: 100%; border-collapse: collapse; margin-bottom: 14px; font-size: 0.85rem; }
+.crud-table th { background: var(--surface2); color: var(--text-muted); text-align: left; padding: 8px 12px; border: 1px solid var(--border); font-weight: 600; }
+.crud-table td { padding: 8px 12px; border: 1px solid var(--border); color: var(--text); }
+.crud-table tr:nth-child(even) td { background: var(--surface); }
+.method { font-family: monospace; font-weight: bold; }
+.method.post   { color: #4caf50; }
+.method.get    { color: #2196f3; }
+.method.put    { color: #ff9800; }
+.method.delete { color: #f44336; }
+
+/* ── Code tabs ─────────────────────────────────────────────── */
+.tabs { background: var(--surface); border-radius: 6px; overflow: hidden; border: 1px solid var(--border); }
+.tab-bar { display: flex; background: var(--surface2); overflow-x: auto; border-bottom: 1px solid var(--border); }
+.tab-btn { padding: 8px 16px; background: none; border: none; color: var(--text-muted); cursor: pointer; font-size: 0.8rem; white-space: nowrap; border-bottom: 2px solid transparent; margin-bottom: -1px; }
+.tab-btn.active { color: var(--text); border-bottom-color: var(--accent); }
+.tab-panel { display: none; }
+.tab-panel.active { display: block; }
+.code-header { display: flex; justify-content: space-between; align-items: center; padding: 5px 12px; background: var(--surface2); border-bottom: 1px solid var(--border); }
+.lang-label { font-size: 0.72rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: .04em; }
+.copy-btn { background: none; border: 1px solid var(--border); color: var(--text-muted); padding: 2px 8px; cursor: pointer; border-radius: 3px; font-size: 0.72rem; }
+.copy-btn:hover { color: var(--text); border-color: var(--text-muted); }
+pre { overflow-x: auto; padding: 16px; background: var(--code-bg); }
+code { font-family: "Fira Code", "Cascadia Code", "Consolas", monospace; font-size: 0.82rem; line-height: 1.65; color: var(--code-text); }
+
+/* ── Theme toggle switch ───────────────────────────────────── */
+.theme-row { display: flex; align-items: center; gap: 8px; margin-top: 20px; }
+.theme-label { font-size: 0.78rem; color: var(--text-muted); }
+.toggle-switch { position: relative; display: inline-block; width: 40px; height: 22px; }
+.toggle-switch input { opacity: 0; width: 0; height: 0; }
+.slider { position: absolute; cursor: pointer; inset: 0; background: var(--surface2); border: 1px solid var(--border); border-radius: 22px; transition: background .2s; }
+.slider:before { content: ""; position: absolute; width: 16px; height: 16px; left: 2px; top: 2px; background: var(--text-muted); border-radius: 50%; transition: transform .2s, background .2s; }
+.toggle-switch input:checked + .slider { background: var(--accent); border-color: var(--accent); }
+.toggle-switch input:checked + .slider:before { transform: translateX(18px); background: #fff; }
+
+/* ── Responsive sidebar ────────────────────────────────────── */
+.sidebar-toggle {
+  display: none;
+  position: fixed; top: 12px; left: 12px; z-index: 300;
+  background: var(--accent); color: #fff; border: none;
+  padding: 7px 14px; border-radius: 6px; cursor: pointer;
+  font-size: 0.85rem; font-weight: 600;
+  box-shadow: 0 2px 8px var(--shadow);
+  align-items: center; gap: 6px;
+}
+.sidebar-overlay {
+  display: none; position: fixed; inset: 0;
+  background: rgba(0,0,0,.45); z-index: 190;
+}
+.sidebar-overlay.open { display: block; }
+
+@media (max-width: 900px) {
+  .sidebar-toggle { display: flex; }
+  .layout { display: block; }
+  .sidebar {
+    position: fixed; left: -280px; top: 0;
+    height: 100vh; z-index: 200;
+    transition: left .25s ease;
+    box-shadow: 2px 0 16px var(--shadow);
+    min-width: 260px;
+  }
+  .sidebar.open { left: 0; }
+  main { padding: 60px 20px 40px; max-width: 100%; }
+  pre { overflow-x: auto; max-width: 100%; white-space: pre-wrap; word-break: break-word; }
+  .tabs { max-width: 100%; }
+}
+</style>
+</head>
+<body>
+<button class="sidebar-toggle" id="sidebarToggle" onclick="toggleSidebar()">&#9776; Steps</button>
+<div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+<div class="layout">
+  <aside class="sidebar" id="guideSidebar">
+    <a href="index.html" class="back-link">← All Guides</a>
+    <h2>CRUD - FastAPI</h2>
+    <nav><ol>
+      <li><a href="#step1">What is CRUD?</a></li>
+      <li><a href="#step2">Setup &amp; Install</a></li>
+      <li><a href="#step3">The Boilerplate</a></li>
+      <li><a href="#step4">CREATE</a></li>
+      <li><a href="#step5">READ</a></li>
+      <li><a href="#step6">UPDATE</a></li>
+      <li><a href="#step7">DELETE</a></li>
+      <li><a href="#step8">Type Hints</a></li>
+      <li><a href="#step9">Routers</a></li>
+      <li><a href="#step10">Environment Variables</a></li>
+      <li><a href="#step11">CORS</a></li>
+      <li><a href="#step12">What's Next</a></li>
+      <li><a href="#step13">Adding an HTML Frontend</a></li>
+      <li><a href="#step14">The HTML Template</a></li>
+      <li><a href="#step15">Forms &harr; Python</a></li>
+      <li><a href="#step16">CSS — style.css</a></li>
+    </ol></nav>
+    <div class="install-box">
+      <p><strong>Install</strong></p>
+      <code>pip install fastapi uvicorn jinja2 python-dotenv</code>
+      <p style="margin-top:12px"><strong>Run</strong></p>
+      <code>uvicorn main:app --reload</code>
+      <p style="margin-top:12px"><strong>Docs</strong></p>
+      <code>http://localhost:8000/docs</code>
+    </div>
+    <div class="theme-row">
+      <span class="theme-label">Dark</span>
+      <label class="toggle-switch">
+        <input type="checkbox" id="themeToggle">
+        <span class="slider"></span>
+      </label>
+      <span class="theme-label">Light</span>
+    </div>
+  </aside>
+
+  <main>
+    <header class="guide-header" style="border-left: 5px solid #009688">
+      <h1>CRUD with FastAPI + HTML Frontend</h1>
+      <p>Learn Create, Read, Update, and Delete with FastAPI — from a simple in-memory store to a working no-JavaScript HTML frontend. Covers the patterns you'll use for real CRMs, AI integrations, and APIs.</p>
+    </header>
+
+    <div class="steps">
+
+      <!-- ── STEP 1: What is CRUD ── -->
+      <div class="step" id="step1">
+        <div class="step-number">1</div>
+        <div class="step-content">
+          <h3>What is CRUD?</h3>
+          <p class="explanation">CRUD stands for Create, Read, Update, Delete — the four operations every app does with data. A CRM creates contacts, reads them into a list, updates their details, and deletes them when removed. An AI app creates conversation threads, reads history to pass as context, updates summaries, and deletes old sessions. Every backend you build will be some combination of these four things. FastAPI maps them directly to HTTP methods, which are the verbs a browser or frontend uses to communicate intent to your server.</p>
+          <table class="crud-table">
+            <tr><th>Operation</th><th>HTTP Method</th><th>What it means</th><th>Example URL</th></tr>
+            <tr><td>Create</td><td><span class="method post">POST</span></td><td>Send new data to save</td><td><code>/items</code></td></tr>
+            <tr><td>Read</td><td><span class="method get">GET</span></td><td>Fetch data, change nothing</td><td><code>/items</code> or <code>/items/1</code></td></tr>
+            <tr><td>Update</td><td><span class="method put">PUT</span></td><td>Send updated data for an existing record</td><td><code>/items/1</code></td></tr>
+            <tr><td>Delete</td><td><span class="method delete">DELETE</span></td><td>Remove a record permanently</td><td><code>/items/1</code></td></tr>
+          </table>
+          <div class="info-box"><strong>REST naming rule:</strong> the URL is a plural noun (<code>/items</code>, <code>/tasks</code>, <code>/contacts</code>). The HTTP method is the verb. Never put the action in the URL — <code>/createItem</code> is wrong; <code>POST /items</code> is correct.</div>
+        </div>
+      </div>
+
+      <!-- ── STEP 2: Setup ── -->
+      <div class="step" id="step2">
+        <div class="step-number">2</div>
+        <div class="step-content">
+          <h3>Setup &amp; Install</h3>
+          <p class="explanation">A virtual environment keeps this project's packages isolated from everything else on your machine. Always activate it before installing or running anything — you'll see (venv) in your prompt when it's active. FastAPI is the framework. Uvicorn is the server that actually runs it. python-dotenv lets you load secret keys and API credentials from a .env file instead of hardcoding them. Once the server is running, FastAPI gives you a free interactive docs page at /docs where you can test every route without writing any frontend code.</p>
+          <div class="tabs" data-step="step2">
+            <div class="tab-bar">
+              <button class="tab-btn active" onclick="switchTab('step2',0)">terminal</button>
+              <button class="tab-btn" onclick="switchTab('step2',1)">folder structure</button>
+            </div>
+            <div class="tab-panel active" id="step2_panel0">
+              <div class="code-header"><span class="lang-label">bash</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-comment"># Create your project folder</span>
+mkdir FastDev
+cd FastDev
+
+<span class="hl-comment"># Create and activate a virtual environment</span>
+python -m venv venv
+venv\Scripts\activate        <span class="hl-comment"># Windows</span>
+source venv/bin/activate     <span class="hl-comment"># macOS / Linux</span>
+
+<span class="hl-comment"># Install the packages</span>
+pip install fastapi uvicorn python-dotenv
+
+<span class="hl-comment"># Run the server (--reload restarts automatically when you save a file)</span>
+uvicorn main:app --reload
+
+<span class="hl-comment"># Open your browser to test routes interactively</span>
+<span class="hl-comment"># http://localhost:8000/docs</span></code></pre>
+            </div>
+            <div class="tab-panel" id="step2_panel1">
+              <div class="code-header"><span class="lang-label">text</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code>FastDev/
+├── venv/               <span class="hl-comment"># virtual environment — never edit this</span>
+├── main.py             <span class="hl-comment"># app entry point: routes, middleware, startup</span>
+├── .env                <span class="hl-comment"># secret keys and API credentials — never commit to Git</span>
+├── templates/          <span class="hl-comment"># HTML files rendered by Jinja2</span>
+│   └── index.html      <span class="hl-comment"># the main page — {{ }} placeholders filled in by Python</span>
+├── static/             <span class="hl-comment"># files served as-is: CSS, images, JS</span>
+│   └── style.css
+└── routes/             <span class="hl-comment"># add this later when you have multiple resources</span>
+    └── items.py</code></pre>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── STEP 3: Boilerplate ── -->
+      <div class="step" id="step3">
+        <div class="step-number">3</div>
+        <div class="step-content">
+          <h3>The Complete Boilerplate</h3>
+          <p class="explanation">Two versions are shown here. The API-only tab is the minimal CRUD backend — use it when your frontend is separate (React, mobile app, another service). The with HTML frontend tab is the full version used in steps 13–16: it serves an HTML page, reads form submissions, and redirects after every change. Both share the same CRUD logic — the only difference is how they receive input and what they return. Read whichever matches your goal, then work through the numbered steps to understand each part.</p>
+          <div class="tabs" data-step="step3">
+            <div class="tab-bar">
+              <button class="tab-btn active" onclick="switchTab('step3',0)">API only</button>
+              <button class="tab-btn" onclick="switchTab('step3',1)">with HTML frontend</button>
+            </div>
+            <div class="tab-panel active" id="step3_panel0">
+              <div class="code-header"><span class="lang-label">python</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-keyword">from</span> fastapi <span class="hl-keyword">import</span> FastAPI, HTTPException
+
+<span class="hl-comment"># Create the app — everything hangs off this object</span>
+app = FastAPI()
+
+<span class="hl-comment"># In-memory store — replace with a real database later</span>
+<span class="hl-comment"># Resets every time the server restarts</span>
+db = {}
+next_id = <span class="hl-number">1</span>
+
+
+<span class="hl-comment"># ── CREATE ──────────────────────────────────────────────────</span>
+<span class="hl-comment"># POST /items  →  save a new item, return it with its new ID</span>
+<span class="hl-decorator">@app.post</span>(<span class="hl-string">"/items"</span>)
+<span class="hl-keyword">def</span> create_item(name: <span class="hl-builtin">str</span>, description: <span class="hl-builtin">str</span> = <span class="hl-keyword">None</span>):
+    <span class="hl-keyword">global</span> next_id
+    db[next_id] = {<span class="hl-string">"id"</span>: next_id, <span class="hl-string">"name"</span>: name, <span class="hl-string">"description"</span>: description}
+    next_id += <span class="hl-number">1</span>
+    <span class="hl-keyword">return</span> db[next_id - <span class="hl-number">1</span>]
+
+
+<span class="hl-comment"># ── READ ALL ─────────────────────────────────────────────────</span>
+<span class="hl-comment"># GET /items  →  return every item as a list</span>
+<span class="hl-decorator">@app.get</span>(<span class="hl-string">"/items"</span>)
+<span class="hl-keyword">def</span> get_all_items():
+    <span class="hl-keyword">return</span> <span class="hl-builtin">list</span>(db.values())
+
+
+<span class="hl-comment"># ── READ ONE ─────────────────────────────────────────────────</span>
+<span class="hl-comment"># GET /items/3  →  return the item with id=3, or 404 if missing</span>
+<span class="hl-decorator">@app.get</span>(<span class="hl-string">"/items/{item_id}"</span>)
+<span class="hl-keyword">def</span> get_item(item_id: <span class="hl-builtin">int</span>):
+    <span class="hl-keyword">if</span> item_id <span class="hl-keyword">not in</span> db:
+        <span class="hl-keyword">raise</span> HTTPException(status_code=<span class="hl-number">404</span>, detail=<span class="hl-string">"Item not found"</span>)
+    <span class="hl-keyword">return</span> db[item_id]
+
+
+<span class="hl-comment"># ── UPDATE ───────────────────────────────────────────────────</span>
+<span class="hl-comment"># PUT /items/3  →  update fields on item 3, return updated item</span>
+<span class="hl-decorator">@app.put</span>(<span class="hl-string">"/items/{item_id}"</span>)
+<span class="hl-keyword">def</span> update_item(item_id: <span class="hl-builtin">int</span>, name: <span class="hl-builtin">str</span> = <span class="hl-keyword">None</span>, description: <span class="hl-builtin">str</span> = <span class="hl-keyword">None</span>):
+    <span class="hl-keyword">if</span> item_id <span class="hl-keyword">not in</span> db:
+        <span class="hl-keyword">raise</span> HTTPException(status_code=<span class="hl-number">404</span>, detail=<span class="hl-string">"Item not found"</span>)
+    <span class="hl-keyword">if</span> name <span class="hl-keyword">is not</span> <span class="hl-keyword">None</span>:
+        db[item_id][<span class="hl-string">"name"</span>] = name
+    <span class="hl-keyword">if</span> description <span class="hl-keyword">is not</span> <span class="hl-keyword">None</span>:
+        db[item_id][<span class="hl-string">"description"</span>] = description
+    <span class="hl-keyword">return</span> db[item_id]
+
+
+<span class="hl-comment"># ── DELETE ───────────────────────────────────────────────────</span>
+<span class="hl-comment"># DELETE /items/3  →  remove item 3, return a confirmation message</span>
+<span class="hl-decorator">@app.delete</span>(<span class="hl-string">"/items/{item_id}"</span>)
+<span class="hl-keyword">def</span> delete_item(item_id: <span class="hl-builtin">int</span>):
+    <span class="hl-keyword">if</span> item_id <span class="hl-keyword">not in</span> db:
+        <span class="hl-keyword">raise</span> HTTPException(status_code=<span class="hl-number">404</span>, detail=<span class="hl-string">"Item not found"</span>)
+    <span class="hl-keyword">del</span> db[item_id]
+    <span class="hl-keyword">return</span> {<span class="hl-string">"message"</span>: f<span class="hl-string">"Item {item_id} deleted"</span>}</code></pre>
+            </div>
+            <div class="tab-panel" id="step3_panel1">
+              <div class="code-header"><span class="lang-label">python</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-keyword">from</span> fastapi <span class="hl-keyword">import</span> FastAPI, HTTPException, Form, Request
+<span class="hl-keyword">from</span> fastapi.responses <span class="hl-keyword">import</span> HTMLResponse, RedirectResponse
+<span class="hl-keyword">from</span> fastapi.staticfiles <span class="hl-keyword">import</span> StaticFiles
+<span class="hl-keyword">from</span> fastapi.templating <span class="hl-keyword">import</span> Jinja2Templates
+
+app = FastAPI()
+
+<span class="hl-comment"># Serve files from the static/ folder at the /static URL path</span>
+app.mount(<span class="hl-string">"/static"</span>, StaticFiles(directory=<span class="hl-string">"static"</span>), name=<span class="hl-string">"static"</span>)
+
+<span class="hl-comment"># Tell FastAPI where your HTML template files live</span>
+templates = Jinja2Templates(directory=<span class="hl-string">"templates"</span>)
+
+db = {}
+next_id = <span class="hl-number">1</span>
+
+
+<span class="hl-comment"># ── SERVE PAGE ───────────────────────────────────────────────</span>
+<span class="hl-comment"># GET /  →  render index.html, pass all items into the template</span>
+<span class="hl-decorator">@app.get</span>(<span class="hl-string">"/"</span>, response_class=HTMLResponse)
+<span class="hl-keyword">def</span> index(request: Request):
+    <span class="hl-keyword">return</span> templates.TemplateResponse(<span class="hl-string">"index.html"</span>, {
+        <span class="hl-string">"request"</span>: request,              <span class="hl-comment"># always required by Jinja2</span>
+        <span class="hl-string">"items"</span>: <span class="hl-builtin">list</span>(db.values())       <span class="hl-comment"># available in HTML as {{ items }}</span>
+    })
+
+
+<span class="hl-comment"># ── CREATE ───────────────────────────────────────────────────</span>
+<span class="hl-comment"># POST /items/create  →  read form fields, save, redirect back to /</span>
+<span class="hl-decorator">@app.post</span>(<span class="hl-string">"/items/create"</span>)
+<span class="hl-keyword">def</span> create_item(
+    name: <span class="hl-builtin">str</span>        = Form(...),   <span class="hl-comment"># Form(...) = required HTML field</span>
+    description: <span class="hl-builtin">str</span> = Form(<span class="hl-keyword">None</span>)  <span class="hl-comment"># Form(None) = optional, None if left blank</span>
+):
+    <span class="hl-keyword">global</span> next_id
+    db[next_id] = {<span class="hl-string">"id"</span>: next_id, <span class="hl-string">"name"</span>: name, <span class="hl-string">"description"</span>: description}
+    next_id += <span class="hl-number">1</span>
+    <span class="hl-keyword">return</span> RedirectResponse(<span class="hl-string">"/"</span>, status_code=<span class="hl-number">303</span>)  <span class="hl-comment"># 303 = redirect after POST</span>
+
+
+<span class="hl-comment"># ── UPDATE ───────────────────────────────────────────────────</span>
+<span class="hl-comment"># POST /items/update  →  HTML forms can't send PUT, so we use POST</span>
+<span class="hl-comment"># item_id comes from a hidden &lt;input type="hidden"&gt; in the form</span>
+<span class="hl-decorator">@app.post</span>(<span class="hl-string">"/items/update"</span>)
+<span class="hl-keyword">def</span> update_item(
+    item_id: <span class="hl-builtin">int</span>     = Form(...),   <span class="hl-comment"># which item — from hidden input</span>
+    name: <span class="hl-builtin">str</span>        = Form(<span class="hl-keyword">None</span>),  <span class="hl-comment"># only update if provided</span>
+    description: <span class="hl-builtin">str</span> = Form(<span class="hl-keyword">None</span>)
+):
+    <span class="hl-keyword">if</span> item_id <span class="hl-keyword">not in</span> db:
+        <span class="hl-keyword">raise</span> HTTPException(status_code=<span class="hl-number">404</span>, detail=<span class="hl-string">"Item not found"</span>)
+    <span class="hl-keyword">if</span> name:
+        db[item_id][<span class="hl-string">"name"</span>] = name
+    <span class="hl-keyword">if</span> description:
+        db[item_id][<span class="hl-string">"description"</span>] = description
+    <span class="hl-keyword">return</span> RedirectResponse(<span class="hl-string">"/"</span>, status_code=<span class="hl-number">303</span>)
+
+
+<span class="hl-comment"># ── DELETE ───────────────────────────────────────────────────</span>
+<span class="hl-comment"># POST /items/delete  →  HTML forms can't send DELETE, so we use POST</span>
+<span class="hl-decorator">@app.post</span>(<span class="hl-string">"/items/delete"</span>)
+<span class="hl-keyword">def</span> delete_item(item_id: <span class="hl-builtin">int</span> = Form(...)):
+    <span class="hl-keyword">if</span> item_id <span class="hl-keyword">not in</span> db:
+        <span class="hl-keyword">raise</span> HTTPException(status_code=<span class="hl-number">404</span>, detail=<span class="hl-string">"Item not found"</span>)
+    <span class="hl-keyword">del</span> db[item_id]
+    <span class="hl-keyword">return</span> RedirectResponse(<span class="hl-string">"/"</span>, status_code=<span class="hl-number">303</span>)</code></pre>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── STEP 4: CREATE ── -->
+      <div class="step" id="step4">
+        <div class="step-number">4</div>
+        <div class="step-content">
+          <h3>CREATE — POST /items</h3>
+          <p class="explanation">POST is the HTTP method for sending new data to the server to be saved. The parameters in the function signature — name and description — are read from the URL query string automatically by FastAPI. So calling POST /items?name=Notebook&description=A5 size sets name="Notebook" and description="A5 size" inside the function. The global keyword tells Python that next_id refers to the variable defined outside the function, not a new local one. Without it, Python would create a new local next_id and the counter would never increment. Each item gets stored in the db dictionary with its ID as the key, and the saved item is returned so the caller knows what was created including its new ID.</p>
+          <div class="tabs" data-step="step4">
+            <div class="tab-bar">
+              <button class="tab-btn active" onclick="switchTab('step4',0)">code</button>
+              <button class="tab-btn" onclick="switchTab('step4',1)">test it</button>
+            </div>
+            <div class="tab-panel active" id="step4_panel0">
+              <div class="code-header"><span class="lang-label">python</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-decorator">@app.post</span>(<span class="hl-string">"/items"</span>)          <span class="hl-comment"># responds to: POST /items</span>
+<span class="hl-keyword">def</span> create_item(name: <span class="hl-builtin">str</span>, description: <span class="hl-builtin">str</span> = <span class="hl-keyword">None</span>):
+    <span class="hl-comment"># name: str  →  required, must be a string</span>
+    <span class="hl-comment"># description: str = None  →  optional, defaults to None if not provided</span>
+
+    <span class="hl-keyword">global</span> next_id  <span class="hl-comment"># tells Python: use the counter defined outside this function</span>
+
+    db[next_id] = {
+        <span class="hl-string">"id"</span>:          next_id,      <span class="hl-comment"># store the ID inside the item so it's easy to return</span>
+        <span class="hl-string">"name"</span>:        name,         <span class="hl-comment"># value comes from the query string</span>
+        <span class="hl-string">"description"</span>: description   <span class="hl-comment"># will be None if not provided</span>
+    }
+
+    next_id += <span class="hl-number">1</span>               <span class="hl-comment"># move the counter forward for next time</span>
+    <span class="hl-keyword">return</span> db[next_id - <span class="hl-number">1</span>]     <span class="hl-comment"># return the item we just saved</span></code></pre>
+            </div>
+            <div class="tab-panel" id="step4_panel1">
+              <div class="code-header"><span class="lang-label">bash</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-comment"># Using curl — or just use the /docs page in your browser</span>
+curl -X POST "http://localhost:8000/items?name=Notebook&description=A5%20size"
+
+<span class="hl-comment"># Expected response:</span>
+<span class="hl-comment"># { "id": 1, "name": "Notebook", "description": "A5 size" }</span>
+
+<span class="hl-comment"># Create another — description is optional</span>
+curl -X POST "http://localhost:8000/items?name=Pen"
+
+<span class="hl-comment"># Expected response:</span>
+<span class="hl-comment"># { "id": 2, "name": "Pen", "description": null }</span></code></pre>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── STEP 5: READ ── -->
+      <div class="step" id="step5">
+        <div class="step-number">5</div>
+        <div class="step-content">
+          <h3>READ — GET /items and GET /items/{id}</h3>
+          <p class="explanation">There are two read operations: fetch all records, and fetch one by ID. GET is the default HTTP method — it's what a browser does when you type a URL and press enter. The {item_id} in the path is called a path parameter: it's a variable slot in the URL. Visiting /items/3 sets item_id = 3 inside the function. The : int after the parameter name is a type hint — FastAPI automatically converts the string "3" from the URL into the integer 3, and rejects it with a 422 error if someone passes something that can't be converted (like /items/banana). HTTPException with status_code=404 sends a proper "not found" error response — the number 404 is a standard HTTP status code that all browsers and API clients understand.</p>
+          <div class="tabs" data-step="step5">
+            <div class="tab-bar">
+              <button class="tab-btn active" onclick="switchTab('step5',0)">read all</button>
+              <button class="tab-btn" onclick="switchTab('step5',1)">read one</button>
+              <button class="tab-btn" onclick="switchTab('step5',2)">test it</button>
+            </div>
+            <div class="tab-panel active" id="step5_panel0">
+              <div class="code-header"><span class="lang-label">python</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-decorator">@app.get</span>(<span class="hl-string">"/items"</span>)           <span class="hl-comment"># responds to: GET /items</span>
+<span class="hl-keyword">def</span> get_all_items():
+    <span class="hl-comment"># db.values() returns all the stored dicts</span>
+    <span class="hl-comment"># list() wraps them so FastAPI can return them as a JSON array</span>
+    <span class="hl-keyword">return</span> <span class="hl-builtin">list</span>(db.values())</code></pre>
+            </div>
+            <div class="tab-panel" id="step5_panel1">
+              <div class="code-header"><span class="lang-label">python</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-decorator">@app.get</span>(<span class="hl-string">"/items/{item_id}"</span>)  <span class="hl-comment"># {item_id} is a variable slot in the URL</span>
+<span class="hl-keyword">def</span> get_item(item_id: <span class="hl-builtin">int</span>):  <span class="hl-comment"># : int tells FastAPI to convert it from a string</span>
+
+    <span class="hl-keyword">if</span> item_id <span class="hl-keyword">not in</span> db:
+        <span class="hl-comment"># 404 = "not found" — a standard HTTP status code</span>
+        <span class="hl-keyword">raise</span> HTTPException(status_code=<span class="hl-number">404</span>, detail=<span class="hl-string">"Item not found"</span>)
+
+    <span class="hl-keyword">return</span> db[item_id]</code></pre>
+            </div>
+            <div class="tab-panel" id="step5_panel2">
+              <div class="code-header"><span class="lang-label">bash</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-comment"># Get all items</span>
+curl http://localhost:8000/items
+
+<span class="hl-comment"># Get a specific item</span>
+curl http://localhost:8000/items/1
+
+<span class="hl-comment"># Try a missing ID — should return a 404 error</span>
+curl http://localhost:8000/items/99
+
+<span class="hl-comment"># Try an invalid ID — should return a 422 validation error</span>
+curl http://localhost:8000/items/banana</code></pre>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── STEP 6: UPDATE ── -->
+      <div class="step" id="step6">
+        <div class="step-number">6</div>
+        <div class="step-content">
+          <h3>UPDATE — PUT /items/{id}</h3>
+          <p class="explanation">PUT is the HTTP method for sending updated data for an existing record. The URL always includes the ID so the server knows which record to update. Both the path parameter (item_id from the URL) and the new field values (from the query string) are combined in one function call. Setting each field parameter to = None as a default means the caller can update just one field at a time — the if is not None check ensures only the fields that were actually provided get overwritten. This pattern is called a partial update and is very common in real APIs.</p>
+          <div class="tabs" data-step="step6">
+            <div class="tab-bar">
+              <button class="tab-btn active" onclick="switchTab('step6',0)">code</button>
+              <button class="tab-btn" onclick="switchTab('step6',1)">test it</button>
+            </div>
+            <div class="tab-panel active" id="step6_panel0">
+              <div class="code-header"><span class="lang-label">python</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-decorator">@app.put</span>(<span class="hl-string">"/items/{item_id}"</span>)   <span class="hl-comment"># responds to: PUT /items/3</span>
+<span class="hl-keyword">def</span> update_item(item_id: <span class="hl-builtin">int</span>, name: <span class="hl-builtin">str</span> = <span class="hl-keyword">None</span>, description: <span class="hl-builtin">str</span> = <span class="hl-keyword">None</span>):
+    <span class="hl-comment"># item_id  →  comes from the URL path  e.g. /items/3</span>
+    <span class="hl-comment"># name     →  comes from the query string  e.g. ?name=Binder</span>
+    <span class="hl-comment"># Both default to None so the caller can update just one field at a time</span>
+
+    <span class="hl-keyword">if</span> item_id <span class="hl-keyword">not in</span> db:
+        <span class="hl-keyword">raise</span> HTTPException(status_code=<span class="hl-number">404</span>, detail=<span class="hl-string">"Item not found"</span>)
+
+    <span class="hl-comment"># Only update a field if a new value was actually provided</span>
+    <span class="hl-keyword">if</span> name <span class="hl-keyword">is not</span> <span class="hl-keyword">None</span>:
+        db[item_id][<span class="hl-string">"name"</span>] = name
+
+    <span class="hl-keyword">if</span> description <span class="hl-keyword">is not</span> <span class="hl-keyword">None</span>:
+        db[item_id][<span class="hl-string">"description"</span>] = description
+
+    <span class="hl-comment"># Return the updated item so the caller can confirm the change</span>
+    <span class="hl-keyword">return</span> db[item_id]</code></pre>
+            </div>
+            <div class="tab-panel" id="step6_panel1">
+              <div class="code-header"><span class="lang-label">bash</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-comment"># Update just the name of item 1</span>
+curl -X PUT "http://localhost:8000/items/1?name=Hardcover+Notebook"
+
+<span class="hl-comment"># Update just the description</span>
+curl -X PUT "http://localhost:8000/items/1?description=A4+ruled"
+
+<span class="hl-comment"># Update both at once</span>
+curl -X PUT "http://localhost:8000/items/1?name=Notebook&description=A4+ruled"</code></pre>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── STEP 7: DELETE ── -->
+      <div class="step" id="step7">
+        <div class="step-number">7</div>
+        <div class="step-content">
+          <h3>DELETE — DELETE /items/{id}</h3>
+          <p class="explanation">DELETE is the HTTP method for removing a record permanently. Like PUT, the URL always includes the ID. There is no body or query string needed — the ID alone is enough to identify what to remove. After deleting, returning a confirmation message is a common convention so the caller knows the operation succeeded. The del keyword in Python removes a key from a dictionary entirely — after this, db[item_id] would raise a KeyError, which is why the existence check comes first.</p>
+          <div class="tabs" data-step="step7">
+            <div class="tab-bar">
+              <button class="tab-btn active" onclick="switchTab('step7',0)">code</button>
+              <button class="tab-btn" onclick="switchTab('step7',1)">test it</button>
+            </div>
+            <div class="tab-panel active" id="step7_panel0">
+              <div class="code-header"><span class="lang-label">python</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-decorator">@app.delete</span>(<span class="hl-string">"/items/{item_id}"</span>)  <span class="hl-comment"># responds to: DELETE /items/3</span>
+<span class="hl-keyword">def</span> delete_item(item_id: <span class="hl-builtin">int</span>):
+
+    <span class="hl-keyword">if</span> item_id <span class="hl-keyword">not in</span> db:
+        <span class="hl-keyword">raise</span> HTTPException(status_code=<span class="hl-number">404</span>, detail=<span class="hl-string">"Item not found"</span>)
+
+    <span class="hl-keyword">del</span> db[item_id]  <span class="hl-comment"># remove the entry from the dictionary entirely</span>
+
+    <span class="hl-comment"># Return a confirmation — the f-string inserts item_id into the message</span>
+    <span class="hl-keyword">return</span> {<span class="hl-string">"message"</span>: f<span class="hl-string">"Item {item_id} deleted"</span>}</code></pre>
+            </div>
+            <div class="tab-panel" id="step7_panel1">
+              <div class="code-header"><span class="lang-label">bash</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-comment"># Delete item 1</span>
+curl -X DELETE http://localhost:8000/items/1
+
+<span class="hl-comment"># Expected response:</span>
+<span class="hl-comment"># { "message": "Item 1 deleted" }</span>
+
+<span class="hl-comment"># Try to get it again — should now return 404</span>
+curl http://localhost:8000/items/1</code></pre>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── STEP 8: Type Hints ── -->
+      <div class="step" id="step8">
+        <div class="step-number">8</div>
+        <div class="step-content">
+          <h3>Type Hints — What They Are and When to Use Them</h3>
+          <p class="explanation">A type hint is the colon-annotation you write after a parameter name: item_id: int, name: str, done: bool. They are not Python rules — plain Python ignores them — but FastAPI reads them to do three useful things automatically: convert the incoming value to the right type (the string "3" from a URL becomes the integer 3), reject bad values with a clear error before they reach your function, and display the correct input fields in the /docs page. You do not need Pydantic models for simple apps. Type hints on function parameters are enough. Add a model only when you have many fields and want to group them under a name.</p>
+          <div class="tabs" data-step="step8">
+            <div class="tab-bar">
+              <button class="tab-btn active" onclick="switchTab('step8',0)">common types</button>
+              <button class="tab-btn" onclick="switchTab('step8',1)">inline vs model</button>
+            </div>
+            <div class="tab-panel active" id="step8_panel0">
+              <div class="code-header"><span class="lang-label">python</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-comment"># str   →  any text: "hello", "john@email.com", "2024-01-01"</span>
+<span class="hl-comment"># int   →  whole numbers: 1, 42, -5</span>
+<span class="hl-comment"># float →  decimal numbers: 3.14, 19.99</span>
+<span class="hl-comment"># bool  →  True or False (accepts: true, false, 1, 0 from query strings)</span>
+
+<span class="hl-comment"># Required parameter — must be provided or FastAPI returns 422</span>
+<span class="hl-keyword">def</span> example(name: <span class="hl-builtin">str</span>):
+    ...
+
+<span class="hl-comment"># Optional parameter — defaults to None if not provided</span>
+<span class="hl-keyword">def</span> example(name: <span class="hl-builtin">str</span> = <span class="hl-keyword">None</span>):
+    ...
+
+<span class="hl-comment"># Optional with a real default value</span>
+<span class="hl-keyword">def</span> example(done: <span class="hl-builtin">bool</span> = <span class="hl-keyword">False</span>, priority: <span class="hl-builtin">int</span> = <span class="hl-number">1</span>):
+    ...</code></pre>
+            </div>
+            <div class="tab-panel" id="step8_panel1">
+              <div class="code-header"><span class="lang-label">python</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-comment"># Inline type hints — fine for 2-4 fields, simple apps</span>
+<span class="hl-keyword">def</span> create_contact(name: <span class="hl-builtin">str</span>, email: <span class="hl-builtin">str</span>, phone: <span class="hl-builtin">str</span> = <span class="hl-keyword">None</span>):
+    ...
+
+<span class="hl-comment"># Pydantic model — better when you have many fields</span>
+<span class="hl-comment"># pip install pydantic  (included with fastapi)</span>
+<span class="hl-keyword">from</span> pydantic <span class="hl-keyword">import</span> BaseModel
+
+<span class="hl-keyword">class</span> Contact(BaseModel):
+    name:    <span class="hl-builtin">str</span>
+    email:   <span class="hl-builtin">str</span>
+    phone:   <span class="hl-builtin">str</span>   = <span class="hl-keyword">None</span>
+    company: <span class="hl-builtin">str</span>   = <span class="hl-keyword">None</span>
+    tags:    <span class="hl-builtin">list</span>  = []
+    active:  <span class="hl-builtin">bool</span>  = <span class="hl-keyword">True</span>
+
+<span class="hl-keyword">def</span> create_contact(contact: Contact):  <span class="hl-comment"># one clean parameter instead of six</span>
+    ...</code></pre>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── STEP 9: Routers ── -->
+      <div class="step" id="step9">
+        <div class="step-number">9</div>
+        <div class="step-content">
+          <h3>Routers — Keeping Code Organised</h3>
+          <p class="explanation">Once your app has more than one resource — items and users, or contacts and deals — putting everything in one main.py file gets hard to read fast. Routers let you split each resource into its own file. APIRouter works exactly like app — you decorate routes the same way — but it belongs to a file, not the whole app. In main.py, include_router() mounts it. The prefix argument means you don't have to type /items on every route in the router file; FastAPI adds it automatically. This is the pattern used in every real FastAPI project.</p>
+          <div class="tabs" data-step="step9">
+            <div class="tab-bar">
+              <button class="tab-btn active" onclick="switchTab('step9',0)">routes/items.py</button>
+              <button class="tab-btn" onclick="switchTab('step9',1)">main.py</button>
+            </div>
+            <div class="tab-panel active" id="step9_panel0">
+              <div class="code-header"><span class="lang-label">python</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-keyword">from</span> fastapi <span class="hl-keyword">import</span> APIRouter, HTTPException
+
+<span class="hl-comment"># APIRouter works exactly like app — same decorators, same syntax</span>
+router = APIRouter()
+
+db = {}
+next_id = <span class="hl-number">1</span>
+
+<span class="hl-comment"># Notice: just "/", not "/items/" — the prefix is added in main.py</span>
+<span class="hl-decorator">@router.post</span>(<span class="hl-string">"/"</span>)
+<span class="hl-keyword">def</span> create_item(name: <span class="hl-builtin">str</span>):
+    <span class="hl-keyword">global</span> next_id
+    db[next_id] = {<span class="hl-string">"id"</span>: next_id, <span class="hl-string">"name"</span>: name}
+    next_id += <span class="hl-number">1</span>
+    <span class="hl-keyword">return</span> db[next_id - <span class="hl-number">1</span>]
+
+<span class="hl-decorator">@router.get</span>(<span class="hl-string">"/"</span>)
+<span class="hl-keyword">def</span> get_all_items():
+    <span class="hl-keyword">return</span> <span class="hl-builtin">list</span>(db.values())
+
+<span class="hl-comment"># ... rest of CRUD routes follow the same pattern</span></code></pre>
+            </div>
+            <div class="tab-panel" id="step9_panel1">
+              <div class="code-header"><span class="lang-label">python</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-keyword">from</span> fastapi <span class="hl-keyword">import</span> FastAPI
+<span class="hl-keyword">from</span> routes.items <span class="hl-keyword">import</span> router <span class="hl-keyword">as</span> items_router
+<span class="hl-comment"># from routes.users import router as users_router  ← add more as you grow</span>
+
+app = FastAPI()
+
+<span class="hl-comment"># prefix="/items" means all routes in items_router are at /items/...</span>
+<span class="hl-comment"># tags=["items"] groups them together in the /docs page</span>
+app.include_router(items_router, prefix=<span class="hl-string">"/items"</span>, tags=[<span class="hl-string">"items"</span>])
+<span class="hl-comment"># app.include_router(users_router, prefix="/users", tags=["users"])</span></code></pre>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── STEP 10: Env vars ── -->
+      <div class="step" id="step10">
+        <div class="step-number">10</div>
+        <div class="step-content">
+          <h3>Environment Variables — Storing Secrets Safely</h3>
+          <p class="explanation">Any time your app connects to an external service — an AI API, a CRM, a database, a payment provider — you will have an API key or password. Never hardcode these directly in your Python file. If you push that file to GitHub, your key is public. The standard approach is a .env file: a plain text file of KEY=VALUE pairs that lives only on your machine and is never committed to version control. python-dotenv reads this file when your app starts and makes the values available via os.getenv(). Add .env to your .gitignore file immediately — do this before your first commit.</p>
+          <div class="tabs" data-step="step10">
+            <div class="tab-bar">
+              <button class="tab-btn active" onclick="switchTab('step10',0)">.env</button>
+              <button class="tab-btn" onclick="switchTab('step10',1)">main.py</button>
+              <button class="tab-btn" onclick="switchTab('step10',2)">.gitignore</button>
+            </div>
+            <div class="tab-panel active" id="step10_panel0">
+              <div class="code-header"><span class="lang-label">bash</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-comment"># .env — never commit this file</span>
+OPENAI_API_KEY=sk-abc123yourkeyhere
+DATABASE_URL=postgresql://user:pass@localhost/mydb
+SECRET_KEY=some-long-random-string</code></pre>
+            </div>
+            <div class="tab-panel" id="step10_panel1">
+              <div class="code-header"><span class="lang-label">python</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-keyword">from</span> dotenv <span class="hl-keyword">import</span> load_dotenv
+<span class="hl-keyword">import</span> os
+
+<span class="hl-comment"># Reads your .env file and loads the values into the environment</span>
+<span class="hl-comment"># Call this once at the top of main.py before reading any variables</span>
+load_dotenv()
+
+<span class="hl-comment"># os.getenv() reads the value — returns None if the key doesn't exist</span>
+OPENAI_API_KEY = os.getenv(<span class="hl-string">"OPENAI_API_KEY"</span>)
+DATABASE_URL   = os.getenv(<span class="hl-string">"DATABASE_URL"</span>)
+
+<span class="hl-comment"># Fail fast at startup if a required key is missing</span>
+<span class="hl-keyword">if not</span> OPENAI_API_KEY:
+    <span class="hl-keyword">raise</span> <span class="hl-builtin">RuntimeError</span>(<span class="hl-string">"OPENAI_API_KEY not set in .env"</span>)</code></pre>
+            </div>
+            <div class="tab-panel" id="step10_panel2">
+              <div class="code-header"><span class="lang-label">text</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-comment"># Add these to .gitignore so secrets are never committed</span>
+.env
+venv/
+__pycache__/
+*.pyc</code></pre>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── STEP 11: CORS ── -->
+      <div class="step" id="step11">
+        <div class="step-number">11</div>
+        <div class="step-content">
+          <h3>CORS — Connecting a Frontend or External Service</h3>
+          <p class="explanation">CORS stands for Cross-Origin Resource Sharing. Browsers block requests from one domain to another by default as a security measure. If your HTML frontend is at localhost:5500 and your FastAPI server is at localhost:8000, the browser will block every API call unless the server explicitly allows it. Adding the CORS middleware tells FastAPI to include the right headers in responses so browsers allow the connection. allow_origins=["*"] permits any domain — fine for development and for public APIs. In production, replace * with the specific domain of your frontend for tighter security.</p>
+          <div class="tabs" data-step="step11">
+            <div class="tab-bar">
+              <button class="tab-btn active" onclick="switchTab('step11',0)">main.py</button>
+            </div>
+            <div class="tab-panel active" id="step11_panel0">
+              <div class="code-header"><span class="lang-label">python</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-keyword">from</span> fastapi <span class="hl-keyword">import</span> FastAPI
+<span class="hl-keyword">from</span> fastapi.middleware.cors <span class="hl-keyword">import</span> CORSMiddleware
+
+app = FastAPI()
+
+<span class="hl-comment"># Add this before any routes are defined</span>
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=[<span class="hl-string">"*"</span>],      <span class="hl-comment"># allow any domain — fine for dev and public APIs</span>
+    allow_methods=[<span class="hl-string">"*"</span>],      <span class="hl-comment"># allow GET, POST, PUT, DELETE, etc.</span>
+    allow_headers=[<span class="hl-string">"*"</span>],      <span class="hl-comment"># allow any headers including Authorization</span>
+)
+
+<span class="hl-comment"># In production, tighten allow_origins to your actual frontend domain:</span>
+<span class="hl-comment"># allow_origins=["https://myapp.com", "https://www.myapp.com"]</span></code></pre>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── STEP 12: What's next ── -->
+      <div class="step" id="step12">
+        <div class="step-number">12</div>
+        <div class="step-content">
+          <h3>What to Learn Next</h3>
+          <p class="explanation">You now know the full CRUD pattern and the key supporting concepts. Everything from here is an addition to this foundation — not a replacement. Pick the next step that matches what you want to build.</p>
+          <div class="info-box">
+            <strong>Real database (SQLite → PostgreSQL)</strong><br>
+            Replace the in-memory dict with SQLAlchemy. SQLite is a file on disk — zero setup, great for learning. PostgreSQL is the production standard. Swapping between them is one line change.<br><br>
+            <code>pip install sqlalchemy</code>
+          </div>
+          <div class="info-box">
+            <strong>Connect an AI API (OpenAI / Claude)</strong><br>
+            Add a POST route that receives a user message, calls the AI API with it, and returns the response. Your .env file already handles the API key. This is the core pattern for every AI integration.<br><br>
+            <code>pip install openai anthropic</code>
+          </div>
+          <div class="info-box">
+            <strong>Connect a CRM (HubSpot / Salesforce)</strong><br>
+            CRM integrations are just CRUD routes that call the CRM's REST API instead of your own database. You read contacts with GET, create them with POST, and update with PUT — same pattern, different destination.<br><br>
+            <code>pip install httpx  &nbsp;&nbsp;# for making HTTP requests to external APIs</code>
+          </div>
+          <div class="info-box">
+            <strong>Add authentication (JWT tokens)</strong><br>
+            Protect routes so only logged-in users can access them. FastAPI has built-in support for OAuth2 and JWT. You'll add a login route that returns a token, then check that token on protected routes.<br><br>
+            <code>pip install python-jose passlib</code>
+          </div>
+          <div class="info-box">
+            <strong>HTML frontend (no JavaScript) — steps 13–16 below</strong><br>
+            FastAPI can serve your HTML pages directly using Jinja2 templates. Forms handle all CRUD operations — no JavaScript or separate frontend server needed for simple apps.
+          </div>
+          <table class="crud-table" style="margin-top:16px">
+            <tr><th>You want to build</th><th>Next step</th></tr>
+            <tr><td>Task / note app with a UI</td><td>Steps 13–16 below, then add SQLite</td></tr>
+            <tr><td>AI chat integration</td><td>Add OpenAI / Claude API call in a POST route</td></tr>
+            <tr><td>CRM backend</td><td>Add SQLite + auth + CORS for a React/Vue frontend</td></tr>
+            <tr><td>Public API</td><td>Add auth tokens + rate limiting + PostgreSQL</td></tr>
+          </table>
+        </div>
+      </div>
+
+      <!-- ── STEP 13: Adding HTML Frontend ── -->
+      <div class="step" id="step13">
+        <div class="step-number">13</div>
+        <div class="step-content">
+          <h3>Adding an HTML Frontend — What Changes in main.py</h3>
+          <p class="explanation">Connecting an HTML frontend to FastAPI requires four new imports and two structural changes. Jinja2Templates tells FastAPI where your HTML files live and how to fill in {{ }} placeholders with Python data before sending the page to the browser. StaticFiles mounts a folder so the browser can load CSS and images. Form replaces query-string parameters — instead of reading ?name=x from the URL, FastAPI reads the value from the form body. RedirectResponse sends the browser to a new URL after a form submission, which prevents the browser from resubmitting the form if the user refreshes. Request is a new required parameter on the page-serving route — Jinja2 needs it to build the response correctly.</p>
+          <div class="tabs" data-step="step13">
+            <div class="tab-bar">
+              <button class="tab-btn active" onclick="switchTab('step13',0)">new imports</button>
+              <button class="tab-btn" onclick="switchTab('step13',1)">serve the page</button>
+              <button class="tab-btn" onclick="switchTab('step13',2)">query vs Form()</button>
+            </div>
+            <div class="tab-panel active" id="step13_panel0">
+              <div class="code-header"><span class="lang-label">python</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-comment"># API-only version — no HTML</span>
+<span class="hl-keyword">from</span> fastapi <span class="hl-keyword">import</span> FastAPI, HTTPException
+
+<span class="hl-comment"># ─────────────────────────────────────────────────────────────</span>
+
+<span class="hl-comment"># With HTML frontend — four new imports added</span>
+<span class="hl-keyword">from</span> fastapi <span class="hl-keyword">import</span> FastAPI, HTTPException, Form, Request
+<span class="hl-keyword">from</span> fastapi.responses <span class="hl-keyword">import</span> HTMLResponse, RedirectResponse
+<span class="hl-keyword">from</span> fastapi.staticfiles <span class="hl-keyword">import</span> StaticFiles
+<span class="hl-keyword">from</span> fastapi.templating <span class="hl-keyword">import</span> Jinja2Templates
+
+<span class="hl-comment"># Form          →  reads a value from an HTML &lt;form&gt; submission</span>
+<span class="hl-comment"># Request       →  the incoming HTTP request; Jinja2 requires it</span>
+<span class="hl-comment"># HTMLResponse  →  tells FastAPI the response is HTML, not JSON</span>
+<span class="hl-comment"># RedirectResponse → sends the browser to a new URL after a form POST</span>
+<span class="hl-comment"># StaticFiles   →  serves CSS/images from a folder</span>
+<span class="hl-comment"># Jinja2Templates → renders .html files with {{ }} placeholders filled in</span>
+
+app = FastAPI()
+
+<span class="hl-comment"># Mount the static/ folder — browser loads /static/style.css from here</span>
+<span class="hl-comment"># The name= string is how Jinja2 references it: url_for('static', path='style.css')</span>
+app.mount(<span class="hl-string">"/static"</span>, StaticFiles(directory=<span class="hl-string">"static"</span>), name=<span class="hl-string">"static"</span>)
+
+<span class="hl-comment"># Tell FastAPI where your HTML template files live</span>
+templates = Jinja2Templates(directory=<span class="hl-string">"templates"</span>)</code></pre>
+            </div>
+            <div class="tab-panel" id="step13_panel1">
+              <div class="code-header"><span class="lang-label">python</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-comment"># This route renders and serves the HTML page</span>
+<span class="hl-comment"># response_class=HTMLResponse tells FastAPI to set the correct Content-Type header</span>
+<span class="hl-decorator">@app.get</span>(<span class="hl-string">"/"</span>, response_class=HTMLResponse)
+<span class="hl-keyword">def</span> index(request: Request):
+    <span class="hl-comment"># templates.TemplateResponse(filename, context_dict)</span>
+    <span class="hl-comment"># filename  → which file inside your templates/ folder to render</span>
+    <span class="hl-comment"># context   → a dict of variables available inside the HTML as {{ key }}</span>
+    <span class="hl-keyword">return</span> templates.TemplateResponse(<span class="hl-string">"index.html"</span>, {
+        <span class="hl-string">"request"</span>: request,         <span class="hl-comment"># always required — Jinja2 needs it internally</span>
+        <span class="hl-string">"items"</span>: <span class="hl-builtin">list</span>(db.values())  <span class="hl-comment"># available in HTML as {{ items }} or {% for item in items %}</span>
+    })
+
+<span class="hl-comment"># This route is called automatically after every form submission</span>
+<span class="hl-comment"># because each create/update/delete route ends with:</span>
+<span class="hl-comment">#     return RedirectResponse("/", status_code=303)</span>
+<span class="hl-comment"># The browser follows the redirect, hits GET /, and gets fresh HTML</span></code></pre>
+            </div>
+            <div class="tab-panel" id="step13_panel2">
+              <div class="code-header"><span class="lang-label">python</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-comment"># ── QUERY STRING (API-only) ──────────────────────────────────</span>
+<span class="hl-comment"># Parameters come from the URL: POST /items?name=Notebook</span>
+<span class="hl-decorator">@app.post</span>(<span class="hl-string">"/items"</span>)
+<span class="hl-keyword">def</span> create_item(name: <span class="hl-builtin">str</span>, description: <span class="hl-builtin">str</span> = <span class="hl-keyword">None</span>):
+    ...
+
+<span class="hl-comment"># ── FORM DATA (HTML frontend) ────────────────────────────────</span>
+<span class="hl-comment"># Parameters come from the form body: &lt;input name="name"&gt;</span>
+<span class="hl-comment"># The route URL changes too — /items/create instead of /items</span>
+<span class="hl-comment"># so it doesn't clash with GET /items (read all)</span>
+<span class="hl-decorator">@app.post</span>(<span class="hl-string">"/items/create"</span>)
+<span class="hl-keyword">def</span> create_item(
+    name: <span class="hl-builtin">str</span>        = Form(...),  <span class="hl-comment"># Form(...) = required — 422 error if missing</span>
+    description: <span class="hl-builtin">str</span> = Form(<span class="hl-keyword">None</span>) <span class="hl-comment"># Form(None) = optional — None if left blank</span>
+):
+    ...
+    <span class="hl-keyword">return</span> RedirectResponse(<span class="hl-string">"/"</span>, status_code=<span class="hl-number">303</span>)
+<span class="hl-comment"># 303 = "See Other" — the standard redirect code after a POST form submission</span>
+<span class="hl-comment"># Without the redirect, pressing browser refresh would re-submit the form</span></code></pre>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── STEP 14: HTML Template ── -->
+      <div class="step" id="step14">
+        <div class="step-number">14</div>
+        <div class="step-content">
+          <h3>The HTML Template — templates/index.html</h3>
+          <p class="explanation">Jinja2 is the templating engine FastAPI uses to fill in {{ }} placeholders before sending HTML to the browser. The browser never sees {{ }} — only the finished result. There are two kinds of Jinja2 syntax: double curly braces {{ item.name }} output a value, and curly-percent {% for %} / {% if %} blocks contain logic like loops and conditionals. The name= attribute on every HTML input is the bridge between HTML and Python — it must exactly match the parameter name in the Form() declaration. A hidden input carries the item_id invisibly so Python knows which item to update or delete.</p>
+          <div class="tabs" data-step="step14">
+            <div class="tab-bar">
+              <button class="tab-btn active" onclick="switchTab('step14',0)">index.html</button>
+              <button class="tab-btn" onclick="switchTab('step14',1)">Jinja2 syntax</button>
+            </div>
+            <div class="tab-panel active" id="step14_panel0">
+              <div class="code-header"><span class="lang-label">html</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code>&lt;!DOCTYPE html&gt;
+&lt;html lang="en"&gt;
+&lt;head&gt;
+  &lt;meta charset="UTF-8"&gt;
+  &lt;meta name="viewport" content="width=device-width, initial-scale=1"&gt;
+  &lt;title&gt;FastDev&lt;/title&gt;
+  &lt;!-- /static/ maps to your static/ folder, configured in main.py --&gt;
+  &lt;link rel="stylesheet" href="/static/style.css"&gt;
+&lt;/head&gt;
+&lt;body&gt;
+
+  &lt;header&gt;
+    &lt;h1&gt;FastDev&lt;/h1&gt;
+  &lt;/header&gt;
+
+  &lt;main&gt;
+
+    &lt;!-- ── CREATE FORM ────────────────────────────────────────────
+         method="post"           → HTTP POST request
+         action="/items/create"  → the FastAPI route: @app.post("/items/create")
+         name="name"             → links to Python param: name: str = Form(...)
+         name="description"      → links to: description: str = Form(None)
+    --&gt;
+    &lt;section&gt;
+      &lt;h2&gt;Add an Item&lt;/h2&gt;
+      &lt;form method="post" action="/items/create"&gt;
+        &lt;label&gt;Name&lt;/label&gt;
+        &lt;input type="text" name="name" placeholder="Item name" required&gt;
+        &lt;!-- required enforced by browser before submitting --&gt;
+
+        &lt;label&gt;Description&lt;/label&gt;
+        &lt;input type="text" name="description" placeholder="Optional"&gt;
+        &lt;!-- left blank → Python receives None for description --&gt;
+
+        &lt;button type="submit"&gt;Add Item&lt;/button&gt;
+      &lt;/form&gt;
+    &lt;/section&gt;
+
+    &lt;!-- ── READ ALL ───────────────────────────────────────────────
+         No form needed. Python passed items via:
+             "items": list(db.values())
+         Jinja2 {% for %} loops over that list below.
+    --&gt;
+    &lt;section&gt;
+      &lt;h2&gt;All Items&lt;/h2&gt;
+
+      &lt;!-- {% if items %} checks whether the list is non-empty --&gt;
+      {% if items %}
+        &lt;div class="item-list"&gt;
+
+          &lt;!-- {% for item in items %} loops — one card per dict in the list --&gt;
+          {% for item in items %}
+          &lt;div class="item-card"&gt;
+
+            &lt;div class="item-info"&gt;
+              &lt;!-- {{ item.id }} outputs the "id" key from the dict --&gt;
+              &lt;span class="item-id"&gt;#{{ item.id }}&lt;/span&gt;
+              &lt;strong&gt;{{ item.name }}&lt;/strong&gt;
+
+              &lt;!-- {% if item.description %} — only render if not None/empty --&gt;
+              {% if item.description %}
+                &lt;p&gt;{{ item.description }}&lt;/p&gt;
+              {% endif %}
+            &lt;/div&gt;
+
+            &lt;div class="item-actions"&gt;
+
+              &lt;!-- ── UPDATE FORM ───────────────────────────────────
+                   HTML forms can't send PUT — so we POST to a
+                   dedicated route: @app.post("/items/update")
+                   The hidden input sends item_id without showing it.
+                   value="{{ item.id }}" → Jinja2 fills in this item's ID
+              --&gt;
+              &lt;form method="post" action="/items/update"&gt;
+                &lt;input type="hidden" name="item_id" value="{{ item.id }}"&gt;
+                &lt;!-- "hidden" → invisible to user, still sent with the form --&gt;
+
+                &lt;input type="text" name="name"
+                       placeholder="{{ item.name }}"&gt;
+                &lt;!-- placeholder shows current value as a hint --&gt;
+
+                &lt;input type="text" name="description"
+                       placeholder="{{ item.description or 'description' }}"&gt;
+                &lt;!-- item.description or 'description' → Jinja2 fallback if None --&gt;
+
+                &lt;button type="submit"&gt;Save&lt;/button&gt;
+              &lt;/form&gt;
+
+              &lt;!-- ── DELETE FORM ───────────────────────────────────
+                   HTML forms can't send DELETE — so we POST to:
+                   @app.post("/items/delete")
+                   One hidden input, one button — that's all that's needed.
+              --&gt;
+              &lt;form method="post" action="/items/delete"&gt;
+                &lt;input type="hidden" name="item_id" value="{{ item.id }}"&gt;
+                &lt;button type="submit"&gt;Delete&lt;/button&gt;
+              &lt;/form&gt;
+
+            &lt;/div&gt;
+          &lt;/div&gt;
+          {% endfor %}
+          &lt;!-- {% endfor %} closes the for loop --&gt;
+
+        &lt;/div&gt;
+      {% else %}
+        &lt;p&gt;No items yet — add one above.&lt;/p&gt;
+      {% endif %}
+
+    &lt;/section&gt;
+  &lt;/main&gt;
+
+&lt;/body&gt;
+&lt;/html&gt;</code></pre>
+            </div>
+            <div class="tab-panel" id="step14_panel1">
+              <div class="code-header"><span class="lang-label">html</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code>&lt;!-- OUTPUT a value from the Python context dict --&gt;
+{{ item.name }}          &lt;!-- outputs the "name" key --&gt;
+{{ item.id }}            &lt;!-- outputs the "id" key --&gt;
+
+&lt;!-- FALLBACK — use "or" when a value might be None --&gt;
+{{ item.description or "none" }}
+
+&lt;!-- FOR LOOP — loops over the "items" list passed from Python --&gt;
+{% for item in items %}
+  &lt;p&gt;{{ item.name }}&lt;/p&gt;
+{% endfor %}
+
+&lt;!-- IF / ELSE / ENDIF --&gt;
+{% if item.description %}
+  &lt;p&gt;{{ item.description }}&lt;/p&gt;
+{% else %}
+  &lt;p&gt;No description&lt;/p&gt;
+{% endif %}
+
+&lt;!-- IF checking a list is non-empty --&gt;
+{% if items %}
+  &lt;!-- list has at least one item --&gt;
+{% else %}
+  &lt;p&gt;Nothing here yet.&lt;/p&gt;
+{% endif %}</code></pre>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── STEP 15: Forms ↔ Python ── -->
+      <div class="step" id="step15">
+        <div class="step-number">15</div>
+        <div class="step-content">
+          <h3>How HTML Forms Talk to Python — The Full Mapping</h3>
+          <p class="explanation">Every connection between your HTML and your Python function goes through three things: the form's action (which route to call), the form's method (GET or POST), and the name attribute on each input (which parameter to set). HTML forms only support GET and POST — there is no method="put" or method="delete". This is why the HTML frontend uses POST for update and delete, with dedicated routes (/items/update, /items/delete) instead of the REST-standard PUT and DELETE. The /docs page still exposes the original PUT and DELETE routes for API clients that can use them — both interfaces can coexist in the same app.</p>
+          <div class="tabs" data-step="step15">
+            <div class="tab-bar">
+              <button class="tab-btn active" onclick="switchTab('step15',0)">mapping table</button>
+              <button class="tab-btn" onclick="switchTab('step15',1)">hidden inputs</button>
+              <button class="tab-btn" onclick="switchTab('step15',2)">why redirect?</button>
+            </div>
+            <div class="tab-panel active" id="step15_panel0">
+              <div class="code-header"><span class="lang-label">text</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code>HTML attribute / tag             Python / FastAPI equivalent
+─────────────────────────────────────────────────────────────────
+method="post"                  @app.post(...)
+method="get"                   @app.get(...)
+action="/items/create"         the URL string in @app.post("/items/create")
+name="name"                    parameter name:  name: str = Form(...)
+name="item_id"                 parameter name:  item_id: int = Form(...)
+required  (HTML attribute)     enforced by browser before submitting
+Form(...)                      required in Python — 422 error if missing
+Form(None)                     optional — Python receives None if left blank
+type="hidden"                  invisible to user, still sent in the form body
+&lt;button type="submit"&gt;         sends the form when clicked
+RedirectResponse("/", 303)     sends browser to GET / after the POST finishes
+
+HTML method="put" / "delete"   NOT SUPPORTED — use POST + dedicated route
+PUT  /items/{id}               still works via /docs or curl/fetch — API clients
+DELETE /items/{id}             still works via /docs or curl/fetch — API clients</code></pre>
+            </div>
+            <div class="tab-panel" id="step15_panel1">
+              <div class="code-header"><span class="lang-label">html</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code>&lt;!-- Hidden inputs carry data the user doesn't need to type --&gt;
+&lt;!-- They are invisible on screen but included in the form submission --&gt;
+
+&lt;!-- Without Jinja2 — static value --&gt;
+&lt;input type="hidden" name="item_id" value="3"&gt;
+
+&lt;!-- With Jinja2 — dynamic value filled in by Python for each item --&gt;
+&lt;input type="hidden" name="item_id" value="{{ item.id }}"&gt;
+
+&lt;!-- Python receives it as: --&gt;
+&lt;!-- item_id: int = Form(...)  →  3 --&gt;
+
+&lt;!-- Common uses for hidden inputs: --&gt;
+&lt;!-- - Passing a record ID to an update or delete route --&gt;
+&lt;!-- - Passing a CSRF token for security --&gt;
+&lt;!-- - Passing a redirect URL after the action completes --&gt;</code></pre>
+            </div>
+            <div class="tab-panel" id="step15_panel2">
+              <div class="code-header"><span class="lang-label">python</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-comment"># Without RedirectResponse — browser stays on the POST URL</span>
+<span class="hl-decorator">@app.post</span>(<span class="hl-string">"/items/create"</span>)
+<span class="hl-keyword">def</span> create_item(name: <span class="hl-builtin">str</span> = Form(...)):
+    db[next_id] = {<span class="hl-string">"name"</span>: name}
+    <span class="hl-keyword">return</span> {<span class="hl-string">"ok"</span>: <span class="hl-keyword">True</span>}
+<span class="hl-comment"># Problem: the browser URL is now /items/create</span>
+<span class="hl-comment"># Pressing refresh re-submits the form → duplicate item created</span>
+
+<span class="hl-comment"># ─────────────────────────────────────────────────────────────</span>
+
+<span class="hl-comment"># With RedirectResponse — browser moves to GET /</span>
+<span class="hl-decorator">@app.post</span>(<span class="hl-string">"/items/create"</span>)
+<span class="hl-keyword">def</span> create_item(name: <span class="hl-builtin">str</span> = Form(...)):
+    db[next_id] = {<span class="hl-string">"name"</span>: name}
+    <span class="hl-keyword">return</span> RedirectResponse(<span class="hl-string">"/"</span>, status_code=<span class="hl-number">303</span>)
+<span class="hl-comment"># Browser follows the redirect → hits GET / → fresh page renders</span>
+<span class="hl-comment"># Pressing refresh now just reloads the page — no duplicate</span>
+<span class="hl-comment"># This is called the Post/Redirect/Get pattern (PRG)</span>
+<span class="hl-comment"># status_code=303 = "See Other" — the correct code for POST → GET redirects</span></code></pre>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── STEP 16: CSS ── -->
+      <div class="step" id="step16">
+        <div class="step-number">16</div>
+        <div class="step-content">
+          <h3>CSS — static/style.css</h3>
+          <p class="explanation">The static/ folder holds files that FastAPI serves exactly as-is — no Python processing. CSS, images, and client-side JavaScript all go here. The file is linked in index.html with href="/static/style.css", which maps to static/style.css on disk because of the app.mount() call in main.py. Nothing in this file needs to change when you add more Python routes — it's completely independent of the backend logic.</p>
+          <div class="tabs" data-step="step16">
+            <div class="tab-bar">
+              <button class="tab-btn active" onclick="switchTab('step16',0)">style.css</button>
+              <button class="tab-btn" onclick="switchTab('step16',1)">how static files work</button>
+            </div>
+            <div class="tab-panel active" id="step16_panel0">
+              <div class="code-header"><span class="lang-label">css</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code>/* static/style.css */
+/* Loaded by &lt;link rel="stylesheet" href="/static/style.css"&gt; in index.html */
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  background: #f5f7fa;
+  color: #1a1a1a;
+}
+
+header {
+  background: #009688;
+  color: white;
+  padding: 20px 32px;
+  font-size: 1.2rem;
+  font-weight: 700;
+}
+
+main {
+  max-width: 760px;
+  margin: 32px auto;
+  padding: 0 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+}
+
+section {
+  background: white;
+  border-radius: 8px;
+  padding: 24px;
+  box-shadow: 0 1px 4px rgba(0,0,0,.08);
+}
+
+section h2 { font-size: 1.05rem; margin-bottom: 16px; color: #444; }
+
+/* ── Forms ── */
+label {
+  display: block;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #555;
+  margin: 12px 0 4px;
+}
+label:first-of-type { margin-top: 0; }
+
+input[type="text"] {
+  width: 100%;
+  padding: 9px 12px;
+  border: 1px solid #dde1e7;
+  border-radius: 6px;
+  font-size: 0.95rem;
+  background: #fafafa;
+}
+input[type="text"]:focus {
+  outline: none;
+  border-color: #009688;
+  background: white;
+}
+
+/* ── Buttons ── */
+button {
+  padding: 9px 20px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.88rem;
+  font-weight: 600;
+  margin-top: 14px;
+  background: #009688;
+  color: white;
+}
+button:hover { background: #00796b; }
+
+/* ── Item list ── */
+.item-list { display: flex; flex-direction: column; gap: 10px; }
+
+.item-card {
+  border: 1px solid #eee;
+  border-radius: 8px;
+  padding: 14px 16px;
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.item-info { flex: 1; min-width: 120px; }
+.item-id   { font-size: 0.75rem; color: #aaa; display: block; }
+
+.item-actions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+.item-actions form { display: flex; gap: 6px; align-items: center; }
+.item-actions input[type="text"] { width: 110px; padding: 6px 10px; font-size: 0.82rem; margin: 0; }
+.item-actions button { margin: 0; padding: 6px 14px; font-size: 0.8rem; }
+.item-actions form:last-child button { background: #fdecea; color: #c62828; }
+.item-actions form:last-child button:hover { background: #ffcdd2; }</code></pre>
+            </div>
+            <div class="tab-panel" id="step16_panel1">
+              <div class="code-header"><span class="lang-label">python</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-comment"># This one line in main.py makes all static files work:</span>
+app.mount(<span class="hl-string">"/static"</span>, StaticFiles(directory=<span class="hl-string">"static"</span>), name=<span class="hl-string">"static"</span>)
+
+<span class="hl-comment"># "/static"          → the URL prefix the browser uses:  /static/style.css</span>
+<span class="hl-comment"># directory="static" → the folder on disk:               static/style.css</span>
+<span class="hl-comment"># name="static"      → the internal name for url_for() in templates</span>
+
+<span class="hl-comment"># The browser requests:  GET /static/style.css</span>
+<span class="hl-comment"># FastAPI reads:         static/style.css from disk</span>
+<span class="hl-comment"># FastAPI returns:       the file contents, no Python processing</span>
+
+<span class="hl-comment"># In index.html, load it with:</span>
+<span class="hl-comment"># &lt;link rel="stylesheet" href="/static/style.css"&gt;</span>
+
+<span class="hl-comment"># You can put anything in static/ — CSS, images, client-side JS:</span>
+<span class="hl-comment"># static/style.css       → /static/style.css</span>
+<span class="hl-comment"># static/logo.png        → /static/logo.png</span>
+<span class="hl-comment"># static/app.js          → /static/app.js</span></code></pre>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /steps -->
+  </main>
+</div>
+
+<script>
+(function() {
+  var saved = localStorage.getItem("pyoffline-theme");
+  if (saved === "light") {
+    document.documentElement.classList.add("light");
+  }
+  document.addEventListener("DOMContentLoaded", function() {
+    var toggle = document.getElementById("themeToggle");
+    if (!toggle) return;
+    toggle.checked = (localStorage.getItem("pyoffline-theme") === "light");
+    toggle.addEventListener("change", function() {
+      if (this.checked) {
+        document.documentElement.classList.add("light");
+        localStorage.setItem("pyoffline-theme", "light");
+      } else {
+        document.documentElement.classList.remove("light");
+        localStorage.setItem("pyoffline-theme", "dark");
+      }
+    });
+  });
+})();
+
+function switchTab(stepId, idx) {
+  var step   = document.getElementById(stepId);
+  var btns   = step.querySelectorAll(".tab-btn");
+  var panels = step.querySelectorAll(".tab-panel");
+  btns.forEach(function(b) { b.classList.remove("active"); });
+  panels.forEach(function(p) { p.classList.remove("active"); });
+  btns[idx].classList.add("active");
+  panels[idx].classList.add("active");
+}
+
+function copyCode(btn) {
+  var code = btn.closest(".tab-panel").querySelector("code").innerText;
+  navigator.clipboard.writeText(code).then(function() {
+    var orig = btn.textContent;
+    btn.textContent = "Copied!";
+    setTimeout(function() { btn.textContent = orig; }, 1500);
+  });
+}
+
+function toggleSidebar() {
+  var sidebar = document.getElementById("guideSidebar");
+  var overlay = document.getElementById("sidebarOverlay");
+  if (!sidebar) return;
+  sidebar.classList.toggle("open");
+  overlay.classList.toggle("open");
+}
+
+document.addEventListener("DOMContentLoaded", function() {
+  var sidebar = document.getElementById("guideSidebar");
+  if (!sidebar) return;
+  sidebar.querySelectorAll("nav a").forEach(function(a) {
+    a.addEventListener("click", function() {
+      sidebar.classList.remove("open");
+      var overlay = document.getElementById("sidebarOverlay");
+      if (overlay) overlay.classList.remove("open");
+    });
+  });
+});
+</script>
+</body>
+</html>

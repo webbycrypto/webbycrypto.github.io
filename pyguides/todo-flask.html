@@ -1,0 +1,531 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Todo App - Flask Guide - pyoffline</title>
+<style>
+/* ── Theme variables ───────────────────────────────────────── */
+:root {
+  --bg:          #121212;
+  --surface:     #1e1e1e;
+  --surface2:    #2a2a2a;
+  --sidebar-bg:  #1a1a1a;
+  --text:        #e0e0e0;
+  --text-muted:  #aaa;
+  --text-dim:    #666;
+  --border:      #333;
+  --code-bg:     #1e1e1e;
+  --code-text:   #d4d4d4;
+  --shadow:      rgba(0,0,0,.4);
+  /* syntax - dark (VSCode Dark+) */
+  --hl-keyword:  #569cd6;
+  --hl-string:   #ce9178;
+  --hl-comment:  #6a9955;
+  --hl-number:   #b5cea8;
+  --hl-decorator:#dcdcaa;
+  --hl-builtin:  #4ec9b0;
+  --hl-tag:      #4ec9b0;
+  --hl-attr:     #9cdcfe;
+  --hl-template: #c586c0;
+}
+html.light {
+  --bg:          #f5f7fa;
+  --surface:     #ffffff;
+  --surface2:    #eef0f3;
+  --sidebar-bg:  #ffffff;
+  --text:        #1a1a1a;
+  --text-muted:  #555;
+  --text-dim:    #888;
+  --border:      #dde1e7;
+  --code-bg:     #f8f8f8;
+  --code-text:   #24292e;
+  --shadow:      rgba(0,0,0,.1);
+  /* syntax - light (VSCode Light) */
+  --hl-keyword:  #0000ff;
+  --hl-string:   #a31515;
+  --hl-comment:  #008000;
+  --hl-number:   #098658;
+  --hl-decorator:#795e26;
+  --hl-builtin:  #267f99;
+  --hl-tag:      #800000;
+  --hl-attr:     #e50000;
+  --hl-template: #af00db;
+}
+
+/* ── Syntax span classes ───────────────────────────────────── */
+.hl-keyword  { color: var(--hl-keyword);  }
+.hl-string   { color: var(--hl-string);   }
+.hl-comment  { color: #adb4a7; font-size: 12px; font-style: italic; }
+.hl-number   { color: var(--hl-number);   }
+.hl-decorator{ color: var(--hl-decorator);}
+.hl-builtin  { color: var(--hl-builtin);  }
+.hl-tag      { color: var(--hl-tag);      }
+.hl-attr     { color: var(--hl-attr);     }
+.hl-template { color: var(--hl-template); }
+
+/* ── Base ──────────────────────────────────────────────────── */
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: var(--bg); color: var(--text); font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; transition: background .2s, color .2s; }
+a { color: #000000; }
+
+/* ── Layout ────────────────────────────────────────────────── */
+.layout { display: flex; min-height: 100vh; }
+.sidebar { width: 260px; min-width: 260px; background: var(--sidebar-bg); border-right: 1px solid var(--border); padding: 24px 16px; position: sticky; top: 0; height: 100vh; overflow-y: auto; }
+.sidebar h2 { font-size: 1.1rem; margin: 16px 0 8px; color: var(--text); }
+.sidebar nav ol { padding-left: 18px; }
+.sidebar nav li { margin: 6px 0; }
+.sidebar nav a { color: var(--text-muted); text-decoration: none; font-size: 0.85rem; }
+.sidebar nav a:hover { color: #000000; }
+.back-link { color: var(--text-dim); text-decoration: none; font-size: 0.85rem; display: block; margin-bottom: 8px; }
+.install-box { margin-top: 24px; background: var(--bg); border: 1px solid var(--border); padding: 12px; border-radius: 6px; font-size: 0.8rem; }
+.install-box code { display: block; word-break: break-all; color: var(--hl-comment); font-family: monospace; }
+main { flex: 1; padding: 40px; max-width: 860px; }
+.guide-header { padding: 20px 20px 20px 24px; background: var(--surface); border-radius: 8px; margin-bottom: 32px; box-shadow: 0 1px 3px var(--shadow); }
+.guide-header h1 { font-size: 1.8rem; margin-bottom: 8px; }
+.guide-header p { color: var(--text-muted); }
+
+/* ── Steps ─────────────────────────────────────────────────── */
+.step { display: flex; gap: 16px; margin-bottom: 40px; }
+.step-number { width: 32px; min-width: 32px; height: 32px; background: #000000; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 0.9rem; margin-top: 4px; color: #fff; }
+.step-content { flex: 1; min-width: 0; }
+.step-content h3 { font-size: 1.1rem; margin-bottom: 8px; color: var(--text); }
+.explanation { color: var(--text-muted); font-size: 0.9rem; line-height: 1.6; margin-bottom: 14px; }
+
+/* ── Code tabs ─────────────────────────────────────────────── */
+.tabs { background: var(--surface); border-radius: 6px; overflow: hidden; border: 1px solid var(--border); }
+.tab-bar { display: flex; background: var(--surface2); overflow-x: auto; border-bottom: 1px solid var(--border); }
+.tab-btn { padding: 8px 16px; background: none; border: none; color: var(--text-muted); cursor: pointer; font-size: 0.8rem; white-space: nowrap; border-bottom: 2px solid transparent; margin-bottom: -1px; }
+.tab-btn.active { color: var(--text); border-bottom-color: #000000; }
+.tab-panel { display: none; }
+.tab-panel.active { display: block; }
+.code-header { display: flex; justify-content: space-between; align-items: center; padding: 5px 12px; background: var(--surface2); border-bottom: 1px solid var(--border); }
+.lang-label { font-size: 0.72rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: .04em; }
+.copy-btn { background: none; border: 1px solid var(--border); color: var(--text-muted); padding: 2px 8px; cursor: pointer; border-radius: 3px; font-size: 0.72rem; }
+.copy-btn:hover { color: var(--text); border-color: var(--text-muted); }
+pre { overflow-x: auto; padding: 16px; background: var(--code-bg); }
+code { font-family: "Fira Code", "Cascadia Code", "Consolas", monospace; font-size: 0.82rem; line-height: 1.65; color: var(--code-text); }
+
+/* ── Theme toggle switch ───────────────────────────────────── */
+.theme-row { display: flex; align-items: center; gap: 8px; margin-top: 20px; }
+.theme-label { font-size: 0.78rem; color: var(--text-muted); }
+.toggle-switch { position: relative; display: inline-block; width: 40px; height: 22px; }
+.toggle-switch input { opacity: 0; width: 0; height: 0; }
+.slider { position: absolute; cursor: pointer; inset: 0; background: var(--surface2); border: 1px solid var(--border); border-radius: 22px; transition: background .2s; }
+.slider:before { content: ""; position: absolute; width: 16px; height: 16px; left: 2px; top: 2px; background: var(--text-muted); border-radius: 50%; transition: transform .2s, background .2s; }
+.toggle-switch input:checked + .slider { background: #000000; border-color: #000000; }
+.toggle-switch input:checked + .slider:before { transform: translateX(18px); background: #fff; }
+
+/* ── Responsive sidebar ────────────────────────────────────── */
+/* Toggle button - hidden on wide screens, shown on narrow */
+.sidebar-toggle {
+  display: none;
+  position: fixed; top: 12px; left: 12px; z-index: 300;
+  background: #000000; color: #fff; border: none;
+  padding: 7px 14px; border-radius: 6px; cursor: pointer;
+  font-size: 0.85rem; font-weight: 600;
+  box-shadow: 0 2px 8px var(--shadow);
+  align-items: center; gap: 6px;
+}
+/* Backdrop - covers main content when sidebar is open on narrow screens */
+.sidebar-overlay {
+  display: none; position: fixed; inset: 0;
+  background: rgba(0,0,0,.45); z-index: 190;
+}
+.sidebar-overlay.open { display: block; }
+
+@media (max-width: 900px) {
+  .sidebar-toggle { display: flex; }
+  .layout { display: block; }
+  .sidebar {
+    position: fixed; left: -280px; top: 0;
+    height: 100vh; z-index: 200;
+    transition: left .25s ease;
+    box-shadow: 2px 0 16px var(--shadow);
+    min-width: 260px;
+  }
+  .sidebar.open { left: 0; }
+  main { padding: 60px 20px 40px; max-width: 100%; }
+  /* Prevent wide code lines from breaking the page layout */
+  pre { overflow-x: auto; max-width: 100%; white-space: pre-wrap; word-break: break-word; }
+  .tabs { max-width: 100%; }
+}
+</style>
+</head>
+<body>
+<button class="sidebar-toggle" id="sidebarToggle" onclick="toggleSidebar()">&#9776; Steps</button>
+<div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+<div class="layout">
+  <aside class="sidebar" id="guideSidebar">
+    <a href="index.html" class="back-link">← All Guides</a>
+    <h2>Todo App - Flask</h2>
+    <nav><ol><li><a href="#step1">Before You Start</a></li><li><a href="#step2">Project Structure</a></li><li><a href="#step3">App Setup &amp; Todo Model</a></li><li><a href="#step4">Routes - List, Create, Toggle, Delete</a></li><li><a href="#step5">Base Template</a></li><li><a href="#step6">Todo List Template</a></li></ol></nav>
+    <div class="install-box">
+      <p><strong>Install</strong></p>
+      <code>pyoffline install --bundle flask</code>
+      <p style="margin-top:12px"><strong>Run</strong></p>
+      <code>flask run</code>
+    </div>
+    <div class="theme-row">
+      <span class="theme-label">Dark</span>
+      <label class="toggle-switch">
+        <input type="checkbox" id="themeToggle">
+        <span class="slider"></span>
+      </label>
+      <span class="theme-label">Light</span>
+    </div>
+  </aside>
+  <main>
+    <header class="guide-header" style="border-left: 5px solid #000000">
+      <h1>Todo App - Flask</h1>
+      <p>Build a simple todo app with Flask, SQLite via Flask-SQLAlchemy, Jinja2 templates, and full CRUD - add, complete, and delete tasks.</p>
+    </header>
+    <div class="steps">
+<div class="step" id="step1">
+  <div class="step-number">1</div>
+  <div class="step-content">
+    <h3>Before You Start</h3>
+    <p class="explanation">Three concepts will make everything in this guide click before you write a single line of code. First - virtual environments: a venv is an isolated Python installation for your project, keeping its packages separate from every other project on your machine. You must activate it each time you open a new terminal; you will know it is active when you see (venv) in your prompt. Second - HTTP: every time a browser visits a URL it sends a request, and the server sends back a response. A GET request asks for data (loading a page); a POST request sends data (submitting a form). Flask routes are matched by both URL and method, which is why @app.route(&#x27;/add&#x27;, methods=[&#x27;POST&#x27;]) only responds to form submissions and ignores everything else. Third - SQLite: it is a database that lives in a single file called todos.db on your computer - no server, no installation, no configuration. It is ideal for learning and small apps; swapping it for PostgreSQL later is a one-line change.</p>
+    <div class="tabs" data-step="step1">
+      <div class="tab-bar"><button class="tab-btn active" onclick="switchTab('step1',0)" id="step1_tab0">terminal</button></div>
+      
+<div class="tab-panel active" id="step1_panel0">
+  <div class="code-header">
+    <span class="lang-label">bash</span>
+    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+  </div>
+  <pre><code><span class="hl-comment"># Create a virtual environment in your project folder</span>
+<span class="hl-keyword">python</span> -m venv venv
+
+<span class="hl-comment"># Activate it - run this every time you open a new terminal</span>
+venv\Scripts\activate        <span class="hl-comment"># Windows</span>
+<span class="hl-keyword">source</span> venv/bin/activate      <span class="hl-comment"># macOS / Linux</span>
+
+<span class="hl-comment"># Your prompt will show (venv) when it is active.</span>
+<span class="hl-comment"># Now install dependencies:</span>
+<span class="hl-keyword">pip</span> install <span class="hl-keyword">flask</span> flask-sqlalchemy python-dotenv
+
+<span class="hl-comment"># Or install offline if you have already downloaded the bundle:</span>
+pyoffline install --bundle <span class="hl-keyword">flask</span></code></pre>
+</div>
+    </div>
+  </div>
+</div>
+<div class="step" id="step2">
+  <div class="step-number">2</div>
+  <div class="step-content">
+    <h3>Project Structure</h3>
+    <p class="explanation">Flask gives you full control over how you organise your project - there is no required layout enforced by the framework. For a small app, putting everything in a single app.py keeps it easy to read without jumping between files. Flask works by mapping URL paths (like / or /add) to Python functions called view functions; when a request arrives, Flask checks its route table and calls the matching function. Templates live in a templates/ folder by convention - Flask finds them there automatically when you call render_template(), so you never have to specify the full path. The .env file keeps secrets like your SECRET_KEY out of your source code so they are never accidentally committed to version control.</p>
+    <div class="tabs" data-step="step2">
+      <div class="tab-bar"><button class="tab-btn active" onclick="switchTab('step2',0)" id="step2_tab0">structure.txt</button></div>
+      
+<div class="tab-panel active" id="step2_panel0">
+  <div class="code-header">
+    <span class="lang-label">text</span>
+    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+  </div>
+  <pre><code>todo-flask/
+  app.py            ← app factory, db, routes all in one file (simple app)
+  templates/
+    base.html       ← shared page shell (nav, flash messages)
+    index.html      ← todo list + add form
+  .env              ← SECRET_KEY
+  requirements.txt</code></pre>
+</div>
+    </div>
+  </div>
+</div>
+<div class="step" id="step3">
+  <div class="step-number">3</div>
+  <div class="step-content">
+    <h3>App Setup &amp; Todo Model</h3>
+    <p class="explanation">Putting app setup, model, and routes all in one file is a valid and common choice for small Flask apps - Flask does not enforce any particular project structure on you. Flask-SQLAlchemy is a thin wrapper around SQLAlchemy that ties the database connection to your Flask app object, so you never have to open or close connections manually - the library handles that. The shared db object is used throughout the file for both defining models and running queries. The app.app_context() block is necessary because Flask-SQLAlchemy needs to know which app it belongs to before it can do anything; db.create_all() reads every db.Model subclass and creates the matching table if it does not already exist. The nullable=False constraint on title tells the database to reject any row saved without a title - this is enforced at the database level, not just in Python, so it cannot be bypassed by going around your code.</p>
+    <div class="tabs" data-step="step3">
+      <div class="tab-bar"><button class="tab-btn active" onclick="switchTab('step3',0)" id="step3_tab0">app.py</button></div>
+      
+<div class="tab-panel active" id="step3_panel0">
+  <div class="code-header">
+    <span class="lang-label">python</span>
+    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+  </div>
+  <pre><code><span class="hl-keyword">from</span> flask <span class="hl-keyword">import</span> Flask, render_template, request, redirect, url_for, flash
+<span class="hl-keyword">from</span> flask_sqlalchemy <span class="hl-keyword">import</span> SQLAlchemy
+<span class="hl-keyword">from</span> datetime <span class="hl-keyword">import</span> datetime
+<span class="hl-keyword">import</span> os
+
+app = Flask(__name__)
+<span class="hl-comment"># SECRET_KEY is used by Flask to sign session cookies (required for flash messages).</span>
+<span class="hl-comment"># In production, set this to a long random string via an environment variable.</span>
+app.config[<span class="hl-string">&quot;SECRET_KEY&quot;</span>]                = os.getenv(<span class="hl-string">&quot;SECRET_KEY&quot;</span>, <span class="hl-string">&quot;dev-secret&quot;</span>)
+app.config[<span class="hl-string">&quot;SQLALCHEMY_DATABASE_URI&quot;</span>]   = <span class="hl-string">&quot;sqlite:///todos.db&quot;</span>
+<span class="hl-comment"># Disabling TRACK_MODIFICATIONS turns off an optional Flask-SQLAlchemy feature</span>
+<span class="hl-comment"># that emits signals on every model change - it&#x27;s not needed here and saves memory.</span>
+app.config[<span class="hl-string">&quot;SQLALCHEMY_TRACK_MODIFICATIONS&quot;</span>] = <span class="hl-keyword">False</span>
+
+db = SQLAlchemy(app)  <span class="hl-comment"># db is shared across the whole file - models and routes both use it</span>
+
+<span class="hl-comment"># ── Model ──────────────────────────────────────────────────────────────────</span>
+
+<span class="hl-keyword">class</span> Todo(db.Model):
+    id         = db.Column(db.Integer, primary_key=<span class="hl-keyword">True</span>)
+    title      = db.Column(db.String(<span class="hl-number">200</span>), nullable=<span class="hl-keyword">False</span>)  <span class="hl-comment"># database rejects empty titles</span>
+    done       = db.Column(db.Boolean, default=<span class="hl-keyword">False</span>)        <span class="hl-comment"># new todos start as not done</span>
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)  <span class="hl-comment"># set once when created</span>
+
+    <span class="hl-keyword">def</span> __repr__(self):
+        <span class="hl-keyword">return</span> f<span class="hl-string">&#x27;&lt;Todo {self.id}: {self.title}&gt;&#x27;</span>
+
+<span class="hl-comment"># app_context() gives Flask-SQLAlchemy the app reference it needs to connect.</span>
+<span class="hl-comment"># create_all() creates the todos.db file and the todos table on first run;</span>
+<span class="hl-comment"># on subsequent runs it does nothing (it never drops or overwrites existing tables).</span>
+<span class="hl-keyword">with</span> app.app_context():
+    db.create_all()</code></pre>
+</div>
+    </div>
+  </div>
+</div>
+<div class="step" id="step4">
+  <div class="step-number">4</div>
+  <div class="step-content">
+    <h3>Routes - List, Create, Toggle, Delete</h3>
+    <p class="explanation">All four operations (list, create, toggle, delete) live in app.py alongside the model. Each @app.route() decorator registers a URL path and the HTTP methods that path accepts - if you omit the methods argument, Flask only allows GET requests and rejects everything else with a 405 error. After every change we immediately redirect back to the list - this is called the Post/Redirect/Get pattern. Without it, pressing browser refresh after adding a task would re-submit the form and create a duplicate; after the redirect, a refresh only replays a harmless GET request. flash() stores a one-time message in the session so it survives the redirect and is displayed by the base template on the next page, then cleared automatically. get_or_404(todo_id) is shorthand for &#x27;look this record up by its ID, and if nothing is found return a 404 response&#x27; - without it you would need to check for None yourself.</p>
+    <div class="tabs" data-step="step4">
+      <div class="tab-bar"><button class="tab-btn active" onclick="switchTab('step4',0)" id="step4_tab0">app.py (routes)</button></div>
+      
+<div class="tab-panel active" id="step4_panel0">
+  <div class="code-header">
+    <span class="lang-label">python</span>
+    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+  </div>
+  <pre><code><span class="hl-comment"># ── Routes ─────────────────────────────────────────────────────────────────</span>
+
+<span class="hl-decorator">@app.route</span>(<span class="hl-string">&quot;/&quot;</span>)
+<span class="hl-keyword">def</span> index():
+    <span class="hl-comment"># Order incomplete tasks first (.asc() on a Boolean puts False before True),</span>
+    <span class="hl-comment"># then sort within each group by newest first.</span>
+    todos = Todo.query.order_by(Todo.done.asc(), Todo.created_at.desc()).<span class="hl-builtin">all</span>()
+    <span class="hl-keyword">return</span> render_template(<span class="hl-string">&quot;index.html&quot;</span>, todos=todos)
+
+<span class="hl-comment"># methods=[&quot;POST&quot;] means this route only accepts POST requests.</span>
+<span class="hl-comment"># The form in index.html uses method=&quot;post&quot; to match.</span>
+<span class="hl-decorator">@app.route</span>(<span class="hl-string">&quot;/add&quot;</span>, methods=[<span class="hl-string">&quot;POST&quot;</span>])
+<span class="hl-keyword">def</span> add():
+    title = request.form.get(<span class="hl-string">&quot;title&quot;</span>, <span class="hl-string">&quot;&quot;</span>).strip()  <span class="hl-comment"># .strip() removes accidental leading/trailing spaces</span>
+    <span class="hl-keyword">if</span> <span class="hl-keyword">not</span> title:
+        flash(<span class="hl-string">&quot;Please enter a task.&quot;</span>, <span class="hl-string">&quot;error&quot;</span>)   <span class="hl-comment"># second arg is the category, used for CSS colour</span>
+        <span class="hl-keyword">return</span> redirect(url_for(<span class="hl-string">&quot;index&quot;</span>))
+    db.session.add(Todo(title=title))
+    db.session.commit()                           <span class="hl-comment"># commit() writes the change to the database file</span>
+    flash(<span class="hl-string">&quot;Task added!&quot;</span>, <span class="hl-string">&quot;success&quot;</span>)
+    <span class="hl-keyword">return</span> redirect(url_for(<span class="hl-string">&quot;index&quot;</span>))             <span class="hl-comment"># Post/Redirect/Get - refresh won&#x27;t re-submit</span>
+
+<span class="hl-decorator">@app.route</span>(<span class="hl-string">&quot;/toggle/&lt;int:todo_id&gt;&quot;</span>)
+<span class="hl-keyword">def</span> toggle(todo_id):
+    todo = Todo.query.get_or_404(todo_id)  <span class="hl-comment"># returns 404 automatically if the id doesn&#x27;t exist</span>
+    todo.done = <span class="hl-keyword">not</span> todo.done              <span class="hl-comment"># &#x27;not&#x27; flips True→False and False→True</span>
+    db.session.commit()
+    <span class="hl-keyword">return</span> redirect(url_for(<span class="hl-string">&quot;index&quot;</span>))
+
+<span class="hl-decorator">@app.route</span>(<span class="hl-string">&quot;/delete/&lt;int:todo_id&gt;&quot;</span>)
+<span class="hl-keyword">def</span> delete(todo_id):
+    todo = Todo.query.get_or_404(todo_id)
+    db.session.delete(todo)
+    db.session.commit()
+    flash(<span class="hl-string">&quot;Task deleted.&quot;</span>, <span class="hl-string">&quot;info&quot;</span>)
+    <span class="hl-keyword">return</span> redirect(url_for(<span class="hl-string">&quot;index&quot;</span>))
+
+<span class="hl-keyword">if</span> __name__ == <span class="hl-string">&quot;__main__&quot;</span>:
+    app.run(debug=<span class="hl-keyword">True</span>)  <span class="hl-comment"># debug=True enables auto-reload and detailed error pages during development</span></code></pre>
+</div>
+    </div>
+  </div>
+</div>
+<div class="step" id="step5">
+  <div class="step-number">5</div>
+  <div class="step-content">
+    <h3>Base Template</h3>
+    <p class="explanation">base.html is the page shell that all other templates inherit from. Instead of copying the nav bar and CSS into every page, you define them once here and child templates only fill in the parts that change. The {% block content %}{% endblock %} pair marks a named slot - when a child template extends this file and defines its own {% block content %}, Flask swaps the child&#x27;s content into that slot at render time. get_flashed_messages(with_categories=true) retrieves the one-time messages stored by flash() in the previous request - the with_categories=true argument returns both the message text and its category (success, error, info) so you can apply a different CSS colour to each. Flash messages disappear automatically after being displayed once - they will not show up on the next page load.</p>
+    <div class="tabs" data-step="step5">
+      <div class="tab-bar"><button class="tab-btn active" onclick="switchTab('step5',0)" id="step5_tab0">templates/base.html</button></div>
+      
+<div class="tab-panel active" id="step5_panel0">
+  <div class="code-header">
+    <span class="lang-label">html</span>
+    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+  </div>
+  <pre><code>&lt;!DOCTYPE html&gt;
+&lt;<span <span class="hl-attr">class</span>="hl-tag">html</span> <span class="hl-attr">lang</span>=<span class="hl-string">&quot;en&quot;</span>&gt;
+&lt;<span <span class="hl-attr">class</span>="hl-tag">head</span>&gt;
+  &lt;<span <span class="hl-attr">class</span>="hl-tag">meta</span> <span class="hl-attr">charset</span>=<span class="hl-string">&quot;UTF-8&quot;</span>&gt;
+  &lt;<span <span class="hl-attr">class</span>="hl-tag">meta</span> <span class="hl-attr">name</span>=<span class="hl-string">&quot;viewport&quot;</span> <span class="hl-attr">content</span>=<span class="hl-string">&quot;<span class="hl-attr">width</span>=device-width, <span class="hl-attr">initial-scale</span>=1&quot;</span>&gt;
+  &lt;<span <span class="hl-attr">class</span>="hl-tag">title</span>&gt;<span class="hl-template">{% block title %}</span>Flask Todo<span class="hl-template">{% endblock %}</span>&lt;/<span <span class="hl-attr">class</span>="hl-tag">title</span>&gt;
+  &lt;<span <span class="hl-attr">class</span>="hl-tag">style</span>&gt;
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, sans-serif;
+           background: #f5f7fa; color: #1a1a1a; }
+    nav { background: #1a1a1a; color: white; padding: 14px 24px;
+          font-size: 1.1rem; font-weight: 600; }
+    .container { max-width: 600px; margin: 40px auto; padding: 0 20px; }
+    .flash { padding: 10px 16px; border-radius: 6px; margin-bottom: 16px; font-size: .9rem; }
+    .flash.success { background: #d4edda; color: #155724; }
+    .flash.error   { background: #f8d7da; color: #721c24; }
+    .flash.info    { background: #d1ecf1; color: #0c5460; }
+  &lt;/<span <span class="hl-attr">class</span>="hl-tag">style</span>&gt;
+  <span class="hl-template">{% block extra_styles %}</span><span class="hl-template">{% endblock %}</span>
+&lt;/<span <span class="hl-attr">class</span>="hl-tag">head</span>&gt;
+&lt;<span <span class="hl-attr">class</span>="hl-tag">body</span>&gt;
+  &lt;<span <span class="hl-attr">class</span>="hl-tag">nav</span>&gt;Flask Todo&lt;/<span <span class="hl-attr">class</span>="hl-tag">nav</span>&gt;
+  &lt;<span <span class="hl-attr">class</span>="hl-tag">div</span> <span class="hl-attr">class</span>=<span class="hl-string">&quot;container&quot;</span>&gt;
+    <span class="hl-template">{% with messages = get_flashed_messages(with_categories=true) %}</span>
+      <span class="hl-template">{% for category, message in messages %}</span>
+        &lt;<span <span class="hl-attr">class</span>="hl-tag">div</span> <span class="hl-attr">class</span>=<span class="hl-string">&quot;flash {{ category }}&quot;</span>&gt;<span class="hl-template">{{ message }}</span>&lt;/<span <span class="hl-attr">class</span>="hl-tag">div</span>&gt;
+      <span class="hl-template">{% endfor %}</span>
+    <span class="hl-template">{% endwith %}</span>
+    <span class="hl-template">{% block content %}</span><span class="hl-template">{% endblock %}</span>
+  &lt;/<span <span class="hl-attr">class</span>="hl-tag">div</span>&gt;
+&lt;/<span <span class="hl-attr">class</span>="hl-tag">body</span>&gt;
+&lt;/<span <span class="hl-attr">class</span>="hl-tag">html</span>&gt;</code></pre>
+</div>
+    </div>
+  </div>
+</div>
+<div class="step" id="step6">
+  <div class="step-number">6</div>
+  <div class="step-content">
+    <h3>Todo List Template</h3>
+    <p class="explanation">index.html extends base.html and fills in only the content block - the nav bar, flash messages, and shared CSS are all inherited automatically. {% extends %} means &#x27;this page is a version of the base template&#x27;; it is different from {% include %}, which pastes a reusable snippet into the current page. {{ url_for(&#x27;add&#x27;) }} generates the correct URL for the add view function - this is safer than hardcoding /add because if you ever rename the route, every link using url_for updates automatically. The toggle action uses a plain &lt;a href&gt; link (a GET request) rather than a form, because toggling a single task is a lightweight, low-risk action. If the action were more sensitive - like submitting a payment - you would use a POST form instead. The done CSS class on the &lt;li&gt; element triggers the text-decoration: line-through rule in the stylesheet, keeping the visual logic in CSS where it belongs.</p>
+    <div class="tabs" data-step="step6">
+      <div class="tab-bar"><button class="tab-btn active" onclick="switchTab('step6',0)" id="step6_tab0">templates/index.html</button></div>
+      
+<div class="tab-panel active" id="step6_panel0">
+  <div class="code-header">
+    <span class="lang-label">html</span>
+    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+  </div>
+  <pre><code><span class="hl-template">{% extends &quot;base.html&quot; %}</span>
+
+<span class="hl-template">{% block extra_styles %}</span>
+&lt;<span <span class="hl-attr">class</span>="hl-tag">style</span>&gt;
+  .add-form { display: flex; gap: 8px; margin-bottom: 24px; }
+  .add-form input { flex: 1; padding: 10px 14px; border: 1px solid #ccc;
+                    border-radius: 6px; font-size: 1rem; }
+  .add-form button { padding: 10px 20px; background: #1a1a1a; color: white;
+                     border: none; border-radius: 6px; cursor: pointer; font-size: 1rem; }
+  .todo-list { list-style: none; }
+  .todo-item { display: flex; align-items: center; gap: 12px; padding: 12px 16px;
+               background: white; border-radius: 8px; margin-bottom: 8px;
+               box-shadow: 0 1px 3px rgba(0,0,0,.08); }
+  .todo-item.done .title { text-decoration: line-through; color: #888; }
+  .title { flex: 1; }
+  .date  { font-size: .75rem; color: #aaa; }
+  a.btn  { padding: 4px 12px; border-radius: 4px; text-decoration: none;
+           font-size: .8rem; }
+  a.toggle { background: #e8f5e9; color: #2e7d32; }
+  a.delete { background: #fdecea; color: #b71c1c; }
+  .empty { text-align: center; color: #aaa; padding: 40px 0; }
+&lt;/<span <span class="hl-attr">class</span>="hl-tag">style</span>&gt;
+<span class="hl-template">{% endblock %}</span>
+
+<span class="hl-template">{% block content %}</span>
+&lt;<span <span class="hl-attr">class</span>="hl-tag">h2</span> <span class="hl-attr">style</span>=<span class="hl-string">&quot;margin-bottom: 20px;&quot;</span>&gt;My Tasks&lt;/<span <span class="hl-attr">class</span>="hl-tag">h2</span>&gt;
+
+<span class="hl-comment">{# Add new task form - submits via POST to /add #}</span>
+&lt;<span <span class="hl-attr">class</span>="hl-tag">form</span> <span class="hl-attr">class</span>=<span class="hl-string">&quot;add-form&quot;</span> <span class="hl-attr">action</span>=&quot;{{ url_for(&#x27;add&#x27;) }}&quot; <span class="hl-attr">method</span>=<span class="hl-string">&quot;post&quot;</span>&gt;
+  &lt;<span <span class="hl-attr">class</span>="hl-tag">input</span> <span class="hl-attr">type</span>=<span class="hl-string">&quot;text&quot;</span> <span class="hl-attr">name</span>=<span class="hl-string">&quot;title&quot;</span> <span class="hl-attr">placeholder</span>=<span class="hl-string">&quot;What needs doing?&quot;</span> required autofocus&gt;
+  &lt;<span <span class="hl-attr">class</span>="hl-tag">button</span> <span class="hl-attr">type</span>=<span class="hl-string">&quot;submit&quot;</span>&gt;Add&lt;/<span <span class="hl-attr">class</span>="hl-tag">button</span>&gt;
+&lt;/<span <span class="hl-attr">class</span>="hl-tag">form</span>&gt;
+
+<span class="hl-template">{% if todos %}</span>
+  &lt;<span <span class="hl-attr">class</span>="hl-tag">ul</span> <span class="hl-attr">class</span>=<span class="hl-string">&quot;todo-list&quot;</span>&gt;
+    <span class="hl-template">{% for todo in todos %}</span>
+      &lt;<span <span class="hl-attr">class</span>="hl-tag">li</span> <span class="hl-attr">class</span>=<span class="hl-string">&quot;todo-item {% if todo.done %}done{% endif %}&quot;</span>&gt;
+        &lt;<span <span class="hl-attr">class</span>="hl-tag">span</span> <span class="hl-attr">class</span>=<span class="hl-string">&quot;title&quot;</span>&gt;<span class="hl-template">{{ todo.title }}</span>&lt;/<span <span class="hl-attr">class</span>="hl-tag">span</span>&gt;
+        &lt;<span <span class="hl-attr">class</span>="hl-tag">span</span> <span class="hl-attr">class</span>=<span class="hl-string">&quot;date&quot;</span>&gt;<span class="hl-template">{{ todo.created_at.strftime(&#x27;%b %d&#x27;) }}</span>&lt;/<span <span class="hl-attr">class</span>="hl-tag">span</span>&gt;
+        <span class="hl-comment">{# Toggle flips the done state - no JS needed, just a GET request #}</span>
+        &lt;<span <span class="hl-attr">class</span>="hl-tag">a</span> <span class="hl-attr">href</span>=&quot;{{ url_for(&#x27;toggle&#x27;, <span class="hl-attr">todo_id</span>=todo.id) }}&quot; <span class="hl-attr">class</span>=<span class="hl-string">&quot;btn toggle&quot;</span>&gt;
+          <span class="hl-template">{% if todo.done %}</span>Undo<span class="hl-template">{% else %}</span>Done<span class="hl-template">{% endif %}</span>
+        &lt;/<span <span class="hl-attr">class</span>="hl-tag">a</span>&gt;
+        &lt;<span <span class="hl-attr">class</span>="hl-tag">a</span> <span class="hl-attr">href</span>=&quot;{{ url_for(&#x27;delete&#x27;, <span class="hl-attr">todo_id</span>=todo.id) }}&quot; <span class="hl-attr">class</span>=<span class="hl-string">&quot;btn delete&quot;</span>&gt;Delete&lt;/<span <span class="hl-attr">class</span>="hl-tag">a</span>&gt;
+      &lt;/<span <span class="hl-attr">class</span>="hl-tag">li</span>&gt;
+    <span class="hl-template">{% endfor %}</span>
+  &lt;/<span <span class="hl-attr">class</span>="hl-tag">ul</span>&gt;
+<span class="hl-template">{% else %}</span>
+  &lt;<span <span class="hl-attr">class</span>="hl-tag">p</span> <span class="hl-attr">class</span>=<span class="hl-string">&quot;empty&quot;</span>&gt;No tasks yet - add one above.&lt;/<span <span class="hl-attr">class</span>="hl-tag">p</span>&gt;
+<span class="hl-template">{% endif %}</span>
+<span class="hl-template">{% endblock %}</span></code></pre>
+</div>
+    </div>
+  </div>
+</div></div>
+  </main>
+</div>
+<script>
+(function() {
+  // Restore saved theme preference before first paint
+  var saved = localStorage.getItem("pyoffline-theme");
+  if (saved === "light") {
+    document.documentElement.classList.add("light"); // apply class immediately
+  }
+  // Once DOM is ready, sync the checkbox state
+  document.addEventListener("DOMContentLoaded", function() {
+    var toggle = document.getElementById("themeToggle");
+    if (!toggle) return;
+    toggle.checked = (localStorage.getItem("pyoffline-theme") === "light");
+    toggle.addEventListener("change", function() {
+      if (this.checked) {
+        document.documentElement.classList.add("light");    // switch to light
+        localStorage.setItem("pyoffline-theme", "light");  // remember the choice
+      } else {
+        document.documentElement.classList.remove("light"); // back to dark
+        localStorage.setItem("pyoffline-theme", "dark");
+      }
+    });
+  });
+})();
+
+function switchTab(stepId, idx) {
+  // Find all tab buttons and panels belonging to this step
+  var step   = document.getElementById(stepId);
+  var btns   = step.querySelectorAll(".tab-btn");
+  var panels = step.querySelectorAll(".tab-panel");
+  // Remove active from all, then add it to the clicked one
+  btns.forEach(function(b) { b.classList.remove("active"); });
+  panels.forEach(function(p) { p.classList.remove("active"); });
+  btns[idx].classList.add("active");
+  panels[idx].classList.add("active");
+}
+
+function copyCode(btn) {
+  // Walk up to the panel, find the code block, copy its plain text (no HTML tags)
+  var code = btn.closest(".tab-panel").querySelector("code").innerText;
+  navigator.clipboard.writeText(code).then(function() {
+    var orig = btn.textContent;
+    btn.textContent = "Copied!";                              // briefly show confirmation
+    setTimeout(function() { btn.textContent = orig; }, 1500); // restore after 1.5s
+  });
+}
+
+// ── Responsive sidebar ──────────────────────────────────────
+function toggleSidebar() {
+  var sidebar = document.getElementById("guideSidebar");
+  var overlay = document.getElementById("sidebarOverlay");
+  if (!sidebar) return;
+  sidebar.classList.toggle("open");
+  overlay.classList.toggle("open");
+}
+
+// Close sidebar automatically when a step link is clicked (so the scroll happens cleanly)
+document.addEventListener("DOMContentLoaded", function() {
+  var sidebar = document.getElementById("guideSidebar");
+  if (!sidebar) return;
+  sidebar.querySelectorAll("nav a").forEach(function(a) {
+    a.addEventListener("click", function() {
+      sidebar.classList.remove("open");
+      var overlay = document.getElementById("sidebarOverlay");
+      if (overlay) overlay.classList.remove("open");
+    });
+  });
+});
+</script>
+</body>
+</html>

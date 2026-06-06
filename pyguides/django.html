@@ -1,0 +1,702 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Django Guide - pyoffline</title>
+<style>
+/* ── Theme variables ───────────────────────────────────────── */
+:root {
+  --bg:          #121212;
+  --surface:     #1e1e1e;
+  --surface2:    #2a2a2a;
+  --sidebar-bg:  #1a1a1a;
+  --text:        #e0e0e0;
+  --text-muted:  #aaa;
+  --text-dim:    #666;
+  --border:      #333;
+  --code-bg:     #1e1e1e;
+  --code-text:   #d4d4d4;
+  --shadow:      rgba(0,0,0,.4);
+  /* syntax - dark (VSCode Dark+) */
+  --hl-keyword:  #569cd6;
+  --hl-string:   #ce9178;
+  --hl-comment:  #6a9955;
+  --hl-number:   #b5cea8;
+  --hl-decorator:#dcdcaa;
+  --hl-builtin:  #4ec9b0;
+  --hl-tag:      #4ec9b0;
+  --hl-attr:     #9cdcfe;
+  --hl-template: #c586c0;
+}
+html.light {
+  --bg:          #f5f7fa;
+  --surface:     #ffffff;
+  --surface2:    #eef0f3;
+  --sidebar-bg:  #ffffff;
+  --text:        #1a1a1a;
+  --text-muted:  #555;
+  --text-dim:    #888;
+  --border:      #dde1e7;
+  --code-bg:     #f8f8f8;
+  --code-text:   #24292e;
+  --shadow:      rgba(0,0,0,.1);
+  /* syntax - light (VSCode Light) */
+  --hl-keyword:  #0000ff;
+  --hl-string:   #a31515;
+  --hl-comment:  #008000;
+  --hl-number:   #098658;
+  --hl-decorator:#795e26;
+  --hl-builtin:  #267f99;
+  --hl-tag:      #800000;
+  --hl-attr:     #e50000;
+  --hl-template: #af00db;
+}
+
+/* ── Syntax span classes ───────────────────────────────────── */
+.hl-keyword  { color: var(--hl-keyword);  }
+.hl-string   { color: var(--hl-string);   }
+.hl-comment  { color: #adb4a7; font-size: 12px; font-style: italic; }
+.hl-number   { color: var(--hl-number);   }
+.hl-decorator{ color: var(--hl-decorator);}
+.hl-builtin  { color: var(--hl-builtin);  }
+.hl-tag      { color: var(--hl-tag);      }
+.hl-attr     { color: var(--hl-attr);     }
+.hl-template { color: var(--hl-template); }
+
+/* ── Base ──────────────────────────────────────────────────── */
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: var(--bg); color: var(--text); font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; transition: background .2s, color .2s; }
+a { color: #092e20; }
+
+/* ── Layout ────────────────────────────────────────────────── */
+.layout { display: flex; min-height: 100vh; }
+.sidebar { width: 260px; min-width: 260px; background: var(--sidebar-bg); border-right: 1px solid var(--border); padding: 24px 16px; position: sticky; top: 0; height: 100vh; overflow-y: auto; }
+.sidebar h2 { font-size: 1.1rem; margin: 16px 0 8px; color: var(--text); }
+.sidebar nav ol { padding-left: 18px; }
+.sidebar nav li { margin: 6px 0; }
+.sidebar nav a { color: var(--text-muted); text-decoration: none; font-size: 0.85rem; }
+.sidebar nav a:hover { color: #092e20; }
+.back-link { color: var(--text-dim); text-decoration: none; font-size: 0.85rem; display: block; margin-bottom: 8px; }
+.install-box { margin-top: 24px; background: var(--bg); border: 1px solid var(--border); padding: 12px; border-radius: 6px; font-size: 0.8rem; }
+.install-box code { display: block; word-break: break-all; color: var(--hl-comment); font-family: monospace; }
+main { flex: 1; padding: 40px; max-width: 860px; }
+.guide-header { padding: 20px 20px 20px 24px; background: var(--surface); border-radius: 8px; margin-bottom: 32px; box-shadow: 0 1px 3px var(--shadow); }
+.guide-header h1 { font-size: 1.8rem; margin-bottom: 8px; }
+.guide-header p { color: var(--text-muted); }
+
+/* ── Steps ─────────────────────────────────────────────────── */
+.step { display: flex; gap: 16px; margin-bottom: 40px; }
+.step-number { width: 32px; min-width: 32px; height: 32px; background: #092e20; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 0.9rem; margin-top: 4px; color: #fff; }
+.step-content { flex: 1; min-width: 0; }
+.step-content h3 { font-size: 1.1rem; margin-bottom: 8px; color: var(--text); }
+.explanation { color: var(--text-muted); font-size: 0.9rem; line-height: 1.6; margin-bottom: 14px; }
+
+/* ── Code tabs ─────────────────────────────────────────────── */
+.tabs { background: var(--surface); border-radius: 6px; overflow: hidden; border: 1px solid var(--border); }
+.tab-bar { display: flex; background: var(--surface2); overflow-x: auto; border-bottom: 1px solid var(--border); }
+.tab-btn { padding: 8px 16px; background: none; border: none; color: var(--text-muted); cursor: pointer; font-size: 0.8rem; white-space: nowrap; border-bottom: 2px solid transparent; margin-bottom: -1px; }
+.tab-btn.active { color: var(--text); border-bottom-color: #092e20; }
+.tab-panel { display: none; }
+.tab-panel.active { display: block; }
+.code-header { display: flex; justify-content: space-between; align-items: center; padding: 5px 12px; background: var(--surface2); border-bottom: 1px solid var(--border); }
+.lang-label { font-size: 0.72rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: .04em; }
+.copy-btn { background: none; border: 1px solid var(--border); color: var(--text-muted); padding: 2px 8px; cursor: pointer; border-radius: 3px; font-size: 0.72rem; }
+.copy-btn:hover { color: var(--text); border-color: var(--text-muted); }
+pre { overflow-x: auto; padding: 16px; background: var(--code-bg); }
+code { font-family: "Fira Code", "Cascadia Code", "Consolas", monospace; font-size: 0.82rem; line-height: 1.65; color: var(--code-text); }
+
+/* ── Theme toggle switch ───────────────────────────────────── */
+.theme-row { display: flex; align-items: center; gap: 8px; margin-top: 20px; }
+.theme-label { font-size: 0.78rem; color: var(--text-muted); }
+.toggle-switch { position: relative; display: inline-block; width: 40px; height: 22px; }
+.toggle-switch input { opacity: 0; width: 0; height: 0; }
+.slider { position: absolute; cursor: pointer; inset: 0; background: var(--surface2); border: 1px solid var(--border); border-radius: 22px; transition: background .2s; }
+.slider:before { content: ""; position: absolute; width: 16px; height: 16px; left: 2px; top: 2px; background: var(--text-muted); border-radius: 50%; transition: transform .2s, background .2s; }
+.toggle-switch input:checked + .slider { background: #092e20; border-color: #092e20; }
+.toggle-switch input:checked + .slider:before { transform: translateX(18px); background: #fff; }
+
+/* ── Responsive sidebar ────────────────────────────────────── */
+/* Toggle button - hidden on wide screens, shown on narrow */
+.sidebar-toggle {
+  display: none;
+  position: fixed; top: 12px; left: 12px; z-index: 300;
+  background: #092e20; color: #fff; border: none;
+  padding: 7px 14px; border-radius: 6px; cursor: pointer;
+  font-size: 0.85rem; font-weight: 600;
+  box-shadow: 0 2px 8px var(--shadow);
+  align-items: center; gap: 6px;
+}
+/* Backdrop - covers main content when sidebar is open on narrow screens */
+.sidebar-overlay {
+  display: none; position: fixed; inset: 0;
+  background: rgba(0,0,0,.45); z-index: 190;
+}
+.sidebar-overlay.open { display: block; }
+
+@media (max-width: 900px) {
+  .sidebar-toggle { display: flex; }
+  .layout { display: block; }
+  .sidebar {
+    position: fixed; left: -280px; top: 0;
+    height: 100vh; z-index: 200;
+    transition: left .25s ease;
+    box-shadow: 2px 0 16px var(--shadow);
+    min-width: 260px;
+  }
+  .sidebar.open { left: 0; }
+  main { padding: 60px 20px 40px; max-width: 100%; }
+  /* Prevent wide code lines from breaking the page layout */
+  pre { overflow-x: auto; max-width: 100%; white-space: pre-wrap; word-break: break-word; }
+  .tabs { max-width: 100%; }
+}
+</style>
+</head>
+<body>
+<button class="sidebar-toggle" id="sidebarToggle" onclick="toggleSidebar()">&#9776; Steps</button>
+<div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+<div class="layout">
+  <aside class="sidebar" id="guideSidebar">
+    <a href="index.html" class="back-link">← All Guides</a>
+    <h2>Django</h2>
+    <nav><ol><li><a href="#step1">Project Setup</a></li><li><a href="#step2">Model</a></li><li><a href="#step3">Form with CSRF Token</a></li><li><a href="#step4">Base Template &amp; Template Tags</a></li><li><a href="#step5">Pagination &amp; Search</a></li><li><a href="#step6">Class-Based Views</a></li><li><a href="#step7">Signals - Auto-Create a Profile</a></li><li><a href="#step8">Custom Middleware</a></li></ol></nav>
+    <div class="install-box">
+      <p><strong>Install</strong></p>
+      <code>pyoffline install --bundle django</code>
+      <p style="margin-top:12px"><strong>Run</strong></p>
+      <code>python manage.py runserver</code>
+    </div>
+    <div class="theme-row">
+      <span class="theme-label">Dark</span>
+      <label class="toggle-switch">
+        <input type="checkbox" id="themeToggle">
+        <span class="slider"></span>
+      </label>
+      <span class="theme-label">Light</span>
+    </div>
+  </aside>
+  <main>
+    <header class="guide-header" style="border-left: 5px solid #092e20">
+      <h1>Django</h1>
+      <p>Build a full web app with models, views, templates, forms, pagination, search, signals, and custom middleware.</p>
+    </header>
+    <div class="steps">
+<div class="step" id="step1">
+  <div class="step-number">1</div>
+  <div class="step-content">
+    <h3>Project Setup</h3>
+    <p class="explanation">Django uses manage.py to create projects and apps. A project is your whole website; an app is one section of it (like a blog). Run these commands in your terminal after activating your virtual environment.</p>
+    <div class="tabs" data-step="step1">
+      <div class="tab-bar"><button class="tab-btn active" onclick="switchTab('step1',0)" id="step1_tab0">terminal</button><button class="tab-btn " onclick="switchTab('step1',1)" id="step1_tab1">mysite/settings.py (add these)</button></div>
+      
+<div class="tab-panel active" id="step1_panel0">
+  <div class="code-header">
+    <span class="lang-label">bash</span>
+    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+  </div>
+  <pre><code><span class="hl-comment"># Install Django, then create project and app</span>
+<span class="hl-keyword">pip</span> install django
+
+<span class="hl-keyword">django-admin</span> startproject mysite .   <span class="hl-comment"># the dot means &quot;use current folder&quot;</span>
+<span class="hl-keyword">python</span> manage.py startapp blog       <span class="hl-comment"># creates the blog/ app folder</span>
+
+<span class="hl-comment"># After creating your models, run migrations to create the database tables</span>
+<span class="hl-keyword">python</span> manage.py makemigrations
+<span class="hl-keyword">python</span> manage.py migrate
+
+<span class="hl-comment"># Create an admin user so you can log in to /admin</span>
+<span class="hl-keyword">python</span> manage.py createsuperuser
+
+<span class="hl-comment"># Start the development server</span>
+<span class="hl-keyword">python</span> manage.py runserver</code></pre>
+</div>
+<div class="tab-panel " id="step1_panel1">
+  <div class="code-header">
+    <span class="lang-label">python</span>
+    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+  </div>
+  <pre><code>INSTALLED_APPS = [
+    <span class="hl-comment"># ... existing apps ...</span>
+    <span class="hl-string">&#x27;blog&#x27;</span>,  <span class="hl-comment"># register your new app here</span>
+]
+
+<span class="hl-comment"># Tell Django where to find templates (one global templates/ folder)</span>
+TEMPLATES = [{
+    ...
+    <span class="hl-string">&#x27;DIRS&#x27;</span>: [BASE_DIR / <span class="hl-string">&#x27;templates&#x27;</span>],
+    ...
+}]
+
+<span class="hl-comment"># Where uploaded files go</span>
+MEDIA_URL  = <span class="hl-string">&#x27;/media/&#x27;</span>
+MEDIA_ROOT = BASE_DIR / <span class="hl-string">&#x27;media&#x27;</span></code></pre>
+</div>
+    </div>
+  </div>
+</div>
+<div class="step" id="step2">
+  <div class="step-number">2</div>
+  <div class="step-content">
+    <h3>Model</h3>
+    <p class="explanation">A model is a Python class that maps to a database table. Django creates the table for you when you run makemigrations and migrate. The __str__ method controls what shows in the admin panel.</p>
+    <div class="tabs" data-step="step2">
+      <div class="tab-bar"><button class="tab-btn active" onclick="switchTab('step2',0)" id="step2_tab0">blog/models.py</button></div>
+      
+<div class="tab-panel active" id="step2_panel0">
+  <div class="code-header">
+    <span class="lang-label">python</span>
+    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+  </div>
+  <pre><code><span class="hl-keyword">from</span> django.db <span class="hl-keyword">import</span> models
+<span class="hl-keyword">from</span> django.contrib.auth.models <span class="hl-keyword">import</span> User
+
+<span class="hl-keyword">class</span> Post(models.Model):
+    title      = models.CharField(max_length=<span class="hl-number">200</span>)
+    body       = models.TextField()
+    author     = models.ForeignKey(User, on_delete=models.CASCADE)
+    created_at = models.DateTimeField(auto_now_add=<span class="hl-keyword">True</span>)  <span class="hl-comment"># set once when created</span>
+    updated_at = models.DateTimeField(auto_now=<span class="hl-keyword">True</span>)      <span class="hl-comment"># updated every time you save</span>
+
+    <span class="hl-keyword">class</span> Meta:
+        ordering = [<span class="hl-string">&#x27;-created_at&#x27;</span>]  <span class="hl-comment"># newest first</span>
+
+    <span class="hl-keyword">def</span> __str__(self):
+        <span class="hl-keyword">return</span> self.title  <span class="hl-comment"># shows the title in the admin panel</span>
+
+<span class="hl-comment"># Register in blog/admin.py so it appears in the admin panel</span>
+<span class="hl-comment"># from django.contrib import admin</span>
+<span class="hl-comment"># from .models import Post</span>
+<span class="hl-comment"># admin.site.register(Post)</span></code></pre>
+</div>
+    </div>
+  </div>
+</div>
+<div class="step" id="step3">
+  <div class="step-number">3</div>
+  <div class="step-content">
+    <h3>Form with CSRF Token</h3>
+    <p class="explanation">Django forms validate input on the server. The {% csrf_token %} tag adds a hidden security field to every form - Django will reject the submission without it. This prevents cross-site request forgery attacks.</p>
+    <div class="tabs" data-step="step3">
+      <div class="tab-bar"><button class="tab-btn active" onclick="switchTab('step3',0)" id="step3_tab0">blog/forms.py</button><button class="tab-btn " onclick="switchTab('step3',1)" id="step3_tab1">blog/views.py</button><button class="tab-btn " onclick="switchTab('step3',2)" id="step3_tab2">templates/blog/create.html</button></div>
+      
+<div class="tab-panel active" id="step3_panel0">
+  <div class="code-header">
+    <span class="lang-label">python</span>
+    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+  </div>
+  <pre><code><span class="hl-keyword">from</span> django <span class="hl-keyword">import</span> forms
+<span class="hl-keyword">from</span> .models <span class="hl-keyword">import</span> Post
+
+<span class="hl-keyword">class</span> PostForm(forms.ModelForm):
+    <span class="hl-keyword">class</span> Meta:
+        model  = Post
+        fields = [<span class="hl-string">&#x27;title&#x27;</span>, <span class="hl-string">&#x27;body&#x27;</span>]  <span class="hl-comment"># only show these fields in the form</span>
+        widgets = {
+            <span class="hl-string">&#x27;title&#x27;</span>: forms.TextInput(attrs={<span class="hl-string">&#x27;placeholder&#x27;</span>: <span class="hl-string">&#x27;Post title&#x27;</span>, <span class="hl-string">&#x27;class&#x27;</span>: <span class="hl-string">&#x27;input&#x27;</span>}),
+            <span class="hl-string">&#x27;body&#x27;</span>:  forms.Textarea(attrs={<span class="hl-string">&#x27;rows&#x27;</span>: <span class="hl-number">6</span>, <span class="hl-string">&#x27;class&#x27;</span>: <span class="hl-string">&#x27;textarea&#x27;</span>}),
+        }</code></pre>
+</div>
+<div class="tab-panel " id="step3_panel1">
+  <div class="code-header">
+    <span class="lang-label">python</span>
+    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+  </div>
+  <pre><code><span class="hl-keyword">from</span> django.shortcuts <span class="hl-keyword">import</span> render, redirect
+<span class="hl-keyword">from</span> django.contrib.auth.decorators <span class="hl-keyword">import</span> login_required
+<span class="hl-keyword">from</span> .forms <span class="hl-keyword">import</span> PostForm
+<span class="hl-keyword">from</span> .models <span class="hl-keyword">import</span> Post
+
+<span class="hl-decorator">@login_required</span>  <span class="hl-comment"># redirects to login page if not logged in</span>
+<span class="hl-keyword">def</span> create_post(request):
+    <span class="hl-keyword">if</span> request.method == <span class="hl-string">&#x27;POST&#x27;</span>:
+        form = PostForm(request.POST)
+        <span class="hl-keyword">if</span> form.is_valid():
+            post = form.save(commit=<span class="hl-keyword">False</span>)   <span class="hl-comment"># don&#x27;t save to db yet</span>
+            post.author = request.user       <span class="hl-comment"># set the author to the logged-in user</span>
+            post.save()                      <span class="hl-comment"># now save to db</span>
+            <span class="hl-keyword">return</span> redirect(<span class="hl-string">&#x27;post_list&#x27;</span>)     <span class="hl-comment"># go to the list page after saving</span>
+    <span class="hl-keyword">else</span>:
+        form = PostForm()  <span class="hl-comment"># blank form for GET requests</span>
+    <span class="hl-keyword">return</span> render(request, <span class="hl-string">&#x27;blog/create.html&#x27;</span>, {<span class="hl-string">&#x27;form&#x27;</span>: form})</code></pre>
+</div>
+<div class="tab-panel " id="step3_panel2">
+  <div class="code-header">
+    <span class="lang-label">html</span>
+    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+  </div>
+  <pre><code><span class="hl-template">{% extends &quot;base.html&quot; %}</span>
+<span class="hl-template">{% block content %}</span>
+
+&lt;<span <span class="hl-attr">class</span>="hl-tag">h2</span>&gt;New Post&lt;/<span <span class="hl-attr">class</span>="hl-tag">h2</span>&gt;
+
+&lt;<span <span class="hl-attr">class</span>="hl-tag">form</span> <span class="hl-attr">method</span>=<span class="hl-string">&quot;post&quot;</span>&gt;
+  <span class="hl-template">{% csrf_token %}</span>   <span class="hl-comment">{# required security field - Django rejects forms without it #}</span>
+
+  <span class="hl-template">{{ form.title.label_tag }}</span>
+  <span class="hl-template">{{ form.title }}</span>
+  <span class="hl-template">{% if form.title.errors %}</span>
+    &lt;<span <span class="hl-attr">class</span>="hl-tag">ul</span> <span class="hl-attr">class</span>=<span class="hl-string">&quot;errors&quot;</span>&gt;<span class="hl-template">{% for e in form.title.errors %}</span>&lt;<span <span class="hl-attr">class</span>="hl-tag">li</span>&gt;<span class="hl-template">{{ e }}</span>&lt;/<span <span class="hl-attr">class</span>="hl-tag">li</span>&gt;<span class="hl-template">{% endfor %}</span>&lt;/<span <span class="hl-attr">class</span>="hl-tag">ul</span>&gt;
+  <span class="hl-template">{% endif %}</span>
+
+  <span class="hl-template">{{ form.body.label_tag }}</span>
+  <span class="hl-template">{{ form.body }}</span>
+  <span class="hl-template">{% if form.body.errors %}</span>
+    &lt;<span <span class="hl-attr">class</span>="hl-tag">ul</span> <span class="hl-attr">class</span>=<span class="hl-string">&quot;errors&quot;</span>&gt;<span class="hl-template">{% for e in form.body.errors %}</span>&lt;<span <span class="hl-attr">class</span>="hl-tag">li</span>&gt;<span class="hl-template">{{ e }}</span>&lt;/<span <span class="hl-attr">class</span>="hl-tag">li</span>&gt;<span class="hl-template">{% endfor %}</span>&lt;/<span <span class="hl-attr">class</span>="hl-tag">ul</span>&gt;
+  <span class="hl-template">{% endif %}</span>
+
+  &lt;<span <span class="hl-attr">class</span>="hl-tag">button</span> <span class="hl-attr">type</span>=<span class="hl-string">&quot;submit&quot;</span>&gt;Save Post&lt;/<span <span class="hl-attr">class</span>="hl-tag">button</span>&gt;
+&lt;/<span <span class="hl-attr">class</span>="hl-tag">form</span>&gt;
+
+<span class="hl-template">{% endblock %}</span></code></pre>
+</div>
+    </div>
+  </div>
+</div>
+<div class="step" id="step4">
+  <div class="step-number">4</div>
+  <div class="step-content">
+    <h3>Base Template &amp; Template Tags</h3>
+    <p class="explanation">A base template defines the page shell (header, nav, footer). Other templates extend it and fill in the {% block content %} section. Template tags like {% for %}, {% if %}, and filters like |date and |truncatechars are Django&#x27;s way of adding logic to HTML.</p>
+    <div class="tabs" data-step="step4">
+      <div class="tab-bar"><button class="tab-btn active" onclick="switchTab('step4',0)" id="step4_tab0">templates/base.html</button><button class="tab-btn " onclick="switchTab('step4',1)" id="step4_tab1">templates/blog/list.html</button></div>
+      
+<div class="tab-panel active" id="step4_panel0">
+  <div class="code-header">
+    <span class="lang-label">html</span>
+    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+  </div>
+  <pre><code>&lt;!DOCTYPE html&gt;
+&lt;<span <span class="hl-attr">class</span>="hl-tag">html</span> <span class="hl-attr">lang</span>=<span class="hl-string">&quot;en&quot;</span>&gt;
+&lt;<span <span class="hl-attr">class</span>="hl-tag">head</span>&gt;
+  &lt;<span <span class="hl-attr">class</span>="hl-tag">meta</span> <span class="hl-attr">charset</span>=<span class="hl-string">&quot;UTF-8&quot;</span>&gt;
+  &lt;<span <span class="hl-attr">class</span>="hl-tag">title</span>&gt;<span class="hl-template">{% block title %}</span>My Site<span class="hl-template">{% endblock %}</span>&lt;/<span <span class="hl-attr">class</span>="hl-tag">title</span>&gt;
+  &lt;<span <span class="hl-attr">class</span>="hl-tag">style</span>&gt;
+    body { font-family: sans-serif; max-width: 700px; margin: 40px auto; padding: 0 20px; }
+    nav a { margin-right: 16px; text-decoration: none; color: #009688; }
+    .errors li { color: red; }
+  &lt;/<span <span class="hl-attr">class</span>="hl-tag">style</span>&gt;
+&lt;/<span <span class="hl-attr">class</span>="hl-tag">head</span>&gt;
+&lt;<span <span class="hl-attr">class</span>="hl-tag">body</span>&gt;
+  &lt;<span <span class="hl-attr">class</span>="hl-tag">nav</span>&gt;
+    &lt;<span <span class="hl-attr">class</span>="hl-tag">a</span> <span class="hl-attr">href</span>=&quot;{% url &#x27;post_list&#x27; %}&quot;&gt;Posts&lt;/<span <span class="hl-attr">class</span>="hl-tag">a</span>&gt;
+    &lt;<span <span class="hl-attr">class</span>="hl-tag">a</span> <span class="hl-attr">href</span>=&quot;{% url &#x27;create_post&#x27; %}&quot;&gt;New Post&lt;/<span <span class="hl-attr">class</span>="hl-tag">a</span>&gt;
+    <span class="hl-template">{% if user.is_authenticated %}</span>
+      &lt;<span <span class="hl-attr">class</span>="hl-tag">a</span> <span class="hl-attr">href</span>=&quot;{% url &#x27;logout&#x27; %}&quot;&gt;Logout (<span class="hl-template">{{ user.username }}</span>)&lt;/<span <span class="hl-attr">class</span>="hl-tag">a</span>&gt;
+    <span class="hl-template">{% else %}</span>
+      &lt;<span <span class="hl-attr">class</span>="hl-tag">a</span> <span class="hl-attr">href</span>=&quot;{% url &#x27;login&#x27; %}&quot;&gt;Login&lt;/<span <span class="hl-attr">class</span>="hl-tag">a</span>&gt;
+    <span class="hl-template">{% endif %}</span>
+  &lt;/<span <span class="hl-attr">class</span>="hl-tag">nav</span>&gt;
+  &lt;<span <span class="hl-attr">class</span>="hl-tag">hr</span>&gt;
+  <span class="hl-template">{% if messages %}</span>
+    <span class="hl-template">{% for message in messages %}</span>
+      &lt;<span <span class="hl-attr">class</span>="hl-tag">div</span> <span class="hl-attr">class</span>=<span class="hl-string">&quot;msg {{ message.tags }}&quot;</span>&gt;<span class="hl-template">{{ message }}</span>&lt;/<span <span class="hl-attr">class</span>="hl-tag">div</span>&gt;
+    <span class="hl-template">{% endfor %}</span>
+  <span class="hl-template">{% endif %}</span>
+  <span class="hl-template">{% block content %}</span><span class="hl-template">{% endblock %}</span>
+&lt;/<span <span class="hl-attr">class</span>="hl-tag">body</span>&gt;
+&lt;/<span <span class="hl-attr">class</span>="hl-tag">html</span>&gt;</code></pre>
+</div>
+<div class="tab-panel " id="step4_panel1">
+  <div class="code-header">
+    <span class="lang-label">html</span>
+    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+  </div>
+  <pre><code><span class="hl-template">{% extends &quot;base.html&quot; %}</span>
+<span class="hl-template">{% block title %}</span>Posts<span class="hl-template">{% endblock %}</span>
+<span class="hl-template">{% block content %}</span>
+
+&lt;<span <span class="hl-attr">class</span>="hl-tag">h2</span>&gt;All Posts&lt;/<span <span class="hl-attr">class</span>="hl-tag">h2</span>&gt;
+
+<span class="hl-template">{% for post in posts %}</span>
+  &lt;<span <span class="hl-attr">class</span>="hl-tag">article</span>&gt;
+    &lt;<span <span class="hl-attr">class</span>="hl-tag">h3</span>&gt;&lt;<span <span class="hl-attr">class</span>="hl-tag">a</span> <span class="hl-attr">href</span>=&quot;{% url &#x27;post_detail&#x27; post.pk %}&quot;&gt;<span class="hl-template">{{ post.title }}</span>&lt;/<span <span class="hl-attr">class</span>="hl-tag">a</span>&gt;&lt;/<span <span class="hl-attr">class</span>="hl-tag">h3</span>&gt;
+    &lt;<span <span class="hl-attr">class</span>="hl-tag">small</span>&gt;
+      By <span class="hl-template">{{ post.author.username }}</span>
+      on <span class="hl-template">{{ post.created_at|date:&quot;N j, Y&quot; }}</span>  <span class="hl-comment">{# formats the date nicely #}</span>
+    &lt;/<span <span class="hl-attr">class</span>="hl-tag">small</span>&gt;
+    &lt;<span <span class="hl-attr">class</span>="hl-tag">p</span>&gt;<span class="hl-template">{{ post.body|truncatechars:150 }}</span>&lt;/<span <span class="hl-attr">class</span>="hl-tag">p</span>&gt;  <span class="hl-comment">{# shows only the first 150 characters #}</span>
+  &lt;/<span <span class="hl-attr">class</span>="hl-tag">article</span>&gt;
+<span class="hl-template">{% empty %}</span>
+  &lt;<span <span class="hl-attr">class</span>="hl-tag">p</span>&gt;No posts yet. &lt;<span <span class="hl-attr">class</span>="hl-tag">a</span> <span class="hl-attr">href</span>=&quot;{% url &#x27;create_post&#x27; %}&quot;&gt;Create the first one.&lt;/<span <span class="hl-attr">class</span>="hl-tag">a</span>&gt;&lt;/<span <span class="hl-attr">class</span>="hl-tag">p</span>&gt;
+<span class="hl-template">{% endfor %}</span>
+
+<span class="hl-comment">{# Pagination controls - only shown when there are multiple pages #}</span>
+<span class="hl-template">{% if page_obj.has_previous or page_obj.has_next %}</span>
+  &lt;<span <span class="hl-attr">class</span>="hl-tag">div</span>&gt;
+    <span class="hl-template">{% if page_obj.has_previous %}</span>
+      &lt;<span <span class="hl-attr">class</span>="hl-tag">a</span> <span class="hl-attr">href</span>=<span class="hl-string">&quot;?<span class="hl-attr">page</span>={{ page_obj.previous_page_number }}&quot;</span>&gt;← Previous&lt;/<span <span class="hl-attr">class</span>="hl-tag">a</span>&gt;
+    <span class="hl-template">{% endif %}</span>
+    Page <span class="hl-template">{{ page_obj.number }}</span> of <span class="hl-template">{{ page_obj.paginator.num_pages }}</span>
+    <span class="hl-template">{% if page_obj.has_next %}</span>
+      &lt;<span <span class="hl-attr">class</span>="hl-tag">a</span> <span class="hl-attr">href</span>=<span class="hl-string">&quot;?<span class="hl-attr">page</span>={{ page_obj.next_page_number }}&quot;</span>&gt;Next →&lt;/<span <span class="hl-attr">class</span>="hl-tag">a</span>&gt;
+    <span class="hl-template">{% endif %}</span>
+  &lt;/<span <span class="hl-attr">class</span>="hl-tag">div</span>&gt;
+<span class="hl-template">{% endif %}</span>
+
+<span class="hl-template">{% endblock %}</span></code></pre>
+</div>
+    </div>
+  </div>
+</div>
+<div class="step" id="step5">
+  <div class="step-number">5</div>
+  <div class="step-content">
+    <h3>Pagination &amp; Search</h3>
+    <p class="explanation">Pagination splits a long list of results across multiple pages. Search works by reading a ?q= query string from the URL and filtering the queryset. Both work without any JavaScript.</p>
+    <div class="tabs" data-step="step5">
+      <div class="tab-bar"><button class="tab-btn active" onclick="switchTab('step5',0)" id="step5_tab0">blog/views.py (list view)</button><button class="tab-btn " onclick="switchTab('step5',1)" id="step5_tab1">templates/blog/list.html (search bar)</button></div>
+      
+<div class="tab-panel active" id="step5_panel0">
+  <div class="code-header">
+    <span class="lang-label">python</span>
+    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+  </div>
+  <pre><code><span class="hl-keyword">from</span> django.core.paginator <span class="hl-keyword">import</span> Paginator
+<span class="hl-keyword">from</span> django.shortcuts <span class="hl-keyword">import</span> render
+<span class="hl-keyword">from</span> .models <span class="hl-keyword">import</span> Post
+
+<span class="hl-keyword">def</span> post_list(request):
+    query = request.GET.get(<span class="hl-string">&#x27;q&#x27;</span>, <span class="hl-string">&#x27;&#x27;</span>)  <span class="hl-comment"># read the search term from the URL, default to empty</span>
+
+    posts = Post.objects.<span class="hl-builtin">all</span>()
+    <span class="hl-keyword">if</span> query:
+        <span class="hl-comment"># Filter posts where title contains the search term (case-insensitive)</span>
+        posts = posts.<span class="hl-builtin">filter</span>(title__icontains=query)
+
+    paginator = Paginator(posts, <span class="hl-number">5</span>)             <span class="hl-comment"># show 5 posts per page</span>
+    page_number = request.GET.get(<span class="hl-string">&#x27;page&#x27;</span>, <span class="hl-number">1</span>)    <span class="hl-comment"># read the current page number from the URL</span>
+    page_obj = paginator.get_page(page_number)  <span class="hl-comment"># get the posts for that page</span>
+
+    <span class="hl-keyword">return</span> render(request, <span class="hl-string">&#x27;blog/list.html&#x27;</span>, {
+        <span class="hl-string">&#x27;posts&#x27;</span>: page_obj,
+        <span class="hl-string">&#x27;page_obj&#x27;</span>: page_obj,
+        <span class="hl-string">&#x27;query&#x27;</span>: query,
+    })</code></pre>
+</div>
+<div class="tab-panel " id="step5_panel1">
+  <div class="code-header">
+    <span class="lang-label">html</span>
+    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+  </div>
+  <pre><code><span class="hl-comment">{# Add this search bar above the post list #}</span>
+&lt;<span <span class="hl-attr">class</span>="hl-tag">form</span> <span class="hl-attr">method</span>=<span class="hl-string">&quot;get&quot;</span> <span class="hl-attr">action</span>=<span class="hl-string">&quot;&quot;</span>&gt;
+  &lt;<span <span class="hl-attr">class</span>="hl-tag">input</span> <span class="hl-attr">type</span>=<span class="hl-string">&quot;text&quot;</span> <span class="hl-attr">name</span>=<span class="hl-string">&quot;q&quot;</span> <span class="hl-attr">value</span>=<span class="hl-string">&quot;{{ query }}&quot;</span> <span class="hl-attr">placeholder</span>=<span class="hl-string">&quot;Search posts...&quot;</span>&gt;
+  &lt;<span <span class="hl-attr">class</span>="hl-tag">button</span> <span class="hl-attr">type</span>=<span class="hl-string">&quot;submit&quot;</span>&gt;Search&lt;/<span <span class="hl-attr">class</span>="hl-tag">button</span>&gt;
+  <span class="hl-template">{% if query %}</span>&lt;<span <span class="hl-attr">class</span>="hl-tag">a</span> <span class="hl-attr">href</span>=&quot;{% url &#x27;post_list&#x27; %}&quot;&gt;Clear&lt;/<span <span class="hl-attr">class</span>="hl-tag">a</span>&gt;<span class="hl-template">{% endif %}</span>
+&lt;/<span <span class="hl-attr">class</span>="hl-tag">form</span>&gt;</code></pre>
+</div>
+    </div>
+  </div>
+</div>
+<div class="step" id="step6">
+  <div class="step-number">6</div>
+  <div class="step-content">
+    <h3>Class-Based Views</h3>
+    <p class="explanation">Class-based views (CBVs) replace repetitive function-based views with reusable classes. ListView, DetailView, and CreateView handle the common patterns automatically - you just specify the model and template.</p>
+    <div class="tabs" data-step="step6">
+      <div class="tab-bar"><button class="tab-btn active" onclick="switchTab('step6',0)" id="step6_tab0">blog/views.py (class-based)</button></div>
+      
+<div class="tab-panel active" id="step6_panel0">
+  <div class="code-header">
+    <span class="lang-label">python</span>
+    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+  </div>
+  <pre><code><span class="hl-keyword">from</span> django.views.generic <span class="hl-keyword">import</span> ListView, DetailView, CreateView
+<span class="hl-keyword">from</span> django.contrib.auth.mixins <span class="hl-keyword">import</span> LoginRequiredMixin
+<span class="hl-keyword">from</span> django.urls <span class="hl-keyword">import</span> reverse_lazy
+<span class="hl-keyword">from</span> .models <span class="hl-keyword">import</span> Post
+<span class="hl-keyword">from</span> .forms <span class="hl-keyword">import</span> PostForm
+
+<span class="hl-comment"># Replaces the post_list function view</span>
+<span class="hl-keyword">class</span> PostListView(ListView):
+    model = Post
+    template_name = <span class="hl-string">&#x27;blog/list.html&#x27;</span>
+    context_object_name = <span class="hl-string">&#x27;posts&#x27;</span>   <span class="hl-comment"># name used in the template</span>
+    paginate_by = <span class="hl-number">5</span>
+
+    <span class="hl-keyword">def</span> get_queryset(self):
+        qs = <span class="hl-builtin">super</span>().get_queryset()
+        q = self.request.GET.get(<span class="hl-string">&#x27;q&#x27;</span>)
+        <span class="hl-keyword">if</span> q:
+            qs = qs.<span class="hl-builtin">filter</span>(title__icontains=q)
+        <span class="hl-keyword">return</span> qs
+
+<span class="hl-comment"># Replaces a post_detail function view</span>
+<span class="hl-keyword">class</span> PostDetailView(DetailView):
+    model = Post
+    template_name = <span class="hl-string">&#x27;blog/detail.html&#x27;</span>
+
+<span class="hl-comment"># Replaces the create_post function view</span>
+<span class="hl-keyword">class</span> PostCreateView(LoginRequiredMixin, CreateView):
+    model = Post
+    form_class = PostForm
+    template_name = <span class="hl-string">&#x27;blog/create.html&#x27;</span>
+    success_url = reverse_lazy(<span class="hl-string">&#x27;post_list&#x27;</span>)
+
+    <span class="hl-keyword">def</span> form_valid(self, form):
+        form.instance.author = self.request.user  <span class="hl-comment"># set author before saving</span>
+        <span class="hl-keyword">return</span> <span class="hl-builtin">super</span>().form_valid(form)</code></pre>
+</div>
+    </div>
+  </div>
+</div>
+<div class="step" id="step7">
+  <div class="step-number">7</div>
+  <div class="step-content">
+    <h3>Signals - Auto-Create a Profile</h3>
+    <p class="explanation">A Django signal fires automatically when something happens - like a user being saved. This is useful for side effects you don&#x27;t want to put in a view, like creating a related Profile record every time a new User is created.</p>
+    <div class="tabs" data-step="step7">
+      <div class="tab-bar"><button class="tab-btn active" onclick="switchTab('step7',0)" id="step7_tab0">blog/models.py (add Profile)</button><button class="tab-btn " onclick="switchTab('step7',1)" id="step7_tab1">blog/apps.py</button></div>
+      
+<div class="tab-panel active" id="step7_panel0">
+  <div class="code-header">
+    <span class="lang-label">python</span>
+    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+  </div>
+  <pre><code><span class="hl-keyword">from</span> django.db <span class="hl-keyword">import</span> models
+<span class="hl-keyword">from</span> django.contrib.auth.models <span class="hl-keyword">import</span> User
+<span class="hl-keyword">from</span> django.db.models.signals <span class="hl-keyword">import</span> post_save
+<span class="hl-keyword">from</span> django.dispatch <span class="hl-keyword">import</span> receiver
+
+<span class="hl-keyword">class</span> Profile(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    bio  = models.TextField(blank=<span class="hl-keyword">True</span>)
+
+    <span class="hl-keyword">def</span> __str__(self):
+        <span class="hl-keyword">return</span> f<span class="hl-string">&quot;Profile({self.user.username})&quot;</span>
+
+<span class="hl-comment"># This function runs automatically every time a User is saved</span>
+<span class="hl-decorator">@receiver</span>(post_save, sender=User)
+<span class="hl-keyword">def</span> create_profile(sender, instance, created, **kwargs):
+    <span class="hl-keyword">if</span> created:  <span class="hl-comment"># only when a brand-new user is created, not on updates</span>
+        Profile.objects.create(user=instance)</code></pre>
+</div>
+<div class="tab-panel " id="step7_panel1">
+  <div class="code-header">
+    <span class="lang-label">python</span>
+    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+  </div>
+  <pre><code><span class="hl-keyword">from</span> django.apps <span class="hl-keyword">import</span> AppConfig
+
+<span class="hl-keyword">class</span> BlogConfig(AppConfig):
+    name = <span class="hl-string">&#x27;blog&#x27;</span>
+
+    <span class="hl-keyword">def</span> ready(self):
+        <span class="hl-keyword">import</span> blog.models  <span class="hl-comment"># importing the module registers the @receiver signals</span></code></pre>
+</div>
+    </div>
+  </div>
+</div>
+<div class="step" id="step8">
+  <div class="step-number">8</div>
+  <div class="step-content">
+    <h3>Custom Middleware</h3>
+    <p class="explanation">Middleware sits between the web server and your views - every request passes through it. This example logs each request method and path to a file. Register it in settings.py to activate it.</p>
+    <div class="tabs" data-step="step8">
+      <div class="tab-bar"><button class="tab-btn active" onclick="switchTab('step8',0)" id="step8_tab0">blog/middleware.py</button><button class="tab-btn " onclick="switchTab('step8',1)" id="step8_tab1">mysite/settings.py (register it)</button></div>
+      
+<div class="tab-panel active" id="step8_panel0">
+  <div class="code-header">
+    <span class="lang-label">python</span>
+    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+  </div>
+  <pre><code><span class="hl-keyword">import</span> logging, time
+
+logger = logging.getLogger(__name__)
+
+<span class="hl-keyword">class</span> RequestLoggingMiddleware:
+    <span class="hl-keyword">def</span> __init__(self, get_response):
+        self.get_response = get_response  <span class="hl-comment"># get_response is the next layer (a view or another middleware)</span>
+
+    <span class="hl-keyword">def</span> __call__(self, request):
+        start = time.time()
+        response = self.get_response(request)  <span class="hl-comment"># hand the request to the view</span>
+        duration = <span class="hl-builtin">round</span>((time.time() - start) * <span class="hl-number">1000</span>)  <span class="hl-comment"># ms</span>
+        logger.info(f<span class="hl-string">&quot;{request.method} {request.path} → {response.status_code} ({duration}ms)&quot;</span>)
+        <span class="hl-keyword">return</span> response</code></pre>
+</div>
+<div class="tab-panel " id="step8_panel1">
+  <div class="code-header">
+    <span class="lang-label">python</span>
+    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+  </div>
+  <pre><code>MIDDLEWARE = [
+    <span class="hl-comment"># ... existing middleware ...</span>
+    <span class="hl-string">&#x27;blog.middleware.RequestLoggingMiddleware&#x27;</span>,  <span class="hl-comment"># add at the end</span>
+]</code></pre>
+</div>
+    </div>
+  </div>
+</div></div>
+  </main>
+</div>
+<script>
+(function() {
+  // Restore saved theme preference before first paint
+  var saved = localStorage.getItem("pyoffline-theme");
+  if (saved === "light") {
+    document.documentElement.classList.add("light"); // apply class immediately
+  }
+  // Once DOM is ready, sync the checkbox state
+  document.addEventListener("DOMContentLoaded", function() {
+    var toggle = document.getElementById("themeToggle");
+    if (!toggle) return;
+    toggle.checked = (localStorage.getItem("pyoffline-theme") === "light");
+    toggle.addEventListener("change", function() {
+      if (this.checked) {
+        document.documentElement.classList.add("light");    // switch to light
+        localStorage.setItem("pyoffline-theme", "light");  // remember the choice
+      } else {
+        document.documentElement.classList.remove("light"); // back to dark
+        localStorage.setItem("pyoffline-theme", "dark");
+      }
+    });
+  });
+})();
+
+function switchTab(stepId, idx) {
+  // Find all tab buttons and panels belonging to this step
+  var step   = document.getElementById(stepId);
+  var btns   = step.querySelectorAll(".tab-btn");
+  var panels = step.querySelectorAll(".tab-panel");
+  // Remove active from all, then add it to the clicked one
+  btns.forEach(function(b) { b.classList.remove("active"); });
+  panels.forEach(function(p) { p.classList.remove("active"); });
+  btns[idx].classList.add("active");
+  panels[idx].classList.add("active");
+}
+
+function copyCode(btn) {
+  // Walk up to the panel, find the code block, copy its plain text (no HTML tags)
+  var code = btn.closest(".tab-panel").querySelector("code").innerText;
+  navigator.clipboard.writeText(code).then(function() {
+    var orig = btn.textContent;
+    btn.textContent = "Copied!";                              // briefly show confirmation
+    setTimeout(function() { btn.textContent = orig; }, 1500); // restore after 1.5s
+  });
+}
+
+// ── Responsive sidebar ──────────────────────────────────────
+function toggleSidebar() {
+  var sidebar = document.getElementById("guideSidebar");
+  var overlay = document.getElementById("sidebarOverlay");
+  if (!sidebar) return;
+  sidebar.classList.toggle("open");
+  overlay.classList.toggle("open");
+}
+
+// Close sidebar automatically when a step link is clicked (so the scroll happens cleanly)
+document.addEventListener("DOMContentLoaded", function() {
+  var sidebar = document.getElementById("guideSidebar");
+  if (!sidebar) return;
+  sidebar.querySelectorAll("nav a").forEach(function(a) {
+    a.addEventListener("click", function() {
+      sidebar.classList.remove("open");
+      var overlay = document.getElementById("sidebarOverlay");
+      if (overlay) overlay.classList.remove("open");
+    });
+  });
+});
+</script>
+</body>
+</html>

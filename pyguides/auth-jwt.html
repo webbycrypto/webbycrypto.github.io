@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>JWT Access Tokens - Auth Series - pyoffline</title>
+<style>
+:root{--bg:#121212;--surface:#1e1e1e;--surface2:#2a2a2a;--sidebar-bg:#1a1a1a;--text:#e0e0e0;--text-muted:#aaa;--text-dim:#666;--border:#333;--code-bg:#1e1e1e;--code-text:#d4d4d4;--shadow:rgba(0,0,0,.4);--accent:#f44336;--hl-keyword:#569cd6;--hl-string:#ce9178;--hl-comment:#6a9955;--hl-number:#b5cea8;--hl-decorator:#dcdcaa;--hl-builtin:#4ec9b0;--hl-tag:#4ec9b0;--hl-attr:#9cdcfe;--hl-template:#c586c0}
+html.light{--bg:#f5f7fa;--surface:#fff;--surface2:#eef0f3;--sidebar-bg:#fff;--text:#1a1a1a;--text-muted:#555;--text-dim:#888;--border:#dde1e7;--code-bg:#f8f8f8;--code-text:#24292e;--shadow:rgba(0,0,0,.1);--hl-keyword:#00f;--hl-string:#a31515;--hl-comment:#008000;--hl-number:#098658;--hl-decorator:#795e26;--hl-builtin:#267f99;--hl-tag:#800000;--hl-attr:#e50000;--hl-template:#af00db}
+.hl-keyword{color:var(--hl-keyword)}.hl-string{color:var(--hl-string)}.hl-comment{color:#adb4a7;font-size:12px;font-style:italic}.hl-number{color:var(--hl-number)}.hl-decorator{color:var(--hl-decorator)}.hl-builtin{color:var(--hl-builtin)}
+*{box-sizing:border-box;margin:0;padding:0}body{background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;transition:background .2s,color .2s}a{color:var(--accent)}
+.layout{display:flex;min-height:100vh}.sidebar{width:260px;min-width:260px;background:var(--sidebar-bg);border-right:1px solid var(--border);padding:24px 16px;position:sticky;top:0;height:100vh;overflow-y:auto}.sidebar h2{font-size:1.1rem;margin:16px 0 8px;color:var(--text)}.sidebar nav ol{padding-left:18px}.sidebar nav li{margin:6px 0}.sidebar nav a{color:var(--text-muted);text-decoration:none;font-size:.85rem}.sidebar nav a:hover{color:var(--accent)}.back-link{color:var(--text-dim);text-decoration:none;font-size:.85rem;display:block;margin-bottom:8px}
+.install-box{margin-top:24px;background:var(--bg);border:1px solid var(--border);padding:12px;border-radius:6px;font-size:.8rem}.install-box code{display:block;word-break:break-all;color:var(--hl-comment);font-family:monospace;margin-top:4px}
+.series-box{margin-top:16px;background:var(--bg);border:1px solid var(--border);padding:12px;border-radius:6px;font-size:.8rem}.series-box p{color:var(--text-muted);margin-bottom:6px;font-weight:600}.series-box a{display:block;color:var(--text-muted);text-decoration:none;padding:2px 0;font-size:.8rem}.series-box a:hover{color:var(--accent)}.series-box a.current{color:var(--accent);font-weight:600}
+main{flex:1;padding:40px;max-width:860px}.guide-header{padding:20px 20px 20px 24px;background:var(--surface);border-radius:8px;margin-bottom:32px;box-shadow:0 1px 3px var(--shadow)}.guide-header h1{font-size:1.8rem;margin-bottom:8px}.guide-header p{color:var(--text-muted)}
+.step{display:flex;gap:16px;margin-bottom:40px}.step-number{width:32px;min-width:32px;height:32px;background:var(--accent);border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:bold;font-size:.9rem;margin-top:4px;color:#fff}.step-content{flex:1;min-width:0}.step-content h3{font-size:1.1rem;margin-bottom:8px;color:var(--text)}.explanation{color:var(--text-muted);font-size:.9rem;line-height:1.6;margin-bottom:14px}
+.info-box{background:var(--surface);border-left:3px solid var(--accent);border-radius:0 6px 6px 0;padding:12px 16px;margin-bottom:14px;font-size:.88rem;color:var(--text-muted);line-height:1.6}.info-box strong{color:var(--text)}
+.warn-box{background:var(--surface);border-left:3px solid #ff9800;border-radius:0 6px 6px 0;padding:12px 16px;margin-bottom:14px;font-size:.88rem;color:var(--text-muted);line-height:1.6}.warn-box strong{color:var(--text)}
+.tabs{background:var(--surface);border-radius:6px;overflow:hidden;border:1px solid var(--border)}.tab-bar{display:flex;background:var(--surface2);overflow-x:auto;border-bottom:1px solid var(--border)}.tab-btn{padding:8px 16px;background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:.8rem;white-space:nowrap;border-bottom:2px solid transparent;margin-bottom:-1px}.tab-btn.active{color:var(--text);border-bottom-color:var(--accent)}.tab-panel{display:none}.tab-panel.active{display:block}
+.code-header{display:flex;justify-content:space-between;align-items:center;padding:5px 12px;background:var(--surface2);border-bottom:1px solid var(--border)}.lang-label{font-size:.72rem;color:var(--text-dim);text-transform:uppercase;letter-spacing:.04em}.copy-btn{background:none;border:1px solid var(--border);color:var(--text-muted);padding:2px 8px;cursor:pointer;border-radius:3px;font-size:.72rem}.copy-btn:hover{color:var(--text);border-color:var(--text-muted)}
+pre{overflow-x:auto;padding:16px;background:var(--code-bg)}code{font-family:"Fira Code","Cascadia Code",Consolas,monospace;font-size:.82rem;line-height:1.65;color:var(--code-text)}
+.theme-row{display:flex;align-items:center;gap:8px;margin-top:20px}.theme-label{font-size:.78rem;color:var(--text-muted)}.toggle-switch{position:relative;display:inline-block;width:40px;height:22px}.toggle-switch input{opacity:0;width:0;height:0}.slider{position:absolute;cursor:pointer;inset:0;background:var(--surface2);border:1px solid var(--border);border-radius:22px;transition:background .2s}.slider:before{content:"";position:absolute;width:16px;height:16px;left:2px;top:2px;background:var(--text-muted);border-radius:50%;transition:transform .2s,background .2s}.toggle-switch input:checked+.slider{background:var(--accent);border-color:var(--accent)}.toggle-switch input:checked+.slider:before{transform:translateX(18px);background:#fff}
+.sidebar-toggle{display:none;position:fixed;top:12px;left:12px;z-index:300;background:var(--accent);color:#fff;border:none;padding:7px 14px;border-radius:6px;cursor:pointer;font-size:.85rem;font-weight:600;box-shadow:0 2px 8px var(--shadow);align-items:center;gap:6px}
+.sidebar-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:190}.sidebar-overlay.open{display:block}
+@media(max-width:900px){.sidebar-toggle{display:flex}.layout{display:block}.sidebar{position:fixed;left:-280px;top:0;height:100vh;z-index:200;transition:left .25s ease;box-shadow:2px 0 16px var(--shadow);min-width:260px}.sidebar.open{left:0}main{padding:60px 20px 40px;max-width:100%}pre{overflow-x:auto;max-width:100%;white-space:pre-wrap;word-break:break-word}.tabs{max-width:100%}}
+</style>
+</head>
+<body>
+<button class="sidebar-toggle" id="sidebarToggle" onclick="toggleSidebar()">&#9776; Steps</button>
+<div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+<div class="layout">
+  <aside class="sidebar" id="guideSidebar">
+    <a href="index.html" class="back-link">← All Guides</a>
+    <h2>Auth + Security</h2>
+    <nav><ol>
+      <li><a href="#step1">What is a JWT?</a></li>
+      <li><a href="#step2">Install python-jose</a></li>
+      <li><a href="#step3">create_access_token()</a></li>
+      <li><a href="#step4">decode_token()</a></li>
+      <li><a href="#step5">get_current_user()</a></li>
+      <li><a href="#step6">Protecting a Route</a></li>
+      <li><a href="#step7">Login Returns Token</a></li>
+      <li><a href="#step8">Testing with /docs</a></li>
+      <li><a href="#step9">Token Expiry</a></li>
+    </ol></nav>
+    <div class="install-box">
+      <p><strong>Install</strong></p>
+      <code>pip install fastapi uvicorn sqlalchemy passlib[bcrypt] python-jose[cryptography] python-dotenv</code>
+      <p style="margin-top:12px"><strong>Generate SECRET_KEY</strong></p>
+      <code>python -c "import secrets; print(secrets.token_hex(32))"</code>
+    </div>
+    <div class="series-box">
+      <p>Auth + Security series</p>
+      <a href="auth-passwords.html">Hashing Passwords</a>
+      <a href="auth-jwt.html" class="current">&#10003; JWT Access Tokens</a>
+      <a href="auth-refresh.html">Refresh Token Rotation</a>
+      <a href="auth-email.html">Email Verification</a>
+      <a href="auth-roles.html">Role-Based Access</a>
+    </div>
+    <div class="theme-row">
+      <span class="theme-label">Dark</span>
+      <label class="toggle-switch"><input type="checkbox" id="themeToggle"><span class="slider"></span></label>
+      <span class="theme-label">Light</span>
+    </div>
+  </aside>
+
+  <main>
+    <header class="guide-header" style="border-left:5px solid #f44336">
+      <h1>JWT Access Tokens</h1>
+      <p>Make your login route return a signed token that proves who the user is on every subsequent request — without hitting the database each time. Covers token creation, decoding, FastAPI's <code>Depends</code> for route protection, and how to test it in the /docs UI.</p>
+    </header>
+    <div class="steps">
+
+      <div class="step" id="step1">
+        <div class="step-number">1</div>
+        <div class="step-content">
+          <h3>What is a JWT?</h3>
+          <p class="explanation">A JWT (JSON Web Token) is a compact string the server gives to the client after a successful login. The client sends it back with every request, and the server uses it to know who's asking — without querying the database. It has three parts separated by dots: <code>header.payload.signature</code>.</p>
+          <div class="tabs">
+            <div class="tab-bar">
+              <button class="tab-btn active" onclick="switchTab('step1',0)">The three parts</button>
+              <button class="tab-btn" onclick="switchTab('step1',1)">What it looks like</button>
+            </div>
+            <div class="tab-panel active">
+              <div class="code-header"><span class="lang-label">text</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code>HEADER    — algorithm used to sign (e.g. HS256)
+PAYLOAD   — the data: user_id, email, expiry timestamp
+SIGNATURE — HMAC of header+payload using your SECRET_KEY
+
+The signature is what makes it trustworthy. Only your server
+knows the SECRET_KEY, so only your server can create a valid
+signature. Anyone can READ the payload (it's just base64),
+but no one can FORGE a token without the key.
+
+This means: never put secrets in the payload.
+Put: user_id, role, expiry. Not: passwords, API keys.</code></pre>
+            </div>
+            <div class="tab-panel">
+              <div class="code-header"><span class="lang-label">text — a real JWT</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code>eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9
+.eyJzdWIiOiI0MiIsImV4cCI6MTcxNzAwMDAwMH0
+.xK3nFm8jQwPxV2mRtLd9oYeN1sZqA7bCuHvDpEfGhI
+
+Decoded header:  {"alg": "HS256", "typ": "JWT"}
+Decoded payload: {"sub": "42", "exp": 1717000000}
+                  ^^ user ID     ^^ expiry timestamp (Unix)
+
+Paste any JWT at https://jwt.io to decode it — it's not encrypted.</code></pre>
+            </div>
+          </div>
+          <div class="warn-box" style="margin-top:12px"><strong>JWTs are not encrypted — they are signed.</strong> Anyone who has the token can base64-decode and read the payload. Never put sensitive data (passwords, SSNs, API keys) in the payload. Only put identifiers (user_id, role) and the expiry time.</div>
+        </div>
+      </div>
+
+      <div class="step" id="step2">
+        <div class="step-number">2</div>
+        <div class="step-content">
+          <h3>Install python-jose + Set SECRET_KEY</h3>
+          <p class="explanation"><code>python-jose</code> creates and verifies JWTs. The <code>SECRET_KEY</code> is used to sign every token — if it leaks, attackers can forge tokens for any user. Generate it once with Python's <code>secrets</code> module and store it in your <code>.env</code>.</p>
+          <div class="tabs">
+            <div class="tab-bar">
+              <button class="tab-btn active" onclick="switchTab('step2',0)">Install + .env</button>
+            </div>
+            <div class="tab-panel active">
+              <div class="code-header"><span class="lang-label">bash + .env</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code>pip install python-jose[cryptography]
+
+<span class="hl-comment"># Generate a secure random key (run once, save the output):</span>
+python -c <span class="hl-string">"import secrets; print(secrets.token_hex(32))"</span>
+<span class="hl-comment"># → a6f3e8c1d2b4...  (64 hex chars = 32 bytes = 256 bits)</span>
+
+<span class="hl-comment"># .env</span>
+SECRET_KEY=a6f3e8c1d2b4...your_generated_key_here
+ALGORITHM=HS256
+ACCESS_TOKEN_EXPIRE_MINUTES=60</code></pre>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="step" id="step3">
+        <div class="step-number">3</div>
+        <div class="step-content">
+          <h3>create_access_token()</h3>
+          <p class="explanation">The function takes a dict of data to embed in the token, adds an expiry timestamp, and signs it with the SECRET_KEY. Add this to <code>auth.py</code> alongside the password helpers.</p>
+          <div class="tabs">
+            <div class="tab-bar"><button class="tab-btn active" onclick="switchTab('step3',0)">auth.py — token creation</button></div>
+            <div class="tab-panel active">
+              <div class="code-header"><span class="lang-label">python</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-keyword">from</span> jose <span class="hl-keyword">import</span> jwt
+<span class="hl-keyword">from</span> datetime <span class="hl-keyword">import</span> datetime, timedelta, timezone
+<span class="hl-keyword">import</span> os
+<span class="hl-keyword">from</span> dotenv <span class="hl-keyword">import</span> load_dotenv
+load_dotenv()
+
+SECRET_KEY = os.getenv(<span class="hl-string">"SECRET_KEY"</span>)
+ALGORITHM  = os.getenv(<span class="hl-string">"ALGORITHM"</span>, <span class="hl-string">"HS256"</span>)
+ACCESS_TOKEN_EXPIRE_MINUTES = int(os.getenv(<span class="hl-string">"ACCESS_TOKEN_EXPIRE_MINUTES"</span>, <span class="hl-number">60</span>))
+
+<span class="hl-keyword">def</span> <span class="hl-builtin">create_access_token</span>(data: dict) -> str:
+    <span class="hl-comment">"""Create a signed JWT with an expiry time."""</span>
+    payload = data.copy()
+    expire  = datetime.now(timezone.utc) + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+    payload[<span class="hl-string">"exp"</span>] = expire   <span class="hl-comment"># "exp" is a standard JWT claim — python-jose checks it on decode</span>
+
+    <span class="hl-keyword">return</span> jwt.encode(payload, SECRET_KEY, algorithm=ALGORITHM)
+    <span class="hl-comment"># Returns a string like "eyJhbGci..."</span>
+
+<span class="hl-comment"># Usage:</span>
+<span class="hl-comment"># token = create_access_token({"sub": str(user.id)})</span>
+<span class="hl-comment"># "sub" (subject) is the standard claim for the user identifier</span></code></pre>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="step" id="step4">
+        <div class="step-number">4</div>
+        <div class="step-content">
+          <h3>decode_token()</h3>
+          <p class="explanation"><code>jwt.decode()</code> verifies the signature and checks the expiry. If either fails, it raises a <code>JWTError</code>. You catch that and return <code>None</code> — the caller then raises a 401.</p>
+          <div class="tabs">
+            <div class="tab-bar"><button class="tab-btn active" onclick="switchTab('step4',0)">auth.py — decode</button></div>
+            <div class="tab-panel active">
+              <div class="code-header"><span class="lang-label">python</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-keyword">from</span> jose <span class="hl-keyword">import</span> jwt, JWTError
+
+<span class="hl-keyword">def</span> <span class="hl-builtin">decode_token</span>(token: str) -> dict | <span class="hl-keyword">None</span>:
+    <span class="hl-comment">"""Decode and verify a JWT. Returns the payload dict, or None if invalid/expired."""</span>
+    <span class="hl-keyword">try</span>:
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        <span class="hl-comment"># jwt.decode() automatically checks:</span>
+        <span class="hl-comment">#   - signature is valid (matches SECRET_KEY)</span>
+        <span class="hl-comment">#   - token has not expired (exp claim)</span>
+        <span class="hl-keyword">return</span> payload
+    <span class="hl-keyword">except</span> JWTError:
+        <span class="hl-comment"># Raised for: bad signature, expired token, malformed token</span>
+        <span class="hl-keyword">return</span> <span class="hl-keyword">None</span>
+
+<span class="hl-comment"># payload["sub"] → the user ID we put in when creating the token</span></code></pre>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="step" id="step5">
+        <div class="step-number">5</div>
+        <div class="step-content">
+          <h3>get_current_user() Dependency</h3>
+          <p class="explanation">This FastAPI dependency reads the <code>Authorization: Bearer &lt;token&gt;</code> header, decodes the token, and returns the <code>User</code> object from the database. Any route that declares it as a parameter gets the current user injected automatically — and gets a 401 if the token is missing or invalid.</p>
+          <div class="tabs">
+            <div class="tab-bar"><button class="tab-btn active" onclick="switchTab('step5',0)">auth.py — get_current_user()</button></div>
+            <div class="tab-panel active">
+              <div class="code-header"><span class="lang-label">python</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-keyword">from</span> fastapi <span class="hl-keyword">import</span> Depends, HTTPException, status
+<span class="hl-keyword">from</span> fastapi.security <span class="hl-keyword">import</span> OAuth2PasswordBearer
+<span class="hl-keyword">from</span> sqlalchemy.orm <span class="hl-keyword">import</span> Session
+<span class="hl-keyword">from</span> database <span class="hl-keyword">import</span> get_db
+<span class="hl-keyword">import</span> models
+
+<span class="hl-comment"># OAuth2PasswordBearer tells FastAPI where to find the token in the request</span>
+<span class="hl-comment"># tokenUrl is the login endpoint — used by the /docs Authorize button</span>
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl=<span class="hl-string">"/login"</span>)
+
+<span class="hl-keyword">def</span> <span class="hl-builtin">get_current_user</span>(
+    token: str    = Depends(oauth2_scheme),  <span class="hl-comment"># extracts Bearer token from header</span>
+    db:    Session = Depends(get_db),
+) -> models.User:
+    credentials_error = HTTPException(
+        status_code=status.HTTP_401_UNAUTHORIZED,
+        detail=<span class="hl-string">"Could not validate credentials"</span>,
+        headers={<span class="hl-string">"WWW-Authenticate"</span>: <span class="hl-string">"Bearer"</span>},
+    )
+    payload = decode_token(token)
+    <span class="hl-keyword">if not</span> payload:
+        <span class="hl-keyword">raise</span> credentials_error
+
+    user_id: str = payload.get(<span class="hl-string">"sub"</span>)
+    <span class="hl-keyword">if not</span> user_id:
+        <span class="hl-keyword">raise</span> credentials_error
+
+    user = db.query(models.User).filter(models.User.id == int(user_id)).first()
+    <span class="hl-keyword">if not</span> user:
+        <span class="hl-keyword">raise</span> credentials_error
+    <span class="hl-keyword">if not</span> user.is_active:
+        <span class="hl-keyword">raise</span> HTTPException(status_code=<span class="hl-number">403</span>, detail=<span class="hl-string">"Account suspended"</span>)
+
+    <span class="hl-keyword">return</span> user</code></pre>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="step" id="step6">
+        <div class="step-number">6</div>
+        <div class="step-content">
+          <h3>Protecting a Route</h3>
+          <p class="explanation">Add <code>current_user: User = Depends(get_current_user)</code> to any route parameter. FastAPI runs the dependency automatically — if the token is missing or invalid, the request is rejected with a 401 before your route function even runs.</p>
+          <div class="tabs">
+            <div class="tab-bar"><button class="tab-btn active" onclick="switchTab('step6',0)">Protected route examples</button></div>
+            <div class="tab-panel active">
+              <div class="code-header"><span class="lang-label">python</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-keyword">from</span> auth <span class="hl-keyword">import</span> get_current_user
+
+<span class="hl-comment"># Anyone with a valid token can call this</span>
+<span class="hl-decorator">@app.get</span>(<span class="hl-string">"/me"</span>)
+<span class="hl-keyword">def</span> <span class="hl-builtin">get_me</span>(current_user: models.User = Depends(get_current_user)):
+    <span class="hl-keyword">return</span> {<span class="hl-string">"id"</span>: current_user.id, <span class="hl-string">"email"</span>: current_user.email}
+
+<span class="hl-comment"># A route that uses the current user for something</span>
+<span class="hl-decorator">@app.post</span>(<span class="hl-string">"/notes"</span>)
+<span class="hl-keyword">def</span> <span class="hl-builtin">create_note</span>(
+    text:         str,
+    current_user: models.User = Depends(get_current_user),
+    db:           Session     = Depends(get_db),
+):
+    <span class="hl-comment"># current_user.id is the authenticated user — no need to pass user_id in the body</span>
+    note = models.Note(text=text, owner_id=current_user.id)
+    db.add(note)
+    db.commit()
+    <span class="hl-keyword">return</span> {<span class="hl-string">"text"</span>: note.text, <span class="hl-string">"owner"</span>: current_user.email}
+
+<span class="hl-comment"># No Depends → public, no auth required</span>
+<span class="hl-decorator">@app.get</span>(<span class="hl-string">"/public"</span>)
+<span class="hl-keyword">def</span> <span class="hl-builtin">public_route</span>():
+    <span class="hl-keyword">return</span> {<span class="hl-string">"message"</span>: <span class="hl-string">"Anyone can call this"</span>}</code></pre>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="step" id="step7">
+        <div class="step-number">7</div>
+        <div class="step-content">
+          <h3>Login Route Returns Token</h3>
+          <p class="explanation">Update the login route from the password guide to return a JWT token. The client stores this token and sends it in the <code>Authorization</code> header on every subsequent request.</p>
+          <div class="tabs">
+            <div class="tab-bar"><button class="tab-btn active" onclick="switchTab('step7',0)">main.py — POST /login with token</button></div>
+            <div class="tab-panel active">
+              <div class="code-header"><span class="lang-label">python</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-keyword">from</span> auth <span class="hl-keyword">import</span> hash_password, verify_password, create_access_token
+
+<span class="hl-decorator">@app.post</span>(<span class="hl-string">"/login"</span>)
+<span class="hl-keyword">def</span> <span class="hl-builtin">login</span>(email: str, password: str, db: Session = Depends(get_db)):
+    user = db.query(models.User).filter(models.User.email == email).first()
+    <span class="hl-keyword">if not</span> user <span class="hl-keyword">or not</span> verify_password(password, user.hashed_password):
+        <span class="hl-keyword">raise</span> HTTPException(
+            status_code=<span class="hl-number">401</span>,
+            detail=<span class="hl-string">"Invalid email or password"</span>,
+            headers={<span class="hl-string">"WWW-Authenticate"</span>: <span class="hl-string">"Bearer"</span>},
+        )
+    <span class="hl-keyword">if not</span> user.is_active:
+        <span class="hl-keyword">raise</span> HTTPException(status_code=<span class="hl-number">403</span>, detail=<span class="hl-string">"Account suspended"</span>)
+
+    <span class="hl-comment"># Create a token with the user's ID as the subject</span>
+    token = create_access_token(data={<span class="hl-string">"sub"</span>: str(user.id)})
+
+    <span class="hl-keyword">return</span> {
+        <span class="hl-string">"access_token"</span>: token,
+        <span class="hl-string">"token_type"</span>:   <span class="hl-string">"bearer"</span>,
+    }
+
+<span class="hl-comment"># Client usage:</span>
+<span class="hl-comment"># Authorization: Bearer eyJhbGci...</span></code></pre>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="step" id="step8">
+        <div class="step-number">8</div>
+        <div class="step-content">
+          <h3>Testing with /docs</h3>
+          <p class="explanation">FastAPI's auto-generated docs at <code>/docs</code> has an Authorize button that stores the token for you, making it easy to test protected routes without writing a frontend.</p>
+          <div class="tabs">
+            <div class="tab-bar"><button class="tab-btn active" onclick="switchTab('step8',0)">Steps to test</button></div>
+            <div class="tab-panel active">
+              <div class="code-header"><span class="lang-label">text</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code>1. Start the server: uvicorn main:app --reload
+2. Open: http://localhost:8000/docs
+
+3. Call POST /register to create a user:
+   email=test@example.com, password=secret123
+
+4. Call POST /login with the same credentials.
+   Copy the "access_token" from the response.
+
+5. Click the "Authorize" button (padlock icon, top right).
+   Paste the token in the "Value" field.
+   Click Authorize → Close.
+
+6. Now call GET /me — you should get your user info back.
+   The /docs UI automatically adds the Authorization header.
+
+7. To test expiry: wait until the token expires (set
+   ACCESS_TOKEN_EXPIRE_MINUTES=1 for a quick test),
+   then call /me again — you should get a 401.</code></pre>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="step" id="step9">
+        <div class="step-number">9</div>
+        <div class="step-content">
+          <h3>Token Expiry</h3>
+          <p class="explanation">When an access token expires, the server returns <code>401 Unauthorized</code>. The client needs to get a new token. In the next guide, this is handled automatically with a refresh token — the client uses the refresh token to get a new access token without the user re-entering their password.</p>
+          <div class="tabs">
+            <div class="tab-bar"><button class="tab-btn active" onclick="switchTab('step9',0)">What 401 looks like</button></div>
+            <div class="tab-panel active">
+              <div class="code-header"><span class="lang-label">json — expired token response</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code>HTTP/1.1 401 Unauthorized
+WWW-Authenticate: Bearer
+
+{
+  "detail": "Could not validate credentials"
+}
+
+<span class="hl-comment">// The client should:</span>
+<span class="hl-comment">// 1. Detect the 401</span>
+<span class="hl-comment">// 2. Use the refresh token to get a new access token (auth-refresh.html)</span>
+<span class="hl-comment">// 3. Retry the original request with the new token</span>
+<span class="hl-comment">// 4. If refresh also fails → redirect to login</span></code></pre>
+            </div>
+          </div>
+          <div class="info-box" style="margin-top:12px"><strong>How long should tokens last?</strong> Short-lived (15–60 minutes) = more secure but requires frequent refresh. Long-lived (days/weeks) = less friction but a stolen token is valid longer. The standard pattern: short access token (15–60 min) + long refresh token (7–30 days). See <a href="auth-refresh.html">Refresh Token Rotation</a>.</div>
+        </div>
+      </div>
+
+    </div>
+  </main>
+</div>
+<script>
+(function(){var s=localStorage.getItem("pyoffline-theme");if(s==="light")document.documentElement.classList.add("light");document.addEventListener("DOMContentLoaded",function(){var t=document.getElementById("themeToggle");if(!t)return;t.checked=(localStorage.getItem("pyoffline-theme")==="light");t.addEventListener("change",function(){if(this.checked){document.documentElement.classList.add("light");localStorage.setItem("pyoffline-theme","light")}else{document.documentElement.classList.remove("light");localStorage.setItem("pyoffline-theme","dark")}})})})();
+function switchTab(s,i){var el=document.getElementById(s);var b=el.querySelectorAll(".tab-btn");var p=el.querySelectorAll(".tab-panel");b.forEach(function(x){x.classList.remove("active")});p.forEach(function(x){x.classList.remove("active")});b[i].classList.add("active");p[i].classList.add("active")}
+function copyCode(btn){var c=btn.closest(".tab-panel").querySelector("code").innerText;navigator.clipboard.writeText(c).then(function(){var o=btn.textContent;btn.textContent="Copied!";setTimeout(function(){btn.textContent=o},1500)})}
+function toggleSidebar(){var s=document.getElementById("guideSidebar");var o=document.getElementById("sidebarOverlay");if(!s)return;s.classList.toggle("open");o.classList.toggle("open")}
+document.addEventListener("DOMContentLoaded",function(){var s=document.getElementById("guideSidebar");if(!s)return;s.querySelectorAll("nav a").forEach(function(a){a.addEventListener("click",function(){s.classList.remove("open");var o=document.getElementById("sidebarOverlay");if(o)o.classList.remove("open")})})});
+</script>
+</body>
+</html>
