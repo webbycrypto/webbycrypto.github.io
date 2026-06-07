@@ -1,0 +1,739 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Background Tasks - FastAPI Guide - pyoffline</title>
+<style>
+:root {
+  --bg:          #121212;
+  --surface:     #1e1e1e;
+  --surface2:    #2a2a2a;
+  --sidebar-bg:  #1a1a1a;
+  --text:        #e0e0e0;
+  --text-muted:  #aaa;
+  --text-dim:    #666;
+  --border:      #333;
+  --code-bg:     #1e1e1e;
+  --code-text:   #d4d4d4;
+  --shadow:      rgba(0,0,0,.4);
+  --accent:      #ff5722;
+  --hl-keyword:  #569cd6;
+  --hl-string:   #ce9178;
+  --hl-comment:  #6a9955;
+  --hl-number:   #b5cea8;
+  --hl-decorator:#dcdcaa;
+  --hl-builtin:  #4ec9b0;
+  --hl-tag:      #4ec9b0;
+  --hl-attr:     #9cdcfe;
+  --hl-template: #c586c0;
+}
+html.light {
+  --bg:          #f5f7fa;
+  --surface:     #ffffff;
+  --surface2:    #eef0f3;
+  --sidebar-bg:  #ffffff;
+  --text:        #1a1a1a;
+  --text-muted:  #555;
+  --text-dim:    #888;
+  --border:      #dde1e7;
+  --code-bg:     #f8f8f8;
+  --code-text:   #24292e;
+  --shadow:      rgba(0,0,0,.1);
+  --hl-keyword:  #0000ff;
+  --hl-string:   #a31515;
+  --hl-comment:  #008000;
+  --hl-number:   #098658;
+  --hl-decorator:#795e26;
+  --hl-builtin:  #267f99;
+  --hl-tag:      #800000;
+  --hl-attr:     #e50000;
+  --hl-template: #af00db;
+}
+.hl-keyword  { color: var(--hl-keyword);  }
+.hl-string   { color: var(--hl-string);   }
+.hl-comment  { color: #adb4a7; font-size: 12px; font-style: italic; }
+.hl-number   { color: var(--hl-number);   }
+.hl-decorator{ color: var(--hl-decorator);}
+.hl-builtin  { color: var(--hl-builtin);  }
+.hl-tag      { color: var(--hl-tag);      }
+.hl-attr     { color: var(--hl-attr);     }
+.hl-template { color: var(--hl-template); }
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: var(--bg); color: var(--text); font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; transition: background .2s, color .2s; }
+a { color: var(--accent); }
+.layout { display: flex; min-height: 100vh; }
+.sidebar { width: 260px; min-width: 260px; background: var(--sidebar-bg); border-right: 1px solid var(--border); padding: 24px 16px; position: sticky; top: 0; height: 100vh; overflow-y: auto; }
+.sidebar h2 { font-size: 1.1rem; margin: 16px 0 8px; color: var(--text); }
+.sidebar nav ol { padding-left: 18px; }
+.sidebar nav li { margin: 6px 0; }
+.sidebar nav a { color: var(--text-muted); text-decoration: none; font-size: 0.85rem; }
+.sidebar nav a:hover { color: var(--accent); }
+.back-link { color: var(--text-dim); text-decoration: none; font-size: 0.85rem; display: block; margin-bottom: 8px; }
+.install-box { margin-top: 24px; background: var(--bg); border: 1px solid var(--border); padding: 12px; border-radius: 6px; font-size: 0.8rem; }
+.install-box code { display: block; word-break: break-all; color: var(--hl-comment); font-family: monospace; margin-top: 4px; }
+main { flex: 1; padding: 40px; max-width: 860px; }
+.guide-header { padding: 20px 20px 20px 24px; background: var(--surface); border-radius: 8px; margin-bottom: 32px; box-shadow: 0 1px 3px var(--shadow); }
+.guide-header h1 { font-size: 1.8rem; margin-bottom: 8px; }
+.guide-header p { color: var(--text-muted); }
+.step { display: flex; gap: 16px; margin-bottom: 40px; }
+.step-number { width: 32px; min-width: 32px; height: 32px; background: var(--accent); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 0.9rem; margin-top: 4px; color: #fff; }
+.step-content { flex: 1; min-width: 0; }
+.step-content h3 { font-size: 1.1rem; margin-bottom: 8px; color: var(--text); }
+.explanation { color: var(--text-muted); font-size: 0.9rem; line-height: 1.6; margin-bottom: 14px; }
+.info-box { background: var(--surface); border-left: 3px solid var(--accent); border-radius: 0 6px 6px 0; padding: 12px 16px; margin-bottom: 14px; font-size: 0.88rem; color: var(--text-muted); line-height: 1.6; }
+.info-box strong { color: var(--text); }
+.tabs { background: var(--surface); border-radius: 6px; overflow: hidden; border: 1px solid var(--border); }
+.tab-bar { display: flex; background: var(--surface2); overflow-x: auto; border-bottom: 1px solid var(--border); }
+.tab-btn { padding: 8px 16px; background: none; border: none; color: var(--text-muted); cursor: pointer; font-size: 0.8rem; white-space: nowrap; border-bottom: 2px solid transparent; margin-bottom: -1px; }
+.tab-btn.active { color: var(--text); border-bottom-color: var(--accent); }
+.tab-panel { display: none; }
+.tab-panel.active { display: block; }
+.code-header { display: flex; justify-content: space-between; align-items: center; padding: 5px 12px; background: var(--surface2); border-bottom: 1px solid var(--border); }
+.lang-label { font-size: 0.72rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: .04em; }
+.copy-btn { background: none; border: 1px solid var(--border); color: var(--text-muted); padding: 2px 8px; cursor: pointer; border-radius: 3px; font-size: 0.72rem; }
+.copy-btn:hover { color: var(--text); border-color: var(--text-muted); }
+pre { overflow-x: auto; padding: 16px; background: var(--code-bg); }
+code { font-family: "Fira Code", "Cascadia Code", "Consolas", monospace; font-size: 0.82rem; line-height: 1.65; color: var(--code-text); }
+.theme-row { display: flex; align-items: center; gap: 8px; margin-top: 20px; }
+.theme-label { font-size: 0.78rem; color: var(--text-muted); }
+.toggle-switch { position: relative; display: inline-block; width: 40px; height: 22px; }
+.toggle-switch input { opacity: 0; width: 0; height: 0; }
+.slider { position: absolute; cursor: pointer; inset: 0; background: var(--surface2); border: 1px solid var(--border); border-radius: 22px; transition: background .2s; }
+.slider:before { content: ""; position: absolute; width: 16px; height: 16px; left: 2px; top: 2px; background: var(--text-muted); border-radius: 50%; transition: transform .2s, background .2s; }
+.toggle-switch input:checked + .slider { background: var(--accent); border-color: var(--accent); }
+.toggle-switch input:checked + .slider:before { transform: translateX(18px); background: #fff; }
+.sidebar-toggle { display: none; position: fixed; top: 12px; left: 12px; z-index: 300; background: var(--accent); color: #fff; border: none; padding: 7px 14px; border-radius: 6px; cursor: pointer; font-size: 0.85rem; font-weight: 600; box-shadow: 0 2px 8px var(--shadow); align-items: center; gap: 6px; }
+.sidebar-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.45); z-index: 190; }
+.sidebar-overlay.open { display: block; }
+@media (max-width: 900px) {
+  .sidebar-toggle { display: flex; }
+  .layout { display: block; }
+  .sidebar { position: fixed; left: -280px; top: 0; height: 100vh; z-index: 200; transition: left .25s ease; box-shadow: 2px 0 16px var(--shadow); min-width: 260px; }
+  .sidebar.open { left: 0; }
+  main { padding: 60px 20px 40px; max-width: 100%; }
+  pre { overflow-x: auto; max-width: 100%; white-space: pre-wrap; word-break: break-word; }
+  .tabs { max-width: 100%; }
+}
+
+/* ── Desktop sidebar collapse ─────────────────────────────── */
+.sidebar { transition: width .2s ease, min-width .2s ease, padding .2s ease; }
+.sb-pin { display: flex; justify-content: flex-end; margin-bottom: 8px; }
+.sb-pin button { background: none; border: 1px solid var(--border); color: var(--text-dim); cursor: pointer; border-radius: 4px; padding: 2px 7px; font-size: 11px; line-height: 1.6; }
+.sb-pin button:hover { color: var(--accent); border-color: var(--accent); }
+.sb-reopen { display: none; position: fixed; left: 0; top: 50%; transform: translateY(-50%); background: var(--accent); color: #fff; border: none; border-radius: 0 4px 4px 0; padding: 10px 5px; cursor: pointer; z-index: 300; font-size: 11px; font-weight: 600; writing-mode: vertical-rl; letter-spacing: .05em; }
+@media (min-width: 901px) { body.sb-collapsed .sidebar { width: 0; min-width: 0; padding: 0; overflow: hidden; border-right: none; } body.sb-collapsed .sb-reopen { display: block; } }
+@media (max-width: 900px) { .sb-pin { display: none; } .sb-reopen { display: none !important; } }
+</style>
+</head>
+<body>
+<button class="sidebar-toggle" id="sidebarToggle" onclick="toggleSidebar()">&#9776; Steps</button>
+<div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+<button class="sb-reopen" onclick="toggleSbDesktop()">Steps</button>
+<div class="layout">
+  <aside class="sidebar" id="guideSidebar">
+    <div class="sb-pin"><button onclick="toggleSbDesktop()">&#9664; Hide</button></div>
+    <a href="index.html" class="back-link">← All Guides</a>
+    <h2>Background Tasks</h2>
+    <nav><ol>
+      <li><a href="#step1">Why Background Tasks?</a></li>
+      <li><a href="#step2">FastAPI BackgroundTasks</a></li>
+      <li><a href="#step3">Multiple Tasks + Dependencies</a></li>
+      <li><a href="#step4">When Built-in Isn't Enough</a></li>
+      <li><a href="#step5">Install Celery + Redis</a></li>
+      <li><a href="#step6">Celery App Setup</a></li>
+      <li><a href="#step7">Defining Tasks</a></li>
+      <li><a href="#step8">Calling Tasks from Routes</a></li>
+      <li><a href="#step9">Checking Task Status</a></li>
+      <li><a href="#step10">Monitoring with Flower</a></li>
+    </ol></nav>
+    <div class="install-box">
+      <p><strong>Built-in (no extras)</strong></p>
+      <code>pip install fastapi uvicorn</code>
+      <p style="margin-top:12px"><strong>With Celery + Redis</strong></p>
+      <code>pip install celery redis</code>
+      <p style="margin-top:12px"><strong>Monitoring UI</strong></p>
+      <code>pip install flower</code>
+      <p style="margin-top:12px"><strong>Run Celery worker</strong></p>
+      <code>celery -A tasks worker --loglevel=info</code>
+    </div>
+    <div class="theme-row">
+      <span class="theme-label">Dark</span>
+      <label class="toggle-switch">
+        <input type="checkbox" id="themeToggle">
+        <span class="slider"></span>
+      </label>
+      <span class="theme-label">Light</span>
+    </div>
+  </aside>
+
+  <main>
+    <header class="guide-header" style="border-left: 5px solid #ff5722">
+      <h1>Background Tasks with FastAPI</h1>
+      <p>Run slow work after sending the response — from FastAPI's built-in BackgroundTasks for simple jobs to Celery + Redis for production job queues with retries, scheduling, and monitoring.</p>
+    </header>
+
+    <div class="steps">
+
+      <!-- STEP 1 -->
+      <div class="step" id="step1">
+        <div class="step-number">1</div>
+        <div class="step-content">
+          <h3>Why Background Tasks?</h3>
+          <p class="explanation">Every HTTP request has a deadline. The browser or client that made the request is waiting, and if your route takes too long — sending an email, resizing an image, calling a slow API, generating a PDF — the user stares at a spinner. Worse, most servers will time out the connection after 30–60 seconds regardless. Background tasks solve this by splitting the response from the work: you immediately tell the client "got it, done" and then do the slow part after the response is already sent. The user's browser is happy, the connection is free, and your slow code runs without any time pressure. This is one of the most common patterns in real production backends — almost every app that sends email, processes uploads, or talks to third-party services uses it.</p>
+          <div class="info-box"><strong>The rule of thumb:</strong> if a task takes more than about 200ms and the user doesn't need the result immediately, it belongs in a background task. Sending a welcome email after signup is the classic example — the user just needs to know their account was created, not that the email was delivered.</div>
+        </div>
+      </div>
+
+      <!-- STEP 2 -->
+      <div class="step" id="step2">
+        <div class="step-number">2</div>
+        <div class="step-content">
+          <h3>FastAPI's Built-in BackgroundTasks</h3>
+          <p class="explanation">FastAPI ships with a simple BackgroundTasks system that requires zero extra packages. You add BackgroundTasks as a parameter to your route function — FastAPI injects it automatically, the same way it injects Depends() dependencies. You call add_task() to register a function to run after the response, then return your response normally. FastAPI sends the response to the client first, then runs your registered task in the same process. This is perfect for fast-finishing background work like sending one email, writing a log entry, or updating a cache. The key limitation is that the task runs in the same process and thread as your server — if it crashes, raises an error, or takes several minutes, it can affect other requests.</p>
+          <div class="tabs" data-step="step2">
+            <div class="tab-bar">
+              <button class="tab-btn active" onclick="switchTab('step2',0)">main.py</button>
+              <button class="tab-btn" onclick="switchTab('step2',1)">test it</button>
+            </div>
+            <div class="tab-panel active" id="step2_panel0">
+              <div class="code-header"><span class="lang-label">python</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-keyword">from</span> fastapi <span class="hl-keyword">import</span> FastAPI, BackgroundTasks
+<span class="hl-keyword">import</span> time
+
+app = FastAPI()
+
+
+<span class="hl-keyword">def</span> send_welcome_email(email: <span class="hl-builtin">str</span>):
+    <span class="hl-string">"""This function runs AFTER the response is sent."""</span>
+    time.sleep(<span class="hl-number">2</span>)  <span class="hl-comment"># simulate slow email API call</span>
+    <span class="hl-builtin">print</span>(f<span class="hl-string">"Welcome email sent to {email}"</span>)
+
+
+<span class="hl-decorator">@app.post</span>(<span class="hl-string">"/signup"</span>)
+<span class="hl-keyword">def</span> signup(
+    email: <span class="hl-builtin">str</span>,
+    background_tasks: BackgroundTasks  <span class="hl-comment"># FastAPI injects this automatically</span>
+):
+    <span class="hl-comment"># Register the task — it does NOT run yet</span>
+    <span class="hl-comment"># First argument is the function, rest are its arguments</span>
+    background_tasks.add_task(send_welcome_email, email)
+
+    <span class="hl-comment"># This response goes to the client immediately</span>
+    <span class="hl-comment"># The email task runs after this line, while the client is already done</span>
+    <span class="hl-keyword">return</span> {<span class="hl-string">"message"</span>: <span class="hl-string">"Account created. Check your email."</span>}</code></pre>
+            </div>
+            <div class="tab-panel" id="step2_panel1">
+              <div class="code-header"><span class="lang-label">bash</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-comment"># Sign up — the response comes back instantly</span>
+<span class="hl-comment"># The 2-second sleep happens after, in the background</span>
+curl -X POST "http://localhost:8000/signup?email=alice@example.com"
+
+<span class="hl-comment"># Expected response (immediate):</span>
+<span class="hl-comment"># { "message": "Account created. Check your email." }</span>
+
+<span class="hl-comment"># Check your terminal — 2 seconds later you'll see:</span>
+<span class="hl-comment"># Welcome email sent to alice@example.com</span></code></pre>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- STEP 3 -->
+      <div class="step" id="step3">
+        <div class="step-number">3</div>
+        <div class="step-content">
+          <h3>Multiple Tasks and Passing Dependencies</h3>
+          <p class="explanation">You can add as many background tasks as you like to one request — they run in the order you added them, one after another. You can also pass any extra arguments the function needs, including database sessions or config values. One important pattern: if your task needs a database session, do not pass the request's db session into it. FastAPI closes the session when the request ends, which happens before the background task runs — you would get an error trying to use a closed session. Instead, create a fresh session inside the task function itself. This catches many beginners off guard.</p>
+          <div class="tabs" data-step="step3">
+            <div class="tab-bar">
+              <button class="tab-btn active" onclick="switchTab('step3',0)">multiple tasks</button>
+              <button class="tab-btn" onclick="switchTab('step3',1)">database in tasks</button>
+            </div>
+            <div class="tab-panel active" id="step3_panel0">
+              <div class="code-header"><span class="lang-label">python</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-keyword">def</span> send_welcome_email(email: <span class="hl-builtin">str</span>):
+    <span class="hl-builtin">print</span>(f<span class="hl-string">"Email sent to {email}"</span>)
+
+<span class="hl-keyword">def</span> log_signup(email: <span class="hl-builtin">str</span>, plan: <span class="hl-builtin">str</span>):
+    <span class="hl-builtin">print</span>(f<span class="hl-string">"Logged: {email} signed up for {plan}"</span>)
+
+<span class="hl-keyword">def</span> create_stripe_customer(email: <span class="hl-builtin">str</span>):
+    <span class="hl-builtin">print</span>(f<span class="hl-string">"Stripe customer created for {email}"</span>)
+
+
+<span class="hl-decorator">@app.post</span>(<span class="hl-string">"/signup"</span>)
+<span class="hl-keyword">def</span> signup(email: <span class="hl-builtin">str</span>, plan: <span class="hl-builtin">str</span>, background_tasks: BackgroundTasks):
+    <span class="hl-comment"># Add three tasks — they run in this order after the response</span>
+    background_tasks.add_task(send_welcome_email, email)
+    background_tasks.add_task(log_signup, email, plan)          <span class="hl-comment"># extra args passed here</span>
+    background_tasks.add_task(create_stripe_customer, email)
+
+    <span class="hl-keyword">return</span> {<span class="hl-string">"message"</span>: <span class="hl-string">"Done"</span>}</code></pre>
+            </div>
+            <div class="tab-panel" id="step3_panel1">
+              <div class="code-header"><span class="lang-label">python</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-keyword">from</span> sqlalchemy.orm <span class="hl-keyword">import</span> Session
+<span class="hl-keyword">from</span> database <span class="hl-keyword">import</span> SessionLocal  <span class="hl-comment"># your SQLAlchemy session factory</span>
+
+
+<span class="hl-comment"># WRONG — do not pass the route's db session into a background task</span>
+<span class="hl-keyword">def</span> bad_task(user_id: <span class="hl-builtin">int</span>, db: Session):
+    <span class="hl-comment"># db is already closed by the time this runs — will raise an error</span>
+    db.query(User).filter(User.id == user_id).first()
+
+
+<span class="hl-comment"># RIGHT — create a fresh session inside the task</span>
+<span class="hl-keyword">def</span> good_task(user_id: <span class="hl-builtin">int</span>):
+    db = SessionLocal()   <span class="hl-comment"># open a new session just for this task</span>
+    <span class="hl-keyword">try</span>:
+        user = db.query(User).filter(User.id == user_id).first()
+        user.welcome_sent = <span class="hl-keyword">True</span>
+        db.commit()
+    <span class="hl-keyword">finally</span>:
+        db.close()        <span class="hl-comment"># always close — use try/finally so it closes even on error</span>
+
+
+<span class="hl-decorator">@app.post</span>(<span class="hl-string">"/signup"</span>)
+<span class="hl-keyword">def</span> signup(user_id: <span class="hl-builtin">int</span>, background_tasks: BackgroundTasks):
+    background_tasks.add_task(good_task, user_id)  <span class="hl-comment"># pass the ID, not the session</span>
+    <span class="hl-keyword">return</span> {<span class="hl-string">"message"</span>: <span class="hl-string">"Done"</span>}</code></pre>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- STEP 4 -->
+      <div class="step" id="step4">
+        <div class="step-number">4</div>
+        <div class="step-content">
+          <h3>When Built-in BackgroundTasks Isn't Enough</h3>
+          <p class="explanation">FastAPI's built-in BackgroundTasks is great for quick fire-and-forget work, but it has real limits. It runs inside the same server process — if your task crashes the worker, it can bring down live traffic. There is no retry: if an email fails to send because the email provider was temporarily down, the task just disappears. There is no scheduling — you cannot say "run this in 10 minutes." There is no queue — if your server restarts mid-task, the work is lost. And there is no visibility — you have no way to check whether a task succeeded or failed after the fact. When any of these matter, you need a proper task queue. Celery is the standard Python answer: it runs tasks in a completely separate worker process, stores them in Redis or RabbitMQ, retries on failure, and gives you a monitoring dashboard.</p>
+          <div class="info-box"><strong>Use FastAPI BackgroundTasks when:</strong> the task is fast (under a few seconds), failure is acceptable (no retry needed), you don't need to track the result, and you don't need scheduling.</div>
+          <div class="info-box"><strong>Use Celery when:</strong> tasks are slow or unpredictable, you need retries on failure, you need to check task status from a frontend, you need scheduled jobs (cron-style), or your server restarts and tasks must survive.</div>
+        </div>
+      </div>
+
+      <!-- STEP 5 -->
+      <div class="step" id="step5">
+        <div class="step-number">5</div>
+        <div class="step-content">
+          <h3>Install Celery + Redis</h3>
+          <p class="explanation">Celery is the task queue library — it manages the queue of jobs, dispatches them to workers, handles retries, and stores results. Redis is the broker: it's the message bus that sits between your FastAPI app and the Celery worker. When your route calls a task, it sends a message to Redis. The Celery worker is a completely separate process — it polls Redis, picks up messages, and runs the task functions. Redis also stores task results so your app can check whether a task finished and what it returned. You need Redis running before Celery starts. On Windows, the easiest way is to run Redis in Docker. On Linux and macOS you can install it directly.</p>
+          <div class="tabs" data-step="step5">
+            <div class="tab-bar">
+              <button class="tab-btn active" onclick="switchTab('step5',0)">install</button>
+              <button class="tab-btn" onclick="switchTab('step5',1)">start Redis</button>
+              <button class="tab-btn" onclick="switchTab('step5',2)">folder structure</button>
+            </div>
+            <div class="tab-panel active" id="step5_panel0">
+              <div class="code-header"><span class="lang-label">bash</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-comment"># Install Celery with Redis support</span>
+pip install celery redis
+
+<span class="hl-comment"># Install Flower — the Celery monitoring web UI (optional but recommended)</span>
+pip install flower</code></pre>
+            </div>
+            <div class="tab-panel" id="step5_panel1">
+              <div class="code-header"><span class="lang-label">bash</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-comment"># Windows — easiest: run Redis in Docker</span>
+docker run -d -p 6379:6379 redis:alpine
+
+<span class="hl-comment"># macOS (with Homebrew)</span>
+brew install redis
+brew services start redis
+
+<span class="hl-comment"># Linux (Ubuntu/Debian)</span>
+sudo apt install redis-server
+sudo systemctl start redis
+
+<span class="hl-comment"># Test that Redis is running</span>
+redis-cli ping
+<span class="hl-comment"># Expected: PONG</span></code></pre>
+            </div>
+            <div class="tab-panel" id="step5_panel1">
+              <div class="code-header"><span class="lang-label">text</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code>myapp/
+├── venv/
+├── main.py       <span class="hl-comment"># FastAPI routes — calls Celery tasks</span>
+├── tasks.py      <span class="hl-comment"># Celery app + all task definitions</span>
+└── .env          <span class="hl-comment"># REDIS_URL and other secrets</span></code></pre>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- STEP 6 -->
+      <div class="step" id="step6">
+        <div class="step-number">6</div>
+        <div class="step-content">
+          <h3>Celery App Setup</h3>
+          <p class="explanation">The Celery app object is the central configuration — it tells Celery where Redis is (the broker), where to store results (the backend), and various behavioural settings. You define it once in a dedicated file, usually called tasks.py or celery_app.py, and import it everywhere else. The broker_url tells Celery where to send task messages. The result_backend tells Celery where to store the return value of each task so you can retrieve it later. Setting result_expires means Redis cleans up old results automatically — without this, completed task results pile up in Redis forever. task_track_started means Celery records when a task starts, not just when it finishes, which is useful for progress tracking.</p>
+          <div class="tabs" data-step="step6">
+            <div class="tab-bar">
+              <button class="tab-btn active" onclick="switchTab('step6',0)">tasks.py</button>
+              <button class="tab-btn" onclick="switchTab('step6',1)">.env</button>
+            </div>
+            <div class="tab-panel active" id="step6_panel0">
+              <div class="code-header"><span class="lang-label">python</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-keyword">from</span> celery <span class="hl-keyword">import</span> Celery
+<span class="hl-keyword">import</span> os
+<span class="hl-keyword">from</span> dotenv <span class="hl-keyword">import</span> load_dotenv
+
+load_dotenv()
+
+REDIS_URL = os.getenv(<span class="hl-string">"REDIS_URL"</span>, <span class="hl-string">"redis://localhost:6379/0"</span>)
+<span class="hl-comment"># redis://localhost:6379/0  →  host:port/database-number</span>
+<span class="hl-comment"># Redis has 16 databases (0–15) — /0 is the default</span>
+
+<span class="hl-comment"># Create the Celery app — first arg is the module name, used in logs</span>
+celery_app = Celery(<span class="hl-string">"myapp"</span>)
+
+celery_app.conf.update(
+    broker_url          = REDIS_URL,  <span class="hl-comment"># where tasks are sent</span>
+    result_backend      = REDIS_URL,  <span class="hl-comment"># where results are stored</span>
+    task_track_started  = <span class="hl-keyword">True</span>,       <span class="hl-comment"># record when a task starts running</span>
+    result_expires      = <span class="hl-number">3600</span>,       <span class="hl-comment"># delete results from Redis after 1 hour</span>
+    task_serializer     = <span class="hl-string">"json"</span>,     <span class="hl-comment"># encode tasks as JSON (not pickle — safer)</span>
+    result_serializer   = <span class="hl-string">"json"</span>,
+    accept_content      = [<span class="hl-string">"json"</span>],
+)</code></pre>
+            </div>
+            <div class="tab-panel" id="step6_panel1">
+              <div class="code-header"><span class="lang-label">bash</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-comment"># .env</span>
+REDIS_URL=redis://localhost:6379/0</code></pre>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- STEP 7 -->
+      <div class="step" id="step7">
+        <div class="step-number">7</div>
+        <div class="step-content">
+          <h3>Defining Tasks</h3>
+          <p class="explanation">A Celery task is just a Python function decorated with @celery_app.task. That decorator registers the function with Celery so it can be serialised and sent through Redis to a worker. Inside the task, you write normal Python code — database calls, HTTP requests, file operations — with no concern about blocking the server. The bind=True option gives the task a self parameter, which is a reference to the task instance. You need self to call self.retry() on failure, or self.update_state() to report progress. Retries use exponential backoff by default when you use countdown — the task waits before trying again, which is sensible for transient failures like a briefly unavailable email server.</p>
+          <div class="tabs" data-step="step7">
+            <div class="tab-bar">
+              <button class="tab-btn active" onclick="switchTab('step7',0)">basic task</button>
+              <button class="tab-btn" onclick="switchTab('step7',1)">with retry</button>
+              <button class="tab-btn" onclick="switchTab('step7',2)">with progress</button>
+            </div>
+            <div class="tab-panel active" id="step7_panel0">
+              <div class="code-header"><span class="lang-label">python</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-comment"># tasks.py — add task definitions below the celery_app setup</span>
+
+<span class="hl-keyword">import</span> time
+
+<span class="hl-comment"># @celery_app.task registers this function as a Celery task</span>
+<span class="hl-decorator">@celery_app.task</span>
+<span class="hl-keyword">def</span> send_email(to: <span class="hl-builtin">str</span>, subject: <span class="hl-builtin">str</span>, body: <span class="hl-builtin">str</span>):
+    <span class="hl-comment"># This runs in the Celery worker process, not in FastAPI</span>
+    time.sleep(<span class="hl-number">2</span>)  <span class="hl-comment"># simulate calling an email API</span>
+    <span class="hl-builtin">print</span>(f<span class="hl-string">"Email sent to {to}: {subject}"</span>)
+    <span class="hl-keyword">return</span> {<span class="hl-string">"status"</span>: <span class="hl-string">"sent"</span>, <span class="hl-string">"to"</span>: to}
+    <span class="hl-comment"># The return value is stored in Redis — retrievable by task ID</span>
+
+
+<span class="hl-decorator">@celery_app.task</span>
+<span class="hl-keyword">def</span> resize_image(file_path: <span class="hl-builtin">str</span>, width: <span class="hl-builtin">int</span>, height: <span class="hl-builtin">int</span>):
+    <span class="hl-keyword">from</span> PIL <span class="hl-keyword">import</span> Image
+    img = Image.<span class="hl-builtin">open</span>(file_path)
+    img = img.resize((width, height))
+    img.save(file_path)
+    <span class="hl-keyword">return</span> {<span class="hl-string">"resized"</span>: file_path}</code></pre>
+            </div>
+            <div class="tab-panel" id="step7_panel1">
+              <div class="code-header"><span class="lang-label">python</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-comment"># bind=True gives the task a "self" reference so it can call self.retry()</span>
+<span class="hl-decorator">@celery_app.task</span>(bind=<span class="hl-keyword">True</span>, max_retries=<span class="hl-number">3</span>)
+<span class="hl-keyword">def</span> send_email_with_retry(self, to: <span class="hl-builtin">str</span>, subject: <span class="hl-builtin">str</span>):
+    <span class="hl-keyword">try</span>:
+        <span class="hl-comment"># Attempt the email send</span>
+        result = call_email_api(to, subject)
+        <span class="hl-keyword">return</span> result
+    <span class="hl-keyword">except</span> <span class="hl-builtin">Exception</span> <span class="hl-keyword">as</span> exc:
+        <span class="hl-comment"># On failure, wait 60s and try again (up to max_retries times)</span>
+        <span class="hl-comment"># countdown = seconds to wait before the retry</span>
+        <span class="hl-keyword">raise</span> self.retry(exc=exc, countdown=<span class="hl-number">60</span>)
+        <span class="hl-comment"># After max_retries, the exception propagates and the task is marked FAILED</span></code></pre>
+            </div>
+            <div class="tab-panel" id="step7_panel2">
+              <div class="code-header"><span class="lang-label">python</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-decorator">@celery_app.task</span>(bind=<span class="hl-keyword">True</span>)
+<span class="hl-keyword">def</span> process_large_file(self, file_path: <span class="hl-builtin">str</span>):
+    rows = load_csv(file_path)
+    total = <span class="hl-builtin">len</span>(rows)
+
+    <span class="hl-keyword">for</span> i, row <span class="hl-keyword">in</span> <span class="hl-builtin">enumerate</span>(rows):
+        process_row(row)
+
+        <span class="hl-comment"># Update the task's state so the frontend can show a progress bar</span>
+        <span class="hl-comment"># self.update_state() writes to Redis — readable via AsyncResult</span>
+        self.update_state(
+            state=<span class="hl-string">"PROGRESS"</span>,
+            meta={<span class="hl-string">"current"</span>: i + <span class="hl-number">1</span>, <span class="hl-string">"total"</span>: total}
+        )
+
+    <span class="hl-keyword">return</span> {<span class="hl-string">"processed"</span>: total}</code></pre>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- STEP 8 -->
+      <div class="step" id="step8">
+        <div class="step-number">8</div>
+        <div class="step-content">
+          <h3>Calling Tasks from FastAPI Routes</h3>
+          <p class="explanation">To dispatch a Celery task from a FastAPI route, you call task_function.delay() instead of task_function() directly. The .delay() method serialises the arguments to JSON, sends them to Redis, and returns an AsyncResult object immediately — the task has not run yet, it is sitting in the queue waiting for a worker to pick it up. The AsyncResult object has an id attribute — this is a unique string identifier for that specific task run. You should return this ID to the client so they can poll for the result later. The .apply_async() method is the more powerful version of .delay() — it lets you add options like countdown (delay before running), eta (run at a specific time), and queue (which worker queue to use).</p>
+          <div class="tabs" data-step="step8">
+            <div class="tab-bar">
+              <button class="tab-btn active" onclick="switchTab('step8',0)">main.py</button>
+              <button class="tab-btn" onclick="switchTab('step8',1)">delay vs apply_async</button>
+            </div>
+            <div class="tab-panel active" id="step8_panel0">
+              <div class="code-header"><span class="lang-label">python</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-keyword">from</span> fastapi <span class="hl-keyword">import</span> FastAPI
+<span class="hl-keyword">from</span> tasks <span class="hl-keyword">import</span> send_email, process_large_file  <span class="hl-comment"># import from tasks.py</span>
+
+app = FastAPI()
+
+
+<span class="hl-decorator">@app.post</span>(<span class="hl-string">"/signup"</span>)
+<span class="hl-keyword">def</span> signup(email: <span class="hl-builtin">str</span>):
+    <span class="hl-comment"># .delay() sends the task to Redis and returns immediately</span>
+    <span class="hl-comment"># The worker picks it up and runs it in the background</span>
+    task = send_email.delay(
+        to=email,
+        subject=<span class="hl-string">"Welcome!"</span>,
+        body=<span class="hl-string">"Thanks for signing up."</span>
+    )
+
+    <span class="hl-comment"># task.id is a UUID string — return it so the client can track progress</span>
+    <span class="hl-keyword">return</span> {
+        <span class="hl-string">"message"</span>: <span class="hl-string">"Account created"</span>,
+        <span class="hl-string">"task_id"</span>: task.id   <span class="hl-comment"># e.g. "3f2e1a0b-..."</span>
+    }
+
+
+<span class="hl-decorator">@app.post</span>(<span class="hl-string">"/upload"</span>)
+<span class="hl-keyword">def</span> upload(file_path: <span class="hl-builtin">str</span>):
+    <span class="hl-comment"># apply_async() is like .delay() but with extra options</span>
+    task = process_large_file.apply_async(
+        args=[file_path],
+        countdown=<span class="hl-number">5</span>  <span class="hl-comment"># wait 5 seconds before starting (useful for letting a file finish writing)</span>
+    )
+    <span class="hl-keyword">return</span> {<span class="hl-string">"task_id"</span>: task.id}</code></pre>
+            </div>
+            <div class="tab-panel" id="step8_panel1">
+              <div class="code-header"><span class="lang-label">python</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-comment"># .delay() — shorthand, positional or keyword args</span>
+send_email.delay(<span class="hl-string">"alice@example.com"</span>, <span class="hl-string">"Hi"</span>, <span class="hl-string">"body"</span>)
+send_email.delay(to=<span class="hl-string">"alice@example.com"</span>, subject=<span class="hl-string">"Hi"</span>, body=<span class="hl-string">"body"</span>)
+
+<span class="hl-comment"># .apply_async() — full control</span>
+send_email.apply_async(
+    args=[<span class="hl-string">"alice@example.com"</span>],     <span class="hl-comment"># positional args as a list</span>
+    kwargs={<span class="hl-string">"subject"</span>: <span class="hl-string">"Hi"</span>},      <span class="hl-comment"># keyword args as a dict</span>
+    countdown=<span class="hl-number">30</span>,                   <span class="hl-comment"># start in 30 seconds</span>
+    # eta=datetime(2025,1,1,9,0),   # start at a specific datetime
+    # queue="high_priority",        # send to a specific worker queue
+    # retry=True, retry_policy={"max_retries": 5}
+)</code></pre>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- STEP 9 -->
+      <div class="step" id="step9">
+        <div class="step-number">9</div>
+        <div class="step-content">
+          <h3>Checking Task Status</h3>
+          <p class="explanation">Once you have the task ID, you can check the task's state at any time using AsyncResult. This is how you build a progress endpoint that a frontend can poll. The task goes through states in order: PENDING means the task is in the queue waiting for a worker. STARTED means a worker picked it up and it is running (only shown if task_track_started is True in your config). SUCCESS means it finished successfully and the result is stored. FAILURE means an exception was raised. PROGRESS is a custom state you can set yourself using self.update_state() inside the task — it is not built-in but widely used for progress bars. The client polls your /tasks/{id} endpoint every few seconds and updates the UI based on the state.</p>
+          <div class="tabs" data-step="step9">
+            <div class="tab-bar">
+              <button class="tab-btn active" onclick="switchTab('step9',0)">status endpoint</button>
+              <button class="tab-btn" onclick="switchTab('step9',1)">states reference</button>
+            </div>
+            <div class="tab-panel active" id="step9_panel0">
+              <div class="code-header"><span class="lang-label">python</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-keyword">from</span> celery.result <span class="hl-keyword">import</span> AsyncResult
+<span class="hl-keyword">from</span> tasks <span class="hl-keyword">import</span> celery_app
+
+
+<span class="hl-decorator">@app.get</span>(<span class="hl-string">"/tasks/{task_id}"</span>)
+<span class="hl-keyword">def</span> get_task_status(task_id: <span class="hl-builtin">str</span>):
+    <span class="hl-comment"># AsyncResult looks up the task by ID in Redis</span>
+    result = AsyncResult(task_id, app=celery_app)
+
+    <span class="hl-comment"># result.state is a string: PENDING, STARTED, PROGRESS, SUCCESS, FAILURE</span>
+    <span class="hl-keyword">if</span> result.state == <span class="hl-string">"PENDING"</span>:
+        <span class="hl-keyword">return</span> {<span class="hl-string">"state"</span>: <span class="hl-string">"PENDING"</span>, <span class="hl-string">"message"</span>: <span class="hl-string">"Task is waiting in the queue"</span>}
+
+    <span class="hl-keyword">elif</span> result.state == <span class="hl-string">"PROGRESS"</span>:
+        <span class="hl-comment"># result.info is the dict passed to self.update_state(meta=...)</span>
+        <span class="hl-keyword">return</span> {
+            <span class="hl-string">"state"</span>: <span class="hl-string">"PROGRESS"</span>,
+            <span class="hl-string">"current"</span>: result.info.get(<span class="hl-string">"current"</span>, <span class="hl-number">0</span>),
+            <span class="hl-string">"total"</span>:   result.info.get(<span class="hl-string">"total"</span>,   <span class="hl-number">1</span>)
+        }
+
+    <span class="hl-keyword">elif</span> result.state == <span class="hl-string">"SUCCESS"</span>:
+        <span class="hl-comment"># result.result is the return value of the task function</span>
+        <span class="hl-keyword">return</span> {<span class="hl-string">"state"</span>: <span class="hl-string">"SUCCESS"</span>, <span class="hl-string">"result"</span>: result.result}
+
+    <span class="hl-keyword">elif</span> result.state == <span class="hl-string">"FAILURE"</span>:
+        <span class="hl-comment"># result.info holds the exception that caused the failure</span>
+        <span class="hl-keyword">return</span> {<span class="hl-string">"state"</span>: <span class="hl-string">"FAILURE"</span>, <span class="hl-string">"error"</span>: <span class="hl-builtin">str</span>(result.info)}
+
+    <span class="hl-keyword">else</span>:
+        <span class="hl-keyword">return</span> {<span class="hl-string">"state"</span>: result.state}</code></pre>
+            </div>
+            <div class="tab-panel" id="step9_panel1">
+              <div class="code-header"><span class="lang-label">text</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code>PENDING   — Task is in the queue, not yet picked up by a worker
+            (also returned for unknown task IDs — there's no way to tell the difference)
+
+STARTED   — Worker picked it up and is running it
+            (only visible if task_track_started=True in your Celery config)
+
+PROGRESS  — Custom state set by self.update_state() inside the task
+            result.info = the dict you passed to meta={}
+
+SUCCESS   — Task finished without raising an exception
+            result.result = the return value of the task function
+
+FAILURE   — Task raised an unhandled exception
+            result.info = the exception object
+
+RETRY     — Task failed and is waiting for a retry (visible between retries)
+
+REVOKED   — Task was cancelled before it ran</code></pre>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- STEP 10 -->
+      <div class="step" id="step10">
+        <div class="step-number">10</div>
+        <div class="step-content">
+          <h3>Monitoring with Flower</h3>
+          <p class="explanation">Flower is a real-time web dashboard for Celery — it shows every task that has run, its state, how long it took, which worker handled it, and whether it failed. You run it as a separate process alongside your FastAPI app and Celery worker. In development all three processes run in separate terminals. In production you would run all three as systemd services. Flower reads from the same Redis broker as Celery, so it has a live view of the queue and all workers. It also lets you manually revoke (cancel) pending tasks, inspect task arguments, and see worker CPU and memory usage. It is an optional tool but extremely useful when debugging why tasks are slow or failing.</p>
+          <div class="tabs" data-step="step10">
+            <div class="tab-bar">
+              <button class="tab-btn active" onclick="switchTab('step10',0)">start everything</button>
+              <button class="tab-btn" onclick="switchTab('step10',1)">production (systemd)</button>
+            </div>
+            <div class="tab-panel active" id="step10_panel0">
+              <div class="code-header"><span class="lang-label">bash</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-comment"># Terminal 1 — FastAPI server</span>
+uvicorn main:app --reload
+
+<span class="hl-comment"># Terminal 2 — Celery worker</span>
+<span class="hl-comment"># -A tasks → look for the celery_app object in tasks.py</span>
+<span class="hl-comment"># --loglevel=info → show task start/finish in the terminal</span>
+celery -A tasks worker --loglevel=info
+
+<span class="hl-comment"># Terminal 3 — Flower dashboard</span>
+<span class="hl-comment"># Opens at http://localhost:5555</span>
+celery -A tasks flower
+
+<span class="hl-comment"># On Windows, Celery worker needs an extra flag:</span>
+celery -A tasks worker --loglevel=info --pool=solo</code></pre>
+            </div>
+            <div class="tab-panel" id="step10_panel1">
+              <div class="code-header"><span class="lang-label">bash</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-comment"># /etc/systemd/system/celery-worker.service</span>
+[Unit]
+Description=Celery Worker
+After=network.target redis.service
+
+[Service]
+User=ubuntu
+WorkingDirectory=/home/ubuntu/myapp
+ExecStart=/home/ubuntu/myapp/venv/bin/celery -A tasks worker --loglevel=info
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
+
+<span class="hl-comment"># Enable and start</span>
+sudo systemctl enable celery-worker
+sudo systemctl start celery-worker
+sudo systemctl status celery-worker</code></pre>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </main>
+</div>
+
+<script>
+(function() {
+  var saved = localStorage.getItem("pyoffline-theme");
+  if (saved === "light") document.documentElement.classList.add("light");
+  document.addEventListener("DOMContentLoaded", function() {
+    var toggle = document.getElementById("themeToggle");
+    if (!toggle) return;
+    toggle.checked = (localStorage.getItem("pyoffline-theme") === "light");
+    toggle.addEventListener("change", function() {
+      if (this.checked) { document.documentElement.classList.add("light"); localStorage.setItem("pyoffline-theme", "light"); }
+      else { document.documentElement.classList.remove("light"); localStorage.setItem("pyoffline-theme", "dark"); }
+    });
+  });
+})();
+
+function switchTab(stepId, idx) {
+  var step = document.getElementById(stepId);
+  var btns = step.querySelectorAll(".tab-btn");
+  var panels = step.querySelectorAll(".tab-panel");
+  btns.forEach(function(b) { b.classList.remove("active"); });
+  panels.forEach(function(p) { p.classList.remove("active"); });
+  btns[idx].classList.add("active");
+  panels[idx].classList.add("active");
+}
+
+function copyCode(btn) {
+  var code = btn.closest(".tab-panel").querySelector("code").innerText;
+  navigator.clipboard.writeText(code).then(function() {
+    var orig = btn.textContent;
+    btn.textContent = "Copied!";
+    setTimeout(function() { btn.textContent = orig; }, 1500);
+  });
+}
+
+function toggleSidebar() {
+  var sidebar = document.getElementById("guideSidebar");
+  var overlay = document.getElementById("sidebarOverlay");
+  if (!sidebar) return;
+  sidebar.classList.toggle("open");
+  overlay.classList.toggle("open");
+}
+
+document.addEventListener("DOMContentLoaded", function() {
+  var sidebar = document.getElementById("guideSidebar");
+  if (!sidebar) return;
+  sidebar.querySelectorAll("nav a").forEach(function(a) {
+    a.addEventListener("click", function() {
+      sidebar.classList.remove("open");
+      var overlay = document.getElementById("sidebarOverlay");
+      if (overlay) overlay.classList.remove("open");
+    });
+  });
+});
+</script>
+<script>
+function toggleSbDesktop() {
+  var c = document.body.classList.toggle('sb-collapsed');
+  localStorage.setItem('sb-collapsed', c ? '1' : '0');
+}
+(function() { if (localStorage.getItem('sb-collapsed') === '1') document.body.classList.add('sb-collapsed'); })();
+</script>
+</body>
+</html>

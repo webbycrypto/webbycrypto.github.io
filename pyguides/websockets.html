@@ -1,0 +1,714 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>WebSockets - FastAPI Guide - pyoffline</title>
+<style>
+:root {
+  --bg:          #121212;
+  --surface:     #1e1e1e;
+  --surface2:    #2a2a2a;
+  --sidebar-bg:  #1a1a1a;
+  --text:        #e0e0e0;
+  --text-muted:  #aaa;
+  --text-dim:    #666;
+  --border:      #333;
+  --code-bg:     #1e1e1e;
+  --code-text:   #d4d4d4;
+  --shadow:      rgba(0,0,0,.4);
+  --accent:      #7c4dff;
+  --hl-keyword:  #569cd6;
+  --hl-string:   #ce9178;
+  --hl-comment:  #6a9955;
+  --hl-number:   #b5cea8;
+  --hl-decorator:#dcdcaa;
+  --hl-builtin:  #4ec9b0;
+  --hl-tag:      #4ec9b0;
+  --hl-attr:     #9cdcfe;
+  --hl-template: #c586c0;
+}
+html.light {
+  --bg:          #f5f7fa;
+  --surface:     #ffffff;
+  --surface2:    #eef0f3;
+  --sidebar-bg:  #ffffff;
+  --text:        #1a1a1a;
+  --text-muted:  #555;
+  --text-dim:    #888;
+  --border:      #dde1e7;
+  --code-bg:     #f8f8f8;
+  --code-text:   #24292e;
+  --shadow:      rgba(0,0,0,.1);
+  --hl-keyword:  #0000ff;
+  --hl-string:   #a31515;
+  --hl-comment:  #008000;
+  --hl-number:   #098658;
+  --hl-decorator:#795e26;
+  --hl-builtin:  #267f99;
+  --hl-tag:      #800000;
+  --hl-attr:     #e50000;
+  --hl-template: #af00db;
+}
+.hl-keyword  { color: var(--hl-keyword);  }
+.hl-string   { color: var(--hl-string);   }
+.hl-comment  { color: #adb4a7; font-size: 12px; font-style: italic; }
+.hl-number   { color: var(--hl-number);   }
+.hl-decorator{ color: var(--hl-decorator);}
+.hl-builtin  { color: var(--hl-builtin);  }
+.hl-tag      { color: var(--hl-tag);      }
+.hl-attr     { color: var(--hl-attr);     }
+.hl-template { color: var(--hl-template); }
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: var(--bg); color: var(--text); font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; transition: background .2s, color .2s; }
+a { color: var(--accent); }
+.layout { display: flex; min-height: 100vh; }
+.sidebar { width: 260px; min-width: 260px; background: var(--sidebar-bg); border-right: 1px solid var(--border); padding: 24px 16px; position: sticky; top: 0; height: 100vh; overflow-y: auto; }
+.sidebar h2 { font-size: 1.1rem; margin: 16px 0 8px; color: var(--text); }
+.sidebar nav ol { padding-left: 18px; }
+.sidebar nav li { margin: 6px 0; }
+.sidebar nav a { color: var(--text-muted); text-decoration: none; font-size: 0.85rem; }
+.sidebar nav a:hover { color: var(--accent); }
+.back-link { color: var(--text-dim); text-decoration: none; font-size: 0.85rem; display: block; margin-bottom: 8px; }
+.install-box { margin-top: 24px; background: var(--bg); border: 1px solid var(--border); padding: 12px; border-radius: 6px; font-size: 0.8rem; }
+.install-box code { display: block; word-break: break-all; color: var(--hl-comment); font-family: monospace; margin-top: 4px; }
+main { flex: 1; padding: 40px; max-width: 860px; }
+.guide-header { padding: 20px 20px 20px 24px; background: var(--surface); border-radius: 8px; margin-bottom: 32px; box-shadow: 0 1px 3px var(--shadow); }
+.guide-header h1 { font-size: 1.8rem; margin-bottom: 8px; }
+.guide-header p { color: var(--text-muted); }
+.step { display: flex; gap: 16px; margin-bottom: 40px; }
+.step-number { width: 32px; min-width: 32px; height: 32px; background: var(--accent); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 0.9rem; margin-top: 4px; color: #fff; }
+.step-content { flex: 1; min-width: 0; }
+.step-content h3 { font-size: 1.1rem; margin-bottom: 8px; color: var(--text); }
+.explanation { color: var(--text-muted); font-size: 0.9rem; line-height: 1.6; margin-bottom: 14px; }
+.info-box { background: var(--surface); border-left: 3px solid var(--accent); border-radius: 0 6px 6px 0; padding: 12px 16px; margin-bottom: 14px; font-size: 0.88rem; color: var(--text-muted); line-height: 1.6; }
+.info-box strong { color: var(--text); }
+.tabs { background: var(--surface); border-radius: 6px; overflow: hidden; border: 1px solid var(--border); }
+.tab-bar { display: flex; background: var(--surface2); overflow-x: auto; border-bottom: 1px solid var(--border); }
+.tab-btn { padding: 8px 16px; background: none; border: none; color: var(--text-muted); cursor: pointer; font-size: 0.8rem; white-space: nowrap; border-bottom: 2px solid transparent; margin-bottom: -1px; }
+.tab-btn.active { color: var(--text); border-bottom-color: var(--accent); }
+.tab-panel { display: none; }
+.tab-panel.active { display: block; }
+.code-header { display: flex; justify-content: space-between; align-items: center; padding: 5px 12px; background: var(--surface2); border-bottom: 1px solid var(--border); }
+.lang-label { font-size: 0.72rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: .04em; }
+.copy-btn { background: none; border: 1px solid var(--border); color: var(--text-muted); padding: 2px 8px; cursor: pointer; border-radius: 3px; font-size: 0.72rem; }
+.copy-btn:hover { color: var(--text); border-color: var(--text-muted); }
+pre { overflow-x: auto; padding: 16px; background: var(--code-bg); }
+code { font-family: "Fira Code", "Cascadia Code", "Consolas", monospace; font-size: 0.82rem; line-height: 1.65; color: var(--code-text); }
+.theme-row { display: flex; align-items: center; gap: 8px; margin-top: 20px; }
+.theme-label { font-size: 0.78rem; color: var(--text-muted); }
+.toggle-switch { position: relative; display: inline-block; width: 40px; height: 22px; }
+.toggle-switch input { opacity: 0; width: 0; height: 0; }
+.slider { position: absolute; cursor: pointer; inset: 0; background: var(--surface2); border: 1px solid var(--border); border-radius: 22px; transition: background .2s; }
+.slider:before { content: ""; position: absolute; width: 16px; height: 16px; left: 2px; top: 2px; background: var(--text-muted); border-radius: 50%; transition: transform .2s, background .2s; }
+.toggle-switch input:checked + .slider { background: var(--accent); border-color: var(--accent); }
+.toggle-switch input:checked + .slider:before { transform: translateX(18px); background: #fff; }
+.sidebar-toggle { display: none; position: fixed; top: 12px; left: 12px; z-index: 300; background: var(--accent); color: #fff; border: none; padding: 7px 14px; border-radius: 6px; cursor: pointer; font-size: 0.85rem; font-weight: 600; box-shadow: 0 2px 8px var(--shadow); align-items: center; gap: 6px; }
+.sidebar-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.45); z-index: 190; }
+.sidebar-overlay.open { display: block; }
+@media (max-width: 900px) {
+  .sidebar-toggle { display: flex; }
+  .layout { display: block; }
+  .sidebar { position: fixed; left: -280px; top: 0; height: 100vh; z-index: 200; transition: left .25s ease; box-shadow: 2px 0 16px var(--shadow); min-width: 260px; }
+  .sidebar.open { left: 0; }
+  main { padding: 60px 20px 40px; max-width: 100%; }
+  pre { overflow-x: auto; max-width: 100%; white-space: pre-wrap; word-break: break-word; }
+  .tabs { max-width: 100%; }
+}
+
+/* ── Desktop sidebar collapse ─────────────────────────────── */
+.sidebar { transition: width .2s ease, min-width .2s ease, padding .2s ease; }
+.sb-pin { display: flex; justify-content: flex-end; margin-bottom: 8px; }
+.sb-pin button { background: none; border: 1px solid var(--border); color: var(--text-dim); cursor: pointer; border-radius: 4px; padding: 2px 7px; font-size: 11px; line-height: 1.6; }
+.sb-pin button:hover { color: var(--accent); border-color: var(--accent); }
+.sb-reopen { display: none; position: fixed; left: 0; top: 50%; transform: translateY(-50%); background: var(--accent); color: #fff; border: none; border-radius: 0 4px 4px 0; padding: 10px 5px; cursor: pointer; z-index: 300; font-size: 11px; font-weight: 600; writing-mode: vertical-rl; letter-spacing: .05em; }
+@media (min-width: 901px) { body.sb-collapsed .sidebar { width: 0; min-width: 0; padding: 0; overflow: hidden; border-right: none; } body.sb-collapsed .sb-reopen { display: block; } }
+@media (max-width: 900px) { .sb-pin { display: none; } .sb-reopen { display: none !important; } }
+</style>
+</head>
+<body>
+<button class="sidebar-toggle" id="sidebarToggle" onclick="toggleSidebar()">&#9776; Steps</button>
+<div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+<button class="sb-reopen" onclick="toggleSbDesktop()">Steps</button>
+<div class="layout">
+  <aside class="sidebar" id="guideSidebar">
+    <div class="sb-pin"><button onclick="toggleSbDesktop()">&#9664; Hide</button></div>
+    <a href="index.html" class="back-link">← All Guides</a>
+    <h2>WebSockets</h2>
+    <nav><ol>
+      <li><a href="#step1">What are WebSockets?</a></li>
+      <li><a href="#step2">Your First WebSocket Route</a></li>
+      <li><a href="#step3">Sending JSON Messages</a></li>
+      <li><a href="#step4">The Connection Manager</a></li>
+      <li><a href="#step5">Broadcasting to All Clients</a></li>
+      <li><a href="#step6">Rooms / Named Channels</a></li>
+      <li><a href="#step7">Handling Disconnects</a></li>
+      <li><a href="#step8">HTML Chat Frontend</a></li>
+    </ol></nav>
+    <div class="install-box">
+      <p><strong>Install</strong></p>
+      <code>pip install fastapi uvicorn websockets</code>
+      <p style="margin-top:12px"><strong>Run</strong></p>
+      <code>uvicorn main:app --reload</code>
+      <p style="margin-top:12px"><strong>Test client</strong></p>
+      <code>pip install websocket-client</code>
+    </div>
+    <div class="theme-row">
+      <span class="theme-label">Dark</span>
+      <label class="toggle-switch">
+        <input type="checkbox" id="themeToggle">
+        <span class="slider"></span>
+      </label>
+      <span class="theme-label">Light</span>
+    </div>
+  </aside>
+
+  <main>
+    <header class="guide-header" style="border-left: 5px solid #7c4dff">
+      <h1>WebSockets with FastAPI</h1>
+      <p>Build real-time features — live chat, dashboards, notifications, and multiplayer games — using FastAPI's native WebSocket support. No polling required.</p>
+    </header>
+
+    <div class="steps">
+
+      <!-- STEP 1 -->
+      <div class="step" id="step1">
+        <div class="step-number">1</div>
+        <div class="step-content">
+          <h3>What are WebSockets?</h3>
+          <p class="explanation">The normal HTTP request cycle is one-directional and short-lived: the browser sends a request, the server sends one response, and the connection closes. If you want to check for new messages, you have to send another request — this is called polling, and it is wasteful. A WebSocket is a persistent, two-way connection. The browser and server do a one-time "handshake" over HTTP and then upgrade to a WebSocket connection that stays open. After that, either side can send data to the other at any time without a new request — the server can push a message to the browser the moment something happens. This is what makes live chat, real-time dashboards, collaborative editors, and live notifications possible without polling every few seconds.</p>
+          <div class="info-box"><strong>Use WebSockets when:</strong> you need the server to push data to the client without the client asking — live notifications, chat messages, price tickers, progress updates. Use regular HTTP (polling or Server-Sent Events) when updates are infrequent or one-directional.</div>
+        </div>
+      </div>
+
+      <!-- STEP 2 -->
+      <div class="step" id="step2">
+        <div class="step-number">2</div>
+        <div class="step-content">
+          <h3>Your First WebSocket Route</h3>
+          <p class="explanation">FastAPI adds WebSocket support with almost no extra setup. Instead of @app.get or @app.post, you use @app.websocket. The route function receives a WebSocket object instead of a Request. The first thing you always do inside the function is call await websocket.accept() — this completes the handshake and upgrades the connection from HTTP to WebSocket. Without this call, the browser's connection will immediately fail. Then you enter a loop — while True — because the connection is persistent. Inside the loop, await websocket.receive_text() waits until the client sends a message, and await websocket.send_text() pushes a message back to the client. The async keyword and await are required because WebSocket communication is I/O-bound and FastAPI is built on asyncio.</p>
+          <div class="tabs" data-step="step2">
+            <div class="tab-bar">
+              <button class="tab-btn active" onclick="switchTab('step2',0)">main.py</button>
+              <button class="tab-btn" onclick="switchTab('step2',1)">test in browser console</button>
+            </div>
+            <div class="tab-panel active" id="step2_panel0">
+              <div class="code-header"><span class="lang-label">python</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-keyword">from</span> fastapi <span class="hl-keyword">import</span> FastAPI, WebSocket
+
+app = FastAPI()
+
+
+<span class="hl-comment"># @app.websocket — same as @app.get but for WebSocket connections</span>
+<span class="hl-decorator">@app.websocket</span>(<span class="hl-string">"/ws"</span>)
+<span class="hl-keyword">async def</span> websocket_endpoint(websocket: WebSocket):
+    <span class="hl-comment"># Step 1: accept the connection — completes the HTTP → WebSocket upgrade</span>
+    <span class="hl-comment"># Without this the browser gets a connection refused error</span>
+    <span class="hl-keyword">await</span> websocket.accept()
+
+    <span class="hl-comment"># Step 2: loop forever — the connection stays open until it's closed</span>
+    <span class="hl-keyword">while</span> <span class="hl-keyword">True</span>:
+        <span class="hl-comment"># Wait for the next message from the client (blocks until one arrives)</span>
+        data = <span class="hl-keyword">await</span> websocket.receive_text()
+
+        <span class="hl-comment"># Echo it back with a prefix — simple echo server</span>
+        <span class="hl-keyword">await</span> websocket.send_text(f<span class="hl-string">"You said: {data}"</span>)</code></pre>
+            </div>
+            <div class="tab-panel" id="step2_panel1">
+              <div class="code-header"><span class="lang-label">javascript</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-comment">// Open the browser DevTools (F12) → Console tab</span>
+<span class="hl-comment">// Paste this to test your WebSocket server</span>
+
+<span class="hl-comment">// Create a WebSocket connection to the server</span>
+<span class="hl-keyword">const</span> ws = <span class="hl-keyword">new</span> WebSocket(<span class="hl-string">"ws://localhost:8000/ws"</span>);
+
+<span class="hl-comment">// Fires when the connection is established</span>
+ws.onopen = () => console.log(<span class="hl-string">"Connected!"</span>);
+
+<span class="hl-comment">// Fires every time the server sends a message</span>
+ws.onmessage = (event) => console.log(<span class="hl-string">"Server:"</span>, event.data);
+
+<span class="hl-comment">// Send a message to the server</span>
+ws.send(<span class="hl-string">"Hello from the browser"</span>);
+
+<span class="hl-comment">// Expected in console:</span>
+<span class="hl-comment">// Connected!</span>
+<span class="hl-comment">// Server: You said: Hello from the browser</span></code></pre>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- STEP 3 -->
+      <div class="step" id="step3">
+        <div class="step-number">3</div>
+        <div class="step-content">
+          <h3>Sending JSON Messages</h3>
+          <p class="explanation">receive_text() and send_text() work fine for plain strings, but real apps exchange structured data — a message with a username, timestamp, and content, for example. WebSocket has receive_json() and send_json() methods that handle the JSON serialisation and deserialisation for you. You can also mix text and JSON in the same connection. On the JavaScript side, JSON.parse() and JSON.stringify() are the counterparts. A good convention is to always send JSON objects with a type field — this lets you handle different kinds of messages in the same connection, similar to how Redux actions work. For example, a chat app might send {type: "message", content: "..."} and {type: "typing", user: "alice"} through the same WebSocket.</p>
+          <div class="tabs" data-step="step3">
+            <div class="tab-bar">
+              <button class="tab-btn active" onclick="switchTab('step3',0)">python</button>
+              <button class="tab-btn" onclick="switchTab('step3',1)">javascript</button>
+            </div>
+            <div class="tab-panel active" id="step3_panel0">
+              <div class="code-header"><span class="lang-label">python</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-keyword">from</span> datetime <span class="hl-keyword">import</span> datetime
+
+<span class="hl-decorator">@app.websocket</span>(<span class="hl-string">"/ws"</span>)
+<span class="hl-keyword">async def</span> websocket_endpoint(websocket: WebSocket):
+    <span class="hl-keyword">await</span> websocket.accept()
+
+    <span class="hl-keyword">while</span> <span class="hl-keyword">True</span>:
+        <span class="hl-comment"># receive_json() parses the incoming JSON automatically</span>
+        <span class="hl-comment"># Returns a dict — no need to call json.loads() yourself</span>
+        data = <span class="hl-keyword">await</span> websocket.receive_json()
+
+        <span class="hl-comment"># data is now a Python dict — access fields normally</span>
+        username = data.get(<span class="hl-string">"username"</span>, <span class="hl-string">"Anonymous"</span>)
+        content  = data.get(<span class="hl-string">"content"</span>, <span class="hl-string">""</span>)
+
+        <span class="hl-comment"># send_json() serialises a dict to JSON automatically</span>
+        <span class="hl-keyword">await</span> websocket.send_json({
+            <span class="hl-string">"type"</span>:      <span class="hl-string">"message"</span>,
+            <span class="hl-string">"username"</span>:  username,
+            <span class="hl-string">"content"</span>:   content,
+            <span class="hl-string">"timestamp"</span>: datetime.utcnow().isoformat()
+        })</code></pre>
+            </div>
+            <div class="tab-panel" id="step3_panel1">
+              <div class="code-header"><span class="lang-label">javascript</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-keyword">const</span> ws = <span class="hl-keyword">new</span> WebSocket(<span class="hl-string">"ws://localhost:8000/ws"</span>);
+
+ws.onopen = () => {
+  <span class="hl-comment">// JSON.stringify() serialises the object to a JSON string before sending</span>
+  ws.send(JSON.stringify({
+    username: <span class="hl-string">"alice"</span>,
+    content:  <span class="hl-string">"Hello everyone!"</span>
+  }));
+};
+
+ws.onmessage = (event) => {
+  <span class="hl-comment">// JSON.parse() deserialises the server's JSON string back to an object</span>
+  <span class="hl-keyword">const</span> msg = JSON.parse(event.data);
+
+  <span class="hl-comment">// Use the type field to handle different kinds of messages</span>
+  <span class="hl-keyword">if</span> (msg.type === <span class="hl-string">"message"</span>) {
+    console.log(`[${msg.timestamp}] ${msg.username}: ${msg.content}`);
+  } <span class="hl-keyword">else if</span> (msg.type === <span class="hl-string">"typing"</span>) {
+    console.log(`${msg.username} is typing...`);
+  }
+};</code></pre>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- STEP 4 -->
+      <div class="step" id="step4">
+        <div class="step-number">4</div>
+        <div class="step-content">
+          <h3>The Connection Manager</h3>
+          <p class="explanation">A single-user echo server is fine for learning, but real apps have many clients connected at once. The standard pattern in FastAPI WebSocket apps is a ConnectionManager class that keeps a list of active connections and provides connect(), disconnect(), and send methods. The list is a module-level singleton — it lives for the lifetime of the server process, shared across all requests. When a new client connects, you add their WebSocket to the list. When they disconnect, you remove it. This class becomes the central hub through which all messages are routed. If you are running multiple server processes (like with gunicorn workers), each process has its own list — they do not share state. In that case you need Redis pub/sub to coordinate across processes, but a single process handles thousands of concurrent WebSocket connections fine.</p>
+          <div class="tabs" data-step="step4">
+            <div class="tab-bar">
+              <button class="tab-btn active" onclick="switchTab('step4',0)">ConnectionManager</button>
+              <button class="tab-btn" onclick="switchTab('step4',1)">using it in a route</button>
+            </div>
+            <div class="tab-panel active" id="step4_panel0">
+              <div class="code-header"><span class="lang-label">python</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-keyword">from</span> fastapi <span class="hl-keyword">import</span> WebSocket
+<span class="hl-keyword">from</span> typing <span class="hl-keyword">import</span> List
+
+
+<span class="hl-keyword">class</span> ConnectionManager:
+    <span class="hl-keyword">def</span> __init__(self):
+        <span class="hl-comment"># List of all currently connected WebSocket objects</span>
+        self.active_connections: List[WebSocket] = []
+
+    <span class="hl-keyword">async def</span> connect(self, websocket: WebSocket):
+        <span class="hl-keyword">await</span> websocket.accept()                       <span class="hl-comment"># complete the handshake</span>
+        self.active_connections.append(websocket)   <span class="hl-comment"># add to the list</span>
+
+    <span class="hl-keyword">def</span> disconnect(self, websocket: WebSocket):
+        self.active_connections.remove(websocket)   <span class="hl-comment"># remove when they leave</span>
+
+    <span class="hl-keyword">async def</span> send_personal(self, message: <span class="hl-builtin">str</span>, websocket: WebSocket):
+        <span class="hl-comment"># Send to one specific client</span>
+        <span class="hl-keyword">await</span> websocket.send_text(message)
+
+    <span class="hl-keyword">async def</span> broadcast(self, message: <span class="hl-builtin">str</span>):
+        <span class="hl-comment"># Send to every connected client</span>
+        <span class="hl-keyword">for</span> connection <span class="hl-keyword">in</span> self.active_connections:
+            <span class="hl-keyword">await</span> connection.send_text(message)
+
+
+<span class="hl-comment"># Module-level singleton — shared across all WebSocket route calls</span>
+manager = ConnectionManager()</code></pre>
+            </div>
+            <div class="tab-panel" id="step4_panel1">
+              <div class="code-header"><span class="lang-label">python</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-keyword">from</span> fastapi <span class="hl-keyword">import</span> WebSocketDisconnect
+
+<span class="hl-decorator">@app.websocket</span>(<span class="hl-string">"/ws/{client_id}"</span>)
+<span class="hl-keyword">async def</span> websocket_endpoint(websocket: WebSocket, client_id: <span class="hl-builtin">int</span>):
+    <span class="hl-comment"># connect() accepts the handshake AND adds this socket to the list</span>
+    <span class="hl-keyword">await</span> manager.connect(websocket)
+
+    <span class="hl-keyword">try</span>:
+        <span class="hl-keyword">while</span> <span class="hl-keyword">True</span>:
+            data = <span class="hl-keyword">await</span> websocket.receive_text()
+            <span class="hl-comment"># Send the message back to this user privately</span>
+            <span class="hl-keyword">await</span> manager.send_personal(f<span class="hl-string">"You: {data}"</span>, websocket)
+            <span class="hl-comment"># Send to everyone else</span>
+            <span class="hl-keyword">await</span> manager.broadcast(f<span class="hl-string">"Client #{client_id}: {data}"</span>)
+
+    <span class="hl-keyword">except</span> WebSocketDisconnect:
+        <span class="hl-comment"># WebSocketDisconnect is raised when the client closes the tab or loses connection</span>
+        manager.disconnect(websocket)
+        <span class="hl-keyword">await</span> manager.broadcast(f<span class="hl-string">"Client #{client_id} left the chat"</span>)</code></pre>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- STEP 5 -->
+      <div class="step" id="step5">
+        <div class="step-number">5</div>
+        <div class="step-content">
+          <h3>Broadcasting to All Clients</h3>
+          <p class="explanation">Broadcasting sends a message to every connected client simultaneously. It is the core of chat apps, live dashboards, and multiplayer games. The implementation is a simple loop over all connections, but there is an important subtlety: if one client's send_text() raises an exception — because their connection dropped between the time you built the list and the time you sent to them — you need to handle that gracefully or the entire broadcast stops halfway through. The safe pattern wraps each individual send in a try/except and removes failed connections from the list. You should also send JSON with a type field when broadcasting so the client can distinguish between different kinds of updates on the same connection.</p>
+          <div class="tabs" data-step="step5">
+            <div class="tab-bar">
+              <button class="tab-btn active" onclick="switchTab('step5',0)">safe broadcast</button>
+              <button class="tab-btn" onclick="switchTab('step5',1)">server-push route</button>
+            </div>
+            <div class="tab-panel active" id="step5_panel0">
+              <div class="code-header"><span class="lang-label">python</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-keyword">import</span> json
+
+<span class="hl-keyword">class</span> ConnectionManager:
+    <span class="hl-keyword">def</span> __init__(self):
+        self.active_connections: List[WebSocket] = []
+
+    <span class="hl-keyword">async def</span> connect(self, websocket: WebSocket):
+        <span class="hl-keyword">await</span> websocket.accept()
+        self.active_connections.append(websocket)
+
+    <span class="hl-keyword">def</span> disconnect(self, websocket: WebSocket):
+        <span class="hl-keyword">if</span> websocket <span class="hl-keyword">in</span> self.active_connections:
+            self.active_connections.remove(websocket)
+
+    <span class="hl-keyword">async def</span> broadcast_json(self, data: <span class="hl-builtin">dict</span>):
+        <span class="hl-comment"># Iterate over a copy of the list — we might modify it mid-loop</span>
+        dead = []
+        <span class="hl-keyword">for</span> connection <span class="hl-keyword">in</span> self.active_connections[:]:
+            <span class="hl-keyword">try</span>:
+                <span class="hl-keyword">await</span> connection.send_json(data)
+            <span class="hl-keyword">except</span> <span class="hl-builtin">Exception</span>:
+                <span class="hl-comment"># Connection died — mark it for removal</span>
+                dead.append(connection)
+        <span class="hl-keyword">for</span> conn <span class="hl-keyword">in</span> dead:
+            self.disconnect(conn)</code></pre>
+            </div>
+            <div class="tab-panel" id="step5_panel1">
+              <div class="code-header"><span class="lang-label">python</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-comment"># A normal REST route that broadcasts to all WebSocket clients</span>
+<span class="hl-comment"># Useful for server-initiated pushes — e.g. "a new order came in"</span>
+<span class="hl-decorator">@app.post</span>(<span class="hl-string">"/admin/announce"</span>)
+<span class="hl-keyword">async def</span> announce(message: <span class="hl-builtin">str</span>):
+    <span class="hl-keyword">await</span> manager.broadcast_json({
+        <span class="hl-string">"type"</span>:    <span class="hl-string">"announcement"</span>,
+        <span class="hl-string">"message"</span>: message
+    })
+    <span class="hl-keyword">return</span> {<span class="hl-string">"sent_to"</span>: <span class="hl-builtin">len</span>(manager.active_connections)}
+
+
+<span class="hl-comment"># Example: broadcast a live price update every second from a background task</span>
+<span class="hl-keyword">import</span> asyncio
+
+<span class="hl-decorator">@app.on_event</span>(<span class="hl-string">"startup"</span>)
+<span class="hl-keyword">async def</span> start_price_feed():
+    <span class="hl-keyword">async def</span> feed():
+        price = <span class="hl-number">100.0</span>
+        <span class="hl-keyword">while</span> <span class="hl-keyword">True</span>:
+            price += <span class="hl-number">0.01</span>
+            <span class="hl-keyword">await</span> manager.broadcast_json({<span class="hl-string">"type"</span>: <span class="hl-string">"price"</span>, <span class="hl-string">"value"</span>: price})
+            <span class="hl-keyword">await</span> asyncio.sleep(<span class="hl-number">1</span>)  <span class="hl-comment"># push every second</span>
+    asyncio.create_task(feed())  <span class="hl-comment"># run feed() in the background forever</span></code></pre>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- STEP 6 -->
+      <div class="step" id="step6">
+        <div class="step-number">6</div>
+        <div class="step-content">
+          <h3>Rooms and Named Channels</h3>
+          <p class="explanation">A chat app with only one global room is rarely useful. Rooms — also called channels or groups — let you broadcast to a subset of connected clients. The implementation uses a dictionary instead of a list: the keys are room names (strings), and the values are lists of WebSocket connections in that room. When a client connects to /ws/chat/python they join the "python" room. When they send a message it only goes to other clients in "python", not to clients in "javascript" or "general". This same pattern applies to any grouping — game lobbies, document collaboration sessions, per-user notification channels. The room name can come from the URL path parameter, a query string, or a message the client sends after connecting.</p>
+          <div class="tabs" data-step="step6">
+            <div class="tab-bar">
+              <button class="tab-btn active" onclick="switchTab('step6',0)">room manager</button>
+              <button class="tab-btn" onclick="switchTab('step6',1)">room route</button>
+            </div>
+            <div class="tab-panel active" id="step6_panel0">
+              <div class="code-header"><span class="lang-label">python</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-keyword">from</span> collections <span class="hl-keyword">import</span> defaultdict
+
+<span class="hl-keyword">class</span> RoomManager:
+    <span class="hl-keyword">def</span> __init__(self):
+        <span class="hl-comment"># defaultdict(list) creates an empty list automatically for new keys</span>
+        <span class="hl-comment"># rooms["python"] → [ws1, ws2, ...]</span>
+        self.rooms: <span class="hl-builtin">dict</span>[<span class="hl-builtin">str</span>, List[WebSocket]] = defaultdict(<span class="hl-builtin">list</span>)
+
+    <span class="hl-keyword">async def</span> join(self, room: <span class="hl-builtin">str</span>, websocket: WebSocket):
+        <span class="hl-keyword">await</span> websocket.accept()
+        self.rooms[room].append(websocket)
+
+    <span class="hl-keyword">def</span> leave(self, room: <span class="hl-builtin">str</span>, websocket: WebSocket):
+        <span class="hl-keyword">if</span> websocket <span class="hl-keyword">in</span> self.rooms[room]:
+            self.rooms[room].remove(websocket)
+        <span class="hl-comment"># Clean up empty rooms to avoid memory leaks</span>
+        <span class="hl-keyword">if not</span> self.rooms[room]:
+            <span class="hl-keyword">del</span> self.rooms[room]
+
+    <span class="hl-keyword">async def</span> broadcast_to_room(self, room: <span class="hl-builtin">str</span>, data: <span class="hl-builtin">dict</span>):
+        <span class="hl-keyword">for</span> connection <span class="hl-keyword">in</span> self.rooms.get(room, [])[:]:
+            <span class="hl-keyword">try</span>:
+                <span class="hl-keyword">await</span> connection.send_json(data)
+            <span class="hl-keyword">except</span> <span class="hl-builtin">Exception</span>:
+                self.leave(room, connection)
+
+room_manager = RoomManager()</code></pre>
+            </div>
+            <div class="tab-panel" id="step6_panel1">
+              <div class="code-header"><span class="lang-label">python</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-decorator">@app.websocket</span>(<span class="hl-string">"/ws/chat/{room}"</span>)
+<span class="hl-keyword">async def</span> chat_room(websocket: WebSocket, room: <span class="hl-builtin">str</span>):
+    <span class="hl-comment"># room comes from the URL: /ws/chat/python → room = "python"</span>
+    <span class="hl-keyword">await</span> room_manager.join(room, websocket)
+    <span class="hl-keyword">await</span> room_manager.broadcast_to_room(room, {
+        <span class="hl-string">"type"</span>: <span class="hl-string">"system"</span>,
+        <span class="hl-string">"message"</span>: <span class="hl-string">"A new user joined"</span>
+    })
+
+    <span class="hl-keyword">try</span>:
+        <span class="hl-keyword">while</span> <span class="hl-keyword">True</span>:
+            data = <span class="hl-keyword">await</span> websocket.receive_json()
+            <span class="hl-comment"># Only broadcast to clients in this same room</span>
+            <span class="hl-keyword">await</span> room_manager.broadcast_to_room(room, {
+                <span class="hl-string">"type"</span>:    <span class="hl-string">"message"</span>,
+                <span class="hl-string">"room"</span>:    room,
+                <span class="hl-string">"content"</span>: data.get(<span class="hl-string">"content"</span>)
+            })
+    <span class="hl-keyword">except</span> WebSocketDisconnect:
+        room_manager.leave(room, websocket)</code></pre>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- STEP 7 -->
+      <div class="step" id="step7">
+        <div class="step-number">7</div>
+        <div class="step-content">
+          <h3>Handling Disconnects Cleanly</h3>
+          <p class="explanation">Clients disconnect for many reasons — they close the browser tab, their internet drops, their phone goes to sleep, or the server restarts. FastAPI raises a WebSocketDisconnect exception when this happens, which is why every WebSocket route should have a try/except block. Without it, an uncaught WebSocketDisconnect crashes the route handler and you never clean up the connection from your manager's list — it stays there as a dead entry, and the next broadcast attempt to it will raise another exception. There is also the question of the server actively closing the connection: websocket.close() sends a proper close frame and terminates the connection from the server side, which you might do after an authentication failure or inactivity timeout.</p>
+          <div class="tabs" data-step="step7">
+            <div class="tab-bar">
+              <button class="tab-btn active" onclick="switchTab('step7',0)">disconnect handling</button>
+              <button class="tab-btn" onclick="switchTab('step7',1)">auth + server close</button>
+            </div>
+            <div class="tab-panel active" id="step7_panel0">
+              <div class="code-header"><span class="lang-label">python</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-keyword">from</span> fastapi <span class="hl-keyword">import</span> WebSocketDisconnect
+
+<span class="hl-decorator">@app.websocket</span>(<span class="hl-string">"/ws/{client_id}"</span>)
+<span class="hl-keyword">async def</span> websocket_endpoint(websocket: WebSocket, client_id: <span class="hl-builtin">str</span>):
+    <span class="hl-keyword">await</span> manager.connect(websocket)
+
+    <span class="hl-keyword">try</span>:
+        <span class="hl-keyword">while</span> <span class="hl-keyword">True</span>:
+            data = <span class="hl-keyword">await</span> websocket.receive_text()
+            <span class="hl-keyword">await</span> manager.broadcast(f<span class="hl-string">"{client_id}: {data}"</span>)
+
+    <span class="hl-keyword">except</span> WebSocketDisconnect:
+        <span class="hl-comment"># Client disconnected — remove from the list</span>
+        manager.disconnect(websocket)
+        <span class="hl-comment"># Notify everyone else that this user left</span>
+        <span class="hl-keyword">await</span> manager.broadcast(f<span class="hl-string">"{client_id} disconnected"</span>)
+
+    <span class="hl-keyword">except</span> <span class="hl-builtin">Exception</span> <span class="hl-keyword">as</span> e:
+        <span class="hl-comment"># Any other error — still clean up</span>
+        manager.disconnect(websocket)
+        <span class="hl-builtin">print</span>(f<span class="hl-string">"Error for {client_id}: {e}"</span>)</code></pre>
+            </div>
+            <div class="tab-panel" id="step7_panel1">
+              <div class="code-header"><span class="lang-label">python</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-decorator">@app.websocket</span>(<span class="hl-string">"/ws"</span>)
+<span class="hl-keyword">async def</span> secure_ws(websocket: WebSocket, token: <span class="hl-builtin">str</span> = <span class="hl-keyword">None</span>):
+    <span class="hl-comment"># WebSocket connections pass auth via query string: /ws?token=abc</span>
+    <span class="hl-comment"># (Authorization headers are not accessible in the WebSocket handshake)</span>
+    <span class="hl-keyword">await</span> websocket.accept()  <span class="hl-comment"># must accept before you can close with a code</span>
+
+    <span class="hl-keyword">if not</span> token <span class="hl-keyword">or not</span> verify_token(token):
+        <span class="hl-comment"># Close with code 1008 = "policy violation" (auth failure)</span>
+        <span class="hl-comment"># Codes: 1000=normal, 1001=going away, 1008=policy violation</span>
+        <span class="hl-keyword">await</span> websocket.close(code=<span class="hl-number">1008</span>)
+        <span class="hl-keyword">return</span>
+
+    <span class="hl-keyword">await</span> manager.connect(websocket)
+    <span class="hl-keyword">try</span>:
+        <span class="hl-keyword">while</span> <span class="hl-keyword">True</span>:
+            data = <span class="hl-keyword">await</span> websocket.receive_text()
+            <span class="hl-keyword">await</span> manager.broadcast(data)
+    <span class="hl-keyword">except</span> WebSocketDisconnect:
+        manager.disconnect(websocket)</code></pre>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- STEP 8 -->
+      <div class="step" id="step8">
+        <div class="step-number">8</div>
+        <div class="step-content">
+          <h3>HTML Chat Frontend</h3>
+          <p class="explanation">A working chat app only needs a few dozen lines of HTML and vanilla JavaScript — no framework required. The browser's built-in WebSocket API handles the connection. The key pieces are: the WebSocket constructor which opens the connection, the onmessage handler which fires whenever the server sends something, the onclose handler which detects a dropped connection so you can show a reconnect message, and ws.send() to push messages from the browser to the server. The input field listens for the Enter key so the user does not need to click a button. The messages list is just a div that gets new paragraphs prepended — no state management library needed for something this simple.</p>
+          <div class="tabs" data-step="step8">
+            <div class="tab-bar">
+              <button class="tab-btn active" onclick="switchTab('step8',0)">chat.html</button>
+            </div>
+            <div class="tab-panel active" id="step8_panel0">
+              <div class="code-header"><span class="lang-label">html</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code>&lt;!DOCTYPE html&gt;
+&lt;html lang="en"&gt;
+&lt;head&gt;
+  &lt;meta charset="UTF-8"&gt;
+  &lt;title&gt;WebSocket Chat&lt;/title&gt;
+  &lt;style&gt;
+    body { font-family: sans-serif; max-width: 600px; margin: 40px auto; padding: 0 20px; }
+    #messages { border: 1px solid #ccc; height: 300px; overflow-y: auto; padding: 10px; margin-bottom: 10px; }
+    #input-row { display: flex; gap: 8px; }
+    #messageInput { flex: 1; padding: 8px; }
+    #status { font-size: 0.85rem; color: #888; margin-bottom: 8px; }
+  &lt;/style&gt;
+&lt;/head&gt;
+&lt;body&gt;
+  &lt;h2&gt;Live Chat&lt;/h2&gt;
+  &lt;p id="status"&gt;Connecting...&lt;/p&gt;
+  &lt;div id="messages"&gt;&lt;/div&gt;
+  &lt;div id="input-row"&gt;
+    &lt;input id="messageInput" placeholder="Type a message..." /&gt;
+    &lt;button onclick="sendMessage()"&gt;Send&lt;/button&gt;
+  &lt;/div&gt;
+
+&lt;script&gt;
+  // Generate a random client ID so the server can identify this user
+  const clientId = Math.floor(Math.random() * 1000);
+  const ws = new WebSocket(`ws://localhost:8000/ws/${clientId}`);
+  const status = document.getElementById("status");
+  const messages = document.getElementById("messages");
+
+  ws.onopen = () => {
+    status.textContent = `Connected as client #${clientId}`;
+    status.style.color = "green";
+  };
+
+  ws.onmessage = (event) => {
+    // Append each incoming message as a new paragraph
+    const p = document.createElement("p");
+    p.textContent = event.data;
+    messages.appendChild(p);
+    // Auto-scroll to the bottom
+    messages.scrollTop = messages.scrollHeight;
+  };
+
+  ws.onclose = () => {
+    status.textContent = "Disconnected — refresh to reconnect";
+    status.style.color = "red";
+  };
+
+  function sendMessage() {
+    const input = document.getElementById("messageInput");
+    if (input.value.trim()) {
+      ws.send(input.value);  // send to the server
+      input.value = "";       // clear the field
+    }
+  }
+
+  // Send on Enter key — no need to click the button
+  document.getElementById("messageInput").addEventListener("keydown", (e) => {
+    if (e.key === "Enter") sendMessage();
+  });
+&lt;/script&gt;
+&lt;/body&gt;
+&lt;/html&gt;</code></pre>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </main>
+</div>
+
+<script>
+(function() {
+  var saved = localStorage.getItem("pyoffline-theme");
+  if (saved === "light") document.documentElement.classList.add("light");
+  document.addEventListener("DOMContentLoaded", function() {
+    var toggle = document.getElementById("themeToggle");
+    if (!toggle) return;
+    toggle.checked = (localStorage.getItem("pyoffline-theme") === "light");
+    toggle.addEventListener("change", function() {
+      if (this.checked) { document.documentElement.classList.add("light"); localStorage.setItem("pyoffline-theme", "light"); }
+      else { document.documentElement.classList.remove("light"); localStorage.setItem("pyoffline-theme", "dark"); }
+    });
+  });
+})();
+function switchTab(stepId, idx) {
+  var step = document.getElementById(stepId);
+  var btns = step.querySelectorAll(".tab-btn");
+  var panels = step.querySelectorAll(".tab-panel");
+  btns.forEach(function(b) { b.classList.remove("active"); });
+  panels.forEach(function(p) { p.classList.remove("active"); });
+  btns[idx].classList.add("active");
+  panels[idx].classList.add("active");
+}
+function copyCode(btn) {
+  var code = btn.closest(".tab-panel").querySelector("code").innerText;
+  navigator.clipboard.writeText(code).then(function() {
+    var orig = btn.textContent;
+    btn.textContent = "Copied!";
+    setTimeout(function() { btn.textContent = orig; }, 1500);
+  });
+}
+function toggleSidebar() {
+  var sidebar = document.getElementById("guideSidebar");
+  var overlay = document.getElementById("sidebarOverlay");
+  if (!sidebar) return;
+  sidebar.classList.toggle("open");
+  overlay.classList.toggle("open");
+}
+document.addEventListener("DOMContentLoaded", function() {
+  var sidebar = document.getElementById("guideSidebar");
+  if (!sidebar) return;
+  sidebar.querySelectorAll("nav a").forEach(function(a) {
+    a.addEventListener("click", function() {
+      sidebar.classList.remove("open");
+      var overlay = document.getElementById("sidebarOverlay");
+      if (overlay) overlay.classList.remove("open");
+    });
+  });
+});
+</script>
+<script>
+function toggleSbDesktop() {
+  var c = document.body.classList.toggle('sb-collapsed');
+  localStorage.setItem('sb-collapsed', c ? '1' : '0');
+}
+(function() { if (localStorage.getItem('sb-collapsed') === '1') document.body.classList.add('sb-collapsed'); })();
+</script>
+</body>
+</html>

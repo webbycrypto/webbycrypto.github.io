@@ -1,0 +1,611 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>File Uploads - FastAPI Guide - pyoffline</title>
+<style>
+:root {
+  --bg:          #121212;
+  --surface:     #1e1e1e;
+  --surface2:    #2a2a2a;
+  --sidebar-bg:  #1a1a1a;
+  --text:        #e0e0e0;
+  --text-muted:  #aaa;
+  --text-dim:    #666;
+  --border:      #333;
+  --code-bg:     #1e1e1e;
+  --code-text:   #d4d4d4;
+  --shadow:      rgba(0,0,0,.4);
+  --accent:      #00bcd4;
+  --hl-keyword:  #569cd6;
+  --hl-string:   #ce9178;
+  --hl-comment:  #6a9955;
+  --hl-number:   #b5cea8;
+  --hl-decorator:#dcdcaa;
+  --hl-builtin:  #4ec9b0;
+  --hl-tag:      #4ec9b0;
+  --hl-attr:     #9cdcfe;
+  --hl-template: #c586c0;
+}
+html.light {
+  --bg:          #f5f7fa; --surface: #ffffff; --surface2: #eef0f3; --sidebar-bg: #ffffff;
+  --text:        #1a1a1a; --text-muted: #555; --text-dim: #888; --border: #dde1e7;
+  --code-bg:     #f8f8f8; --code-text: #24292e; --shadow: rgba(0,0,0,.1);
+  --hl-keyword:  #0000ff; --hl-string: #a31515; --hl-comment: #008000; --hl-number: #098658;
+  --hl-decorator:#795e26; --hl-builtin: #267f99; --hl-tag: #800000; --hl-attr: #e50000; --hl-template: #af00db;
+}
+.hl-keyword{color:var(--hl-keyword)} .hl-string{color:var(--hl-string)} .hl-comment{color:#adb4a7;font-size:12px;font-style:italic}
+.hl-number{color:var(--hl-number)} .hl-decorator{color:var(--hl-decorator)} .hl-builtin{color:var(--hl-builtin)}
+.hl-tag{color:var(--hl-tag)} .hl-attr{color:var(--hl-attr)} .hl-template{color:var(--hl-template)}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;transition:background .2s,color .2s}
+a{color:var(--accent)}
+.layout{display:flex;min-height:100vh}
+.sidebar{width:260px;min-width:260px;background:var(--sidebar-bg);border-right:1px solid var(--border);padding:24px 16px;position:sticky;top:0;height:100vh;overflow-y:auto}
+.sidebar h2{font-size:1.1rem;margin:16px 0 8px;color:var(--text)}
+.sidebar nav ol{padding-left:18px}
+.sidebar nav li{margin:6px 0}
+.sidebar nav a{color:var(--text-muted);text-decoration:none;font-size:0.85rem}
+.sidebar nav a:hover{color:var(--accent)}
+.back-link{color:var(--text-dim);text-decoration:none;font-size:0.85rem;display:block;margin-bottom:8px}
+.install-box{margin-top:24px;background:var(--bg);border:1px solid var(--border);padding:12px;border-radius:6px;font-size:0.8rem}
+.install-box code{display:block;word-break:break-all;color:var(--hl-comment);font-family:monospace;margin-top:4px}
+main{flex:1;padding:40px;max-width:860px}
+.guide-header{padding:20px 20px 20px 24px;background:var(--surface);border-radius:8px;margin-bottom:32px;box-shadow:0 1px 3px var(--shadow)}
+.guide-header h1{font-size:1.8rem;margin-bottom:8px}
+.guide-header p{color:var(--text-muted)}
+.step{display:flex;gap:16px;margin-bottom:40px}
+.step-number{width:32px;min-width:32px;height:32px;background:var(--accent);border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:bold;font-size:0.9rem;margin-top:4px;color:#fff}
+.step-content{flex:1;min-width:0}
+.step-content h3{font-size:1.1rem;margin-bottom:8px;color:var(--text)}
+.explanation{color:var(--text-muted);font-size:0.9rem;line-height:1.6;margin-bottom:14px}
+.info-box{background:var(--surface);border-left:3px solid var(--accent);border-radius:0 6px 6px 0;padding:12px 16px;margin-bottom:14px;font-size:0.88rem;color:var(--text-muted);line-height:1.6}
+.info-box strong{color:var(--text)}
+.tabs{background:var(--surface);border-radius:6px;overflow:hidden;border:1px solid var(--border)}
+.tab-bar{display:flex;background:var(--surface2);overflow-x:auto;border-bottom:1px solid var(--border)}
+.tab-btn{padding:8px 16px;background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:0.8rem;white-space:nowrap;border-bottom:2px solid transparent;margin-bottom:-1px}
+.tab-btn.active{color:var(--text);border-bottom-color:var(--accent)}
+.tab-panel{display:none}
+.tab-panel.active{display:block}
+.code-header{display:flex;justify-content:space-between;align-items:center;padding:5px 12px;background:var(--surface2);border-bottom:1px solid var(--border)}
+.lang-label{font-size:0.72rem;color:var(--text-dim);text-transform:uppercase;letter-spacing:.04em}
+.copy-btn{background:none;border:1px solid var(--border);color:var(--text-muted);padding:2px 8px;cursor:pointer;border-radius:3px;font-size:0.72rem}
+.copy-btn:hover{color:var(--text);border-color:var(--text-muted)}
+pre{overflow-x:auto;padding:16px;background:var(--code-bg)}
+code{font-family:"Fira Code","Cascadia Code","Consolas",monospace;font-size:0.82rem;line-height:1.65;color:var(--code-text)}
+.theme-row{display:flex;align-items:center;gap:8px;margin-top:20px}
+.theme-label{font-size:0.78rem;color:var(--text-muted)}
+.toggle-switch{position:relative;display:inline-block;width:40px;height:22px}
+.toggle-switch input{opacity:0;width:0;height:0}
+.slider{position:absolute;cursor:pointer;inset:0;background:var(--surface2);border:1px solid var(--border);border-radius:22px;transition:background .2s}
+.slider:before{content:"";position:absolute;width:16px;height:16px;left:2px;top:2px;background:var(--text-muted);border-radius:50%;transition:transform .2s,background .2s}
+.toggle-switch input:checked+.slider{background:var(--accent);border-color:var(--accent)}
+.toggle-switch input:checked+.slider:before{transform:translateX(18px);background:#fff}
+.sidebar-toggle{display:none;position:fixed;top:12px;left:12px;z-index:300;background:var(--accent);color:#fff;border:none;padding:7px 14px;border-radius:6px;cursor:pointer;font-size:0.85rem;font-weight:600;box-shadow:0 2px 8px var(--shadow);align-items:center;gap:6px}
+.sidebar-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:190}
+.sidebar-overlay.open{display:block}
+@media(max-width:900px){
+  .sidebar-toggle{display:flex}.layout{display:block}
+  .sidebar{position:fixed;left:-280px;top:0;height:100vh;z-index:200;transition:left .25s ease;box-shadow:2px 0 16px var(--shadow);min-width:260px}
+  .sidebar.open{left:0}
+  main{padding:60px 20px 40px;max-width:100%}
+  pre{overflow-x:auto;max-width:100%;white-space:pre-wrap;word-break:break-word}
+  .tabs{max-width:100%}
+}
+
+/* ── Desktop sidebar collapse ─────────────────────────────── */
+.sidebar { transition: width .2s ease, min-width .2s ease, padding .2s ease; }
+.sb-pin { display: flex; justify-content: flex-end; margin-bottom: 8px; }
+.sb-pin button { background: none; border: 1px solid var(--border); color: var(--text-dim); cursor: pointer; border-radius: 4px; padding: 2px 7px; font-size: 11px; line-height: 1.6; }
+.sb-pin button:hover { color: var(--accent); border-color: var(--accent); }
+.sb-reopen { display: none; position: fixed; left: 0; top: 50%; transform: translateY(-50%); background: var(--accent); color: #fff; border: none; border-radius: 0 4px 4px 0; padding: 10px 5px; cursor: pointer; z-index: 300; font-size: 11px; font-weight: 600; writing-mode: vertical-rl; letter-spacing: .05em; }
+@media (min-width: 901px) { body.sb-collapsed .sidebar { width: 0; min-width: 0; padding: 0; overflow: hidden; border-right: none; } body.sb-collapsed .sb-reopen { display: block; } }
+@media (max-width: 900px) { .sb-pin { display: none; } .sb-reopen { display: none !important; } }
+</style>
+</head>
+<body>
+<button class="sidebar-toggle" id="sidebarToggle" onclick="toggleSidebar()">&#9776; Steps</button>
+<div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+<button class="sb-reopen" onclick="toggleSbDesktop()">Steps</button>
+<div class="layout">
+  <aside class="sidebar" id="guideSidebar">
+    <div class="sb-pin"><button onclick="toggleSbDesktop()">&#9664; Hide</button></div>
+    <a href="index.html" class="back-link">← All Guides</a>
+    <h2>File Uploads</h2>
+    <nav><ol>
+      <li><a href="#step1">How Uploads Work</a></li>
+      <li><a href="#step2">Single File Upload</a></li>
+      <li><a href="#step3">Saving to Disk</a></li>
+      <li><a href="#step4">Multiple Files</a></li>
+      <li><a href="#step5">File Validation</a></li>
+      <li><a href="#step6">Serving Files Back</a></li>
+      <li><a href="#step7">S3-Compatible Storage</a></li>
+      <li><a href="#step8">HTML File Picker</a></li>
+    </ol></nav>
+    <div class="install-box">
+      <p><strong>Install</strong></p>
+      <code>pip install fastapi uvicorn python-multipart</code>
+      <p style="margin-top:12px"><strong>Cloud storage</strong></p>
+      <code>pip install boto3</code>
+      <p style="margin-top:12px"><strong>Image processing</strong></p>
+      <code>pip install Pillow</code>
+    </div>
+    <div class="theme-row">
+      <span class="theme-label">Dark</span>
+      <label class="toggle-switch"><input type="checkbox" id="themeToggle"><span class="slider"></span></label>
+      <span class="theme-label">Light</span>
+    </div>
+  </aside>
+
+  <main>
+    <header class="guide-header" style="border-left: 5px solid #00bcd4">
+      <h1>File Uploads with FastAPI</h1>
+      <p>Accept files from browsers and API clients — validate type and size, save to disk or cloud storage, and serve them back. Covers images, CSVs, and arbitrary binary files.</p>
+    </header>
+
+    <div class="steps">
+
+      <!-- STEP 1 -->
+      <div class="step" id="step1">
+        <div class="step-number">1</div>
+        <div class="step-content">
+          <h3>How File Uploads Work Differently</h3>
+          <p class="explanation">Normal form data and JSON bodies are small text strings. A file upload is different: it sends the file's binary data as part of an HTTP request using a special encoding called multipart/form-data. Unlike a query parameter or JSON field, a file is not a simple string — it is a stream of bytes that can be megabytes or gigabytes long. FastAPI gives you a UploadFile object for each uploaded file. This object has metadata like the original filename and MIME type, and a file-like interface (read, seek) so you can process the contents. The critical thing to install is python-multipart — FastAPI needs it to parse multipart form data. Without it you will get a runtime error: "No parser found for content-type multipart/form-data".</p>
+          <div class="info-box"><strong>python-multipart is required.</strong> Install it or file uploads will not work: <code style="font-family:monospace">pip install python-multipart</code>. It is not included with FastAPI by default.</div>
+        </div>
+      </div>
+
+      <!-- STEP 2 -->
+      <div class="step" id="step2">
+        <div class="step-number">2</div>
+        <div class="step-content">
+          <h3>Single File Upload</h3>
+          <p class="explanation">To accept a file upload, use UploadFile as the parameter type and File() as the default — the same way you use Form() for text fields. FastAPI handles everything else. The UploadFile object gives you file.filename (the original name the user gave the file on their computer), file.content_type (the MIME type the browser reported, like "image/jpeg" or "text/csv"), and file.file (the actual file object you can read from). Calling await file.read() reads the entire file content into memory as bytes. For large files you would read in chunks instead, but for most use cases a single read() is fine. The file content is bytes, not a string — use .decode() to convert to text if needed.</p>
+          <div class="tabs" data-step="step2">
+            <div class="tab-bar">
+              <button class="tab-btn active" onclick="switchTab('step2',0)">main.py</button>
+              <button class="tab-btn" onclick="switchTab('step2',1)">test with curl</button>
+            </div>
+            <div class="tab-panel active" id="step2_panel0">
+              <div class="code-header"><span class="lang-label">python</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-keyword">from</span> fastapi <span class="hl-keyword">import</span> FastAPI, UploadFile, File
+
+app = FastAPI()
+
+
+<span class="hl-decorator">@app.post</span>(<span class="hl-string">"/upload"</span>)
+<span class="hl-keyword">async def</span> upload_file(
+    file: UploadFile = File(...)   <span class="hl-comment"># File(...) = required upload field</span>
+):
+    <span class="hl-comment"># file.filename  → original filename: "photo.jpg", "data.csv"</span>
+    <span class="hl-comment"># file.content_type → MIME type: "image/jpeg", "text/csv"</span>
+    <span class="hl-comment"># file.size → file size in bytes (available without reading)</span>
+
+    <span class="hl-comment"># Read the full content into memory as bytes</span>
+    contents = <span class="hl-keyword">await</span> file.read()
+
+    <span class="hl-keyword">return</span> {
+        <span class="hl-string">"filename"</span>:     file.filename,
+        <span class="hl-string">"content_type"</span>: file.content_type,
+        <span class="hl-string">"size_bytes"</span>:   <span class="hl-builtin">len</span>(contents)
+    }
+
+
+<span class="hl-comment"># Mix a file upload with regular form fields in the same route</span>
+<span class="hl-decorator">@app.post</span>(<span class="hl-string">"/upload-with-meta"</span>)
+<span class="hl-keyword">async def</span> upload_with_meta(
+    file: UploadFile = File(...),
+    title: <span class="hl-builtin">str</span>       = Form(...),   <span class="hl-comment"># text field alongside the file</span>
+    public: <span class="hl-builtin">bool</span>    = Form(<span class="hl-keyword">False</span>)  <span class="hl-comment"># checkbox — False if not provided</span>
+):
+    contents = <span class="hl-keyword">await</span> file.read()
+    <span class="hl-keyword">return</span> {<span class="hl-string">"title"</span>: title, <span class="hl-string">"public"</span>: public, <span class="hl-string">"size"</span>: <span class="hl-builtin">len</span>(contents)}</code></pre>
+            </div>
+            <div class="tab-panel" id="step2_panel1">
+              <div class="code-header"><span class="lang-label">bash</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-comment"># Upload a file with curl (-F sends multipart/form-data)</span>
+curl -X POST http://localhost:8000/upload \
+  -F "file=@/path/to/photo.jpg"
+
+<span class="hl-comment"># Upload with extra fields</span>
+curl -X POST http://localhost:8000/upload-with-meta \
+  -F "file=@/path/to/photo.jpg" \
+  -F "title=My Photo" \
+  -F "public=true"
+
+<span class="hl-comment"># Expected response:</span>
+<span class="hl-comment"># { "filename": "photo.jpg", "content_type": "image/jpeg", "size_bytes": 245123 }</span></code></pre>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- STEP 3 -->
+      <div class="step" id="step3">
+        <div class="step-number">3</div>
+        <div class="step-content">
+          <h3>Saving to Disk</h3>
+          <p class="explanation">Reading the file contents with await file.read() gives you raw bytes. Writing those bytes to disk is just a matter of opening a local path and writing. The main decision is the filename. You should never use the original filename from file.filename directly as the save path — a malicious user could upload a file named ../../etc/passwd or overwrite an existing file by using a predictable name. The safe approach is to generate a UUID for the filename and keep only the original extension for the content type. The uploads/ folder should be created at startup if it does not exist. Using pathlib.Path is the modern Python way to handle file paths — it works correctly on both Windows and Linux and makes path joining safe.</p>
+          <div class="tabs" data-step="step3">
+            <div class="tab-bar">
+              <button class="tab-btn active" onclick="switchTab('step3',0)">save to disk</button>
+              <button class="tab-btn" onclick="switchTab('step3',1)">chunked (large files)</button>
+            </div>
+            <div class="tab-panel active" id="step3_panel0">
+              <div class="code-header"><span class="lang-label">python</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-keyword">from</span> pathlib <span class="hl-keyword">import</span> Path
+<span class="hl-keyword">import</span> uuid
+
+<span class="hl-comment"># Create the uploads folder at startup — parents=True creates any missing parent dirs</span>
+UPLOAD_DIR = Path(<span class="hl-string">"uploads"</span>)
+UPLOAD_DIR.mkdir(parents=<span class="hl-keyword">True</span>, exist_ok=<span class="hl-keyword">True</span>)
+
+
+<span class="hl-decorator">@app.post</span>(<span class="hl-string">"/upload"</span>)
+<span class="hl-keyword">async def</span> upload_file(file: UploadFile = File(...)):
+    <span class="hl-comment"># Get the original file extension: "photo.jpg" → ".jpg"</span>
+    suffix = Path(file.filename).suffix
+
+    <span class="hl-comment"># Generate a random UUID filename to avoid collisions and path traversal attacks</span>
+    safe_name = f<span class="hl-string">"{uuid.uuid4()}{suffix}"</span>  <span class="hl-comment"># e.g. "3f2e1a0b-....jpg"</span>
+    save_path = UPLOAD_DIR / safe_name     <span class="hl-comment"># e.g. uploads/3f2e1a0b-....jpg</span>
+
+    <span class="hl-comment"># Read file contents and write to disk</span>
+    contents = <span class="hl-keyword">await</span> file.read()
+    save_path.write_bytes(contents)  <span class="hl-comment"># write_bytes() handles opening and closing</span>
+
+    <span class="hl-keyword">return</span> {
+        <span class="hl-string">"saved_as"</span>:  safe_name,
+        <span class="hl-string">"url"</span>:       f<span class="hl-string">"/files/{safe_name}"</span>  <span class="hl-comment"># URL to retrieve the file (step 6)</span>
+    }</code></pre>
+            </div>
+            <div class="tab-panel" id="step3_panel1">
+              <div class="code-header"><span class="lang-label">python</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-keyword">import</span> aiofiles  <span class="hl-comment"># pip install aiofiles — async file I/O</span>
+
+<span class="hl-decorator">@app.post</span>(<span class="hl-string">"/upload-large"</span>)
+<span class="hl-keyword">async def</span> upload_large(file: UploadFile = File(...)):
+    safe_name = f<span class="hl-string">"{uuid.uuid4()}{Path(file.filename).suffix}"</span>
+    save_path = UPLOAD_DIR / safe_name
+
+    <span class="hl-comment"># Write in 1MB chunks — never loads the whole file into memory</span>
+    <span class="hl-comment"># aiofiles opens the file asynchronously so it doesn't block other requests</span>
+    <span class="hl-keyword">async with</span> aiofiles.<span class="hl-builtin">open</span>(save_path, <span class="hl-string">"wb"</span>) <span class="hl-keyword">as</span> out:
+        <span class="hl-keyword">while</span> chunk := <span class="hl-keyword">await</span> file.read(<span class="hl-number">1024</span> * <span class="hl-number">1024</span>):  <span class="hl-comment"># read 1MB at a time</span>
+            <span class="hl-keyword">await</span> out.write(chunk)
+
+    <span class="hl-keyword">return</span> {<span class="hl-string">"saved_as"</span>: safe_name}</code></pre>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- STEP 4 -->
+      <div class="step" id="step4">
+        <div class="step-number">4</div>
+        <div class="step-content">
+          <h3>Multiple Files</h3>
+          <p class="explanation">Accepting multiple files at once uses a List of UploadFile. The HTML form needs multiple attribute on the file input, and the browser will send all selected files under the same field name. On the Python side, FastAPI collects them into a list and you loop over them. Each item in the list is a full UploadFile object with its own filename, content_type, and read() method. If you want to enforce a maximum number of files you just check len(files) at the start and raise an HTTPException if it is too large.</p>
+          <div class="tabs" data-step="step4">
+            <div class="tab-bar">
+              <button class="tab-btn active" onclick="switchTab('step4',0)">python</button>
+              <button class="tab-btn" onclick="switchTab('step4',1)">curl test</button>
+            </div>
+            <div class="tab-panel active" id="step4_panel0">
+              <div class="code-header"><span class="lang-label">python</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-keyword">from</span> fastapi <span class="hl-keyword">import</span> HTTPException
+<span class="hl-keyword">from</span> typing <span class="hl-keyword">import</span> List
+
+<span class="hl-decorator">@app.post</span>(<span class="hl-string">"/upload-many"</span>)
+<span class="hl-keyword">async def</span> upload_many(
+    files: List[UploadFile] = File(...)  <span class="hl-comment"># List[] = accept multiple files</span>
+):
+    <span class="hl-comment"># Enforce a maximum of 10 files per request</span>
+    <span class="hl-keyword">if</span> <span class="hl-builtin">len</span>(files) > <span class="hl-number">10</span>:
+        <span class="hl-keyword">raise</span> HTTPException(status_code=<span class="hl-number">400</span>, detail=<span class="hl-string">"Maximum 10 files per upload"</span>)
+
+    saved = []
+    <span class="hl-keyword">for</span> file <span class="hl-keyword">in</span> files:
+        <span class="hl-comment"># Each file is a full UploadFile — same API as a single file upload</span>
+        safe_name = f<span class="hl-string">"{uuid.uuid4()}{Path(file.filename).suffix}"</span>
+        save_path = UPLOAD_DIR / safe_name
+        save_path.write_bytes(<span class="hl-keyword">await</span> file.read())
+        saved.append({<span class="hl-string">"original"</span>: file.filename, <span class="hl-string">"saved_as"</span>: safe_name})
+
+    <span class="hl-keyword">return</span> {<span class="hl-string">"uploaded"</span>: <span class="hl-builtin">len</span>(saved), <span class="hl-string">"files"</span>: saved}</code></pre>
+            </div>
+            <div class="tab-panel" id="step4_panel1">
+              <div class="code-header"><span class="lang-label">bash</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-comment"># Upload multiple files — repeat -F "files=@..." for each file</span>
+curl -X POST http://localhost:8000/upload-many \
+  -F "files=@photo1.jpg" \
+  -F "files=@photo2.jpg" \
+  -F "files=@photo3.jpg"</code></pre>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- STEP 5 -->
+      <div class="step" id="step5">
+        <div class="step-number">5</div>
+        <div class="step-content">
+          <h3>File Validation — Type and Size</h3>
+          <p class="explanation">Never trust the browser's reported content type alone — it can be spoofed by a malicious user sending a request with any content_type header they choose. Real validation checks the actual file contents. For images, Python's imghdr module (or the Pillow library) reads the first few bytes and identifies the actual format. For any file type, you check the magic bytes — the first bytes of the file that identify its format. For example, JPEG files always start with FF D8 FF. A useful shortcut for most use cases: check the file extension from the original filename and the content_type header as a first filter, then read the first few bytes to confirm. Also always enforce a maximum file size to prevent someone uploading a 10GB file that exhausts your server's memory.</p>
+          <div class="tabs" data-step="step5">
+            <div class="tab-bar">
+              <button class="tab-btn active" onclick="switchTab('step5',0)">size + type check</button>
+              <button class="tab-btn" onclick="switchTab('step5',1)">magic bytes</button>
+            </div>
+            <div class="tab-panel active" id="step5_panel0">
+              <div class="code-header"><span class="lang-label">python</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code>MAX_FILE_SIZE = <span class="hl-number">5</span> * <span class="hl-number">1024</span> * <span class="hl-number">1024</span>  <span class="hl-comment"># 5 MB in bytes</span>
+
+ALLOWED_TYPES = {
+    <span class="hl-string">"image/jpeg"</span>, <span class="hl-string">"image/png"</span>, <span class="hl-string">"image/gif"</span>, <span class="hl-string">"image/webp"</span>
+}
+
+ALLOWED_EXTENSIONS = {<span class="hl-string">".jpg"</span>, <span class="hl-string">".jpeg"</span>, <span class="hl-string">".png"</span>, <span class="hl-string">".gif"</span>, <span class="hl-string">".webp"</span>}
+
+
+<span class="hl-decorator">@app.post</span>(<span class="hl-string">"/upload-image"</span>)
+<span class="hl-keyword">async def</span> upload_image(file: UploadFile = File(...)):
+    <span class="hl-comment"># Check 1: file extension</span>
+    ext = Path(file.filename).suffix.lower()
+    <span class="hl-keyword">if</span> ext <span class="hl-keyword">not in</span> ALLOWED_EXTENSIONS:
+        <span class="hl-keyword">raise</span> HTTPException(<span class="hl-number">400</span>, detail=f<span class="hl-string">"Extension {ext} not allowed"</span>)
+
+    <span class="hl-comment"># Check 2: reported content type (first filter — can be spoofed)</span>
+    <span class="hl-keyword">if</span> file.content_type <span class="hl-keyword">not in</span> ALLOWED_TYPES:
+        <span class="hl-keyword">raise</span> HTTPException(<span class="hl-number">400</span>, detail=<span class="hl-string">"Only image files allowed"</span>)
+
+    <span class="hl-comment"># Read the file — needed for both size check and magic bytes</span>
+    contents = <span class="hl-keyword">await</span> file.read()
+
+    <span class="hl-comment"># Check 3: file size</span>
+    <span class="hl-keyword">if</span> <span class="hl-builtin">len</span>(contents) > MAX_FILE_SIZE:
+        <span class="hl-keyword">raise</span> HTTPException(<span class="hl-number">413</span>, detail=<span class="hl-string">"File too large — max 5 MB"</span>)
+        <span class="hl-comment"># 413 = "Request Entity Too Large" — the standard HTTP status for this</span>
+
+    <span class="hl-comment"># All checks passed — save the file</span>
+    safe_name = f<span class="hl-string">"{uuid.uuid4()}{ext}"</span>
+    (UPLOAD_DIR / safe_name).write_bytes(contents)
+    <span class="hl-keyword">return</span> {<span class="hl-string">"saved_as"</span>: safe_name}</code></pre>
+            </div>
+            <div class="tab-panel" id="step5_panel1">
+              <div class="code-header"><span class="lang-label">python</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-comment"># Magic bytes — the actual first bytes of each format</span>
+<span class="hl-comment"># A file claiming to be JPEG must start with these bytes</span>
+MAGIC_BYTES = {
+    b<span class="hl-string">"\xff\xd8\xff"</span>:      <span class="hl-string">"image/jpeg"</span>,   <span class="hl-comment"># JPEG</span>
+    b<span class="hl-string">"\x89PNG\r\n\x1a\n"</span>: <span class="hl-string">"image/png"</span>,    <span class="hl-comment"># PNG</span>
+    b<span class="hl-string">"GIF87a"</span>:           <span class="hl-string">"image/gif"</span>,    <span class="hl-comment"># GIF87</span>
+    b<span class="hl-string">"GIF89a"</span>:           <span class="hl-string">"image/gif"</span>,    <span class="hl-comment"># GIF89</span>
+    b<span class="hl-string">"RIFF"</span>:             <span class="hl-string">"image/webp"</span>,   <span class="hl-comment"># WebP starts with RIFF....WEBP</span>
+    b<span class="hl-string">"%PDF"</span>:             <span class="hl-string">"application/pdf"</span>,
+}
+
+<span class="hl-keyword">def</span> detect_mime(data: <span class="hl-builtin">bytes</span>) -> <span class="hl-builtin">str</span>:
+    <span class="hl-keyword">for</span> magic, mime <span class="hl-keyword">in</span> MAGIC_BYTES.items():
+        <span class="hl-keyword">if</span> data.startswith(magic):
+            <span class="hl-keyword">return</span> mime
+    <span class="hl-keyword">return</span> <span class="hl-string">"unknown"</span>
+
+<span class="hl-comment"># Use it in your route after reading the file:</span>
+<span class="hl-comment"># actual_type = detect_mime(contents)</span>
+<span class="hl-comment"># if actual_type not in ALLOWED_TYPES:</span>
+<span class="hl-comment">#     raise HTTPException(400, "File content doesn't match its extension")</span></code></pre>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- STEP 6 -->
+      <div class="step" id="step6">
+        <div class="step-number">6</div>
+        <div class="step-content">
+          <h3>Serving Uploaded Files Back</h3>
+          <p class="explanation">Saving a file to disk is only half the job — you also need to serve it back to users who want to view or download it. FastAPI's StaticFiles mount serves a whole folder at a URL prefix. This is the simplest approach: mount your uploads/ folder at /files/ and every file in it becomes accessible at /files/filename.jpg. For downloading a specific file as an attachment (forcing a browser download dialog rather than displaying in the browser), use FileResponse with the media_type and content-disposition header. FileResponse streams the file efficiently without loading it all into memory, making it suitable for large files.</p>
+          <div class="tabs" data-step="step6">
+            <div class="tab-bar">
+              <button class="tab-btn active" onclick="switchTab('step6',0)">static mount</button>
+              <button class="tab-btn" onclick="switchTab('step6',1)">FileResponse</button>
+            </div>
+            <div class="tab-panel active" id="step6_panel0">
+              <div class="code-header"><span class="lang-label">python</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-keyword">from</span> fastapi.staticfiles <span class="hl-keyword">import</span> StaticFiles
+
+<span class="hl-comment"># Mount the uploads folder — files are served at /files/filename</span>
+<span class="hl-comment"># e.g. uploads/abc123.jpg → http://localhost:8000/files/abc123.jpg</span>
+app.mount(<span class="hl-string">"/files"</span>, StaticFiles(directory=<span class="hl-string">"uploads"</span>), name=<span class="hl-string">"files"</span>)
+
+<span class="hl-comment"># Now your upload route can return a usable URL:</span>
+<span class="hl-decorator">@app.post</span>(<span class="hl-string">"/upload"</span>)
+<span class="hl-keyword">async def</span> upload(file: UploadFile = File(...)):
+    safe_name = f<span class="hl-string">"{uuid.uuid4()}{Path(file.filename).suffix}"</span>
+    (UPLOAD_DIR / safe_name).write_bytes(<span class="hl-keyword">await</span> file.read())
+
+    <span class="hl-comment"># The URL is /files/{safe_name} — absolute URL for frontend use</span>
+    <span class="hl-keyword">return</span> {<span class="hl-string">"url"</span>: f<span class="hl-string">"/files/{safe_name}"</span>}</code></pre>
+            </div>
+            <div class="tab-panel" id="step6_panel1">
+              <div class="code-header"><span class="lang-label">python</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-keyword">from</span> fastapi.responses <span class="hl-keyword">import</span> FileResponse
+
+<span class="hl-decorator">@app.get</span>(<span class="hl-string">"/download/{filename}"</span>)
+<span class="hl-keyword">def</span> download_file(filename: <span class="hl-builtin">str</span>):
+    file_path = UPLOAD_DIR / filename
+
+    <span class="hl-keyword">if not</span> file_path.exists():
+        <span class="hl-keyword">raise</span> HTTPException(status_code=<span class="hl-number">404</span>, detail=<span class="hl-string">"File not found"</span>)
+
+    <span class="hl-comment"># FileResponse streams the file efficiently</span>
+    <span class="hl-comment"># filename= sets the name suggested to the browser when saving</span>
+    <span class="hl-keyword">return</span> FileResponse(
+        path=file_path,
+        filename=filename,               <span class="hl-comment"># name shown in download dialog</span>
+        media_type=<span class="hl-string">"application/octet-stream"</span>  <span class="hl-comment"># force download instead of browser display</span>
+    )</code></pre>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- STEP 7 -->
+      <div class="step" id="step7">
+        <div class="step-number">7</div>
+        <div class="step-content">
+          <h3>S3-Compatible Cloud Storage</h3>
+          <p class="explanation">Saving to local disk works fine for a single server but breaks as soon as you scale out — if you have two servers, each has its own disk, and a file uploaded to server A is not visible from server B. Cloud object storage solves this: AWS S3, Cloudflare R2, DigitalOcean Spaces, and Backblaze B2 all use the same S3-compatible API, so the same Python code works with any of them. The boto3 library is the AWS SDK that also works with all S3-compatible providers. You set the endpoint_url to point at your provider instead of AWS, and the rest is identical. Files stored in S3 get a public URL you can return directly to the frontend — no need to serve them through your own server at all.</p>
+          <div class="tabs" data-step="step7">
+            <div class="tab-bar">
+              <button class="tab-btn active" onclick="switchTab('step7',0)">upload to S3</button>
+              <button class="tab-btn" onclick="switchTab('step7',1)">.env</button>
+            </div>
+            <div class="tab-panel active" id="step7_panel0">
+              <div class="code-header"><span class="lang-label">python</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-keyword">import</span> boto3
+<span class="hl-keyword">import</span> os
+<span class="hl-keyword">from</span> dotenv <span class="hl-keyword">import</span> load_dotenv
+
+load_dotenv()
+
+<span class="hl-comment"># Create the S3 client — works with AWS S3, Cloudflare R2, DO Spaces, etc.</span>
+s3 = boto3.client(
+    <span class="hl-string">"s3"</span>,
+    endpoint_url         = os.getenv(<span class="hl-string">"S3_ENDPOINT"</span>),     <span class="hl-comment"># omit for real AWS</span>
+    aws_access_key_id    = os.getenv(<span class="hl-string">"S3_ACCESS_KEY"</span>),
+    aws_secret_access_key= os.getenv(<span class="hl-string">"S3_SECRET_KEY"</span>),
+    region_name          = os.getenv(<span class="hl-string">"S3_REGION"</span>, <span class="hl-string">"auto"</span>),
+)
+
+BUCKET = os.getenv(<span class="hl-string">"S3_BUCKET"</span>)
+
+
+<span class="hl-decorator">@app.post</span>(<span class="hl-string">"/upload"</span>)
+<span class="hl-keyword">async def</span> upload_to_s3(file: UploadFile = File(...)):
+    safe_name = f<span class="hl-string">"{uuid.uuid4()}{Path(file.filename).suffix}"</span>
+    contents = <span class="hl-keyword">await</span> file.read()
+
+    <span class="hl-comment"># put_object() uploads bytes directly to S3</span>
+    s3.put_object(
+        Bucket=BUCKET,
+        Key=safe_name,                     <span class="hl-comment"># the S3 "path" / object name</span>
+        Body=contents,
+        ContentType=file.content_type,     <span class="hl-comment"># tells browsers how to display the file</span>
+        ACL=<span class="hl-string">"public-read"</span>                  <span class="hl-comment"># makes the file publicly accessible</span>
+    )
+
+    <span class="hl-comment"># Build the public URL — the format varies by provider</span>
+    public_url = f<span class="hl-string">"{os.getenv('S3_ENDPOINT')}/{BUCKET}/{safe_name}"</span>
+    <span class="hl-keyword">return</span> {<span class="hl-string">"url"</span>: public_url}</code></pre>
+            </div>
+            <div class="tab-panel" id="step7_panel1">
+              <div class="code-header"><span class="lang-label">bash</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-comment"># .env — adjust values for your provider</span>
+
+<span class="hl-comment"># Cloudflare R2</span>
+S3_ENDPOINT=https://&lt;account-id&gt;.r2.cloudflarestorage.com
+S3_ACCESS_KEY=your-r2-access-key
+S3_SECRET_KEY=your-r2-secret-key
+S3_REGION=auto
+S3_BUCKET=my-bucket
+
+<span class="hl-comment"># DigitalOcean Spaces (example: NYC3 region)</span>
+S3_ENDPOINT=https://nyc3.digitaloceanspaces.com
+S3_REGION=nyc3
+
+<span class="hl-comment"># Real AWS S3 — remove endpoint_url from the client constructor</span>
+<span class="hl-comment"># S3_REGION=us-east-1</span></code></pre>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- STEP 8 -->
+      <div class="step" id="step8">
+        <div class="step-number">8</div>
+        <div class="step-content">
+          <h3>HTML File Picker Frontend</h3>
+          <p class="explanation">File uploads from HTML require a form with enctype="multipart/form-data" — without this attribute the browser sends the form as URL-encoded text and the file never reaches the server. The file input needs a name attribute that matches the parameter name in your FastAPI route. For drag-and-drop uploads or showing a preview before submission, you use JavaScript's FormData API to capture the file, fetch() to send it, and the FileReader API to generate an object URL for the preview image. The key difference from a regular fetch() call is that you do not set a Content-Type header manually — when you pass a FormData object to fetch(), the browser sets the correct multipart/form-data header with the boundary automatically.</p>
+          <div class="tabs" data-step="step8">
+            <div class="tab-bar">
+              <button class="tab-btn active" onclick="switchTab('step8',0)">basic HTML form</button>
+              <button class="tab-btn" onclick="switchTab('step8',1)">JS with preview</button>
+            </div>
+            <div class="tab-panel active" id="step8_panel0">
+              <div class="code-header"><span class="lang-label">html</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code>&lt;!-- enctype="multipart/form-data" is REQUIRED for file uploads --&gt;
+&lt;!-- Without it the file is not sent, only the filename as text --&gt;
+&lt;form action="/upload" method="post" enctype="multipart/form-data"&gt;
+
+  &lt;label&gt;Choose a file:&lt;/label&gt;
+  &lt;!-- name="file" must match the FastAPI param: file: UploadFile = File(...) --&gt;
+  &lt;input type="file" name="file" accept="image/*" required&gt;
+
+  &lt;!-- For multiple files: add "multiple" attribute --&gt;
+  &lt;!-- name="files" must match: files: List[UploadFile] = File(...) --&gt;
+  &lt;!-- &lt;input type="file" name="files" multiple accept="image/*"&gt; --&gt;
+
+  &lt;button type="submit"&gt;Upload&lt;/button&gt;
+&lt;/form&gt;</code></pre>
+            </div>
+            <div class="tab-panel" id="step8_panel1">
+              <div class="code-header"><span class="lang-label">html</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code>&lt;input type="file" id="fileInput" accept="image/*"&gt;
+&lt;img id="preview" style="max-width:200px; display:none"&gt;
+&lt;button onclick="uploadFile()"&gt;Upload&lt;/button&gt;
+&lt;p id="result"&gt;&lt;/p&gt;
+
+&lt;script&gt;
+  // Show a preview before uploading
+  document.getElementById("fileInput").addEventListener("change", function() {
+    const file = this.files[0];
+    if (!file) return;
+
+    // URL.createObjectURL() creates a temporary URL pointing at the local file
+    document.getElementById("preview").src = URL.createObjectURL(file);
+    document.getElementById("preview").style.display = "block";
+  });
+
+  async function uploadFile() {
+    const file = document.getElementById("fileInput").files[0];
+    if (!file) return alert("Please select a file first");
+
+    // FormData builds the multipart/form-data body
+    const formData = new FormData();
+    formData.append("file", file);  // "file" must match the FastAPI param name
+
+    // Do NOT set Content-Type header manually — browser adds it with the boundary
+    const response = await fetch("/upload", { method: "POST", body: formData });
+    const data = await response.json();
+
+    document.getElementById("result").textContent =
+      response.ok ? `Uploaded: ${data.url}` : `Error: ${data.detail}`;
+  }
+&lt;/script&gt;</code></pre>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </main>
+</div>
+<script>
+(function(){var s=localStorage.getItem("pyoffline-theme");if(s==="light")document.documentElement.classList.add("light");document.addEventListener("DOMContentLoaded",function(){var t=document.getElementById("themeToggle");if(!t)return;t.checked=(localStorage.getItem("pyoffline-theme")==="light");t.addEventListener("change",function(){if(this.checked){document.documentElement.classList.add("light");localStorage.setItem("pyoffline-theme","light");}else{document.documentElement.classList.remove("light");localStorage.setItem("pyoffline-theme","dark");}});});})();
+function switchTab(stepId,idx){var step=document.getElementById(stepId);var btns=step.querySelectorAll(".tab-btn");var panels=step.querySelectorAll(".tab-panel");btns.forEach(function(b){b.classList.remove("active");});panels.forEach(function(p){p.classList.remove("active");});btns[idx].classList.add("active");panels[idx].classList.add("active");}
+function copyCode(btn){var code=btn.closest(".tab-panel").querySelector("code").innerText;navigator.clipboard.writeText(code).then(function(){var orig=btn.textContent;btn.textContent="Copied!";setTimeout(function(){btn.textContent=orig;},1500);});}
+function toggleSidebar(){var sidebar=document.getElementById("guideSidebar");var overlay=document.getElementById("sidebarOverlay");if(!sidebar)return;sidebar.classList.toggle("open");overlay.classList.toggle("open");}
+document.addEventListener("DOMContentLoaded",function(){var sidebar=document.getElementById("guideSidebar");if(!sidebar)return;sidebar.querySelectorAll("nav a").forEach(function(a){a.addEventListener("click",function(){sidebar.classList.remove("open");var overlay=document.getElementById("sidebarOverlay");if(overlay)overlay.classList.remove("open");});});});
+</script>
+<script>
+function toggleSbDesktop() {
+  var c = document.body.classList.toggle('sb-collapsed');
+  localStorage.setItem('sb-collapsed', c ? '1' : '0');
+}
+(function() { if (localStorage.getItem('sb-collapsed') === '1') document.body.classList.add('sb-collapsed'); })();
+</script>
+</body>
+</html>

@@ -1,0 +1,1061 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>B2B Lead Enrichment Bridge - FastAPI Capstone - pyoffline</title>
+<style>
+:root {
+  --bg:          #121212;
+  --surface:     #1e1e1e;
+  --surface2:    #2a2a2a;
+  --sidebar-bg:  #1a1a1a;
+  --text:        #e0e0e0;
+  --text-muted:  #aaa;
+  --text-dim:    #666;
+  --border:      #333;
+  --code-bg:     #1e1e1e;
+  --code-text:   #d4d4d4;
+  --shadow:      rgba(0,0,0,.4);
+  --accent:      #0277BD;
+  --hl-keyword:  #569cd6;
+  --hl-string:   #ce9178;
+  --hl-comment:  #6a9955;
+  --hl-number:   #b5cea8;
+  --hl-decorator:#dcdcaa;
+  --hl-builtin:  #4ec9b0;
+  --hl-tag:      #4ec9b0;
+  --hl-attr:     #9cdcfe;
+  --hl-template: #c586c0;
+}
+html.light {
+  --bg:          #f5f7fa;
+  --surface:     #ffffff;
+  --surface2:    #eef0f3;
+  --sidebar-bg:  #ffffff;
+  --text:        #1a1a1a;
+  --text-muted:  #555;
+  --text-dim:    #888;
+  --border:      #dde1e7;
+  --code-bg:     #f8f8f8;
+  --code-text:   #24292e;
+  --shadow:      rgba(0,0,0,.1);
+  --hl-keyword:  #0000ff;
+  --hl-string:   #a31515;
+  --hl-comment:  #008000;
+  --hl-number:   #098658;
+  --hl-decorator:#795e26;
+  --hl-builtin:  #267f99;
+  --hl-tag:      #800000;
+  --hl-attr:     #e50000;
+  --hl-template: #af00db;
+}
+.hl-keyword  { color: var(--hl-keyword);  }
+.hl-string   { color: var(--hl-string);   }
+.hl-comment  { color: #adb4a7; font-size: 12px; font-style: italic; }
+.hl-number   { color: var(--hl-number);   }
+.hl-decorator{ color: var(--hl-decorator);}
+.hl-builtin  { color: var(--hl-builtin);  }
+.hl-tag      { color: var(--hl-tag);      }
+.hl-attr     { color: var(--hl-attr);     }
+.hl-template { color: var(--hl-template); }
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: var(--bg); color: var(--text); font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; transition: background .2s, color .2s; }
+a { color: var(--accent); }
+.layout { display: flex; min-height: 100vh; }
+.sidebar { width: 260px; min-width: 260px; background: var(--sidebar-bg); border-right: 1px solid var(--border); padding: 24px 16px; position: sticky; top: 0; height: 100vh; overflow-y: auto; }
+.sidebar h2 { font-size: 1.1rem; margin: 16px 0 8px; color: var(--text); }
+.sidebar nav ol { padding-left: 18px; }
+.sidebar nav li { margin: 6px 0; }
+.sidebar nav a { color: var(--text-muted); text-decoration: none; font-size: 0.85rem; }
+.sidebar nav a:hover { color: var(--accent); }
+.back-link { color: var(--text-dim); text-decoration: none; font-size: 0.85rem; display: block; margin-bottom: 8px; }
+.install-box { margin-top: 24px; background: var(--bg); border: 1px solid var(--border); padding: 12px; border-radius: 6px; font-size: 0.8rem; }
+.install-box code { display: block; word-break: break-all; color: var(--hl-comment); font-family: monospace; margin-top: 4px; }
+main { flex: 1; padding: 40px; max-width: 860px; }
+.guide-header { padding: 20px 20px 20px 24px; background: var(--surface); border-radius: 8px; margin-bottom: 32px; box-shadow: 0 1px 3px var(--shadow); }
+.guide-header h1 { font-size: 1.8rem; margin-bottom: 8px; }
+.guide-header p { color: var(--text-muted); }
+.step { display: flex; gap: 16px; margin-bottom: 40px; }
+.step-number { width: 32px; min-width: 32px; height: 32px; background: var(--accent); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 0.9rem; margin-top: 4px; color: #fff; }
+.step-content { flex: 1; min-width: 0; }
+.step-content h3 { font-size: 1.1rem; margin-bottom: 8px; color: var(--text); }
+.explanation { color: var(--text-muted); font-size: 0.9rem; line-height: 1.6; margin-bottom: 14px; }
+.info-box { background: var(--surface); border-left: 3px solid var(--accent); border-radius: 0 6px 6px 0; padding: 12px 16px; margin-bottom: 14px; font-size: 0.88rem; color: var(--text-muted); line-height: 1.6; }
+.info-box strong { color: var(--text); }
+.tabs { background: var(--surface); border-radius: 6px; overflow: hidden; border: 1px solid var(--border); }
+.tab-bar { display: flex; background: var(--surface2); overflow-x: auto; border-bottom: 1px solid var(--border); }
+.tab-btn { padding: 8px 16px; background: none; border: none; color: var(--text-muted); cursor: pointer; font-size: 0.8rem; white-space: nowrap; border-bottom: 2px solid transparent; margin-bottom: -1px; }
+.tab-btn.active { color: var(--text); border-bottom-color: var(--accent); }
+.tab-panel { display: none; }
+.tab-panel.active { display: block; }
+.code-header { display: flex; justify-content: space-between; align-items: center; padding: 5px 12px; background: var(--surface2); border-bottom: 1px solid var(--border); }
+.lang-label { font-size: 0.72rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: .04em; }
+.copy-btn { background: none; border: 1px solid var(--border); color: var(--text-muted); padding: 2px 8px; cursor: pointer; border-radius: 3px; font-size: 0.72rem; }
+.copy-btn:hover { color: var(--text); border-color: var(--text-muted); }
+pre { overflow-x: auto; padding: 16px; background: var(--code-bg); }
+code { font-family: "Fira Code", "Cascadia Code", "Consolas", monospace; font-size: 0.82rem; line-height: 1.65; color: var(--code-text); }
+.theme-row { display: flex; align-items: center; gap: 8px; margin-top: 20px; }
+.theme-label { font-size: 0.78rem; color: var(--text-muted); }
+.toggle-switch { position: relative; display: inline-block; width: 40px; height: 22px; }
+.toggle-switch input { opacity: 0; width: 0; height: 0; }
+.slider { position: absolute; cursor: pointer; inset: 0; background: var(--surface2); border: 1px solid var(--border); border-radius: 22px; transition: background .2s; }
+.slider:before { content: ""; position: absolute; width: 16px; height: 16px; left: 2px; top: 2px; background: var(--text-muted); border-radius: 50%; transition: transform .2s, background .2s; }
+.toggle-switch input:checked + .slider { background: var(--accent); border-color: var(--accent); }
+.toggle-switch input:checked + .slider:before { transform: translateX(18px); background: #fff; }
+.sidebar-toggle { display: none; position: fixed; top: 12px; left: 12px; z-index: 300; background: var(--accent); color: #fff; border: none; padding: 7px 14px; border-radius: 6px; cursor: pointer; font-size: 0.85rem; font-weight: 600; box-shadow: 0 2px 8px var(--shadow); align-items: center; gap: 6px; }
+.sidebar-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.45); z-index: 190; }
+.sidebar-overlay.open { display: block; }
+@media (max-width: 900px) {
+  .sidebar-toggle { display: flex; }
+  .layout { display: block; }
+  .sidebar { position: fixed; left: -280px; top: 0; height: 100vh; z-index: 200; transition: left .25s ease; box-shadow: 2px 0 16px var(--shadow); min-width: 260px; }
+  .sidebar.open { left: 0; }
+  main { padding: 60px 20px 40px; max-width: 100%; }
+  pre { overflow-x: auto; max-width: 100%; white-space: pre-wrap; word-break: break-word; }
+  .tabs { max-width: 100%; }
+}
+
+/* ── Desktop sidebar collapse ─────────────────────────────── */
+.sidebar { transition: width .2s ease, min-width .2s ease, padding .2s ease; }
+.sb-pin { display: flex; justify-content: flex-end; margin-bottom: 8px; }
+.sb-pin button { background: none; border: 1px solid var(--border); color: var(--text-dim); cursor: pointer; border-radius: 4px; padding: 2px 7px; font-size: 11px; line-height: 1.6; }
+.sb-pin button:hover { color: var(--accent); border-color: var(--accent); }
+.sb-reopen { display: none; position: fixed; left: 0; top: 50%; transform: translateY(-50%); background: var(--accent); color: #fff; border: none; border-radius: 0 4px 4px 0; padding: 10px 5px; cursor: pointer; z-index: 300; font-size: 11px; font-weight: 600; writing-mode: vertical-rl; letter-spacing: .05em; }
+@media (min-width: 901px) { body.sb-collapsed .sidebar { width: 0; min-width: 0; padding: 0; overflow: hidden; border-right: none; } body.sb-collapsed .sb-reopen { display: block; } }
+@media (max-width: 900px) { .sb-pin { display: none; } .sb-reopen { display: none !important; } }
+</style>
+</head>
+<body>
+<button class="sidebar-toggle" id="sidebarToggle" onclick="toggleSidebar()">&#9776; Steps</button>
+<div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+<button class="sb-reopen" onclick="toggleSbDesktop()">Steps</button>
+<div class="layout">
+  <aside class="sidebar" id="guideSidebar">
+    <div class="sb-pin"><button onclick="toggleSbDesktop()">&#9664; Hide</button></div>
+    <a href="index.html" class="back-link">← All Guides</a>
+    <h2>Lead Enrichment Bridge</h2>
+    <nav><ol>
+      <li><a href="#step1">Architecture Overview</a></li>
+      <li><a href="#step2">Project Setup + Models</a></li>
+      <li><a href="#step3">The Webhook Endpoint</a></li>
+      <li><a href="#step4">BackgroundTask Pipeline</a></li>
+      <li><a href="#step5">External API Enrichment</a></li>
+      <li><a href="#step6">Structured LLM Output</a></li>
+      <li><a href="#step7">Saving to PostgreSQL</a></li>
+      <li><a href="#step8">API Key Middleware</a></li>
+      <li><a href="#step9">Retry with tenacity</a></li>
+      <li><a href="#step10">Testing the Pipeline</a></li>
+    </ol></nav>
+    <div class="install-box">
+      <p><strong>Install</strong></p>
+      <code>pip install fastapi uvicorn sqlalchemy psycopg2-binary httpx pydantic openai tenacity bcrypt python-dotenv pytest httpx</code>
+      <p style="margin-top:12px"><strong>Run</strong></p>
+      <code>uvicorn main:app --reload</code>
+    </div>
+    <div class="theme-row">
+      <span class="theme-label">Dark</span>
+      <label class="toggle-switch">
+        <input type="checkbox" id="themeToggle">
+        <span class="slider"></span>
+      </label>
+      <span class="theme-label">Light</span>
+    </div>
+  </aside>
+
+  <main>
+    <header class="guide-header" style="border-left: 5px solid #0277BD">
+      <h1>Capstone 1: B2B Lead Enrichment Bridge</h1>
+      <p>A third-party webhook delivers a lead to your FastAPI endpoint. You return 202 Accepted immediately, offload enrichment to a BackgroundTask, call external APIs to fill in company data, force an LLM to output a structured sales script via Pydantic, and save everything to PostgreSQL — wrapped in retry logic that handles rate limits gracefully.</p>
+    </header>
+
+    <div class="steps">
+
+      <!-- STEP 1 -->
+      <div class="step" id="step1">
+        <div class="step-number">1</div>
+        <div class="step-content">
+          <h3>Architecture Overview</h3>
+          <p class="explanation">Before writing a single line of code, it helps to understand why this system is designed the way it is. The fundamental problem with webhooks is timing. When a third-party service — a CRM, a payment processor, an email platform — sends a POST request to your endpoint, it is waiting for a response. If your server takes more than a few seconds to respond, the sender will assume something went wrong and either retry the request or log it as a failure. But enriching a lead properly takes time: you need to call at least one external API to look up the company, then call an LLM to generate a sales script. Both of those operations can take 3–10 seconds each. You cannot do them before responding without risking a timeout.</p>
+          <p class="explanation">The solution is the <strong>202 Accepted</strong> pattern. HTTP 202 means "I received your request and I accepted it, but the work hasn't finished yet." Your endpoint receives the webhook payload, validates it, stores a minimal record, then immediately returns 202. The sender is happy — it got a response in under 100ms. Meanwhile, a BackgroundTask starts working: it calls the enrichment API, calls the LLM, and writes the completed record to the database. From the outside, the response was instant. Behind the scenes, the real work happens at its own pace.</p>
+          <p class="explanation">This is one of the most common patterns in production backends. Any time your server receives a request that triggers slow downstream work — sending emails, processing images, calling multiple external services — 202 + BackgroundTask is the standard approach. The alternative (waiting for everything before responding) leads to timeouts, retries, and duplicate records in your database.</p>
+          <div class="info-box">
+            <strong>Data flow in this project:</strong><br>
+            1. Third-party POST /webhook with lead JSON → 202 Accepted (under 100ms)<br>
+            2. BackgroundTask starts → calls enrichment API with email domain<br>
+            3. BackgroundTask calls LLM → structured Pydantic output (sales script + priority score)<br>
+            4. BackgroundTask saves completed Lead record to PostgreSQL<br>
+            5. GET /leads returns all enriched leads (protected by API key)
+          </div>
+        </div>
+      </div>
+
+      <!-- STEP 2 -->
+      <div class="step" id="step2">
+        <div class="step-number">2</div>
+        <div class="step-content">
+          <h3>Project Setup + Database Models</h3>
+          <p class="explanation">This project uses two database tables. The first is <code>leads</code> — the core table storing every incoming webhook, both the raw data that arrived and the enriched data added by the BackgroundTask. It has a <code>status</code> field that starts as "pending" and changes to "enriched" once the BackgroundTask completes. This lets you query for leads that are still processing or that failed enrichment. The second table is <code>api_keys</code> — a table of bcrypt-hashed API keys used to protect the webhook endpoint and the leads listing. Storing keys as bcrypt hashes means that even if your database is exposed, an attacker can't use the leaked hashes to call your API.</p>
+          <p class="explanation">The folder structure for this project is slightly different from earlier guides. You'll have a <code>services/</code> directory for the enrichment and LLM logic, keeping those responsibilities separate from the route handlers. Route handlers should stay thin — they validate input, kick off a BackgroundTask, and return a response. All the actual work lives in service functions that the BackgroundTask calls. This separation makes the code easier to test because you can test each service function independently without needing a running HTTP server.</p>
+          <div class="tabs" data-step="step2">
+            <div class="tab-bar">
+              <button class="tab-btn active" onclick="switchTab('step2',0)">models.py</button>
+              <button class="tab-btn" onclick="switchTab('step2',1)">database.py</button>
+              <button class="tab-btn" onclick="switchTab('step2',2)">folder structure</button>
+            </div>
+            <div class="tab-panel active" id="step2_panel0">
+              <div class="code-header"><span class="lang-label">python</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-keyword">from</span> sqlalchemy <span class="hl-keyword">import</span> Column, Integer, String, Text, DateTime, Float
+<span class="hl-keyword">from</span> sqlalchemy.ext.declarative <span class="hl-keyword">import</span> declarative_base
+<span class="hl-keyword">from</span> datetime <span class="hl-keyword">import</span> datetime
+
+Base = declarative_base()
+
+
+<span class="hl-keyword">class</span> Lead(Base):
+    __tablename__ = <span class="hl-string">"leads"</span>
+
+    id           = Column(Integer, primary_key=<span class="hl-keyword">True</span>, index=<span class="hl-keyword">True</span>)
+    email        = Column(String, index=<span class="hl-keyword">True</span>)        <span class="hl-comment"># lead's email address from webhook</span>
+    name         = Column(String, nullable=<span class="hl-keyword">True</span>)        <span class="hl-comment"># lead's name if provided</span>
+    company      = Column(String, nullable=<span class="hl-keyword">True</span>)        <span class="hl-comment"># filled in by enrichment API</span>
+    industry     = Column(String, nullable=<span class="hl-keyword">True</span>)        <span class="hl-comment"># filled in by enrichment API</span>
+    employee_count = Column(Integer, nullable=<span class="hl-keyword">True</span>)    <span class="hl-comment"># filled in by enrichment API</span>
+    sales_script = Column(Text, nullable=<span class="hl-keyword">True</span>)          <span class="hl-comment"># generated by LLM</span>
+    priority     = Column(Float, nullable=<span class="hl-keyword">True</span>)         <span class="hl-comment"># 1-10 priority score from LLM</span>
+    status       = Column(String, default=<span class="hl-string">"pending"</span>)    <span class="hl-comment"># "pending" → "enriched" | "failed"</span>
+    raw_payload  = Column(Text, nullable=<span class="hl-keyword">True</span>)          <span class="hl-comment"># original webhook JSON, stored as string</span>
+    created_at   = Column(DateTime, default=datetime.utcnow)
+    enriched_at  = Column(DateTime, nullable=<span class="hl-keyword">True</span>)      <span class="hl-comment"># set when BackgroundTask completes</span>
+
+
+<span class="hl-keyword">class</span> APIKey(Base):
+    __tablename__ = <span class="hl-string">"api_keys"</span>
+
+    id         = Column(Integer, primary_key=<span class="hl-keyword">True</span>)
+    label      = Column(String)          <span class="hl-comment"># human-readable name, e.g. "Production CRM"</span>
+    key_hash   = Column(String)          <span class="hl-comment"># bcrypt hash of the actual key — never store plain</span>
+    created_at = Column(DateTime, default=datetime.utcnow)</code></pre>
+            </div>
+            <div class="tab-panel" id="step2_panel1">
+              <div class="code-header"><span class="lang-label">python</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-keyword">from</span> sqlalchemy <span class="hl-keyword">import</span> create_engine
+<span class="hl-keyword">from</span> sqlalchemy.orm <span class="hl-keyword">import</span> sessionmaker
+<span class="hl-keyword">import</span> os
+
+<span class="hl-comment"># Read DATABASE_URL from environment — defaults to SQLite for local dev</span>
+DATABASE_URL = os.getenv(<span class="hl-string">"DATABASE_URL"</span>, <span class="hl-string">"sqlite:///./leads.db"</span>)
+
+engine = create_engine(
+    DATABASE_URL,
+    <span class="hl-comment"># SQLite needs this flag to allow connections across threads (BackgroundTasks run in threads)</span>
+    connect_args={<span class="hl-string">"check_same_thread"</span>: <span class="hl-keyword">False</span>} <span class="hl-keyword">if</span> <span class="hl-string">"sqlite"</span> <span class="hl-keyword">in</span> DATABASE_URL <span class="hl-keyword">else</span> {}
+)
+SessionLocal = sessionmaker(autocommit=<span class="hl-keyword">False</span>, autoflush=<span class="hl-keyword">False</span>, bind=engine)
+
+
+<span class="hl-keyword">def</span> get_db():
+    <span class="hl-string">"""FastAPI dependency — yields a DB session, closes it when the request ends."""</span>
+    db = SessionLocal()
+    <span class="hl-keyword">try</span>:
+        <span class="hl-keyword">yield</span> db
+    <span class="hl-keyword">finally</span>:
+        db.close()
+
+
+<span class="hl-keyword">def</span> get_background_db():
+    <span class="hl-string">"""
+    Use this inside BackgroundTask functions — NOT get_db().
+    BackgroundTasks run after the request ends, so the request-scoped
+    session from get_db() is already closed. Always create a fresh session.
+    """</span>
+    db = SessionLocal()
+    <span class="hl-keyword">try</span>:
+        <span class="hl-keyword">yield</span> db
+    <span class="hl-keyword">finally</span>:
+        db.close()</code></pre>
+            </div>
+            <div class="tab-panel" id="step2_panel2">
+              <div class="code-header"><span class="lang-label">text</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code>lead-enrichment/
+├── main.py              ← FastAPI app, routes
+├── models.py            ← SQLAlchemy ORM models
+├── database.py          ← engine, SessionLocal, get_db
+├── schemas.py           ← Pydantic schemas for request/response
+├── services/
+│   ├── enrichment.py    ← httpx call to external company API
+│   ├── llm.py           ← OpenAI call, structured output parsing
+│   └── pipeline.py      ← the BackgroundTask function that orchestrates everything
+├── middleware/
+│   └── api_key.py       ← X-API-Key header verification dependency
+├── tests/
+│   └── test_webhook.py  ← pytest tests with mocked services
+└── .env                 ← OPENAI_API_KEY, DATABASE_URL, etc.</code></pre>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- STEP 3 -->
+      <div class="step" id="step3">
+        <div class="step-number">3</div>
+        <div class="step-content">
+          <h3>The Webhook Endpoint — 202 Accepted</h3>
+          <p class="explanation">The webhook endpoint has one job: accept the incoming data and return a response as fast as possible. It should not call any external services, should not run any slow code, and should not do anything that could time out. The only work it does synchronously is validating the request body against a Pydantic schema, creating a minimal database record with status "pending", and registering the BackgroundTask. All of that should complete in under 50 milliseconds.</p>
+          <p class="explanation">The response status code matters here. HTTP 200 OK means "the request is complete and here is the result." HTTP 202 Accepted means "I received your request, it's legitimate, and I have begun processing it — but processing isn't done yet." This is the semantically correct status code for async processing. It tells the webhook sender that everything is fine and they can stop waiting. Using 200 would be misleading because the enrichment hasn't happened yet. Using 201 Created is also wrong because you haven't created a fully-formed resource yet.</p>
+          <p class="explanation">One important design decision: you create the Lead database record immediately in the route handler, before returning. This guarantees you have a record even if the BackgroundTask fails or the server crashes before it runs. You can always query for leads with status "pending" and retry their enrichment later. If you didn't create the record before returning 202, you'd lose the lead entirely if the process crashed.</p>
+          <div class="tabs" data-step="step3">
+            <div class="tab-bar">
+              <button class="tab-btn active" onclick="switchTab('step3',0)">schemas.py</button>
+              <button class="tab-btn" onclick="switchTab('step3',1)">main.py — webhook route</button>
+              <button class="tab-btn" onclick="switchTab('step3',2)">test it</button>
+            </div>
+            <div class="tab-panel active" id="step3_panel0">
+              <div class="code-header"><span class="lang-label">python</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-keyword">from</span> pydantic <span class="hl-keyword">import</span> BaseModel, EmailStr
+<span class="hl-keyword">from</span> typing <span class="hl-keyword">import</span> Optional
+
+
+<span class="hl-keyword">class</span> WebhookPayload(BaseModel):
+    <span class="hl-string">"""
+    Schema for the incoming webhook body.
+    EmailStr validates that the email field is a valid email address format.
+    Optional fields are allowed to be missing — the enrichment API will fill them in.
+    """</span>
+    email: EmailStr                      <span class="hl-comment"># required — used to look up the company domain</span>
+    name:  Optional[<span class="hl-builtin">str</span>] = <span class="hl-keyword">None</span>          <span class="hl-comment"># optional — may not be provided by the sender</span>
+    source: Optional[<span class="hl-builtin">str</span>] = <span class="hl-keyword">None</span>         <span class="hl-comment"># optional — which form / campaign this came from</span>
+
+
+<span class="hl-keyword">class</span> LeadResponse(BaseModel):
+    <span class="hl-string">"""Schema for the GET /leads response — what the API returns per lead."""</span>
+    id:            <span class="hl-builtin">int</span>
+    email:         <span class="hl-builtin">str</span>
+    name:          Optional[<span class="hl-builtin">str</span>]
+    company:       Optional[<span class="hl-builtin">str</span>]
+    industry:      Optional[<span class="hl-builtin">str</span>]
+    employee_count: Optional[<span class="hl-builtin">int</span>]
+    sales_script:  Optional[<span class="hl-builtin">str</span>]
+    priority:      Optional[<span class="hl-builtin">float</span>]
+    status:        <span class="hl-builtin">str</span>
+
+    <span class="hl-keyword">class</span> Config:
+        from_attributes = <span class="hl-keyword">True</span>           <span class="hl-comment"># allows Pydantic to read SQLAlchemy model fields</span></code></pre>
+            </div>
+            <div class="tab-panel" id="step3_panel1">
+              <div class="code-header"><span class="lang-label">python</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-keyword">from</span> fastapi <span class="hl-keyword">import</span> FastAPI, BackgroundTasks, Depends, Response
+<span class="hl-keyword">from</span> sqlalchemy.orm <span class="hl-keyword">import</span> Session
+<span class="hl-keyword">import</span> json
+
+<span class="hl-keyword">from</span> database <span class="hl-keyword">import</span> get_db, engine
+<span class="hl-keyword">from</span> models <span class="hl-keyword">import</span> Base, Lead
+<span class="hl-keyword">from</span> schemas <span class="hl-keyword">import</span> WebhookPayload, LeadResponse
+<span class="hl-keyword">from</span> services.pipeline <span class="hl-keyword">import</span> enrich_lead      <span class="hl-comment"># the BackgroundTask function</span>
+<span class="hl-keyword">from</span> middleware.api_key <span class="hl-keyword">import</span> verify_api_key  <span class="hl-comment"># the key-checking dependency</span>
+
+<span class="hl-comment"># Create all tables on startup if they don't exist</span>
+Base.metadata.create_all(bind=engine)
+
+app = FastAPI(title=<span class="hl-string">"Lead Enrichment Bridge"</span>)
+
+
+<span class="hl-decorator">@app.post</span>(<span class="hl-string">"/webhook"</span>, status_code=<span class="hl-number">202</span>, dependencies=[Depends(verify_api_key)])
+<span class="hl-keyword">async def</span> receive_webhook(
+    payload: WebhookPayload,
+    background_tasks: BackgroundTasks,
+    db: Session = Depends(get_db)
+):
+    <span class="hl-comment"># 1. Create a minimal Lead record immediately — status "pending"</span>
+    <span class="hl-comment"># This guarantees we have a record even if the BackgroundTask never runs</span>
+    lead = Lead(
+        email=payload.email,
+        name=payload.name,
+        status=<span class="hl-string">"pending"</span>,
+        raw_payload=json.dumps(payload.model_dump())  <span class="hl-comment"># store original for debugging</span>
+    )
+    db.add(lead)
+    db.commit()
+    db.refresh(lead)  <span class="hl-comment"># reload from DB to get the auto-generated id</span>
+
+    <span class="hl-comment"># 2. Register the enrichment task — it runs AFTER this function returns</span>
+    <span class="hl-comment"># Pass lead.id (not the lead object) — the BackgroundTask opens its own DB session</span>
+    background_tasks.add_task(enrich_lead, lead.id)
+
+    <span class="hl-comment"># 3. Return 202 immediately — enrichment hasn't started yet</span>
+    <span class="hl-comment"># The sender gets a fast response; the work happens behind the scenes</span>
+    <span class="hl-keyword">return</span> {<span class="hl-string">"accepted"</span>: <span class="hl-keyword">True</span>, <span class="hl-string">"lead_id"</span>: lead.id}
+
+
+<span class="hl-decorator">@app.get</span>(<span class="hl-string">"/leads"</span>, response_model=list[LeadResponse], dependencies=[Depends(verify_api_key)])
+<span class="hl-keyword">async def</span> list_leads(db: Session = Depends(get_db)):
+    <span class="hl-comment"># Return all leads, newest first</span>
+    <span class="hl-keyword">return</span> db.query(Lead).order_by(Lead.created_at.desc()).all()</code></pre>
+            </div>
+            <div class="tab-panel" id="step3_panel2">
+              <div class="code-header"><span class="lang-label">text</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code># Send a test webhook (replace YOUR_API_KEY with a real key from Step 8)
+curl -X POST http://localhost:8000/webhook \
+  -H "Content-Type: application/json" \
+  -H "X-API-Key: YOUR_API_KEY" \
+  -d '{"email": "sarah@stripe.com", "name": "Sarah Chen"}'
+
+# Expected: {"accepted": true, "lead_id": 1}
+
+# Check the lead status (it starts as "pending", changes to "enriched" after the BackgroundTask runs)
+curl http://localhost:8000/leads \
+  -H "X-API-Key: YOUR_API_KEY"
+
+# While the BackgroundTask is running, status will be "pending"
+# After it completes, status will be "enriched" with company + sales_script filled in</code></pre>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- STEP 4 -->
+      <div class="step" id="step4">
+        <div class="step-number">4</div>
+        <div class="step-content">
+          <h3>The BackgroundTask Pipeline</h3>
+          <p class="explanation">The pipeline function is the orchestrator. It takes a lead ID, opens its own database session, and runs all three enrichment steps in sequence: fetch company data, call the LLM, save the result. Each step can fail independently — if the enrichment API is down, you want to save a partial result and mark the lead as failed, rather than crashing and leaving it in "pending" forever. A try/except/finally structure around the whole pipeline guarantees the status is always updated, even on failure.</p>
+          <p class="explanation">The most important rule for BackgroundTask functions: <strong>never accept a database session as a parameter</strong>. The request-scoped session that was used in the route handler is closed the moment the response is sent. If you pass it to the BackgroundTask, you'll try to use a closed session and get a cryptic error. Always call <code>SessionLocal()</code> inside the BackgroundTask to get a fresh session, and close it yourself in a finally block. This is why the <code>get_background_db()</code> function exists in database.py.</p>
+          <div class="tabs" data-step="step4">
+            <div class="tab-bar">
+              <button class="tab-btn active" onclick="switchTab('step4',0)">services/pipeline.py</button>
+            </div>
+            <div class="tab-panel active" id="step4_panel0">
+              <div class="code-header"><span class="lang-label">python</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-keyword">from</span> datetime <span class="hl-keyword">import</span> datetime
+<span class="hl-keyword">from</span> database <span class="hl-keyword">import</span> SessionLocal  <span class="hl-comment"># NOT get_db — we manage our own session here</span>
+<span class="hl-keyword">from</span> models <span class="hl-keyword">import</span> Lead
+<span class="hl-keyword">from</span> services.enrichment <span class="hl-keyword">import</span> fetch_company_data
+<span class="hl-keyword">from</span> services.llm <span class="hl-keyword">import</span> generate_sales_script
+
+
+<span class="hl-keyword">def</span> enrich_lead(lead_id: <span class="hl-builtin">int</span>):
+    <span class="hl-string">"""
+    Called as a BackgroundTask — runs after the 202 response is sent.
+    Opens its own DB session, runs enrichment, saves result, closes session.
+    """</span>
+    <span class="hl-comment"># Always create a fresh session — never reuse the request-scoped one</span>
+    db = SessionLocal()
+    <span class="hl-keyword">try</span>:
+        <span class="hl-comment"># Fetch the lead record we created in the route handler</span>
+        lead = db.query(Lead).filter(Lead.id == lead_id).first()
+        <span class="hl-keyword">if</span> <span class="hl-keyword">not</span> lead:
+            <span class="hl-keyword">return</span>  <span class="hl-comment"># shouldn't happen, but guard anyway</span>
+
+        <span class="hl-comment"># Step 1: Extract the domain from the email (e.g. "stripe.com" from "sarah@stripe.com")</span>
+        domain = lead.email.split(<span class="hl-string">"@"</span>)[<span class="hl-number">1</span>]
+
+        <span class="hl-comment"># Step 2: Call the enrichment API — returns a dict with company info</span>
+        <span class="hl-comment"># This function handles retries internally (see Step 9)</span>
+        company_data = fetch_company_data(domain)
+
+        <span class="hl-comment"># Step 3: Update the lead with enrichment data</span>
+        lead.company       = company_data.get(<span class="hl-string">"name"</span>)
+        lead.industry      = company_data.get(<span class="hl-string">"industry"</span>)
+        lead.employee_count = company_data.get(<span class="hl-string">"employee_count"</span>)
+
+        <span class="hl-comment"># Step 4: Call the LLM — returns a structured object with sales_script + priority</span>
+        script_data = generate_sales_script(lead.name, company_data)
+
+        <span class="hl-comment"># Step 5: Update the lead with LLM output</span>
+        lead.sales_script = script_data.sales_script
+        lead.priority     = script_data.priority
+
+        <span class="hl-comment"># Step 6: Mark as complete</span>
+        lead.status      = <span class="hl-string">"enriched"</span>
+        lead.enriched_at = datetime.utcnow()
+
+        db.commit()
+
+    <span class="hl-keyword">except</span> Exception <span class="hl-keyword">as</span> e:
+        <span class="hl-comment"># Enrichment failed — mark the lead so we know to retry it</span>
+        <span class="hl-comment"># Don't let the exception bubble up — BackgroundTask errors are silent otherwise</span>
+        <span class="hl-builtin">print</span>(f<span class="hl-string">"Enrichment failed for lead {lead_id}: {e}"</span>)
+        <span class="hl-keyword">try</span>:
+            lead = db.query(Lead).filter(Lead.id == lead_id).first()
+            <span class="hl-keyword">if</span> lead:
+                lead.status = <span class="hl-string">"failed"</span>
+                db.commit()
+        <span class="hl-keyword">except</span>:
+            pass
+
+    <span class="hl-keyword">finally</span>:
+        db.close()  <span class="hl-comment"># always close — don't rely on garbage collection</span></code></pre>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- STEP 5 -->
+      <div class="step" id="step5">
+        <div class="step-number">5</div>
+        <div class="step-content">
+          <h3>External API Enrichment with httpx</h3>
+          <p class="explanation">The enrichment service calls an external company data API using the email domain. There are several real-world APIs that provide this — Clearbit, Hunter.io, Apollo.io, or the free Brandfetch API. For this guide, you'll use a publicly available API that accepts a company domain and returns company metadata. The core pattern is the same regardless of which API you choose: make an authenticated HTTP GET request, parse the JSON response, return a clean dictionary to the pipeline.</p>
+          <p class="explanation">One subtle point: the BackgroundTask function is a regular (synchronous) function, not an <code>async def</code>. This means you use <code>httpx.Client()</code> (synchronous) instead of <code>httpx.AsyncClient()</code>. FastAPI runs synchronous BackgroundTask functions in a thread pool, so synchronous httpx works correctly here. If your BackgroundTask function were <code>async def</code>, you'd use <code>httpx.AsyncClient()</code> with <code>await</code>. Mixing sync and async incorrectly is a common source of subtle bugs, so being deliberate about which one you're using matters.</p>
+          <div class="tabs" data-step="step5">
+            <div class="tab-bar">
+              <button class="tab-btn active" onclick="switchTab('step5',0)">services/enrichment.py</button>
+              <button class="tab-btn" onclick="switchTab('step5',1)">mock enrichment (no API key needed)</button>
+            </div>
+            <div class="tab-panel active" id="step5_panel0">
+              <div class="code-header"><span class="lang-label">python</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-keyword">import</span> httpx
+<span class="hl-keyword">import</span> os
+
+
+<span class="hl-keyword">def</span> fetch_company_data(domain: <span class="hl-builtin">str</span>) -> <span class="hl-builtin">dict</span>:
+    <span class="hl-string">"""
+    Calls an enrichment API to get company info for a given domain.
+    Returns a dict with: name, industry, employee_count, description.
+    Retries are handled by tenacity in Step 9 — this function just makes one attempt.
+    """</span>
+    api_key = os.getenv(<span class="hl-string">"ENRICHMENT_API_KEY"</span>, <span class="hl-string">""</span>)
+
+    <span class="hl-comment"># httpx.Client() — synchronous, correct for use inside a BackgroundTask</span>
+    <span class="hl-comment"># timeout=10.0 — raise an exception if the API takes longer than 10 seconds</span>
+    <span class="hl-keyword">with</span> httpx.Client(timeout=<span class="hl-number">10.0</span>) <span class="hl-keyword">as</span> client:
+        response = client.get(
+            f<span class="hl-string">"https://api.brandfetch.io/v2/brands/{domain}"</span>,
+            headers={<span class="hl-string">"Authorization"</span>: f<span class="hl-string">"Bearer {api_key}"</span>}
+        )
+        response.raise_for_status()  <span class="hl-comment"># raises httpx.HTTPStatusError on 4xx/5xx</span>
+        data = response.json()
+
+    <span class="hl-comment"># Normalise the response into a clean dict regardless of API response structure</span>
+    <span class="hl-keyword">return</span> {
+        <span class="hl-string">"name"</span>:           data.get(<span class="hl-string">"name"</span>, domain),
+        <span class="hl-string">"industry"</span>:      data.get(<span class="hl-string">"industries"</span>, [{}])[<span class="hl-number">0</span>].get(<span class="hl-string">"name"</span>, <span class="hl-string">"Unknown"</span>),
+        <span class="hl-string">"employee_count"</span>: data.get(<span class="hl-string">"companiesCount"</span>, <span class="hl-keyword">None</span>),
+        <span class="hl-string">"description"</span>:   data.get(<span class="hl-string">"description"</span>, <span class="hl-string">""</span>),
+    }</code></pre>
+            </div>
+            <div class="tab-panel" id="step5_panel1">
+              <div class="code-header"><span class="lang-label">python</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-keyword">def</span> fetch_company_data(domain: <span class="hl-builtin">str</span>) -> <span class="hl-builtin">dict</span>:
+    <span class="hl-string">"""
+    Mock version — returns fake data so you can build and test the full pipeline
+    without needing an enrichment API key. Replace with the real version later.
+    """</span>
+    <span class="hl-comment"># Hardcoded mock data keyed by domain for realistic testing</span>
+    mock_data = {
+        <span class="hl-string">"stripe.com"</span>:  {<span class="hl-string">"name"</span>: <span class="hl-string">"Stripe"</span>,     <span class="hl-string">"industry"</span>: <span class="hl-string">"Fintech"</span>,    <span class="hl-string">"employee_count"</span>: <span class="hl-number">8000</span>,  <span class="hl-string">"description"</span>: <span class="hl-string">"Payment infrastructure for the internet."</span>},
+        <span class="hl-string">"notion.so"</span>:   {<span class="hl-string">"name"</span>: <span class="hl-string">"Notion"</span>,     <span class="hl-string">"industry"</span>: <span class="hl-string">"Productivity"</span>, <span class="hl-string">"employee_count"</span>: <span class="hl-number">400</span>,   <span class="hl-string">"description"</span>: <span class="hl-string">"All-in-one workspace for notes and projects."</span>},
+        <span class="hl-string">"shopify.com"</span>: {<span class="hl-string">"name"</span>: <span class="hl-string">"Shopify"</span>,    <span class="hl-string">"industry"</span>: <span class="hl-string">"E-Commerce"</span>, <span class="hl-string">"employee_count"</span>: <span class="hl-number">12000</span>, <span class="hl-string">"description"</span>: <span class="hl-string">"Commerce platform for businesses of all sizes."</span>},
+    }
+    <span class="hl-comment"># Return mock data if domain is known, otherwise return generic fallback</span>
+    <span class="hl-keyword">return</span> mock_data.get(domain, {
+        <span class="hl-string">"name"</span>: domain.split(<span class="hl-string">"."</span>)[<span class="hl-number">0</span>].capitalize(),
+        <span class="hl-string">"industry"</span>: <span class="hl-string">"Technology"</span>,
+        <span class="hl-string">"employee_count"</span>: <span class="hl-keyword">None</span>,
+        <span class="hl-string">"description"</span>: <span class="hl-string">"A company in the technology sector."</span>
+    })</code></pre>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- STEP 6 -->
+      <div class="step" id="step6">
+        <div class="step-number">6</div>
+        <div class="step-content">
+          <h3>Structured LLM Output with Pydantic</h3>
+          <p class="explanation">Calling an LLM and getting back free-form text is easy. Getting back structured data you can actually store in a database is harder. If you ask the LLM to "write a sales script and give a priority score", it might return a nicely formatted paragraph, or it might return JSON, or it might ignore your instructions entirely. You can't programmatically extract a number from unstructured text reliably.</p>
+          <p class="explanation">The modern solution is to instruct the LLM to respond in JSON using <code>response_format={"type": "json_object"}</code> (available in GPT-4o and GPT-3.5-turbo-1106+). You tell the LLM in the system prompt exactly what JSON structure you want — field names, types, and descriptions — and it will constrain its output to match. You then parse that JSON into a Pydantic model. If the JSON doesn't match the schema, Pydantic raises a validation error that you can catch. This is dramatically more reliable than regex-parsing free-form text.</p>
+          <div class="tabs" data-step="step6">
+            <div class="tab-bar">
+              <button class="tab-btn active" onclick="switchTab('step6',0)">services/llm.py</button>
+              <button class="tab-btn" onclick="switchTab('step6',1)">the Pydantic output schema</button>
+            </div>
+            <div class="tab-panel active" id="step6_panel0">
+              <div class="code-header"><span class="lang-label">python</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-keyword">import</span> json
+<span class="hl-keyword">import</span> os
+<span class="hl-keyword">from</span> openai <span class="hl-keyword">import</span> OpenAI
+<span class="hl-keyword">from</span> pydantic <span class="hl-keyword">import</span> BaseModel, Field
+
+
+<span class="hl-keyword">class</span> SalesScriptOutput(BaseModel):
+    <span class="hl-string">"""
+    The exact JSON structure we expect the LLM to return.
+    Field descriptions become part of the prompt — write them clearly.
+    """</span>
+    sales_script: <span class="hl-builtin">str</span> = Field(description=<span class="hl-string">"A 2-3 sentence personalised opening for a cold outreach email to this lead."</span>)
+    priority:     <span class="hl-builtin">float</span> = Field(ge=<span class="hl-number">1.0</span>, le=<span class="hl-number">10.0</span>, description=<span class="hl-string">"Priority score from 1-10. Higher = better fit for our product."</span>)
+    reasoning:    <span class="hl-builtin">str</span> = Field(description=<span class="hl-string">"One sentence explaining why you gave this priority score."</span>)
+
+
+client = OpenAI(api_key=os.getenv(<span class="hl-string">"OPENAI_API_KEY"</span>))
+
+
+<span class="hl-keyword">def</span> generate_sales_script(name: <span class="hl-builtin">str</span>, company_data: <span class="hl-builtin">dict</span>) -> SalesScriptOutput:
+    <span class="hl-string">"""
+    Calls GPT-4o with response_format=json_object.
+    Returns a validated SalesScriptOutput Pydantic model.
+    Retries handled by tenacity in Step 9.
+    """</span>
+    <span class="hl-comment"># Describe the exact JSON fields you want in the system prompt</span>
+    system_prompt = <span class="hl-string">"""You are a B2B sales assistant. Given information about a lead and their company,
+    you output a JSON object with exactly these fields:
+    - sales_script (string): A 2-3 sentence personalised opening for a cold outreach email
+    - priority (float): Priority score 1-10 based on how well they fit our product
+    - reasoning (string): One sentence explaining the priority score
+
+    Output ONLY the JSON object, no other text."""</span>
+
+    user_message = f<span class="hl-string">"""Lead name: {name or 'Unknown'}
+Company: {company_data.get('name', 'Unknown')}
+Industry: {company_data.get('industry', 'Unknown')}
+Employees: {company_data.get('employee_count', 'Unknown')}
+Description: {company_data.get('description', '')}"""</span>
+
+    response = client.chat.completions.create(
+        model=<span class="hl-string">"gpt-4o-mini"</span>,
+        response_format={<span class="hl-string">"type"</span>: <span class="hl-string">"json_object"</span>},  <span class="hl-comment"># forces JSON output — no stray text</span>
+        messages=[
+            {<span class="hl-string">"role"</span>: <span class="hl-string">"system"</span>, <span class="hl-string">"content"</span>: system_prompt},
+            {<span class="hl-string">"role"</span>: <span class="hl-string">"user"</span>,   <span class="hl-string">"content"</span>: user_message},
+        ],
+        max_tokens=<span class="hl-number">300</span>,
+        temperature=<span class="hl-number">0.7</span>,
+    )
+
+    <span class="hl-comment"># Parse the JSON string from the response content</span>
+    raw_json = response.choices[<span class="hl-number">0</span>].message.content
+    data = json.loads(raw_json)
+
+    <span class="hl-comment"># Validate the parsed dict against the Pydantic schema</span>
+    <span class="hl-comment"># This raises ValidationError if the LLM returned unexpected fields or types</span>
+    <span class="hl-keyword">return</span> SalesScriptOutput(**data)</code></pre>
+            </div>
+            <div class="tab-panel" id="step6_panel1">
+              <div class="code-header"><span class="lang-label">text</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code>LLM input (user message):
+  Lead name: Sarah Chen
+  Company: Stripe
+  Industry: Fintech
+  Employees: 8000
+  Description: Payment infrastructure for the internet.
+
+LLM output (JSON, forced by response_format):
+  {
+    "sales_script": "Hi Sarah, I noticed Stripe has been expanding its developer tooling suite ...",
+    "priority": 8.5,
+    "reasoning": "Fintech companies at Stripe's scale often need robust API monitoring solutions."
+  }
+
+Pydantic validation:
+  ✓ sales_script is a string
+  ✓ priority is a float between 1.0 and 10.0
+  ✓ reasoning is a string
+  → Returns SalesScriptOutput object with all three fields</code></pre>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- STEP 7 -->
+      <div class="step" id="step7">
+        <div class="step-number">7</div>
+        <div class="step-content">
+          <h3>Saving to PostgreSQL — End to End</h3>
+          <p class="explanation">At this point the pipeline is complete. The BackgroundTask has the enriched company data from the external API and the structured sales script from the LLM. The final step is writing everything to the Lead record in PostgreSQL and flipping the status to "enriched". This is a simple database write, but it's important to do it as the last step — you don't want to commit a partially-enriched record. Commit once, with all fields populated.</p>
+          <p class="explanation">To verify the full pipeline end to end without an internet connection, use the mock enrichment function from Step 5 and a mock LLM response. The mock LLM function below returns a hardcoded SalesScriptOutput, letting you test the complete database write flow with no API keys required. Once the pipeline works with mocks, swap in the real implementations one at a time.</p>
+          <div class="tabs" data-step="step7">
+            <div class="tab-bar">
+              <button class="tab-btn active" onclick="switchTab('step7',0)">services/pipeline.py (complete)</button>
+              <button class="tab-btn" onclick="switchTab('step7',1)">mock LLM for local testing</button>
+            </div>
+            <div class="tab-panel active" id="step7_panel0">
+              <div class="code-header"><span class="lang-label">python</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-keyword">from</span> datetime <span class="hl-keyword">import</span> datetime
+<span class="hl-keyword">from</span> database <span class="hl-keyword">import</span> SessionLocal
+<span class="hl-keyword">from</span> models <span class="hl-keyword">import</span> Lead
+<span class="hl-keyword">from</span> services.enrichment <span class="hl-keyword">import</span> fetch_company_data
+<span class="hl-keyword">from</span> services.llm <span class="hl-keyword">import</span> generate_sales_script
+
+
+<span class="hl-keyword">def</span> enrich_lead(lead_id: <span class="hl-builtin">int</span>):
+    db = SessionLocal()
+    <span class="hl-keyword">try</span>:
+        lead = db.query(Lead).filter(Lead.id == lead_id).first()
+        <span class="hl-keyword">if</span> <span class="hl-keyword">not</span> lead:
+            <span class="hl-keyword">return</span>
+
+        domain = lead.email.split(<span class="hl-string">"@"</span>)[<span class="hl-number">1</span>]
+
+        <span class="hl-comment"># Step 1: Enrich with company data</span>
+        company_data = fetch_company_data(domain)
+        lead.company        = company_data.get(<span class="hl-string">"name"</span>)
+        lead.industry       = company_data.get(<span class="hl-string">"industry"</span>)
+        lead.employee_count = company_data.get(<span class="hl-string">"employee_count"</span>)
+
+        <span class="hl-comment"># Step 2: Generate structured sales script via LLM</span>
+        script_data = generate_sales_script(lead.name, company_data)
+        lead.sales_script   = script_data.sales_script
+        lead.priority       = script_data.priority
+
+        <span class="hl-comment"># Step 3: Mark complete and commit everything at once</span>
+        lead.status      = <span class="hl-string">"enriched"</span>
+        lead.enriched_at = datetime.utcnow()
+        db.commit()
+
+        <span class="hl-builtin">print</span>(f<span class="hl-string">"Lead {lead_id} enriched: {lead.company}, priority={lead.priority}"</span>)
+
+    <span class="hl-keyword">except</span> Exception <span class="hl-keyword">as</span> e:
+        <span class="hl-builtin">print</span>(f<span class="hl-string">"Enrichment failed for lead {lead_id}: {e}"</span>)
+        <span class="hl-keyword">try</span>:
+            lead = db.query(Lead).filter(Lead.id == lead_id).first()
+            <span class="hl-keyword">if</span> lead:
+                lead.status = <span class="hl-string">"failed"</span>
+                db.commit()
+        <span class="hl-keyword">except</span>:
+            pass
+    <span class="hl-keyword">finally</span>:
+        db.close()</code></pre>
+            </div>
+            <div class="tab-panel" id="step7_panel1">
+              <div class="code-header"><span class="lang-label">python</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-comment"># services/llm.py — mock version for testing without an OpenAI key</span>
+<span class="hl-keyword">from</span> services.llm <span class="hl-keyword">import</span> SalesScriptOutput  <span class="hl-comment"># reuse the Pydantic schema</span>
+
+
+<span class="hl-keyword">def</span> generate_sales_script(name: <span class="hl-builtin">str</span>, company_data: <span class="hl-builtin">dict</span>) -> SalesScriptOutput:
+    <span class="hl-string">"""
+    Mock LLM — returns a hardcoded SalesScriptOutput.
+    Use this while building the pipeline to avoid API costs.
+    """</span>
+    company = company_data.get(<span class="hl-string">"name"</span>, <span class="hl-string">"your company"</span>)
+    <span class="hl-keyword">return</span> SalesScriptOutput(
+        sales_script=f<span class="hl-string">"Hi {name or 'there'}, I saw that {company} is scaling fast and wanted to reach out..."</span>,
+        priority=<span class="hl-number">7.5</span>,
+        reasoning=<span class="hl-string">"Mid-size company in a high-growth sector — good fit."</span>
+    )</code></pre>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- STEP 8 -->
+      <div class="step" id="step8">
+        <div class="step-number">8</div>
+        <div class="step-content">
+          <h3>API Key Middleware</h3>
+          <p class="explanation">The webhook endpoint and the leads listing must be protected. Only authorised senders should be able to post to your webhook, and only authorised clients should be able to read the enriched leads. The standard pattern for machine-to-machine authentication (server to server) is an API key sent in a request header. You store API keys in the database as bcrypt hashes — never as plain text. When a request arrives, you hash the incoming key and compare it to the stored hashes. If any match, the request is authorised.</p>
+          <p class="explanation">In FastAPI, this is implemented as a dependency function that reads the <code>X-API-Key</code> header using <code>Header()</code>. If the header is missing or the key doesn't match any hash in the database, the dependency raises an <code>HTTPException</code> with status 403, and FastAPI automatically stops processing the request and returns the error. You apply this dependency to routes using <code>dependencies=[Depends(verify_api_key)]</code> — the same pattern you've seen with <code>get_db</code>.</p>
+          <div class="tabs" data-step="step8">
+            <div class="tab-bar">
+              <button class="tab-btn active" onclick="switchTab('step8',0)">middleware/api_key.py</button>
+              <button class="tab-btn" onclick="switchTab('step8',1)">create an API key (script)</button>
+            </div>
+            <div class="tab-panel active" id="step8_panel0">
+              <div class="code-header"><span class="lang-label">python</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-keyword">from</span> fastapi <span class="hl-keyword">import</span> Depends, HTTPException, Header
+<span class="hl-keyword">from</span> sqlalchemy.orm <span class="hl-keyword">import</span> Session
+<span class="hl-keyword">import</span> bcrypt
+
+<span class="hl-keyword">from</span> database <span class="hl-keyword">import</span> get_db
+<span class="hl-keyword">from</span> models <span class="hl-keyword">import</span> APIKey
+
+
+<span class="hl-keyword">def</span> verify_api_key(
+    x_api_key: <span class="hl-builtin">str</span> = Header(...),      <span class="hl-comment"># reads X-API-Key header; raises 422 if missing</span>
+    db: Session = Depends(get_db)
+):
+    <span class="hl-string">"""
+    FastAPI dependency — checks X-API-Key header against bcrypt hashes in DB.
+    Raises 403 if key is missing or doesn't match any stored hash.
+    """</span>
+    <span class="hl-comment"># Load all stored key hashes from the database</span>
+    stored_keys = db.query(APIKey).all()
+
+    <span class="hl-comment"># Check the incoming key against each stored hash</span>
+    <span class="hl-comment"># bcrypt.checkpw() returns True if the plain key matches the stored hash</span>
+    key_bytes = x_api_key.encode(<span class="hl-string">"utf-8"</span>)
+    <span class="hl-keyword">for</span> stored <span class="hl-keyword">in</span> stored_keys:
+        <span class="hl-keyword">if</span> bcrypt.checkpw(key_bytes, stored.key_hash.encode(<span class="hl-string">"utf-8"</span>)):
+            <span class="hl-keyword">return</span>  <span class="hl-comment"># key is valid — let the request through</span>
+
+    <span class="hl-comment"># No matching key found — reject the request</span>
+    <span class="hl-keyword">raise</span> HTTPException(status_code=<span class="hl-number">403</span>, detail=<span class="hl-string">"Invalid or missing API key"</span>)</code></pre>
+            </div>
+            <div class="tab-panel" id="step8_panel1">
+              <div class="code-header"><span class="lang-label">python</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-comment"># create_api_key.py — run this script once to create your first API key</span>
+<span class="hl-comment"># python create_api_key.py --label "Production CRM"</span>
+<span class="hl-keyword">import</span> secrets, bcrypt, argparse
+<span class="hl-keyword">from</span> database <span class="hl-keyword">import</span> SessionLocal, engine
+<span class="hl-keyword">from</span> models <span class="hl-keyword">import</span> Base, APIKey
+
+Base.metadata.create_all(bind=engine)
+
+parser = argparse.ArgumentParser()
+parser.add_argument(<span class="hl-string">"--label"</span>, default=<span class="hl-string">"My Key"</span>)
+args = parser.parse_args()
+
+<span class="hl-comment"># Generate a secure random key — the caller will use this in X-API-Key</span>
+plain_key = secrets.token_urlsafe(<span class="hl-number">32</span>)
+
+<span class="hl-comment"># Hash it with bcrypt before storing — never store the plain key</span>
+hashed = bcrypt.hashpw(plain_key.encode(), bcrypt.gensalt()).decode()
+
+db = SessionLocal()
+db.add(APIKey(label=args.label, key_hash=hashed))
+db.commit()
+db.close()
+
+<span class="hl-builtin">print</span>(f<span class="hl-string">"Label:   {args.label}"</span>)
+<span class="hl-builtin">print</span>(f<span class="hl-string">"API Key: {plain_key}"</span>)
+<span class="hl-builtin">print</span>(<span class="hl-string">"Copy this key now — it will never be shown again."</span>)</code></pre>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- STEP 9 -->
+      <div class="step" id="step9">
+        <div class="step-number">9</div>
+        <div class="step-content">
+          <h3>Retry Logic with tenacity</h3>
+          <p class="explanation">Every time your BackgroundTask calls an external service — the enrichment API or the OpenAI API — there's a chance it fails. The most common failure mode is a 429 rate limit error: the API received too many requests and is telling you to slow down. A naive retry (call again immediately) will fail again for the same reason. The correct approach is <strong>exponential backoff</strong>: wait a short time before the first retry, a longer time before the second, longer still before the third, and give up after a fixed number of attempts.</p>
+          <p class="explanation">The <code>tenacity</code> library makes this a one-line decorator. <code>@retry(wait=wait_exponential(multiplier=1, min=1, max=30), stop=stop_after_attempt(3))</code> means: retry up to 3 times, waiting 1s before the first retry, 2s before the second, 4s before the third (capped at 30s). You apply this decorator to the enrichment and LLM functions — the pipeline function that calls them doesn't need to know about retries at all. If all three attempts fail, tenacity raises the last exception, which gets caught by the pipeline's except block.</p>
+          <div class="tabs" data-step="step9">
+            <div class="tab-bar">
+              <button class="tab-btn active" onclick="switchTab('step9',0)">services/enrichment.py (with retry)</button>
+              <button class="tab-btn" onclick="switchTab('step9',1)">services/llm.py (with retry)</button>
+            </div>
+            <div class="tab-panel active" id="step9_panel0">
+              <div class="code-header"><span class="lang-label">python</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-keyword">import</span> httpx
+<span class="hl-keyword">import</span> os
+<span class="hl-keyword">from</span> tenacity <span class="hl-keyword">import</span> retry, wait_exponential, stop_after_attempt, retry_if_exception_type
+
+
+<span class="hl-comment"># Retry on any httpx error (connection error, timeout, 429, 500, etc.)</span>
+<span class="hl-comment"># Wait: 1s → 2s → 4s (exponential), capped at 30s. Give up after 3 attempts.</span>
+<span class="hl-decorator">@retry</span>(
+    wait=wait_exponential(multiplier=<span class="hl-number">1</span>, min=<span class="hl-number">1</span>, max=<span class="hl-number">30</span>),
+    stop=stop_after_attempt(<span class="hl-number">3</span>),
+    retry=retry_if_exception_type((httpx.HTTPError, httpx.TimeoutException))
+)
+<span class="hl-keyword">def</span> fetch_company_data(domain: <span class="hl-builtin">str</span>) -> <span class="hl-builtin">dict</span>:
+    <span class="hl-string">"""
+    Same logic as before — tenacity handles retries transparently.
+    If all 3 attempts fail, tenacity re-raises the last exception.
+    The pipeline's except block catches it and marks the lead as "failed".
+    """</span>
+    api_key = os.getenv(<span class="hl-string">"ENRICHMENT_API_KEY"</span>, <span class="hl-string">""</span>)
+    <span class="hl-keyword">with</span> httpx.Client(timeout=<span class="hl-number">10.0</span>) <span class="hl-keyword">as</span> client:
+        response = client.get(
+            f<span class="hl-string">"https://api.brandfetch.io/v2/brands/{domain}"</span>,
+            headers={<span class="hl-string">"Authorization"</span>: f<span class="hl-string">"Bearer {api_key}"</span>}
+        )
+        response.raise_for_status()
+        data = response.json()
+    <span class="hl-keyword">return</span> {
+        <span class="hl-string">"name"</span>:           data.get(<span class="hl-string">"name"</span>, domain),
+        <span class="hl-string">"industry"</span>:      data.get(<span class="hl-string">"industries"</span>, [{}])[<span class="hl-number">0</span>].get(<span class="hl-string">"name"</span>),
+        <span class="hl-string">"employee_count"</span>: data.get(<span class="hl-string">"companiesCount"</span>),
+        <span class="hl-string">"description"</span>:   data.get(<span class="hl-string">"description"</span>, <span class="hl-string">""</span>),
+    }</code></pre>
+            </div>
+            <div class="tab-panel" id="step9_panel1">
+              <div class="code-header"><span class="lang-label">python</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-keyword">import</span> json, os
+<span class="hl-keyword">from</span> openai <span class="hl-keyword">import</span> OpenAI, RateLimitError, APIError
+<span class="hl-keyword">from</span> pydantic <span class="hl-keyword">import</span> BaseModel, Field
+<span class="hl-keyword">from</span> tenacity <span class="hl-keyword">import</span> retry, wait_exponential, stop_after_attempt, retry_if_exception_type
+
+client = OpenAI(api_key=os.getenv(<span class="hl-string">"OPENAI_API_KEY"</span>))
+
+
+<span class="hl-keyword">class</span> SalesScriptOutput(BaseModel):
+    sales_script: <span class="hl-builtin">str</span>   = Field(description=<span class="hl-string">"2-3 sentence personalised cold email opening."</span>)
+    priority:     <span class="hl-builtin">float</span> = Field(ge=<span class="hl-number">1.0</span>, le=<span class="hl-number">10.0</span>, description=<span class="hl-string">"Fit score 1-10."</span>)
+    reasoning:    <span class="hl-builtin">str</span>   = Field(description=<span class="hl-string">"One sentence explaining the priority score."</span>)
+
+
+<span class="hl-comment"># Retry on OpenAI rate limit (429) and server errors (500+)</span>
+<span class="hl-comment"># 3 attempts with 2s → 4s → 8s backoff</span>
+<span class="hl-decorator">@retry</span>(
+    wait=wait_exponential(multiplier=<span class="hl-number">2</span>, min=<span class="hl-number">2</span>, max=<span class="hl-number">60</span>),
+    stop=stop_after_attempt(<span class="hl-number">3</span>),
+    retry=retry_if_exception_type((RateLimitError, APIError))
+)
+<span class="hl-keyword">def</span> generate_sales_script(name: <span class="hl-builtin">str</span>, company_data: <span class="hl-builtin">dict</span>) -> SalesScriptOutput:
+    system_prompt = <span class="hl-string">"""You are a B2B sales assistant. Given lead info, output JSON with:
+    - sales_script (string): 2-3 sentence personalised cold email opening
+    - priority (float 1-10): fit score
+    - reasoning (string): one sentence explaining the score
+    Output ONLY the JSON object."""</span>
+
+    user_message = f<span class="hl-string">"""Lead: {name or 'Unknown'} | Company: {company_data.get('name')} | Industry: {company_data.get('industry')} | Employees: {company_data.get('employee_count')}"""</span>
+
+    response = client.chat.completions.create(
+        model=<span class="hl-string">"gpt-4o-mini"</span>,
+        response_format={<span class="hl-string">"type"</span>: <span class="hl-string">"json_object"</span>},
+        messages=[
+            {<span class="hl-string">"role"</span>: <span class="hl-string">"system"</span>, <span class="hl-string">"content"</span>: system_prompt},
+            {<span class="hl-string">"role"</span>: <span class="hl-string">"user"</span>,   <span class="hl-string">"content"</span>: user_message},
+        ],
+        max_tokens=<span class="hl-number">300</span>,
+    )
+    data = json.loads(response.choices[<span class="hl-number">0</span>].message.content)
+    <span class="hl-keyword">return</span> SalesScriptOutput(**data)</code></pre>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- STEP 10 -->
+      <div class="step" id="step10">
+        <div class="step-number">10</div>
+        <div class="step-content">
+          <h3>Testing the Pipeline</h3>
+          <p class="explanation">Testing a BackgroundTask pipeline requires a specific strategy. You don't want tests to make real API calls to the enrichment API or OpenAI — tests should be fast, deterministic, and free. The solution is to use <code>app.dependency_overrides</code> to swap real dependencies for mocks, and to use <code>unittest.mock.patch</code> to replace the service functions themselves. Your test sends a POST to /webhook, asserts that the response is 202, then directly calls the pipeline function (synchronously, without going through FastAPI's task queue) with mock dependencies to verify the database was written correctly.</p>
+          <div class="tabs" data-step="step10">
+            <div class="tab-bar">
+              <button class="tab-btn active" onclick="switchTab('step10',0)">tests/test_webhook.py</button>
+              <button class="tab-btn" onclick="switchTab('step10',1)">run tests</button>
+            </div>
+            <div class="tab-panel active" id="step10_panel0">
+              <div class="code-header"><span class="lang-label">python</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-keyword">import</span> pytest
+<span class="hl-keyword">from</span> fastapi.testclient <span class="hl-keyword">import</span> TestClient
+<span class="hl-keyword">from</span> sqlalchemy <span class="hl-keyword">import</span> create_engine
+<span class="hl-keyword">from</span> sqlalchemy.orm <span class="hl-keyword">import</span> sessionmaker
+<span class="hl-keyword">from</span> unittest.mock <span class="hl-keyword">import</span> patch, MagicMock
+
+<span class="hl-keyword">from</span> main <span class="hl-keyword">import</span> app
+<span class="hl-keyword">from</span> database <span class="hl-keyword">import</span> get_db
+<span class="hl-keyword">from</span> models <span class="hl-keyword">import</span> Base, Lead
+<span class="hl-keyword">from</span> services.llm <span class="hl-keyword">import</span> SalesScriptOutput
+
+<span class="hl-comment"># Use in-memory SQLite for tests — no postgres needed</span>
+TEST_DB_URL = <span class="hl-string">"sqlite:///:memory:"</span>
+engine = create_engine(TEST_DB_URL, connect_args={<span class="hl-string">"check_same_thread"</span>: <span class="hl-keyword">False</span>})
+TestingSession = sessionmaker(bind=engine)
+
+
+<span class="hl-decorator">@pytest.fixture</span>(autouse=<span class="hl-keyword">True</span>)
+<span class="hl-keyword">def</span> setup_db():
+    Base.metadata.create_all(bind=engine)
+    <span class="hl-keyword">yield</span>
+    Base.metadata.drop_all(bind=engine)
+
+
+<span class="hl-decorator">@pytest.fixture</span>()
+<span class="hl-keyword">def</span> client():
+    <span class="hl-keyword">def</span> override_get_db():
+        db = TestingSession()
+        <span class="hl-keyword">try</span>:
+            <span class="hl-keyword">yield</span> db
+        <span class="hl-keyword">finally</span>:
+            db.close()
+
+    app.dependency_overrides[get_db] = override_get_db
+    <span class="hl-keyword">yield</span> TestClient(app)
+    app.dependency_overrides.clear()
+
+
+<span class="hl-keyword">def</span> test_webhook_returns_202(client):
+    <span class="hl-comment"># Patch the API key check to always pass (no DB lookup needed in this test)</span>
+    <span class="hl-keyword">from</span> middleware.api_key <span class="hl-keyword">import</span> verify_api_key
+    app.dependency_overrides[verify_api_key] = <span class="hl-keyword">lambda</span>: <span class="hl-keyword">None</span>
+
+    response = client.post(<span class="hl-string">"/webhook"</span>, json={<span class="hl-string">"email"</span>: <span class="hl-string">"test@stripe.com"</span>, <span class="hl-string">"name"</span>: <span class="hl-string">"Alice"</span>})
+    assert response.status_code == <span class="hl-number">202</span>
+    assert response.json()[<span class="hl-string">"accepted"</span>] == <span class="hl-keyword">True</span>
+    assert <span class="hl-string">"lead_id"</span> <span class="hl-keyword">in</span> response.json()
+
+
+<span class="hl-keyword">def</span> test_pipeline_saves_enriched_lead():
+    <span class="hl-comment"># Test the pipeline function directly (synchronously) with mocked dependencies</span>
+    db = TestingSession()
+
+    <span class="hl-comment"># Create a pending lead in the test DB</span>
+    lead = Lead(email=<span class="hl-string">"sarah@stripe.com"</span>, name=<span class="hl-string">"Sarah"</span>, status=<span class="hl-string">"pending"</span>)
+    db.add(lead)
+    db.commit()
+    db.refresh(lead)
+    lead_id = lead.id
+    db.close()
+
+    <span class="hl-comment"># Patch both external service calls so no real API calls are made</span>
+    mock_company = {<span class="hl-string">"name"</span>: <span class="hl-string">"Stripe"</span>, <span class="hl-string">"industry"</span>: <span class="hl-string">"Fintech"</span>, <span class="hl-string">"employee_count"</span>: <span class="hl-number">8000</span>, <span class="hl-string">"description"</span>: <span class="hl-string">"Payments."</span>}
+    mock_script  = SalesScriptOutput(sales_script=<span class="hl-string">"Hi Sarah..."</span>, priority=<span class="hl-number">8.5</span>, reasoning=<span class="hl-string">"Good fit."</span>)
+
+    <span class="hl-keyword">with</span> patch(<span class="hl-string">"services.pipeline.fetch_company_data"</span>, return_value=mock_company), \
+         patch(<span class="hl-string">"services.pipeline.generate_sales_script"</span>, return_value=mock_script), \
+         patch(<span class="hl-string">"services.pipeline.SessionLocal"</span>, <span class="hl-keyword">return_value</span>=TestingSession()):
+
+        <span class="hl-keyword">from</span> services.pipeline <span class="hl-keyword">import</span> enrich_lead
+        enrich_lead(lead_id)
+
+    <span class="hl-comment"># Verify the lead was updated correctly in the DB</span>
+    verify_db = TestingSession()
+    updated = verify_db.query(Lead).filter(Lead.id == lead_id).first()
+    assert updated.status == <span class="hl-string">"enriched"</span>
+    assert updated.company == <span class="hl-string">"Stripe"</span>
+    assert updated.priority == <span class="hl-number">8.5</span>
+    assert updated.sales_script == <span class="hl-string">"Hi Sarah..."</span>
+    verify_db.close()</code></pre>
+            </div>
+            <div class="tab-panel" id="step10_panel1">
+              <div class="code-header"><span class="lang-label">text</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code>pytest tests/ -v --tb=short
+
+# Expected output:
+# PASSED tests/test_webhook.py::test_webhook_returns_202
+# PASSED tests/test_webhook.py::test_pipeline_saves_enriched_lead
+
+# Add coverage:
+pytest tests/ -v --cov=. --cov-report=term-missing</code></pre>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- end .steps -->
+  </main>
+</div>
+
+<script>
+function switchTab(step, idx) {
+  const container = document.querySelector(`[data-step="${step}"]`);
+  container.querySelectorAll('.tab-btn').forEach((b, i) => b.classList.toggle('active', i === idx));
+  container.querySelectorAll('.tab-panel').forEach((p, i) => p.classList.toggle('active', i === idx));
+}
+function copyCode(btn) {
+  const code = btn.closest('.tabs').querySelector('.tab-panel.active pre code');
+  navigator.clipboard.writeText(code.innerText).then(() => {
+    btn.textContent = 'Copied!';
+    setTimeout(() => btn.textContent = 'Copy', 1500);
+  });
+}
+function toggleSidebar() {
+  document.getElementById('guideSidebar').classList.toggle('open');
+  document.getElementById('sidebarOverlay').classList.toggle('open');
+}
+const toggle = document.getElementById('themeToggle');
+const saved = localStorage.getItem('theme');
+if (saved === 'light') { document.documentElement.classList.add('light'); toggle.checked = true; }
+toggle.addEventListener('change', () => {
+  const light = toggle.checked;
+  document.documentElement.classList.toggle('light', light);
+  localStorage.setItem('theme', light ? 'light' : 'dark');
+});
+</script>
+<script>
+function toggleSbDesktop() {
+  var c = document.body.classList.toggle('sb-collapsed');
+  localStorage.setItem('sb-collapsed', c ? '1' : '0');
+}
+(function() { if (localStorage.getItem('sb-collapsed') === '1') document.body.classList.add('sb-collapsed'); })();
+</script>
+</body>
+</html>

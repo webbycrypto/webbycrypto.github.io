@@ -150,13 +150,24 @@ code { font-family: "Fira Code", "Cascadia Code", "Consolas", monospace; font-si
   pre { overflow-x: auto; max-width: 100%; white-space: pre-wrap; word-break: break-word; }
   .tabs { max-width: 100%; }
 }
+
+/* ── Desktop sidebar collapse ─────────────────────────────── */
+.sidebar { transition: width .2s ease, min-width .2s ease, padding .2s ease; }
+.sb-pin { display: flex; justify-content: flex-end; margin-bottom: 8px; }
+.sb-pin button { background: none; border: 1px solid var(--border); color: var(--text-dim); cursor: pointer; border-radius: 4px; padding: 2px 7px; font-size: 11px; line-height: 1.6; }
+.sb-pin button:hover { color: var(--accent); border-color: var(--accent); }
+.sb-reopen { display: none; position: fixed; left: 0; top: 50%; transform: translateY(-50%); background: var(--accent); color: #fff; border: none; border-radius: 0 4px 4px 0; padding: 10px 5px; cursor: pointer; z-index: 300; font-size: 11px; font-weight: 600; writing-mode: vertical-rl; letter-spacing: .05em; }
+@media (min-width: 901px) { body.sb-collapsed .sidebar { width: 0; min-width: 0; padding: 0; overflow: hidden; border-right: none; } body.sb-collapsed .sb-reopen { display: block; } }
+@media (max-width: 900px) { .sb-pin { display: none; } .sb-reopen { display: none !important; } }
 </style>
 </head>
 <body>
 <button class="sidebar-toggle" id="sidebarToggle" onclick="toggleSidebar()">&#9776; Steps</button>
 <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+<button class="sb-reopen" onclick="toggleSbDesktop()">Steps</button>
 <div class="layout">
   <aside class="sidebar" id="guideSidebar">
+    <div class="sb-pin"><button onclick="toggleSbDesktop()">&#9664; Hide</button></div>
     <a href="index.html" class="back-link">← All Guides</a>
     <h2>Todo App - Flask</h2>
     <nav><ol><li><a href="#step1">Before You Start</a></li><li><a href="#step2">Project Structure</a></li><li><a href="#step3">App Setup &amp; Todo Model</a></li><li><a href="#step4">Routes - List, Create, Toggle, Delete</a></li><li><a href="#step5">Base Template</a></li><li><a href="#step6">Todo List Template</a></li></ol></nav>
@@ -526,6 +537,13 @@ document.addEventListener("DOMContentLoaded", function() {
     });
   });
 });
+</script>
+<script>
+function toggleSbDesktop() {
+  var c = document.body.classList.toggle('sb-collapsed');
+  localStorage.setItem('sb-collapsed', c ? '1' : '0');
+}
+(function() { if (localStorage.getItem('sb-collapsed') === '1') document.body.classList.add('sb-collapsed'); })();
 </script>
 </body>
 </html>

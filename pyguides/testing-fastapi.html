@@ -1,0 +1,697 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Testing FastAPI - pyoffline</title>
+<style>
+:root {
+  --bg:#121212;--surface:#1e1e1e;--surface2:#2a2a2a;--sidebar-bg:#1a1a1a;
+  --text:#e0e0e0;--text-muted:#aaa;--text-dim:#666;--border:#333;
+  --code-bg:#1e1e1e;--code-text:#d4d4d4;--shadow:rgba(0,0,0,.4);
+  --accent:#7cb342;
+  --hl-keyword:#569cd6;--hl-string:#ce9178;--hl-comment:#6a9955;--hl-number:#b5cea8;
+  --hl-decorator:#dcdcaa;--hl-builtin:#4ec9b0;--hl-tag:#4ec9b0;--hl-attr:#9cdcfe;--hl-template:#c586c0;
+}
+html.light{
+  --bg:#f5f7fa;--surface:#ffffff;--surface2:#eef0f3;--sidebar-bg:#ffffff;
+  --text:#1a1a1a;--text-muted:#555;--text-dim:#888;--border:#dde1e7;
+  --code-bg:#f8f8f8;--code-text:#24292e;--shadow:rgba(0,0,0,.1);
+  --hl-keyword:#0000ff;--hl-string:#a31515;--hl-comment:#008000;--hl-number:#098658;
+  --hl-decorator:#795e26;--hl-builtin:#267f99;--hl-tag:#800000;--hl-attr:#e50000;--hl-template:#af00db;
+}
+.hl-keyword{color:var(--hl-keyword)}.hl-string{color:var(--hl-string)}.hl-comment{color:#adb4a7;font-size:12px;font-style:italic}
+.hl-number{color:var(--hl-number)}.hl-decorator{color:var(--hl-decorator)}.hl-builtin{color:var(--hl-builtin)}
+.hl-tag{color:var(--hl-tag)}.hl-attr{color:var(--hl-attr)}.hl-template{color:var(--hl-template)}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;transition:background .2s,color .2s}
+a{color:var(--accent)}
+.layout{display:flex;min-height:100vh}
+.sidebar{width:260px;min-width:260px;background:var(--sidebar-bg);border-right:1px solid var(--border);padding:24px 16px;position:sticky;top:0;height:100vh;overflow-y:auto}
+.sidebar h2{font-size:1.1rem;margin:16px 0 8px;color:var(--text)}
+.sidebar nav ol{padding-left:18px}.sidebar nav li{margin:6px 0}
+.sidebar nav a{color:var(--text-muted);text-decoration:none;font-size:0.85rem}
+.sidebar nav a:hover{color:var(--accent)}
+.back-link{color:var(--text-dim);text-decoration:none;font-size:0.85rem;display:block;margin-bottom:8px}
+.install-box{margin-top:24px;background:var(--bg);border:1px solid var(--border);padding:12px;border-radius:6px;font-size:0.8rem}
+.install-box code{display:block;word-break:break-all;color:var(--hl-comment);font-family:monospace;margin-top:4px}
+main{flex:1;padding:40px;max-width:860px}
+.guide-header{padding:20px 20px 20px 24px;background:var(--surface);border-radius:8px;margin-bottom:32px;box-shadow:0 1px 3px var(--shadow)}
+.guide-header h1{font-size:1.8rem;margin-bottom:8px}.guide-header p{color:var(--text-muted)}
+.step{display:flex;gap:16px;margin-bottom:40px}
+.step-number{width:32px;min-width:32px;height:32px;background:var(--accent);border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:bold;font-size:0.9rem;margin-top:4px;color:#fff}
+.step-content{flex:1;min-width:0}
+.step-content h3{font-size:1.1rem;margin-bottom:8px;color:var(--text)}
+.explanation{color:var(--text-muted);font-size:0.9rem;line-height:1.6;margin-bottom:14px}
+.info-box{background:var(--surface);border-left:3px solid var(--accent);border-radius:0 6px 6px 0;padding:12px 16px;margin-bottom:14px;font-size:0.88rem;color:var(--text-muted);line-height:1.6}
+.info-box strong{color:var(--text)}
+.tabs{background:var(--surface);border-radius:6px;overflow:hidden;border:1px solid var(--border)}
+.tab-bar{display:flex;background:var(--surface2);overflow-x:auto;border-bottom:1px solid var(--border)}
+.tab-btn{padding:8px 16px;background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:0.8rem;white-space:nowrap;border-bottom:2px solid transparent;margin-bottom:-1px}
+.tab-btn.active{color:var(--text);border-bottom-color:var(--accent)}
+.tab-panel{display:none}.tab-panel.active{display:block}
+.code-header{display:flex;justify-content:space-between;align-items:center;padding:5px 12px;background:var(--surface2);border-bottom:1px solid var(--border)}
+.lang-label{font-size:0.72rem;color:var(--text-dim);text-transform:uppercase;letter-spacing:.04em}
+.copy-btn{background:none;border:1px solid var(--border);color:var(--text-muted);padding:2px 8px;cursor:pointer;border-radius:3px;font-size:0.72rem}
+.copy-btn:hover{color:var(--text);border-color:var(--text-muted)}
+pre{overflow-x:auto;padding:16px;background:var(--code-bg)}
+code{font-family:"Fira Code","Cascadia Code","Consolas",monospace;font-size:0.82rem;line-height:1.65;color:var(--code-text)}
+.theme-row{display:flex;align-items:center;gap:8px;margin-top:20px}
+.theme-label{font-size:0.78rem;color:var(--text-muted)}
+.toggle-switch{position:relative;display:inline-block;width:40px;height:22px}
+.toggle-switch input{opacity:0;width:0;height:0}
+.slider{position:absolute;cursor:pointer;inset:0;background:var(--surface2);border:1px solid var(--border);border-radius:22px;transition:background .2s}
+.slider:before{content:"";position:absolute;width:16px;height:16px;left:2px;top:2px;background:var(--text-muted);border-radius:50%;transition:transform .2s,background .2s}
+.toggle-switch input:checked+.slider{background:var(--accent);border-color:var(--accent)}
+.toggle-switch input:checked+.slider:before{transform:translateX(18px);background:#fff}
+.sidebar-toggle{display:none;position:fixed;top:12px;left:12px;z-index:300;background:var(--accent);color:#fff;border:none;padding:7px 14px;border-radius:6px;cursor:pointer;font-size:0.85rem;font-weight:600;box-shadow:0 2px 8px var(--shadow);align-items:center;gap:6px}
+.sidebar-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:190}
+.sidebar-overlay.open{display:block}
+@media(max-width:900px){
+  .sidebar-toggle{display:flex}.layout{display:block}
+  .sidebar{position:fixed;left:-280px;top:0;height:100vh;z-index:200;transition:left .25s ease;box-shadow:2px 0 16px var(--shadow);min-width:260px}
+  .sidebar.open{left:0}
+  main{padding:60px 20px 40px;max-width:100%}
+  pre{overflow-x:auto;max-width:100%;white-space:pre-wrap;word-break:break-word}
+  .tabs{max-width:100%}
+}
+
+/* ── Desktop sidebar collapse ─────────────────────────────── */
+.sidebar { transition: width .2s ease, min-width .2s ease, padding .2s ease; }
+.sb-pin { display: flex; justify-content: flex-end; margin-bottom: 8px; }
+.sb-pin button { background: none; border: 1px solid var(--border); color: var(--text-dim); cursor: pointer; border-radius: 4px; padding: 2px 7px; font-size: 11px; line-height: 1.6; }
+.sb-pin button:hover { color: var(--accent); border-color: var(--accent); }
+.sb-reopen { display: none; position: fixed; left: 0; top: 50%; transform: translateY(-50%); background: var(--accent); color: #fff; border: none; border-radius: 0 4px 4px 0; padding: 10px 5px; cursor: pointer; z-index: 300; font-size: 11px; font-weight: 600; writing-mode: vertical-rl; letter-spacing: .05em; }
+@media (min-width: 901px) { body.sb-collapsed .sidebar { width: 0; min-width: 0; padding: 0; overflow: hidden; border-right: none; } body.sb-collapsed .sb-reopen { display: block; } }
+@media (max-width: 900px) { .sb-pin { display: none; } .sb-reopen { display: none !important; } }
+</style>
+</head>
+<body>
+<button class="sidebar-toggle" id="sidebarToggle" onclick="toggleSidebar()">&#9776; Steps</button>
+<div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+<button class="sb-reopen" onclick="toggleSbDesktop()">Steps</button>
+<div class="layout">
+  <aside class="sidebar" id="guideSidebar">
+    <div class="sb-pin"><button onclick="toggleSbDesktop()">&#9664; Hide</button></div>
+    <a href="index.html" class="back-link">← All Guides</a>
+    <h2>Testing FastAPI</h2>
+    <nav><ol>
+      <li><a href="#step1">Why Tests Matter</a></li>
+      <li><a href="#step2">Setup: pytest + TestClient</a></li>
+      <li><a href="#step3">Testing GET Routes</a></li>
+      <li><a href="#step4">Testing POST + JSON Body</a></li>
+      <li><a href="#step5">Testing Auth Headers</a></li>
+      <li><a href="#step6">Fixtures + conftest.py</a></li>
+      <li><a href="#step7">Mocking Dependencies</a></li>
+      <li><a href="#step8">Testing with a Database</a></li>
+      <li><a href="#step9">Running + Coverage</a></li>
+    </ol></nav>
+    <div class="install-box">
+      <p><strong>Install</strong></p>
+      <code>pip install pytest httpx</code>
+      <p style="margin-top:12px"><strong>Run tests</strong></p>
+      <code>pytest</code>
+      <p style="margin-top:12px"><strong>With coverage</strong></p>
+      <code>pip install pytest-cov</code>
+      <code style="margin-top:4px">pytest --cov=app</code>
+    </div>
+    <div class="theme-row">
+      <span class="theme-label">Dark</span>
+      <label class="toggle-switch"><input type="checkbox" id="themeToggle"><span class="slider"></span></label>
+      <span class="theme-label">Light</span>
+    </div>
+  </aside>
+
+  <main>
+    <header class="guide-header" style="border-left: 5px solid #7cb342">
+      <h1>Testing FastAPI Apps</h1>
+      <p>Write tests that actually find bugs — from simple route tests to database tests with fixtures, dependency mocking, and coverage reports.</p>
+    </header>
+
+    <div class="steps">
+
+      <!-- STEP 1 -->
+      <div class="step" id="step1">
+        <div class="step-number">1</div>
+        <div class="step-content">
+          <h3>Why Tests Matter</h3>
+          <p class="explanation">A test is just code that calls your code and checks that the result is what you expected. The reason to write them is not bureaucratic — it is practical: without tests, every time you change a function you have to manually check that you did not break something else. With tests, you run one command and in a few seconds you know whether everything still works. This matters especially for APIs because the surface area is large — there are dozens of routes, each with different inputs, different error cases, and different database interactions. FastAPI makes testing unusually easy: the TestClient wraps your entire app and lets you make real HTTP requests against it in a normal Python function, no running server needed. You write a test the same way you would use curl, but the result is checked automatically and the pass/fail is recorded.</p>
+          <div class="info-box"><strong>What makes a good test:</strong> it tests one specific behaviour, it is fast (under a second), it does not depend on external services (email, real database, third-party APIs), and it tells you exactly what broke when it fails. A test that passes 99% of the time and fails randomly is worse than no test.</div>
+        </div>
+      </div>
+
+      <!-- STEP 2 -->
+      <div class="step" id="step2">
+        <div class="step-number">2</div>
+        <div class="step-content">
+          <h3>Setup: pytest + TestClient</h3>
+          <p class="explanation">pytest is the standard Python test runner. It discovers any file named test_*.py or *_test.py, finds functions named test_*, and runs them. If a function raises an AssertionError, the test fails. FastAPI's TestClient wraps your app and gives you a requests-like interface — client.get(), client.post(), etc. — that makes real HTTP calls against the app without starting a server. The httpx library is the dependency TestClient uses under the hood. You only need to install pytest and httpx — FastAPI's TestClient import already handles the rest. The test file lives alongside your application code, typically in a tests/ folder.</p>
+          <div class="tabs" data-step="step2">
+            <div class="tab-bar">
+              <button class="tab-btn active" onclick="switchTab('step2',0)">install + structure</button>
+              <button class="tab-btn" onclick="switchTab('step2',1)">first test</button>
+            </div>
+            <div class="tab-panel active" id="step2_panel0">
+              <div class="code-header"><span class="lang-label">bash</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-comment"># Install the test dependencies</span>
+pip install pytest httpx
+
+<span class="hl-comment"># Project structure</span>
+myapp/
+├── main.py           <span class="hl-comment"># your FastAPI app</span>
+├── tests/
+│   ├── __init__.py   <span class="hl-comment"># empty file — makes tests/ a Python package</span>
+│   ├── conftest.py   <span class="hl-comment"># shared fixtures (step 6)</span>
+│   ├── test_items.py <span class="hl-comment"># tests for item routes</span>
+│   └── test_auth.py  <span class="hl-comment"># tests for auth routes</span>
+
+<span class="hl-comment"># Run all tests</span>
+pytest
+
+<span class="hl-comment"># Run a specific file</span>
+pytest tests/test_items.py
+
+<span class="hl-comment"># Run a specific test function</span>
+pytest tests/test_items.py::test_create_item
+
+<span class="hl-comment"># Show print() output during tests</span>
+pytest -s
+
+<span class="hl-comment"># Verbose — shows each test name</span>
+pytest -v</code></pre>
+            </div>
+            <div class="tab-panel" id="step2_panel1">
+              <div class="code-header"><span class="lang-label">python</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-comment"># tests/test_items.py</span>
+<span class="hl-keyword">from</span> fastapi.testclient <span class="hl-keyword">import</span> TestClient
+<span class="hl-keyword">from</span> main <span class="hl-keyword">import</span> app  <span class="hl-comment"># import your FastAPI app object</span>
+
+<span class="hl-comment"># TestClient wraps the app — no server needed</span>
+client = TestClient(app)
+
+
+<span class="hl-comment"># Every function starting with test_ is automatically run by pytest</span>
+<span class="hl-keyword">def</span> test_health():
+    <span class="hl-comment"># Make a GET request — exactly like requests.get() but against the app</span>
+    response = client.get(<span class="hl-string">"/health"</span>)
+
+    <span class="hl-comment"># assert raises AssertionError if the condition is False — pytest catches this</span>
+    <span class="hl-keyword">assert</span> response.status_code == <span class="hl-number">200</span>
+    <span class="hl-keyword">assert</span> response.json() == {<span class="hl-string">"status"</span>: <span class="hl-string">"ok"</span>}</code></pre>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- STEP 3 -->
+      <div class="step" id="step3">
+        <div class="step-number">3</div>
+        <div class="step-content">
+          <h3>Testing GET Routes</h3>
+          <p class="explanation">GET route tests are the simplest — you call client.get() with a URL, check the status code, and check the response body. The response object has status_code (an integer), json() (parsed JSON as a Python dict or list), text (raw response body as a string), and headers. A good test covers the happy path (valid request, expected response) and the error paths (invalid ID returns 404, missing param returns 422). Testing error cases is just as important as testing success — they are often where bugs hide. The assert keyword is the only thing pytest needs — if the assert is True, the test passes; if False, pytest shows you exactly what the actual and expected values were.</p>
+          <div class="tabs" data-step="step3">
+            <div class="tab-bar">
+              <button class="tab-btn active" onclick="switchTab('step3',0)">happy path</button>
+              <button class="tab-btn" onclick="switchTab('step3',1)">error cases</button>
+            </div>
+            <div class="tab-panel active" id="step3_panel0">
+              <div class="code-header"><span class="lang-label">python</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-keyword">def</span> test_get_all_items():
+    response = client.get(<span class="hl-string">"/items"</span>)
+    <span class="hl-keyword">assert</span> response.status_code == <span class="hl-number">200</span>
+    <span class="hl-comment"># Empty list is valid — no items yet</span>
+    <span class="hl-keyword">assert</span> <span class="hl-builtin">isinstance</span>(response.json(), <span class="hl-builtin">list</span>)
+
+
+<span class="hl-keyword">def</span> test_get_item_by_id():
+    <span class="hl-comment"># First create an item so there is something to GET</span>
+    create_resp = client.post(<span class="hl-string">"/items?name=Notebook"</span>)
+    item_id = create_resp.json()[<span class="hl-string">"id"</span>]
+
+    <span class="hl-comment"># Now test the GET</span>
+    response = client.get(f<span class="hl-string">"/items/{item_id}"</span>)
+    <span class="hl-keyword">assert</span> response.status_code == <span class="hl-number">200</span>
+
+    data = response.json()
+    <span class="hl-keyword">assert</span> data[<span class="hl-string">"id"</span>]   == item_id
+    <span class="hl-keyword">assert</span> data[<span class="hl-string">"name"</span>] == <span class="hl-string">"Notebook"</span>  <span class="hl-comment"># check the value we sent</span>
+
+
+<span class="hl-keyword">def</span> test_get_with_query_param():
+    <span class="hl-comment"># Pass query params as a dict — TestClient encodes them correctly</span>
+    response = client.get(<span class="hl-string">"/items"</span>, params={<span class="hl-string">"search"</span>: <span class="hl-string">"note"</span>, <span class="hl-string">"limit"</span>: <span class="hl-number">10</span>})
+    <span class="hl-keyword">assert</span> response.status_code == <span class="hl-number">200</span></code></pre>
+            </div>
+            <div class="tab-panel" id="step3_panel1">
+              <div class="code-header"><span class="lang-label">python</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-keyword">def</span> test_get_nonexistent_item():
+    <span class="hl-comment"># ID 99999 does not exist — should return 404</span>
+    response = client.get(<span class="hl-string">"/items/99999"</span>)
+    <span class="hl-keyword">assert</span> response.status_code == <span class="hl-number">404</span>
+    <span class="hl-keyword">assert</span> <span class="hl-string">"detail"</span> <span class="hl-keyword">in</span> response.json()  <span class="hl-comment"># FastAPI puts error message in "detail"</span>
+
+
+<span class="hl-keyword">def</span> test_get_invalid_id_type():
+    <span class="hl-comment"># "banana" is not an int — FastAPI should return 422 Unprocessable Entity</span>
+    response = client.get(<span class="hl-string">"/items/banana"</span>)
+    <span class="hl-keyword">assert</span> response.status_code == <span class="hl-number">422</span>
+
+
+<span class="hl-keyword">def</span> test_response_keys():
+    <span class="hl-comment"># Check the exact shape of the response — useful when the contract must be stable</span>
+    client.post(<span class="hl-string">"/items?name=Pen"</span>)
+    response = client.get(<span class="hl-string">"/items"</span>)
+    items = response.json()
+    <span class="hl-keyword">if</span> items:
+        first = items[<span class="hl-number">0</span>]
+        <span class="hl-keyword">assert</span> <span class="hl-string">"id"</span>   <span class="hl-keyword">in</span> first
+        <span class="hl-keyword">assert</span> <span class="hl-string">"name"</span> <span class="hl-keyword">in</span> first</code></pre>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- STEP 4 -->
+      <div class="step" id="step4">
+        <div class="step-number">4</div>
+        <div class="step-content">
+          <h3>Testing POST Routes with a JSON Body</h3>
+          <p class="explanation">POST routes that accept a JSON body use client.post() with a json= argument — TestClient serialises the dict to JSON and sets the correct Content-Type header automatically. You should never serialise manually with json.dumps() when the json= shortcut is available. For routes that use Form() parameters instead of JSON, use data= instead of json= — this sends the request as application/x-www-form-urlencoded, which is what HTML forms produce. For file uploads, use files= with a dict mapping the field name to a tuple of (filename, file-object, content-type). Always test both the successful creation and the validation failures — what happens when you send an empty body, a wrong type, or a missing required field.</p>
+          <div class="tabs" data-step="step4">
+            <div class="tab-bar">
+              <button class="tab-btn active" onclick="switchTab('step4',0)">JSON body</button>
+              <button class="tab-btn" onclick="switchTab('step4',1)">form data</button>
+              <button class="tab-btn" onclick="switchTab('step4',2)">file upload</button>
+            </div>
+            <div class="tab-panel active" id="step4_panel0">
+              <div class="code-header"><span class="lang-label">python</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-keyword">def</span> test_create_item():
+    <span class="hl-comment"># json= serialises the dict and sets Content-Type: application/json</span>
+    response = client.post(<span class="hl-string">"/items"</span>, json={<span class="hl-string">"name"</span>: <span class="hl-string">"Notebook"</span>, <span class="hl-string">"price"</span>: <span class="hl-number">9.99</span>})
+
+    <span class="hl-keyword">assert</span> response.status_code == <span class="hl-number">201</span>  <span class="hl-comment"># or 200, depending on your route</span>
+    data = response.json()
+    <span class="hl-keyword">assert</span> data[<span class="hl-string">"name"</span>]  == <span class="hl-string">"Notebook"</span>
+    <span class="hl-keyword">assert</span> data[<span class="hl-string">"price"</span>] == <span class="hl-number">9.99</span>
+    <span class="hl-keyword">assert</span> <span class="hl-string">"id"</span> <span class="hl-keyword">in</span> data     <span class="hl-comment"># server assigned an ID</span>
+
+
+<span class="hl-keyword">def</span> test_create_item_missing_field():
+    <span class="hl-comment"># "name" is required — omitting it should return 422</span>
+    response = client.post(<span class="hl-string">"/items"</span>, json={<span class="hl-string">"price"</span>: <span class="hl-number">9.99</span>})
+    <span class="hl-keyword">assert</span> response.status_code == <span class="hl-number">422</span>
+
+
+<span class="hl-keyword">def</span> test_create_item_wrong_type():
+    <span class="hl-comment"># price should be a number — sending a string should return 422</span>
+    response = client.post(<span class="hl-string">"/items"</span>, json={<span class="hl-string">"name"</span>: <span class="hl-string">"Pen"</span>, <span class="hl-string">"price"</span>: <span class="hl-string">"expensive"</span>})
+    <span class="hl-keyword">assert</span> response.status_code == <span class="hl-number">422</span></code></pre>
+            </div>
+            <div class="tab-panel" id="step4_panel1">
+              <div class="code-header"><span class="lang-label">python</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-keyword">def</span> test_signup_form():
+    <span class="hl-comment"># data= sends as application/x-www-form-urlencoded (Form() params)</span>
+    response = client.post(<span class="hl-string">"/signup"</span>, data={
+        <span class="hl-string">"email"</span>:    <span class="hl-string">"alice@example.com"</span>,
+        <span class="hl-string">"password"</span>: <span class="hl-string">"securepass123"</span>
+    })
+    <span class="hl-keyword">assert</span> response.status_code == <span class="hl-number">200</span></code></pre>
+            </div>
+            <div class="tab-panel" id="step4_panel2">
+              <div class="code-header"><span class="lang-label">python</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-keyword">import</span> io
+
+<span class="hl-keyword">def</span> test_file_upload():
+    <span class="hl-comment"># Create a fake in-memory file — io.BytesIO() wraps bytes as a file object</span>
+    fake_image = io.BytesIO(b<span class="hl-string">"fake image content"</span>)
+
+    <span class="hl-comment"># files= sends as multipart/form-data</span>
+    <span class="hl-comment"># ("upload.jpg", fake_image, "image/jpeg") = (filename, file-obj, content-type)</span>
+    response = client.post(
+        <span class="hl-string">"/upload"</span>,
+        files={<span class="hl-string">"file"</span>: (<span class="hl-string">"upload.jpg"</span>, fake_image, <span class="hl-string">"image/jpeg"</span>)}
+    )
+    <span class="hl-keyword">assert</span> response.status_code == <span class="hl-number">200</span>
+    <span class="hl-keyword">assert</span> <span class="hl-string">"saved_as"</span> <span class="hl-keyword">in</span> response.json()</code></pre>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- STEP 5 -->
+      <div class="step" id="step5">
+        <div class="step-number">5</div>
+        <div class="step-content">
+          <h3>Testing Protected Routes with Auth Headers</h3>
+          <p class="explanation">Routes that require a JWT or API key check the Authorization header. In tests, you need to either log in first and use the real token, or inject a fake token for a test user. Logging in first is more realistic but requires the auth routes to work correctly. You can also use dependency_overrides (covered in step 7) to skip auth entirely for unit tests. The simplest approach for integration tests is to have a helper that creates a test user and returns a valid token, then pass that token as a header. The headers= argument to client.get() and client.post() accepts a plain dict — TestClient sets them on every request in that call.</p>
+          <div class="tabs" data-step="step5">
+            <div class="tab-bar">
+              <button class="tab-btn active" onclick="switchTab('step5',0)">login + use token</button>
+              <button class="tab-btn" onclick="switchTab('step5',1)">helper function</button>
+            </div>
+            <div class="tab-panel active" id="step5_panel0">
+              <div class="code-header"><span class="lang-label">python</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-keyword">def</span> test_protected_route():
+    <span class="hl-comment"># Step 1: create a user and get a token</span>
+    client.post(<span class="hl-string">"/auth/signup"</span>, json={
+        <span class="hl-string">"email"</span>: <span class="hl-string">"test@example.com"</span>,
+        <span class="hl-string">"password"</span>: <span class="hl-string">"password123"</span>
+    })
+    login_resp = client.post(<span class="hl-string">"/auth/login"</span>, json={
+        <span class="hl-string">"email"</span>: <span class="hl-string">"test@example.com"</span>,
+        <span class="hl-string">"password"</span>: <span class="hl-string">"password123"</span>
+    })
+    token = login_resp.json()[<span class="hl-string">"access_token"</span>]
+
+    <span class="hl-comment"># Step 2: use the token on the protected route</span>
+    response = client.get(
+        <span class="hl-string">"/profile"</span>,
+        headers={<span class="hl-string">"Authorization"</span>: f<span class="hl-string">"Bearer {token}"</span>}
+    )
+    <span class="hl-keyword">assert</span> response.status_code == <span class="hl-number">200</span>
+
+
+<span class="hl-keyword">def</span> test_protected_route_no_token():
+    <span class="hl-comment"># No auth header — should return 401 Unauthorized</span>
+    response = client.get(<span class="hl-string">"/profile"</span>)
+    <span class="hl-keyword">assert</span> response.status_code == <span class="hl-number">401</span>
+
+
+<span class="hl-keyword">def</span> test_protected_route_bad_token():
+    <span class="hl-comment"># Invalid token — should return 401</span>
+    response = client.get(<span class="hl-string">"/profile"</span>, headers={<span class="hl-string">"Authorization"</span>: <span class="hl-string">"Bearer notavalidtoken"</span>})
+    <span class="hl-keyword">assert</span> response.status_code == <span class="hl-number">401</span></code></pre>
+            </div>
+            <div class="tab-panel" id="step5_panel1">
+              <div class="code-header"><span class="lang-label">python</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-comment"># A helper that creates a user and returns headers with a valid token</span>
+<span class="hl-comment"># Call this at the top of tests that need an authenticated user</span>
+<span class="hl-keyword">def</span> get_auth_headers(email=<span class="hl-string">"test@example.com"</span>, password=<span class="hl-string">"password123"</span>):
+    <span class="hl-comment"># Signup (ignore error if user already exists)</span>
+    client.post(<span class="hl-string">"/auth/signup"</span>, json={<span class="hl-string">"email"</span>: email, <span class="hl-string">"password"</span>: password})
+
+    <span class="hl-comment"># Login and extract token</span>
+    resp = client.post(<span class="hl-string">"/auth/login"</span>, json={<span class="hl-string">"email"</span>: email, <span class="hl-string">"password"</span>: password})
+    token = resp.json()[<span class="hl-string">"access_token"</span>]
+
+    <span class="hl-comment"># Return headers dict — pass directly to any client call</span>
+    <span class="hl-keyword">return</span> {<span class="hl-string">"Authorization"</span>: f<span class="hl-string">"Bearer {token}"</span>}
+
+
+<span class="hl-keyword">def</span> test_create_item_authenticated():
+    headers = get_auth_headers()
+    response = client.post(<span class="hl-string">"/items"</span>, json={<span class="hl-string">"name"</span>: <span class="hl-string">"Pen"</span>}, headers=headers)
+    <span class="hl-keyword">assert</span> response.status_code == <span class="hl-number">201</span></code></pre>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- STEP 6 -->
+      <div class="step" id="step6">
+        <div class="step-number">6</div>
+        <div class="step-content">
+          <h3>Fixtures and conftest.py</h3>
+          <p class="explanation">A fixture is a function that sets up something a test needs and tears it down afterwards. The @pytest.fixture decorator marks a function as a fixture. Any test function that lists the fixture's name as a parameter automatically gets the return value. conftest.py is a special file pytest looks for automatically in your tests/ folder — fixtures defined there are available to all test files without any imports. This is where you put the client fixture (so every test file shares one TestClient), the test database fixture, and any other setup that multiple tests need. The yield keyword in a fixture is the dividing line between setup (before yield) and teardown (after yield) — teardown always runs even if the test fails.</p>
+          <div class="tabs" data-step="step6">
+            <div class="tab-bar">
+              <button class="tab-btn active" onclick="switchTab('step6',0)">conftest.py</button>
+              <button class="tab-btn" onclick="switchTab('step6',1)">using fixtures</button>
+            </div>
+            <div class="tab-panel active" id="step6_panel0">
+              <div class="code-header"><span class="lang-label">python</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-comment"># tests/conftest.py — fixtures here are available to all test files</span>
+<span class="hl-keyword">import</span> pytest
+<span class="hl-keyword">from</span> fastapi.testclient <span class="hl-keyword">import</span> TestClient
+<span class="hl-keyword">from</span> main <span class="hl-keyword">import</span> app
+
+
+<span class="hl-comment"># scope="module" → one client per test file (not recreated for every test)</span>
+<span class="hl-comment"># scope="function" → fresh client for every single test (default)</span>
+<span class="hl-decorator">@pytest.fixture</span>(scope=<span class="hl-string">"module"</span>)
+<span class="hl-keyword">def</span> client():
+    <span class="hl-comment"># Everything before yield is setup</span>
+    <span class="hl-keyword">with</span> TestClient(app) <span class="hl-keyword">as</span> c:
+        <span class="hl-keyword">yield</span> c  <span class="hl-comment"># the test receives this value as the "client" parameter</span>
+    <span class="hl-comment"># Everything after yield is teardown — runs after the test finishes</span>
+
+
+<span class="hl-decorator">@pytest.fixture</span>
+<span class="hl-keyword">def</span> sample_item(client):
+    <span class="hl-comment"># Create an item and return it — any test that needs an existing item uses this</span>
+    resp = client.post(<span class="hl-string">"/items"</span>, json={<span class="hl-string">"name"</span>: <span class="hl-string">"Test Item"</span>})
+    item = resp.json()
+    <span class="hl-keyword">yield</span> item
+    <span class="hl-comment"># Teardown: delete the item after the test</span>
+    client.delete(f<span class="hl-string">"/items/{item['id']}"</span>)</code></pre>
+            </div>
+            <div class="tab-panel" id="step6_panel1">
+              <div class="code-header"><span class="lang-label">python</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-comment"># tests/test_items.py — no import needed for conftest.py fixtures</span>
+
+<span class="hl-comment"># List the fixture name as a parameter — pytest injects the value</span>
+<span class="hl-keyword">def</span> test_get_item(client, sample_item):
+    <span class="hl-comment"># client   → TestClient from conftest.py</span>
+    <span class="hl-comment"># sample_item → the created item dict from conftest.py</span>
+    item_id = sample_item[<span class="hl-string">"id"</span>]
+
+    response = client.get(f<span class="hl-string">"/items/{item_id}"</span>)
+    <span class="hl-keyword">assert</span> response.status_code == <span class="hl-number">200</span>
+    <span class="hl-keyword">assert</span> response.json()[<span class="hl-string">"name"</span>] == <span class="hl-string">"Test Item"</span>
+
+
+<span class="hl-keyword">def</span> test_update_item(client, sample_item):
+    item_id = sample_item[<span class="hl-string">"id"</span>]
+    response = client.put(f<span class="hl-string">"/items/{item_id}"</span>, json={<span class="hl-string">"name"</span>: <span class="hl-string">"Updated"</span>})
+    <span class="hl-keyword">assert</span> response.json()[<span class="hl-string">"name"</span>] == <span class="hl-string">"Updated"</span></code></pre>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- STEP 7 -->
+      <div class="step" id="step7">
+        <div class="step-number">7</div>
+        <div class="step-content">
+          <h3>Mocking Dependencies</h3>
+          <p class="explanation">FastAPI's dependency injection system — the Depends() mechanism — can be overridden in tests. app.dependency_overrides is a dictionary that maps a dependency function to a replacement function. When the app runs a test, it calls your replacement instead of the real dependency. This is how you skip authentication in tests (replace get_current_user with a function that returns a fake user), avoid hitting a real database (replace get_db with an in-memory session), or avoid calling external APIs (replace get_stripe_client with a mock). This makes tests fast and self-contained — they do not need real credentials, live services, or internet access. Always clean up overrides after each test so they do not affect other tests.</p>
+          <div class="tabs" data-step="step7">
+            <div class="tab-bar">
+              <button class="tab-btn active" onclick="switchTab('step7',0)">skip auth</button>
+              <button class="tab-btn" onclick="switchTab('step7',1)">mock external API</button>
+            </div>
+            <div class="tab-panel active" id="step7_panel0">
+              <div class="code-header"><span class="lang-label">python</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-keyword">import</span> pytest
+<span class="hl-keyword">from</span> main <span class="hl-keyword">import</span> app
+<span class="hl-keyword">from</span> auth <span class="hl-keyword">import</span> get_current_user  <span class="hl-comment"># the real auth dependency</span>
+
+
+<span class="hl-comment"># A fake user that bypasses all auth logic</span>
+<span class="hl-keyword">def</span> fake_user():
+    <span class="hl-keyword">return</span> {<span class="hl-string">"id"</span>: <span class="hl-number">1</span>, <span class="hl-string">"email"</span>: <span class="hl-string">"test@example.com"</span>, <span class="hl-string">"role"</span>: <span class="hl-string">"user"</span>}
+
+
+<span class="hl-decorator">@pytest.fixture</span>
+<span class="hl-keyword">def</span> authed_client():
+    <span class="hl-comment"># Override get_current_user with fake_user for every route in this test</span>
+    app.dependency_overrides[get_current_user] = fake_user
+
+    <span class="hl-keyword">with</span> TestClient(app) <span class="hl-keyword">as</span> c:
+        <span class="hl-keyword">yield</span> c
+
+    <span class="hl-comment"># IMPORTANT: clear overrides after — or they bleed into other tests</span>
+    app.dependency_overrides.clear()
+
+
+<span class="hl-keyword">def</span> test_protected_route(authed_client):
+    <span class="hl-comment"># This route normally requires auth — but the override makes it always pass</span>
+    response = authed_client.get(<span class="hl-string">"/profile"</span>)
+    <span class="hl-keyword">assert</span> response.status_code == <span class="hl-number">200</span></code></pre>
+            </div>
+            <div class="tab-panel" id="step7_panel1">
+              <div class="code-header"><span class="lang-label">python</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-keyword">from</span> services <span class="hl-keyword">import</span> get_email_service  <span class="hl-comment"># the real email dependency</span>
+
+
+<span class="hl-keyword">class</span> FakeEmailService:
+    <span class="hl-string">"""Captures sent emails without actually sending anything."""</span>
+    <span class="hl-keyword">def</span> __init__(self):
+        self.sent = []  <span class="hl-comment"># list of dicts we can inspect in tests</span>
+
+    <span class="hl-keyword">def</span> send(self, to: <span class="hl-builtin">str</span>, subject: <span class="hl-builtin">str</span>):
+        self.sent.append({<span class="hl-string">"to"</span>: to, <span class="hl-string">"subject"</span>: subject})
+        <span class="hl-comment"># Does nothing — no real email sent</span>
+
+fake_email = FakeEmailService()
+
+
+<span class="hl-decorator">@pytest.fixture</span>
+<span class="hl-keyword">def</span> client_with_fake_email():
+    app.dependency_overrides[get_email_service] = <span class="hl-keyword">lambda</span>: fake_email
+    <span class="hl-keyword">with</span> TestClient(app) <span class="hl-keyword">as</span> c:
+        <span class="hl-keyword">yield</span> c, fake_email   <span class="hl-comment"># yield both so the test can inspect sent emails</span>
+    app.dependency_overrides.clear()
+    fake_email.sent.clear() <span class="hl-comment"># reset for next test</span>
+
+
+<span class="hl-keyword">def</span> test_signup_sends_email(client_with_fake_email):
+    client, email_svc = client_with_fake_email
+    client.post(<span class="hl-string">"/signup"</span>, json={<span class="hl-string">"email"</span>: <span class="hl-string">"alice@example.com"</span>})
+
+    <span class="hl-comment"># Assert that exactly one email was sent to the right address</span>
+    <span class="hl-keyword">assert</span> <span class="hl-builtin">len</span>(email_svc.sent) == <span class="hl-number">1</span>
+    <span class="hl-keyword">assert</span> email_svc.sent[<span class="hl-number">0</span>][<span class="hl-string">"to"</span>] == <span class="hl-string">"alice@example.com"</span></code></pre>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- STEP 8 -->
+      <div class="step" id="step8">
+        <div class="step-number">8</div>
+        <div class="step-content">
+          <h3>Testing with a Real (SQLite) Database</h3>
+          <p class="explanation">If your routes read and write a database, your tests need a database too. The best approach is a separate SQLite test database that is created fresh for each test run and deleted afterwards. You override the get_db dependency to return a session connected to the test database instead of the production one. SQLite is perfect for this because it can store the database in a temporary file (or even purely in memory with :memory:) with no server setup. The key rule is to create a fresh database for every test — not every test run, but every test function — so tests do not affect each other. If test_create_item runs before test_list_items, you do not want the item created by the first test to appear in the second test's list.</p>
+          <div class="tabs" data-step="step8">
+            <div class="tab-bar">
+              <button class="tab-btn active" onclick="switchTab('step8',0)">conftest.py setup</button>
+              <button class="tab-btn" onclick="switchTab('step8',1)">database test</button>
+            </div>
+            <div class="tab-panel active" id="step8_panel0">
+              <div class="code-header"><span class="lang-label">python</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-comment"># tests/conftest.py</span>
+<span class="hl-keyword">import</span> pytest
+<span class="hl-keyword">from</span> sqlalchemy <span class="hl-keyword">import</span> create_engine
+<span class="hl-keyword">from</span> sqlalchemy.orm <span class="hl-keyword">import</span> sessionmaker
+<span class="hl-keyword">from</span> fastapi.testclient <span class="hl-keyword">import</span> TestClient
+<span class="hl-keyword">from</span> main <span class="hl-keyword">import</span> app
+<span class="hl-keyword">from</span> database <span class="hl-keyword">import</span> Base, get_db  <span class="hl-comment"># your ORM base and session dependency</span>
+
+<span class="hl-comment"># In-memory SQLite — a fresh database with every test session</span>
+TEST_DATABASE_URL = <span class="hl-string">"sqlite:///./test.db"</span>
+
+engine = create_engine(TEST_DATABASE_URL, connect_args={<span class="hl-string">"check_same_thread"</span>: <span class="hl-keyword">False</span>})
+TestingSession = sessionmaker(autocommit=<span class="hl-keyword">False</span>, autoflush=<span class="hl-keyword">False</span>, bind=engine)
+
+
+<span class="hl-decorator">@pytest.fixture</span>(scope=<span class="hl-string">"function"</span>)  <span class="hl-comment"># fresh DB state for every test</span>
+<span class="hl-keyword">def</span> db_client():
+    <span class="hl-comment"># Create all tables at the start of each test</span>
+    Base.metadata.create_all(bind=engine)
+
+    <span class="hl-keyword">def</span> override_get_db():
+        db = TestingSession()
+        <span class="hl-keyword">try</span>:
+            <span class="hl-keyword">yield</span> db
+        <span class="hl-keyword">finally</span>:
+            db.close()
+
+    <span class="hl-comment"># Replace the real DB dependency with the test one</span>
+    app.dependency_overrides[get_db] = override_get_db
+
+    <span class="hl-keyword">with</span> TestClient(app) <span class="hl-keyword">as</span> client:
+        <span class="hl-keyword">yield</span> client
+
+    <span class="hl-comment"># Teardown: drop all tables so the next test starts clean</span>
+    Base.metadata.drop_all(bind=engine)
+    app.dependency_overrides.clear()</code></pre>
+            </div>
+            <div class="tab-panel" id="step8_panel1">
+              <div class="code-header"><span class="lang-label">python</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-comment"># tests/test_db_routes.py</span>
+
+<span class="hl-keyword">def</span> test_create_and_retrieve(db_client):
+    <span class="hl-comment"># Each test gets a clean database — no data from other tests</span>
+    response = db_client.post(<span class="hl-string">"/items"</span>, json={<span class="hl-string">"name"</span>: <span class="hl-string">"Notebook"</span>})
+    <span class="hl-keyword">assert</span> response.status_code == <span class="hl-number">201</span>
+    item_id = response.json()[<span class="hl-string">"id"</span>]
+
+    <span class="hl-comment"># Retrieve it — should be in the database</span>
+    get_resp = db_client.get(f<span class="hl-string">"/items/{item_id}"</span>)
+    <span class="hl-keyword">assert</span> get_resp.status_code == <span class="hl-number">200</span>
+    <span class="hl-keyword">assert</span> get_resp.json()[<span class="hl-string">"name"</span>] == <span class="hl-string">"Notebook"</span>
+
+
+<span class="hl-keyword">def</span> test_list_is_empty_at_start(db_client):
+    <span class="hl-comment"># Because scope="function", the database is clean for this test too</span>
+    <span class="hl-comment"># Even if test_create_and_retrieve ran before, its data is gone</span>
+    response = db_client.get(<span class="hl-string">"/items"</span>)
+    <span class="hl-keyword">assert</span> response.json() == []</code></pre>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- STEP 9 -->
+      <div class="step" id="step9">
+        <div class="step-number">9</div>
+        <div class="step-content">
+          <h3>Running Tests and Checking Coverage</h3>
+          <p class="explanation">Coverage tells you which lines of your code are actually executed when the tests run. A line that is never executed by any test is a line that could contain a bug you would never detect. pytest-cov is the plugin that measures this. You run pytest with --cov=app (replace app with your package name) and it shows you a table of files with the percentage of lines covered. The missing lines column shows you exactly which line numbers were never reached. 100% coverage does not mean your app has no bugs — it just means every line ran. You still need meaningful assertions. But below 60% coverage usually means large chunks of your logic are completely untested, which is a real risk.</p>
+          <div class="tabs" data-step="step9">
+            <div class="tab-bar">
+              <button class="tab-btn active" onclick="switchTab('step9',0)">coverage commands</button>
+              <button class="tab-btn" onclick="switchTab('step9',1)">pytest.ini config</button>
+            </div>
+            <div class="tab-panel active" id="step9_panel0">
+              <div class="code-header"><span class="lang-label">bash</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-comment"># Install coverage plugin</span>
+pip install pytest-cov
+
+<span class="hl-comment"># Run tests with coverage report in the terminal</span>
+pytest --cov=app
+
+<span class="hl-comment"># Show which line numbers were missed</span>
+pytest --cov=app --cov-report=term-missing
+
+<span class="hl-comment"># Generate an HTML report — open htmlcov/index.html in a browser</span>
+<span class="hl-comment"># Each file shows green (covered) and red (missed) lines</span>
+pytest --cov=app --cov-report=html
+
+<span class="hl-comment"># Fail the test run if coverage drops below 80%</span>
+pytest --cov=app --cov-fail-under=80
+
+<span class="hl-comment"># Run only tests matching a keyword</span>
+pytest -k "item"  <span class="hl-comment"># runs test_create_item, test_get_item, etc.</span>
+
+<span class="hl-comment"># Run tests in parallel (pip install pytest-xdist)</span>
+pytest -n auto   <span class="hl-comment"># uses all CPU cores</span></code></pre>
+            </div>
+            <div class="tab-panel" id="step9_panel1">
+              <div class="code-header"><span class="lang-label">ini</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-comment"># pytest.ini — put this in your project root</span>
+<span class="hl-comment"># Saves you from typing the same flags every time</span>
+[pytest]
+testpaths = tests          <span class="hl-comment"># where pytest looks for test files</span>
+addopts =
+    --cov=app              <span class="hl-comment"># measure coverage for the app/ package</span>
+    --cov-report=term-missing  <span class="hl-comment"># show missed line numbers in terminal</span>
+    -v                     <span class="hl-comment"># verbose output — show each test name</span>
+
+<span class="hl-comment"># Now just run: pytest</span>
+<span class="hl-comment"># and all the flags are applied automatically</span></code></pre>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </main>
+</div>
+<script>
+(function(){var s=localStorage.getItem("pyoffline-theme");if(s==="light")document.documentElement.classList.add("light");document.addEventListener("DOMContentLoaded",function(){var t=document.getElementById("themeToggle");if(!t)return;t.checked=(localStorage.getItem("pyoffline-theme")==="light");t.addEventListener("change",function(){if(this.checked){document.documentElement.classList.add("light");localStorage.setItem("pyoffline-theme","light");}else{document.documentElement.classList.remove("light");localStorage.setItem("pyoffline-theme","dark");}});});})();
+function switchTab(stepId,idx){var step=document.getElementById(stepId);var btns=step.querySelectorAll(".tab-btn");var panels=step.querySelectorAll(".tab-panel");btns.forEach(function(b){b.classList.remove("active");});panels.forEach(function(p){p.classList.remove("active");});btns[idx].classList.add("active");panels[idx].classList.add("active");}
+function copyCode(btn){var code=btn.closest(".tab-panel").querySelector("code").innerText;navigator.clipboard.writeText(code).then(function(){var orig=btn.textContent;btn.textContent="Copied!";setTimeout(function(){btn.textContent=orig;},1500);});}
+function toggleSidebar(){var sidebar=document.getElementById("guideSidebar");var overlay=document.getElementById("sidebarOverlay");if(!sidebar)return;sidebar.classList.toggle("open");overlay.classList.toggle("open");}
+document.addEventListener("DOMContentLoaded",function(){var sidebar=document.getElementById("guideSidebar");if(!sidebar)return;sidebar.querySelectorAll("nav a").forEach(function(a){a.addEventListener("click",function(){sidebar.classList.remove("open");var overlay=document.getElementById("sidebarOverlay");if(overlay)overlay.classList.remove("open");});});});
+</script>
+<script>
+function toggleSbDesktop() {
+  var c = document.body.classList.toggle('sb-collapsed');
+  localStorage.setItem('sb-collapsed', c ? '1' : '0');
+}
+(function() { if (localStorage.getItem('sb-collapsed') === '1') document.body.classList.add('sb-collapsed'); })();
+</script>
+</body>
+</html>

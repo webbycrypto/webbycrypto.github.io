@@ -281,6 +281,43 @@ code { font-family: "Fira Code", "Cascadia Code", "Consolas", monospace; font-si
 </a>
 
 <div style="grid-column: 1 / -1; margin-top: 16px; padding-bottom: 4px; border-bottom: 1px solid var(--border);">
+  <h2 style="font-size: 1rem; color: var(--text-muted); font-weight: 600; letter-spacing: .04em; text-transform: uppercase;">Real-World Patterns</h2>
+  <p style="font-size: 0.85rem; color: var(--text-dim); margin-top: 4px;">Six guides covering the things every real app needs — dynamic UIs without JavaScript, background jobs, live communication, file handling, automated tests, and building a JSON API with Django REST Framework.</p>
+</div>
+
+<a href="htmx-fastapi.html" class="card" style="border-top: 4px solid #e44d26">
+  <h2 style="color:#e44d26">HTMX + FastAPI</h2>
+  <p>Build dynamic, interactive UIs without writing JavaScript — hx-get, hx-post, hx-target, hx-trigger, live search, forms without page reload, loading indicators, and real-time updates with HTMX WebSocket extension.</p>
+  <span class="badge">10 steps</span>
+</a>
+
+<a href="background-tasks.html" class="card" style="border-top: 4px solid #ff5722">
+  <h2 style="color:#ff5722">Background Tasks</h2>
+  <p>Run slow work after sending the response — from FastAPI's built-in BackgroundTasks for quick fire-and-forget jobs to Celery + Redis for production queues with retries, scheduling, and a monitoring dashboard.</p>
+  <span class="badge">10 steps</span>
+</a>
+<a href="websockets.html" class="card" style="border-top: 4px solid #7c4dff">
+  <h2 style="color:#7c4dff">WebSockets</h2>
+  <p>Build real-time features without polling — live chat, dashboards, and notifications using FastAPI's native WebSocket support. Covers connection management, broadcasting, rooms, disconnect handling, and a working HTML frontend.</p>
+  <span class="badge">8 steps</span>
+</a>
+<a href="file-uploads.html" class="card" style="border-top: 4px solid #00bcd4">
+  <h2 style="color:#00bcd4">File Uploads</h2>
+  <p>Accept files from browsers and API clients — single and multiple uploads, saving to disk with UUID filenames, type and size validation, serving files back, and uploading to S3-compatible cloud storage.</p>
+  <span class="badge">8 steps</span>
+</a>
+<a href="testing-fastapi.html" class="card" style="border-top: 4px solid #7cb342">
+  <h2 style="color:#7cb342">Testing FastAPI</h2>
+  <p>Write tests that actually catch bugs — GET and POST route tests with TestClient, auth header testing, fixtures and conftest.py, mocking dependencies to avoid real databases and email, and coverage reports.</p>
+  <span class="badge">9 steps</span>
+</a>
+<a href="drf.html" class="card" style="border-top: 4px solid #00897b">
+  <h2 style="color:#00897b">Django REST Framework</h2>
+  <p>Build a JSON API with Django — serializers, APIView, ViewSets with auto-generated routes, token authentication, object-level permissions, the browsable API, and connecting a JavaScript frontend with CORS.</p>
+  <span class="badge">9 steps</span>
+</a>
+
+<div style="grid-column: 1 / -1; margin-top: 16px; padding-bottom: 4px; border-bottom: 1px solid var(--border);">
   <h2 style="font-size: 1rem; color: var(--text-muted); font-weight: 600; letter-spacing: .04em; text-transform: uppercase;">Deployment + DevOps</h2>
   <p style="font-size: 0.85rem; color: var(--text-dim); margin-top: 4px;">Five guides taking a FastAPI app from a local server to a production VPS with HTTPS, systemd process management, and automated CI/CD deploys on push to GitHub.</p>
 </div>
@@ -310,6 +347,24 @@ code { font-family: "Fira Code", "Cascadia Code", "Consolas", monospace; font-si
   <p>Push to GitHub → tests run → if green → deploy to your server automatically. Covers the deploy SSH key, GitHub Secrets, the workflow YAML file, and running migrations in CI.</p>
   <span class="badge">8 steps</span>
 </a>
+
+<div style="grid-column: 1 / -1; margin-top: 16px; padding-bottom: 4px; border-bottom: 1px solid var(--border);">
+  <h2 style="font-size: 1rem; color: var(--text-muted); font-weight: 600; letter-spacing: .04em; text-transform: uppercase;">Capstone Projects</h2>
+  <p style="font-size: 0.85rem; color: var(--text-dim); margin-top: 4px;">Two enterprise-grade projects that apply everything in the curriculum. Build a fully async B2B lead enrichment pipeline and a document-powered AI knowledge base with streaming responses — both with API key auth, retry logic, and tests.</p>
+</div>
+
+<a href="lead-enrichment.html" class="card" style="border-top: 4px solid #0277BD">
+  <h2 style="color:#0277BD">B2B Lead Enrichment API</h2>
+  <p>Receive a webhook, immediately return 202 Accepted, then enrich the lead with external APIs and structured LLM output in the background. Covers BackgroundTasks, httpx, tenacity retries, API key middleware, and pytest mocking.</p>
+  <span class="badge">10 steps</span>
+</a>
+
+<a href="rag-knowledge-base.html" class="card" style="border-top: 4px solid #5E35B1">
+  <h2 style="color:#5E35B1">Company Knowledge Base RAG API</h2>
+  <p>Upload internal documents and chat with them intelligently. Covers the full RAG pipeline: text chunking, OpenAI embeddings, pgvector cosine similarity search, LLM context injection, and StreamingResponse token-by-token output.</p>
+  <span class="badge">10 steps</span>
+</a>
+
 </div>
 <script>
 (function() {

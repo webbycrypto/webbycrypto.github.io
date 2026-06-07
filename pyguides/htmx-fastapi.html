@@ -1,0 +1,1048 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>HTMX + FastAPI Guide - pyoffline</title>
+<style>
+:root {
+  --bg:          #121212;
+  --surface:     #1e1e1e;
+  --surface2:    #2a2a2a;
+  --sidebar-bg:  #1a1a1a;
+  --text:        #e0e0e0;
+  --text-muted:  #aaa;
+  --text-dim:    #666;
+  --border:      #333;
+  --code-bg:     #1e1e1e;
+  --code-text:   #d4d4d4;
+  --shadow:      rgba(0,0,0,.4);
+  --accent:      #e44d26;
+  --hl-keyword:  #569cd6;
+  --hl-string:   #ce9178;
+  --hl-comment:  #6a9955;
+  --hl-number:   #b5cea8;
+  --hl-decorator:#dcdcaa;
+  --hl-builtin:  #4ec9b0;
+  --hl-tag:      #4ec9b0;
+  --hl-attr:     #9cdcfe;
+  --hl-template: #c586c0;
+}
+html.light {
+  --bg:          #f5f7fa;
+  --surface:     #ffffff;
+  --surface2:    #eef0f3;
+  --sidebar-bg:  #ffffff;
+  --text:        #1a1a1a;
+  --text-muted:  #555;
+  --text-dim:    #888;
+  --border:      #dde1e7;
+  --code-bg:     #f8f8f8;
+  --code-text:   #24292e;
+  --shadow:      rgba(0,0,0,.1);
+  --hl-keyword:  #0000ff;
+  --hl-string:   #a31515;
+  --hl-comment:  #008000;
+  --hl-number:   #098658;
+  --hl-decorator:#795e26;
+  --hl-builtin:  #267f99;
+  --hl-tag:      #800000;
+  --hl-attr:     #e50000;
+  --hl-template: #af00db;
+}
+.hl-keyword  { color: var(--hl-keyword);  }
+.hl-string   { color: var(--hl-string);   }
+.hl-comment  { color: #adb4a7; font-size: 12px; font-style: italic; }
+.hl-number   { color: var(--hl-number);   }
+.hl-decorator{ color: var(--hl-decorator);}
+.hl-builtin  { color: var(--hl-builtin);  }
+.hl-tag      { color: var(--hl-tag);      }
+.hl-attr     { color: var(--hl-attr);     }
+.hl-template { color: var(--hl-template); }
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: var(--bg); color: var(--text); font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; transition: background .2s, color .2s; }
+a { color: var(--accent); }
+.layout { display: flex; min-height: 100vh; }
+.sidebar { width: 260px; min-width: 260px; background: var(--sidebar-bg); border-right: 1px solid var(--border); padding: 24px 16px; position: sticky; top: 0; height: 100vh; overflow-y: auto; }
+.sidebar h2 { font-size: 1.1rem; margin: 16px 0 8px; color: var(--text); }
+.sidebar nav ol { padding-left: 18px; }
+.sidebar nav li { margin: 6px 0; }
+.sidebar nav a { color: var(--text-muted); text-decoration: none; font-size: 0.85rem; }
+.sidebar nav a:hover { color: var(--accent); }
+.back-link { color: var(--text-dim); text-decoration: none; font-size: 0.85rem; display: block; margin-bottom: 8px; }
+.install-box { margin-top: 24px; background: var(--bg); border: 1px solid var(--border); padding: 12px; border-radius: 6px; font-size: 0.8rem; }
+.install-box code { display: block; word-break: break-all; color: var(--hl-comment); font-family: monospace; margin-top: 4px; }
+main { flex: 1; padding: 40px; max-width: 860px; }
+.guide-header { padding: 20px 20px 20px 24px; background: var(--surface); border-radius: 8px; margin-bottom: 32px; box-shadow: 0 1px 3px var(--shadow); }
+.guide-header h1 { font-size: 1.8rem; margin-bottom: 8px; }
+.guide-header p { color: var(--text-muted); }
+.step { display: flex; gap: 16px; margin-bottom: 40px; }
+.step-number { width: 32px; min-width: 32px; height: 32px; background: var(--accent); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 0.9rem; margin-top: 4px; color: #fff; }
+.step-content { flex: 1; min-width: 0; }
+.step-content h3 { font-size: 1.1rem; margin-bottom: 8px; color: var(--text); }
+.explanation { color: var(--text-muted); font-size: 0.9rem; line-height: 1.6; margin-bottom: 14px; }
+.info-box { background: var(--surface); border-left: 3px solid var(--accent); border-radius: 0 6px 6px 0; padding: 12px 16px; margin-bottom: 14px; font-size: 0.88rem; color: var(--text-muted); line-height: 1.6; }
+.info-box strong { color: var(--text); }
+.tabs { background: var(--surface); border-radius: 6px; overflow: hidden; border: 1px solid var(--border); }
+.tab-bar { display: flex; background: var(--surface2); overflow-x: auto; border-bottom: 1px solid var(--border); }
+.tab-btn { padding: 8px 16px; background: none; border: none; color: var(--text-muted); cursor: pointer; font-size: 0.8rem; white-space: nowrap; border-bottom: 2px solid transparent; margin-bottom: -1px; }
+.tab-btn.active { color: var(--text); border-bottom-color: var(--accent); }
+.tab-panel { display: none; }
+.tab-panel.active { display: block; }
+.code-header { display: flex; justify-content: space-between; align-items: center; padding: 5px 12px; background: var(--surface2); border-bottom: 1px solid var(--border); }
+.lang-label { font-size: 0.72rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: .04em; }
+.copy-btn { background: none; border: 1px solid var(--border); color: var(--text-muted); padding: 2px 8px; cursor: pointer; border-radius: 3px; font-size: 0.72rem; }
+.copy-btn:hover { color: var(--text); border-color: var(--text-muted); }
+pre { overflow-x: auto; padding: 16px; background: var(--code-bg); }
+code { font-family: "Fira Code", "Cascadia Code", "Consolas", monospace; font-size: 0.82rem; line-height: 1.65; color: var(--code-text); }
+.theme-row { display: flex; align-items: center; gap: 8px; margin-top: 20px; }
+.theme-label { font-size: 0.78rem; color: var(--text-muted); }
+.toggle-switch { position: relative; display: inline-block; width: 40px; height: 22px; }
+.toggle-switch input { opacity: 0; width: 0; height: 0; }
+.slider { position: absolute; cursor: pointer; inset: 0; background: var(--surface2); border: 1px solid var(--border); border-radius: 22px; transition: background .2s; }
+.slider:before { content: ""; position: absolute; width: 16px; height: 16px; left: 2px; top: 2px; background: var(--text-muted); border-radius: 50%; transition: transform .2s, background .2s; }
+.toggle-switch input:checked + .slider { background: var(--accent); border-color: var(--accent); }
+.toggle-switch input:checked + .slider:before { transform: translateX(18px); background: #fff; }
+.sidebar-toggle { display: none; position: fixed; top: 12px; left: 12px; z-index: 300; background: var(--accent); color: #fff; border: none; padding: 7px 14px; border-radius: 6px; cursor: pointer; font-size: 0.85rem; font-weight: 600; box-shadow: 0 2px 8px var(--shadow); align-items: center; gap: 6px; }
+.sidebar-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.45); z-index: 190; }
+.sidebar-overlay.open { display: block; }
+@media (max-width: 900px) {
+  .sidebar-toggle { display: flex; }
+  .layout { display: block; }
+  .sidebar { position: fixed; left: -280px; top: 0; height: 100vh; z-index: 200; transition: left .25s ease; box-shadow: 2px 0 16px var(--shadow); min-width: 260px; }
+  .sidebar.open { left: 0; }
+  main { padding: 60px 20px 40px; max-width: 100%; }
+  pre { overflow-x: auto; max-width: 100%; white-space: pre-wrap; word-break: break-word; }
+  .tabs { max-width: 100%; }
+}
+
+/* ── Desktop sidebar collapse ─────────────────────────────── */
+.sidebar { transition: width .2s ease, min-width .2s ease, padding .2s ease; }
+.sb-pin { display: flex; justify-content: flex-end; margin-bottom: 8px; }
+.sb-pin button { background: none; border: 1px solid var(--border); color: var(--text-dim); cursor: pointer; border-radius: 4px; padding: 2px 7px; font-size: 11px; line-height: 1.6; }
+.sb-pin button:hover { color: var(--accent); border-color: var(--accent); }
+.sb-reopen { display: none; position: fixed; left: 0; top: 50%; transform: translateY(-50%); background: var(--accent); color: #fff; border: none; border-radius: 0 4px 4px 0; padding: 10px 5px; cursor: pointer; z-index: 300; font-size: 11px; font-weight: 600; writing-mode: vertical-rl; letter-spacing: .05em; }
+@media (min-width: 901px) { body.sb-collapsed .sidebar { width: 0; min-width: 0; padding: 0; overflow: hidden; border-right: none; } body.sb-collapsed .sb-reopen { display: block; } }
+@media (max-width: 900px) { .sb-pin { display: none; } .sb-reopen { display: none !important; } }
+</style>
+</head>
+<body>
+<button class="sidebar-toggle" id="sidebarToggle" onclick="toggleSidebar()">&#9776; Steps</button>
+<div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+<button class="sb-reopen" onclick="toggleSbDesktop()">Steps</button>
+<div class="layout">
+  <aside class="sidebar" id="guideSidebar">
+    <div class="sb-pin"><button onclick="toggleSbDesktop()">&#9664; Hide</button></div>
+    <a href="index.html" class="back-link">← All Guides</a>
+    <h2>HTMX + FastAPI</h2>
+    <nav><ol>
+      <li><a href="#step1">What is HTMX?</a></li>
+      <li><a href="#step2">Project Setup</a></li>
+      <li><a href="#step3">hx-get and hx-post</a></li>
+      <li><a href="#step4">hx-target and hx-swap</a></li>
+      <li><a href="#step5">hx-trigger</a></li>
+      <li><a href="#step6">Returning HTML Fragments</a></li>
+      <li><a href="#step7">Live Search</a></li>
+      <li><a href="#step8">Forms Without Reload</a></li>
+      <li><a href="#step9">Loading Indicators</a></li>
+      <li><a href="#step10">HTMX + WebSockets</a></li>
+    </ol></nav>
+    <div class="install-box">
+      <p><strong>Backend</strong></p>
+      <code>pip install fastapi uvicorn jinja2</code>
+      <p style="margin-top:12px"><strong>HTMX (CDN — no pip)</strong></p>
+      <code>&lt;script src="https://unpkg.com/htmx.org@1.9.12"&gt;&lt;/script&gt;</code>
+      <p style="margin-top:12px"><strong>Dev server</strong></p>
+      <code>uvicorn main:app --reload</code>
+    </div>
+    <div class="theme-row">
+      <span class="theme-label">Dark</span>
+      <label class="toggle-switch">
+        <input type="checkbox" id="themeToggle">
+        <span class="slider"></span>
+      </label>
+      <span class="theme-label">Light</span>
+    </div>
+  </aside>
+
+  <main>
+    <header class="guide-header" style="border-left: 5px solid #e44d26">
+      <h1>HTMX + FastAPI</h1>
+      <p>Build dynamic, interactive UIs without writing JavaScript. HTMX lets HTML attributes trigger HTTP requests and swap content on the page — your FastAPI routes return HTML fragments instead of JSON, and HTMX puts them exactly where you want them.</p>
+    </header>
+
+    <div class="steps">
+
+      <!-- STEP 1 -->
+      <div class="step" id="step1">
+        <div class="step-number">1</div>
+        <div class="step-content">
+          <h3>What is HTMX?</h3>
+          <p class="explanation">Modern web development has a dirty secret: most of the JavaScript people write is just plumbing. You fetch data from an API, loop over the results, construct HTML strings, and stuff them into the DOM. It's the same pattern every time. React and Vue exist to manage this complexity, but they bring their own massive complexity — a build step, a bundler, component lifecycles, a virtual DOM, state management libraries, and hundreds of kilobytes of JavaScript before your app even starts. For many apps, especially server-rendered ones, this is enormous overkill.</p>
+          <p class="explanation">HTMX takes a radically different approach: it extends HTML itself. Instead of writing JavaScript to call fetch() and then update the DOM, you add attributes directly to your HTML elements — <code>hx-get="/tasks"</code>, <code>hx-target="#task-list"</code>, <code>hx-swap="innerHTML"</code>. HTMX reads these attributes, makes the HTTP request for you, and puts the server's response exactly where you told it to. Your FastAPI route doesn't return JSON — it returns a small chunk of HTML, called a fragment. HTMX swaps that fragment into the page. The result feels like a single-page app but your server just renders templates, exactly like it always did.</p>
+          <p class="explanation">The philosophy is that HTML is already a powerful language for describing user interfaces. A link (<code>&lt;a href&gt;</code>) causes a GET request. A form (<code>&lt;form action method="post"&gt;</code>) causes a POST request. HTMX just extends those ideas: any element can make any HTTP request, and the response can go anywhere on the page. You get the interactivity of JavaScript with almost none of the JavaScript. The entire HTMX library is about 14KB minified — smaller than a single React component in some projects.</p>
+          <div class="info-box"><strong>What HTMX is not:</strong> It's not for apps that need heavy client-side state — think spreadsheets, real-time collaborative editors, complex data visualisations. For apps that are primarily about displaying and updating server-side data — task managers, dashboards, admin panels, CRMs — HTMX is a perfect fit. If your app was happily using Jinja2 templates, HTMX makes it dramatically more interactive with minimal effort.</div>
+        </div>
+      </div>
+
+      <!-- STEP 2 -->
+      <div class="step" id="step2">
+        <div class="step-number">2</div>
+        <div class="step-content">
+          <h3>Project Setup</h3>
+          <p class="explanation">HTMX is a single JavaScript file. You load it from a CDN with one script tag — no npm, no bundler, no build step. On the backend you need FastAPI, Uvicorn, and Jinja2. Jinja2 is the template engine that lets FastAPI render HTML files and inject Python variables into them. The project structure mirrors a standard server-rendered app: a <code>templates/</code> folder for your HTML files and a <code>static/</code> folder for CSS and images.</p>
+          <p class="explanation">The key concept to grasp before writing any code: in an HTMX app, you have two kinds of templates. <strong>Full page templates</strong> render the entire HTML skeleton — the <code>&lt;html&gt;</code>, <code>&lt;head&gt;</code>, <code>&lt;body&gt;</code>, sidebar, navigation, everything. <strong>Fragment templates</strong> are tiny, partial HTML snippets — just a <code>&lt;ul&gt;</code> full of <code>&lt;li&gt;</code> items, or a single updated row, or a success message. HTMX requests return fragments. Browser navigation returns full pages. You'll create both kinds, and often a single Jinja2 template can do double duty using template inheritance and blocks.</p>
+          <div class="tabs" data-step="step2">
+            <div class="tab-bar">
+              <button class="tab-btn active" onclick="switchTab('step2',0)">main.py</button>
+              <button class="tab-btn" onclick="switchTab('step2',1)">templates/base.html</button>
+              <button class="tab-btn" onclick="switchTab('step2',2)">folder structure</button>
+            </div>
+            <div class="tab-panel active" id="step2_panel0">
+              <div class="code-header"><span class="lang-label">python</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-keyword">from</span> fastapi <span class="hl-keyword">import</span> FastAPI, Request
+<span class="hl-keyword">from</span> fastapi.responses <span class="hl-keyword">import</span> HTMLResponse
+<span class="hl-keyword">from</span> fastapi.staticfiles <span class="hl-keyword">import</span> StaticFiles
+<span class="hl-keyword">from</span> fastapi.templating <span class="hl-keyword">import</span> Jinja2Templates
+
+app = FastAPI()
+
+<span class="hl-comment"># Serve anything in static/ at the /static URL prefix</span>
+app.mount(<span class="hl-string">"/static"</span>, StaticFiles(directory=<span class="hl-string">"static"</span>), name=<span class="hl-string">"static"</span>)
+
+<span class="hl-comment"># Tell FastAPI where to find HTML template files</span>
+templates = Jinja2Templates(directory=<span class="hl-string">"templates"</span>)
+
+<span class="hl-comment"># In-memory task list — we'll swap this for a database later</span>
+tasks = [
+    {<span class="hl-string">"id"</span>: <span class="hl-number">1</span>, <span class="hl-string">"title"</span>: <span class="hl-string">"Buy groceries"</span>, <span class="hl-string">"done"</span>: <span class="hl-keyword">False</span>},
+    {<span class="hl-string">"id"</span>: <span class="hl-number">2</span>, <span class="hl-string">"title"</span>: <span class="hl-string">"Write tests"</span>, <span class="hl-string">"done"</span>: <span class="hl-keyword">False</span>},
+]
+
+
+<span class="hl-decorator">@app.get</span>(<span class="hl-string">"/"</span>, response_class=HTMLResponse)
+<span class="hl-keyword">async def</span> index(request: Request):
+    <span class="hl-comment"># TemplateResponse renders the Jinja2 template and returns HTML</span>
+    <span class="hl-comment"># First arg: template filename. Second: dict of variables available in the template.</span>
+    <span class="hl-comment"># "request" is always required by Jinja2Templates in FastAPI.</span>
+    <span class="hl-keyword">return</span> templates.TemplateResponse(<span class="hl-string">"index.html"</span>, {<span class="hl-string">"request"</span>: request, <span class="hl-string">"tasks"</span>: tasks})</code></pre>
+            </div>
+            <div class="tab-panel" id="step2_panel1">
+              <div class="code-header"><span class="lang-label">html</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-comment">&lt;!-- templates/base.html — the master layout every page inherits --&gt;</span>
+<span class="hl-tag">&lt;!DOCTYPE html&gt;</span>
+<span class="hl-tag">&lt;html</span> <span class="hl-attr">lang</span>=<span class="hl-string">"en"</span><span class="hl-tag">&gt;</span>
+<span class="hl-tag">&lt;head&gt;</span>
+  <span class="hl-tag">&lt;meta</span> <span class="hl-attr">charset</span>=<span class="hl-string">"UTF-8"</span><span class="hl-tag">&gt;</span>
+  <span class="hl-tag">&lt;title&gt;</span>Task Manager<span class="hl-tag">&lt;/title&gt;</span>
+  <span class="hl-tag">&lt;link</span> <span class="hl-attr">rel</span>=<span class="hl-string">"stylesheet"</span> <span class="hl-attr">href</span>=<span class="hl-string">"/static/style.css"</span><span class="hl-tag">&gt;</span>
+
+  <span class="hl-comment">&lt;!-- HTMX from CDN — this one script tag is all you need --&gt;</span>
+  <span class="hl-tag">&lt;script</span> <span class="hl-attr">src</span>=<span class="hl-string">"https://unpkg.com/htmx.org@1.9.12"</span><span class="hl-tag">&gt;&lt;/script&gt;</span>
+<span class="hl-tag">&lt;/head&gt;</span>
+<span class="hl-tag">&lt;body&gt;</span>
+  <span class="hl-tag">&lt;header&gt;</span>
+    <span class="hl-tag">&lt;h1&gt;</span>Task Manager<span class="hl-tag">&lt;/h1&gt;</span>
+  <span class="hl-tag">&lt;/header&gt;</span>
+
+  <span class="hl-tag">&lt;main&gt;</span>
+    <span class="hl-comment">&lt;!-- Each page template fills in this block --&gt;</span>
+    {% block content %}{% endblock %}
+  <span class="hl-tag">&lt;/main&gt;</span>
+<span class="hl-tag">&lt;/body&gt;</span>
+<span class="hl-tag">&lt;/html&gt;</span></code></pre>
+            </div>
+            <div class="tab-panel" id="step2_panel2">
+              <div class="code-header"><span class="lang-label">text</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code>your-project/
+├── main.py
+├── static/
+│   └── style.css
+└── templates/
+    ├── base.html          ← full-page layout (extends nothing)
+    ├── index.html         ← full page (extends base.html)
+    └── partials/
+        ├── task_list.html ← fragment: just the &lt;ul&gt; of tasks
+        └── task_row.html  ← fragment: a single task &lt;li&gt;</code></pre>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- STEP 3 -->
+      <div class="step" id="step3">
+        <div class="step-number">3</div>
+        <div class="step-content">
+          <h3>hx-get and hx-post</h3>
+          <p class="explanation">These two attributes are the foundation of HTMX. <code>hx-get="/some-url"</code> tells HTMX: when this element is triggered (clicked, by default), make a GET request to that URL and do something with the HTML response. <code>hx-post="/some-url"</code> does the same but sends a POST request. That's it. No JavaScript, no fetch(), no event listeners. Just an attribute on an HTML element.</p>
+          <p class="explanation">The default trigger for most elements is a click. But HTMX is smart about defaults: on an <code>&lt;input&gt;</code>, the default trigger is the <code>change</code> event. On a <code>&lt;form&gt;</code>, it's <code>submit</code>. So <code>hx-post="/tasks"</code> on a form will fire when the user submits it, automatically include all the form fields in the POST body, and swap the response into the page — all without writing a single line of JavaScript.</p>
+          <div class="info-box"><strong>What happens to the response?</strong> By default, HTMX takes the HTML response and puts it inside the element that made the request, replacing its children (innerHTML). You almost always want to override this with hx-target and hx-swap, which you'll learn in the next step. But knowing the default helps you understand what's happening when things don't look right.</div>
+          <div class="tabs" data-step="step3">
+            <div class="tab-bar">
+              <button class="tab-btn active" onclick="switchTab('step3',0)">HTML (button)</button>
+              <button class="tab-btn" onclick="switchTab('step3',1)">HTML (form)</button>
+              <button class="tab-btn" onclick="switchTab('step3',2)">FastAPI routes</button>
+            </div>
+            <div class="tab-panel active" id="step3_panel0">
+              <div class="code-header"><span class="lang-label">html</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-comment">&lt;!-- Clicking this button makes a GET request to /tasks --&gt;</span>
+<span class="hl-comment">&lt;!-- The response HTML replaces the button's own content by default --&gt;</span>
+<span class="hl-tag">&lt;button</span>
+  <span class="hl-attr">hx-get</span>=<span class="hl-string">"/tasks"</span>
+<span class="hl-tag">&gt;</span>
+  Load Tasks
+<span class="hl-tag">&lt;/button&gt;</span>
+
+<span class="hl-comment">&lt;!-- Clicking this marks task 1 as done via DELETE --&gt;</span>
+<span class="hl-comment">&lt;!-- HTMX supports all HTTP verbs: hx-get, hx-post, hx-put, hx-patch, hx-delete --&gt;</span>
+<span class="hl-tag">&lt;button</span>
+  <span class="hl-attr">hx-delete</span>=<span class="hl-string">"/tasks/1"</span>
+<span class="hl-tag">&gt;</span>
+  Delete Task 1
+<span class="hl-tag">&lt;/button&gt;</span></code></pre>
+            </div>
+            <div class="tab-panel" id="step3_panel1">
+              <div class="code-header"><span class="lang-label">html</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-comment">&lt;!-- hx-post on a form fires on submit --&gt;</span>
+<span class="hl-comment">&lt;!-- HTMX serialises all form inputs into the POST body automatically --&gt;</span>
+<span class="hl-tag">&lt;form</span>
+  <span class="hl-attr">hx-post</span>=<span class="hl-string">"/tasks"</span>
+<span class="hl-tag">&gt;</span>
+  <span class="hl-tag">&lt;input</span> <span class="hl-attr">type</span>=<span class="hl-string">"text"</span> <span class="hl-attr">name</span>=<span class="hl-string">"title"</span> <span class="hl-attr">placeholder</span>=<span class="hl-string">"New task..."</span><span class="hl-tag">&gt;</span>
+  <span class="hl-tag">&lt;button</span> <span class="hl-attr">type</span>=<span class="hl-string">"submit"</span><span class="hl-tag">&gt;</span>Add<span class="hl-tag">&lt;/button&gt;</span>
+<span class="hl-tag">&lt;/form&gt;</span>
+
+<span class="hl-comment">&lt;!-- The FastAPI route receives "title" as a form field --&gt;</span>
+<span class="hl-comment">&lt;!-- It returns HTML (not JSON) and HTMX swaps it in --&gt;</span></code></pre>
+            </div>
+            <div class="tab-panel" id="step3_panel2">
+              <div class="code-header"><span class="lang-label">python</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-keyword">from</span> fastapi <span class="hl-keyword">import</span> FastAPI, Request, Form
+<span class="hl-keyword">from</span> fastapi.responses <span class="hl-keyword">import</span> HTMLResponse
+<span class="hl-keyword">from</span> fastapi.templating <span class="hl-keyword">import</span> Jinja2Templates
+
+app = FastAPI()
+templates = Jinja2Templates(directory=<span class="hl-string">"templates"</span>)
+tasks = []
+next_id = <span class="hl-number">1</span>
+
+
+<span class="hl-decorator">@app.get</span>(<span class="hl-string">"/tasks"</span>, response_class=HTMLResponse)
+<span class="hl-keyword">async def</span> get_tasks(request: Request):
+    <span class="hl-comment"># Returns just the task list fragment, not a full page</span>
+    <span class="hl-keyword">return</span> templates.TemplateResponse(
+        <span class="hl-string">"partials/task_list.html"</span>,
+        {<span class="hl-string">"request"</span>: request, <span class="hl-string">"tasks"</span>: tasks}
+    )
+
+
+<span class="hl-decorator">@app.post</span>(<span class="hl-string">"/tasks"</span>, response_class=HTMLResponse)
+<span class="hl-keyword">async def</span> create_task(request: Request, title: <span class="hl-builtin">str</span> = Form(...)):
+    <span class="hl-keyword">global</span> next_id
+    <span class="hl-comment"># Form(...) tells FastAPI to read "title" from the POST body, not from JSON</span>
+    tasks.append({<span class="hl-string">"id"</span>: next_id, <span class="hl-string">"title"</span>: title, <span class="hl-string">"done"</span>: <span class="hl-keyword">False</span>})
+    next_id += <span class="hl-number">1</span>
+    <span class="hl-comment"># Return the updated task list HTML — HTMX swaps it into the page</span>
+    <span class="hl-keyword">return</span> templates.TemplateResponse(
+        <span class="hl-string">"partials/task_list.html"</span>,
+        {<span class="hl-string">"request"</span>: request, <span class="hl-string">"tasks"</span>: tasks}
+    )</code></pre>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- STEP 4 -->
+      <div class="step" id="step4">
+        <div class="step-number">4</div>
+        <div class="step-content">
+          <h3>hx-target and hx-swap</h3>
+          <p class="explanation">By default, HTMX puts the response HTML inside the element that made the request. That's rarely what you want — if a button triggers a GET request, you don't want the task list to appear inside the button. <code>hx-target</code> tells HTMX where to put the response instead. You give it a CSS selector, and HTMX finds that element on the page and uses it as the destination. The most common pattern is <code>hx-target="#some-id"</code> — you give a container a unique ID and point HTMX at it.</p>
+          <p class="explanation"><code>hx-swap</code> controls exactly how the response HTML gets placed into the target. The default is <code>innerHTML</code>, which replaces everything inside the target with the new HTML. Other useful values: <code>outerHTML</code> replaces the target element itself (useful for updating a single row); <code>beforeend</code> appends the new HTML after the target's last child (useful for adding to a list); <code>afterbegin</code> prepends it; <code>delete</code> removes the target element entirely (useful for "remove this item" actions where the server responds with nothing); <code>none</code> does nothing with the response body but still processes response headers (useful for triggering other events).</p>
+          <div class="tabs" data-step="step4">
+            <div class="tab-bar">
+              <button class="tab-btn active" onclick="switchTab('step4',0)">HTML — target + swap</button>
+              <button class="tab-btn" onclick="switchTab('step4',1)">partials/task_list.html</button>
+              <button class="tab-btn" onclick="switchTab('step4',2)">test it</button>
+            </div>
+            <div class="tab-panel active" id="step4_panel0">
+              <div class="code-header"><span class="lang-label">html</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-comment">&lt;!-- The form that adds a new task --&gt;</span>
+<span class="hl-tag">&lt;form</span>
+  <span class="hl-attr">hx-post</span>=<span class="hl-string">"/tasks"</span>
+  <span class="hl-attr">hx-target</span>=<span class="hl-string">"#task-list"</span>   <span class="hl-comment">&lt;!-- put the response in the element with id="task-list" --&gt;</span>
+  <span class="hl-attr">hx-swap</span>=<span class="hl-string">"innerHTML"</span>     <span class="hl-comment">&lt;!-- replace everything inside that element --&gt;</span>
+<span class="hl-tag">&gt;</span>
+  <span class="hl-tag">&lt;input</span> <span class="hl-attr">type</span>=<span class="hl-string">"text"</span> <span class="hl-attr">name</span>=<span class="hl-string">"title"</span> <span class="hl-attr">placeholder</span>=<span class="hl-string">"New task..."</span><span class="hl-tag">&gt;</span>
+  <span class="hl-tag">&lt;button</span> <span class="hl-attr">type</span>=<span class="hl-string">"submit"</span><span class="hl-tag">&gt;</span>Add<span class="hl-tag">&lt;/button&gt;</span>
+<span class="hl-tag">&lt;/form&gt;</span>
+
+<span class="hl-comment">&lt;!-- This is the container HTMX targets --&gt;</span>
+<span class="hl-comment">&lt;!-- Its content will be replaced with the server's HTML response --&gt;</span>
+<span class="hl-tag">&lt;ul</span> <span class="hl-attr">id</span>=<span class="hl-string">"task-list"</span><span class="hl-tag">&gt;</span>
+  {% for task in tasks %}
+    <span class="hl-tag">&lt;li&gt;</span>{{ task.title }}<span class="hl-tag">&lt;/li&gt;</span>
+  {% endfor %}
+<span class="hl-tag">&lt;/ul&gt;</span>
+
+<span class="hl-comment">&lt;!-- Appending to a list: swap="beforeend" adds one &lt;li&gt; at a time --&gt;</span>
+<span class="hl-tag">&lt;form</span>
+  <span class="hl-attr">hx-post</span>=<span class="hl-string">"/tasks/append"</span>
+  <span class="hl-attr">hx-target</span>=<span class="hl-string">"#task-list"</span>
+  <span class="hl-attr">hx-swap</span>=<span class="hl-string">"beforeend"</span>     <span class="hl-comment">&lt;!-- append the new &lt;li&gt; after existing items --&gt;</span>
+<span class="hl-tag">&gt;</span>
+  <span class="hl-tag">&lt;input</span> <span class="hl-attr">type</span>=<span class="hl-string">"text"</span> <span class="hl-attr">name</span>=<span class="hl-string">"title"</span><span class="hl-tag">&gt;</span>
+  <span class="hl-tag">&lt;button</span> <span class="hl-attr">type</span>=<span class="hl-string">"submit"</span><span class="hl-tag">&gt;</span>Append<span class="hl-tag">&lt;/button&gt;</span>
+<span class="hl-tag">&lt;/form&gt;</span>
+
+<span class="hl-comment">&lt;!-- Delete a row: the route returns empty body, swap="outerHTML" removes the &lt;li&gt; --&gt;</span>
+<span class="hl-tag">&lt;li</span> <span class="hl-attr">id</span>=<span class="hl-string">"task-1"</span><span class="hl-tag">&gt;</span>
+  Buy groceries
+  <span class="hl-tag">&lt;button</span>
+    <span class="hl-attr">hx-delete</span>=<span class="hl-string">"/tasks/1"</span>
+    <span class="hl-attr">hx-target</span>=<span class="hl-string">"#task-1"</span>
+    <span class="hl-attr">hx-swap</span>=<span class="hl-string">"outerHTML"</span>    <span class="hl-comment">&lt;!-- replace the entire &lt;li&gt; with the response --&gt;</span>
+                            <span class="hl-comment">&lt;!-- if the response is empty, the &lt;li&gt; disappears --&gt;</span>
+  <span class="hl-tag">&gt;</span>Delete<span class="hl-tag">&lt;/button&gt;</span>
+<span class="hl-tag">&lt;/li&gt;</span></code></pre>
+            </div>
+            <div class="tab-panel" id="step4_panel1">
+              <div class="code-header"><span class="lang-label">html</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-comment">&lt;!-- templates/partials/task_list.html --&gt;</span>
+<span class="hl-comment">&lt;!-- This is a fragment — no &lt;html&gt;, &lt;head&gt;, or &lt;body&gt; tags --&gt;</span>
+<span class="hl-comment">&lt;!-- FastAPI returns this from /tasks, HTMX puts it inside #task-list --&gt;</span>
+{% for task in tasks %}
+  <span class="hl-tag">&lt;li</span> <span class="hl-attr">id</span>=<span class="hl-string">"task-{{ task.id }}"</span><span class="hl-tag">&gt;</span>
+    <span class="hl-tag">&lt;span&gt;</span>{{ task.title }}<span class="hl-tag">&lt;/span&gt;</span>
+    <span class="hl-tag">&lt;button</span>
+      <span class="hl-attr">hx-delete</span>=<span class="hl-string">"/tasks/{{ task.id }}"</span>
+      <span class="hl-attr">hx-target</span>=<span class="hl-string">"#task-{{ task.id }}"</span>
+      <span class="hl-attr">hx-swap</span>=<span class="hl-string">"outerHTML"</span>
+    <span class="hl-tag">&gt;</span>
+      ✕
+    <span class="hl-tag">&lt;/button&gt;</span>
+  <span class="hl-tag">&lt;/li&gt;</span>
+{% else %}
+  <span class="hl-tag">&lt;li</span> <span class="hl-attr">class</span>=<span class="hl-string">"empty"</span><span class="hl-tag">&gt;</span>No tasks yet.<span class="hl-tag">&lt;/li&gt;</span>
+{% endfor %}</code></pre>
+            </div>
+            <div class="tab-panel" id="step4_panel2">
+              <div class="code-header"><span class="lang-label">text</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code>1. Start server: uvicorn main:app --reload
+2. Open http://localhost:8000
+3. Type a task name and submit — the task list updates without a page reload
+4. Click the ✕ button — the row disappears without refreshing
+5. Open browser DevTools → Network tab
+   You'll see individual POST and DELETE requests to /tasks
+   Each response is a tiny HTML fragment, not a full page
+6. The page URL never changes — no navigation happened</code></pre>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- STEP 5 -->
+      <div class="step" id="step5">
+        <div class="step-number">5</div>
+        <div class="step-content">
+          <h3>hx-trigger</h3>
+          <p class="explanation">Every HTMX request needs something to trigger it. The default trigger depends on the element — click for buttons and links, change for inputs and selects, submit for forms. <code>hx-trigger</code> lets you override this and specify exactly what event fires the request. You can use any browser event: <code>keyup</code>, <code>mouseenter</code>, <code>focus</code>, or even <code>load</code> (which fires immediately when the element appears on the page, useful for lazy-loading).</p>
+          <p class="explanation">hx-trigger also supports modifiers that add intelligent behaviour. <code>delay:300ms</code> waits 300 milliseconds after the event fires before making the request — essential for keyup on a search box, because without it every single keystroke fires a request. <code>changed</code> is another modifier that prevents the request if the input value hasn't actually changed since the last request — so tabbing in and out of a field without typing anything doesn't fire a request. You can combine them: <code>hx-trigger="keyup changed delay:300ms"</code> is the standard live-search pattern.</p>
+          <p class="explanation">There's also a special trigger value: <code>every 2s</code> turns an element into a polling machine — it fires a request every 2 seconds automatically. This is useful for dashboards showing live data like CPU stats or active users, where you want the server to push updates without using WebSockets. It's a blunt instrument but requires zero infrastructure.</p>
+          <div class="tabs" data-step="step5">
+            <div class="tab-bar">
+              <button class="tab-btn active" onclick="switchTab('step5',0)">trigger examples</button>
+              <button class="tab-btn" onclick="switchTab('step5',1)">polling pattern</button>
+            </div>
+            <div class="tab-panel active" id="step5_panel0">
+              <div class="code-header"><span class="lang-label">html</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-comment">&lt;!-- Default: click. These two are identical --&gt;</span>
+<span class="hl-tag">&lt;button</span> <span class="hl-attr">hx-get</span>=<span class="hl-string">"/data"</span><span class="hl-tag">&gt;</span>Load<span class="hl-tag">&lt;/button&gt;</span>
+<span class="hl-tag">&lt;button</span> <span class="hl-attr">hx-get</span>=<span class="hl-string">"/data"</span> <span class="hl-attr">hx-trigger</span>=<span class="hl-string">"click"</span><span class="hl-tag">&gt;</span>Load<span class="hl-tag">&lt;/button&gt;</span>
+
+<span class="hl-comment">&lt;!-- keyup: fires on every keypress — too many requests --&gt;</span>
+<span class="hl-tag">&lt;input</span> <span class="hl-attr">hx-get</span>=<span class="hl-string">"/search"</span> <span class="hl-attr">hx-trigger</span>=<span class="hl-string">"keyup"</span><span class="hl-tag">&gt;</span>
+
+<span class="hl-comment">&lt;!-- Better: delay waits 300ms after typing stops --&gt;</span>
+<span class="hl-tag">&lt;input</span> <span class="hl-attr">hx-get</span>=<span class="hl-string">"/search"</span> <span class="hl-attr">hx-trigger</span>=<span class="hl-string">"keyup delay:300ms"</span><span class="hl-tag">&gt;</span>
+
+<span class="hl-comment">&lt;!-- Best: also add "changed" to skip requests if value didn't change --&gt;</span>
+<span class="hl-comment">&lt;!-- This is the standard live-search combination --&gt;</span>
+<span class="hl-tag">&lt;input</span>
+  <span class="hl-attr">name</span>=<span class="hl-string">"q"</span>
+  <span class="hl-attr">hx-get</span>=<span class="hl-string">"/search"</span>
+  <span class="hl-attr">hx-trigger</span>=<span class="hl-string">"keyup changed delay:300ms"</span>
+  <span class="hl-attr">hx-target</span>=<span class="hl-string">"#results"</span>
+  <span class="hl-attr">placeholder</span>=<span class="hl-string">"Search tasks..."</span>
+<span class="hl-tag">&gt;</span>
+
+<span class="hl-comment">&lt;!-- load: fires immediately when the page renders — great for lazy loading --&gt;</span>
+<span class="hl-tag">&lt;div</span>
+  <span class="hl-attr">hx-get</span>=<span class="hl-string">"/dashboard/stats"</span>
+  <span class="hl-attr">hx-trigger</span>=<span class="hl-string">"load"</span>
+  <span class="hl-attr">hx-target</span>=<span class="hl-string">"this"</span>       <span class="hl-comment">&lt;!-- "this" means the element itself --&gt;</span>
+<span class="hl-tag">&gt;</span>
+  Loading stats...
+<span class="hl-tag">&lt;/div&gt;</span>
+
+<span class="hl-comment">&lt;!-- mouseenter: fires when the mouse moves over the element --&gt;</span>
+<span class="hl-tag">&lt;div</span> <span class="hl-attr">hx-get</span>=<span class="hl-string">"/preview/1"</span> <span class="hl-attr">hx-trigger</span>=<span class="hl-string">"mouseenter"</span> <span class="hl-attr">hx-target</span>=<span class="hl-string">"#preview-pane"</span><span class="hl-tag">&gt;</span>
+  Hover for preview
+<span class="hl-tag">&lt;/div&gt;</span></code></pre>
+            </div>
+            <div class="tab-panel" id="step5_panel1">
+              <div class="code-header"><span class="lang-label">html</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-comment">&lt;!-- Polling: fires a GET request every 2 seconds automatically --&gt;</span>
+<span class="hl-comment">&lt;!-- The FastAPI route returns a fresh HTML fragment each time --&gt;</span>
+<span class="hl-tag">&lt;div</span>
+  <span class="hl-attr">hx-get</span>=<span class="hl-string">"/dashboard/active-users"</span>
+  <span class="hl-attr">hx-trigger</span>=<span class="hl-string">"every 2s"</span>
+  <span class="hl-attr">hx-swap</span>=<span class="hl-string">"innerHTML"</span>
+<span class="hl-tag">&gt;</span>
+  Loading...
+<span class="hl-tag">&lt;/div&gt;</span>
+
+<span class="hl-comment">&lt;!-- FastAPI route — returns a tiny HTML snippet, called every 2 seconds --&gt;</span></code></pre>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- STEP 6 -->
+      <div class="step" id="step6">
+        <div class="step-number">6</div>
+        <div class="step-content">
+          <h3>FastAPI Returning HTML Fragments</h3>
+          <p class="explanation">This is the backend side of the HTMX equation. When HTMX makes a request, your FastAPI route must return HTML, not JSON. For routes that serve HTMX requests, you return a small Jinja2 template that renders just the HTML fragment HTMX needs — not a full page, just the piece that belongs in the target element. This is why the partials folder exists in your project structure: it holds these small, single-purpose template snippets.</p>
+          <p class="explanation">A very useful pattern is detecting whether a request came from HTMX or from a browser navigating directly. HTMX automatically adds a request header called <code>HX-Request: true</code> to every request it makes. You can check for this header in your FastAPI route and respond with either a full page (for direct navigation) or a fragment (for HTMX). This lets the same URL serve both use cases, which is important for browser history, bookmarkability, and graceful degradation when JavaScript is disabled.</p>
+          <div class="tabs" data-step="step6">
+            <div class="tab-bar">
+              <button class="tab-btn active" onclick="switchTab('step6',0)">routes.py</button>
+              <button class="tab-btn" onclick="switchTab('step6',1)">partials/task_list.html</button>
+              <button class="tab-btn" onclick="switchTab('step6',2)">detecting HTMX header</button>
+            </div>
+            <div class="tab-panel active" id="step6_panel0">
+              <div class="code-header"><span class="lang-label">python</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-keyword">from</span> fastapi <span class="hl-keyword">import</span> FastAPI, Request, Form
+<span class="hl-keyword">from</span> fastapi.responses <span class="hl-keyword">import</span> HTMLResponse
+<span class="hl-keyword">from</span> fastapi.templating <span class="hl-keyword">import</span> Jinja2Templates
+
+app = FastAPI()
+templates = Jinja2Templates(directory=<span class="hl-string">"templates"</span>)
+
+tasks = [
+    {<span class="hl-string">"id"</span>: <span class="hl-number">1</span>, <span class="hl-string">"title"</span>: <span class="hl-string">"Buy groceries"</span>, <span class="hl-string">"done"</span>: <span class="hl-keyword">False</span>},
+    {<span class="hl-string">"id"</span>: <span class="hl-number">2</span>, <span class="hl-string">"title"</span>: <span class="hl-string">"Write tests"</span>, <span class="hl-string">"done"</span>: <span class="hl-keyword">False</span>},
+]
+
+
+<span class="hl-decorator">@app.get</span>(<span class="hl-string">"/tasks"</span>, response_class=HTMLResponse)
+<span class="hl-keyword">async def</span> get_tasks(request: Request):
+    <span class="hl-comment"># Always return just the fragment — HTMX swaps it into #task-list</span>
+    <span class="hl-keyword">return</span> templates.TemplateResponse(
+        <span class="hl-string">"partials/task_list.html"</span>,
+        {<span class="hl-string">"request"</span>: request, <span class="hl-string">"tasks"</span>: tasks}
+    )
+
+
+<span class="hl-decorator">@app.post</span>(<span class="hl-string">"/tasks"</span>, response_class=HTMLResponse)
+<span class="hl-keyword">async def</span> create_task(request: Request, title: <span class="hl-builtin">str</span> = Form(...)):
+    <span class="hl-comment"># Form(...) reads "title" from the POST body (multipart form data)</span>
+    new_task = {<span class="hl-string">"id"</span>: <span class="hl-builtin">len</span>(tasks) + <span class="hl-number">1</span>, <span class="hl-string">"title"</span>: title, <span class="hl-string">"done"</span>: <span class="hl-keyword">False</span>}
+    tasks.append(new_task)
+    <span class="hl-comment"># Return updated task list — HTMX replaces #task-list content</span>
+    <span class="hl-keyword">return</span> templates.TemplateResponse(
+        <span class="hl-string">"partials/task_list.html"</span>,
+        {<span class="hl-string">"request"</span>: request, <span class="hl-string">"tasks"</span>: tasks}
+    )
+
+
+<span class="hl-decorator">@app.delete</span>(<span class="hl-string">"/tasks/{task_id}"</span>, response_class=HTMLResponse)
+<span class="hl-keyword">async def</span> delete_task(task_id: <span class="hl-builtin">int</span>):
+    <span class="hl-keyword">global</span> tasks
+    tasks = [t <span class="hl-keyword">for</span> t <span class="hl-keyword">in</span> tasks <span class="hl-keyword">if</span> t[<span class="hl-string">"id"</span>] != task_id]
+    <span class="hl-comment"># Return empty string — with hx-swap="outerHTML" on the &lt;li&gt;,</span>
+    <span class="hl-comment"># an empty response causes the element to disappear from the DOM</span>
+    <span class="hl-keyword">return</span> HTMLResponse(content=<span class="hl-string">""</span>)</code></pre>
+            </div>
+            <div class="tab-panel" id="step6_panel1">
+              <div class="code-header"><span class="lang-label">html</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-comment">&lt;!-- templates/partials/task_list.html --&gt;</span>
+<span class="hl-comment">&lt;!-- Fragment: no html/head/body. Just the &lt;li&gt; items. --&gt;</span>
+{% for task in tasks %}
+  <span class="hl-tag">&lt;li</span> <span class="hl-attr">id</span>=<span class="hl-string">"task-{{ task.id }}"</span> <span class="hl-attr">class</span>=<span class="hl-string">"task-item{% if task.done %} done{% endif %}"</span><span class="hl-tag">&gt;</span>
+    <span class="hl-tag">&lt;span&gt;</span>{{ task.title }}<span class="hl-tag">&lt;/span&gt;</span>
+    <span class="hl-tag">&lt;button</span>
+      <span class="hl-attr">hx-delete</span>=<span class="hl-string">"/tasks/{{ task.id }}"</span>
+      <span class="hl-attr">hx-target</span>=<span class="hl-string">"#task-{{ task.id }}"</span>
+      <span class="hl-attr">hx-swap</span>=<span class="hl-string">"outerHTML"</span>
+    <span class="hl-tag">&gt;</span>✕<span class="hl-tag">&lt;/button&gt;</span>
+  <span class="hl-tag">&lt;/li&gt;</span>
+{% else %}
+  <span class="hl-tag">&lt;li</span> <span class="hl-attr">class</span>=<span class="hl-string">"empty"</span><span class="hl-tag">&gt;</span>No tasks. Add one above.<span class="hl-tag">&lt;/li&gt;</span>
+{% endfor %}</code></pre>
+            </div>
+            <div class="tab-panel" id="step6_panel2">
+              <div class="code-header"><span class="lang-label">python</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-decorator">@app.get</span>(<span class="hl-string">"/tasks"</span>, response_class=HTMLResponse)
+<span class="hl-keyword">async def</span> get_tasks(request: Request):
+    <span class="hl-comment"># Check if the request came from HTMX by reading the HX-Request header</span>
+    <span class="hl-comment"># HTMX always sends this header; a browser navigation does not</span>
+    is_htmx = request.headers.get(<span class="hl-string">"HX-Request"</span>)
+
+    <span class="hl-keyword">if</span> is_htmx:
+        <span class="hl-comment"># HTMX request: return just the fragment</span>
+        <span class="hl-keyword">return</span> templates.TemplateResponse(
+            <span class="hl-string">"partials/task_list.html"</span>,
+            {<span class="hl-string">"request"</span>: request, <span class="hl-string">"tasks"</span>: tasks}
+        )
+    <span class="hl-keyword">else</span>:
+        <span class="hl-comment"># Direct browser navigation: return the full page</span>
+        <span class="hl-keyword">return</span> templates.TemplateResponse(
+            <span class="hl-string">"index.html"</span>,
+            {<span class="hl-string">"request"</span>: request, <span class="hl-string">"tasks"</span>: tasks}
+        )</code></pre>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- STEP 7 -->
+      <div class="step" id="step7">
+        <div class="step-number">7</div>
+        <div class="step-content">
+          <h3>Live Search</h3>
+          <p class="explanation">Live search is the most compelling demonstration of what HTMX can do, and it's also the clearest illustration of how little code it takes. The entire feature is one input element with three attributes and one FastAPI route. The user types, HTMX waits for them to stop (the <code>delay:300ms</code> modifier), checks whether the value changed (the <code>changed</code> modifier), then makes a GET request to your search route with the query string. FastAPI queries the data, renders a fragment containing only the matching results, and HTMX swaps it into the target container. The user sees results appear as they type. No debouncing function, no fetch(), no DOM manipulation, no state management.</p>
+          <p class="explanation">The <code>name="q"</code> attribute on the input is the key to how the query gets sent. When HTMX makes a GET request from an input element, it includes the input's name and value as query parameters. So typing "buy" in an input named "q" triggers <code>GET /search?q=buy</code>. In FastAPI, you receive this with a plain query parameter: <code>async def search(q: str = "")</code>. The empty string default handles the case where the user clears the field entirely.</p>
+          <div class="tabs" data-step="step7">
+            <div class="tab-bar">
+              <button class="tab-btn active" onclick="switchTab('step7',0)">HTML — search input</button>
+              <button class="tab-btn" onclick="switchTab('step7',1)">FastAPI route</button>
+              <button class="tab-btn" onclick="switchTab('step7',2)">partials/search_results.html</button>
+            </div>
+            <div class="tab-panel active" id="step7_panel0">
+              <div class="code-header"><span class="lang-label">html</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-comment">&lt;!-- The live search input --&gt;</span>
+<span class="hl-comment">&lt;!-- hx-trigger fires on keyup, but waits 300ms after typing stops --&gt;</span>
+<span class="hl-comment">&lt;!-- "changed" ensures the request only fires if the value actually changed --&gt;</span>
+<span class="hl-tag">&lt;input</span>
+  <span class="hl-attr">type</span>=<span class="hl-string">"search"</span>
+  <span class="hl-attr">name</span>=<span class="hl-string">"q"</span>                                            <span class="hl-comment">&lt;!-- sent as ?q=... in the GET request --&gt;</span>
+  <span class="hl-attr">hx-get</span>=<span class="hl-string">"/search"</span>                                    <span class="hl-comment">&lt;!-- call this URL --&gt;</span>
+  <span class="hl-attr">hx-trigger</span>=<span class="hl-string">"keyup changed delay:300ms"</span>             <span class="hl-comment">&lt;!-- on keyup, debounced 300ms, only if changed --&gt;</span>
+  <span class="hl-attr">hx-target</span>=<span class="hl-string">"#search-results"</span>                        <span class="hl-comment">&lt;!-- put the response here --&gt;</span>
+  <span class="hl-attr">hx-swap</span>=<span class="hl-string">"innerHTML"</span>                                 <span class="hl-comment">&lt;!-- replace the container's content --&gt;</span>
+  <span class="hl-attr">placeholder</span>=<span class="hl-string">"Search tasks..."</span>
+<span class="hl-tag">&gt;</span>
+
+<span class="hl-comment">&lt;!-- Container where results appear --&gt;</span>
+<span class="hl-tag">&lt;ul</span> <span class="hl-attr">id</span>=<span class="hl-string">"search-results"</span><span class="hl-tag">&gt;</span>
+  <span class="hl-comment">&lt;!-- HTMX fills this in as the user types --&gt;</span>
+<span class="hl-tag">&lt;/ul&gt;</span></code></pre>
+            </div>
+            <div class="tab-panel" id="step7_panel1">
+              <div class="code-header"><span class="lang-label">python</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-decorator">@app.get</span>(<span class="hl-string">"/search"</span>, response_class=HTMLResponse)
+<span class="hl-keyword">async def</span> search(request: Request, q: <span class="hl-builtin">str</span> = <span class="hl-string">""</span>):
+    <span class="hl-comment"># q comes from the ?q= query parameter in the GET request</span>
+    <span class="hl-comment"># Default to empty string so clearing the field returns all tasks</span>
+    <span class="hl-keyword">if</span> q:
+        <span class="hl-comment"># Filter tasks where the title contains the search term (case-insensitive)</span>
+        results = [
+            t <span class="hl-keyword">for</span> t <span class="hl-keyword">in</span> tasks
+            <span class="hl-keyword">if</span> q.lower() <span class="hl-keyword">in</span> t[<span class="hl-string">"title"</span>].lower()
+        ]
+    <span class="hl-keyword">else</span>:
+        <span class="hl-comment"># Empty query — return all tasks (or return nothing, your choice)</span>
+        results = tasks
+
+    <span class="hl-comment"># Return only the fragment — HTMX replaces #search-results content</span>
+    <span class="hl-keyword">return</span> templates.TemplateResponse(
+        <span class="hl-string">"partials/search_results.html"</span>,
+        {<span class="hl-string">"request"</span>: request, <span class="hl-string">"results"</span>: results, <span class="hl-string">"q"</span>: q}
+    )</code></pre>
+            </div>
+            <div class="tab-panel" id="step7_panel2">
+              <div class="code-header"><span class="lang-label">html</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-comment">&lt;!-- templates/partials/search_results.html --&gt;</span>
+<span class="hl-comment">&lt;!-- Fragment: just &lt;li&gt; items, no outer wrapper needed --&gt;</span>
+{% if results %}
+  {% for task in results %}
+    <span class="hl-tag">&lt;li&gt;</span>
+      <span class="hl-comment">&lt;!-- Highlight the matching part of the title --&gt;</span>
+      {{ task.title }}
+      {% if task.done %}
+        <span class="hl-tag">&lt;span</span> <span class="hl-attr">class</span>=<span class="hl-string">"badge"</span><span class="hl-tag">&gt;</span>Done<span class="hl-tag">&lt;/span&gt;</span>
+      {% endif %}
+    <span class="hl-tag">&lt;/li&gt;</span>
+  {% endfor %}
+{% elif q %}
+  <span class="hl-comment">&lt;!-- Only show "no results" message if the user actually typed something --&gt;</span>
+  <span class="hl-tag">&lt;li</span> <span class="hl-attr">class</span>=<span class="hl-string">"empty"</span><span class="hl-tag">&gt;</span>No tasks matching "{{ q }}"<span class="hl-tag">&lt;/li&gt;</span>
+{% endif %}</code></pre>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- STEP 8 -->
+      <div class="step" id="step8">
+        <div class="step-number">8</div>
+        <div class="step-content">
+          <h3>Forms Without Page Reload</h3>
+          <p class="explanation">Standard HTML forms cause a full page reload on submit. You click submit, the browser navigates to the action URL, the server responds with a complete page, and the browser renders it from scratch. For a task manager, this means after every form submission the user sees the page flash and reload. With HTMX, form submission triggers an HTTP request in the background — the page stays where it is, only the targeted section updates.</p>
+          <p class="explanation">There's one important pattern to get right with HTMX forms: resetting the form after a successful submission. When the user adds a task, the input field should clear itself. HTMX doesn't reset forms automatically. The standard approach is to return <code>hx-on::after-request="this.reset()"</code> as an attribute on the form, or better, to use a Jinja2 trick: return a fresh empty form along with the updated task list. This way the form is replaced by an identical-but-empty copy of itself.</p>
+          <div class="info-box"><strong>Sending JSON vs form data:</strong> By default, HTMX sends form submissions as multipart form data (same as a native HTML form). Your FastAPI route reads fields with <code>Form(...)</code>. If you need to send JSON instead, you can use the <code>hx-ext="json-enc"</code> extension, but this requires an extra HTMX extension script tag. For most HTMX apps, plain form data is the right choice — it's simpler and consistent with how standard HTML works.</div>
+          <div class="tabs" data-step="step8">
+            <div class="tab-bar">
+              <button class="tab-btn active" onclick="switchTab('step8',0)">HTML — complete form</button>
+              <button class="tab-btn" onclick="switchTab('step8',1)">FastAPI route</button>
+              <button class="tab-btn" onclick="switchTab('step8',2)">test it</button>
+            </div>
+            <div class="tab-panel active" id="step8_panel0">
+              <div class="code-header"><span class="lang-label">html</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-comment">&lt;!-- Add-task form with HTMX --&gt;</span>
+<span class="hl-tag">&lt;form</span>
+  <span class="hl-attr">hx-post</span>=<span class="hl-string">"/tasks"</span>               <span class="hl-comment">&lt;!-- POST to this URL on submit --&gt;</span>
+  <span class="hl-attr">hx-target</span>=<span class="hl-string">"#task-list"</span>        <span class="hl-comment">&lt;!-- put the response in #task-list --&gt;</span>
+  <span class="hl-attr">hx-swap</span>=<span class="hl-string">"innerHTML"</span>           <span class="hl-comment">&lt;!-- replace the list's content --&gt;</span>
+  <span class="hl-attr">hx-on::after-request</span>=<span class="hl-string">"this.reset()"</span>  <span class="hl-comment">&lt;!-- clear the form after each submit --&gt;</span>
+<span class="hl-tag">&gt;</span>
+  <span class="hl-tag">&lt;input</span>
+    <span class="hl-attr">type</span>=<span class="hl-string">"text"</span>
+    <span class="hl-attr">name</span>=<span class="hl-string">"title"</span>               <span class="hl-comment">&lt;!-- HTMX sends this as "title" in the POST body --&gt;</span>
+    <span class="hl-attr">placeholder</span>=<span class="hl-string">"New task..."</span>
+    <span class="hl-attr">required</span>
+    <span class="hl-attr">autofocus</span>
+  <span class="hl-tag">&gt;</span>
+  <span class="hl-tag">&lt;button</span> <span class="hl-attr">type</span>=<span class="hl-string">"submit"</span><span class="hl-tag">&gt;</span>Add Task<span class="hl-tag">&lt;/button&gt;</span>
+<span class="hl-tag">&lt;/form&gt;</span>
+
+<span class="hl-comment">&lt;!-- The task list container --&gt;</span>
+<span class="hl-tag">&lt;ul</span> <span class="hl-attr">id</span>=<span class="hl-string">"task-list"</span><span class="hl-tag">&gt;</span>
+  {% include "partials/task_list.html" %}
+<span class="hl-tag">&lt;/ul&gt;</span>
+
+<span class="hl-comment">&lt;!-- Mark-done pattern: PATCH request on checkbox change --&gt;</span>
+<span class="hl-tag">&lt;li</span> <span class="hl-attr">id</span>=<span class="hl-string">"task-{{ task.id }}"</span><span class="hl-tag">&gt;</span>
+  <span class="hl-tag">&lt;input</span>
+    <span class="hl-attr">type</span>=<span class="hl-string">"checkbox"</span>
+    {% if task.done %}checked{% endif %}
+    <span class="hl-attr">hx-patch</span>=<span class="hl-string">"/tasks/{{ task.id }}/toggle"</span>
+    <span class="hl-attr">hx-target</span>=<span class="hl-string">"#task-{{ task.id }}"</span>
+    <span class="hl-attr">hx-swap</span>=<span class="hl-string">"outerHTML"</span>         <span class="hl-comment">&lt;!-- replace the entire &lt;li&gt; with the updated one --&gt;</span>
+  <span class="hl-tag">&gt;</span>
+  {{ task.title }}
+<span class="hl-tag">&lt;/li&gt;</span></code></pre>
+            </div>
+            <div class="tab-panel" id="step8_panel1">
+              <div class="code-header"><span class="lang-label">python</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-decorator">@app.patch</span>(<span class="hl-string">"/tasks/{task_id}/toggle"</span>, response_class=HTMLResponse)
+<span class="hl-keyword">async def</span> toggle_task(request: Request, task_id: <span class="hl-builtin">int</span>):
+    <span class="hl-comment"># Find the task and flip its done state</span>
+    task = next((t <span class="hl-keyword">for</span> t <span class="hl-keyword">in</span> tasks <span class="hl-keyword">if</span> t[<span class="hl-string">"id"</span>] == task_id), <span class="hl-keyword">None</span>)
+    <span class="hl-keyword">if</span> <span class="hl-keyword">not</span> task:
+        <span class="hl-keyword">return</span> HTMLResponse(<span class="hl-string">""</span>, status_code=<span class="hl-number">404</span>)
+
+    task[<span class="hl-string">"done"</span>] = <span class="hl-keyword">not</span> task[<span class="hl-string">"done"</span>]  <span class="hl-comment"># toggle</span>
+
+    <span class="hl-comment"># Return just the updated &lt;li&gt; row — HTMX replaces the old one</span>
+    <span class="hl-comment"># hx-swap="outerHTML" on the checkbox means the entire &lt;li&gt; gets replaced</span>
+    <span class="hl-keyword">return</span> templates.TemplateResponse(
+        <span class="hl-string">"partials/task_row.html"</span>,
+        {<span class="hl-string">"request"</span>: request, <span class="hl-string">"task"</span>: task}
+    )</code></pre>
+            </div>
+            <div class="tab-panel" id="step8_panel2">
+              <div class="code-header"><span class="lang-label">text</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code>1. uvicorn main:app --reload
+2. Open http://localhost:8000
+3. Type "Walk the dog" in the input and press Enter
+   → Task appears in the list. The input clears automatically.
+4. Type another task and submit again
+   → List grows. No page reload — notice the browser URL stays at /
+5. Tick the checkbox on a task
+   → The row updates immediately showing the crossed-out state
+6. Open Network tab in DevTools
+   → You'll see PATCH /tasks/1/toggle
+   → Response is a tiny HTML fragment: just the &lt;li&gt; element
+   → No JSON. No full HTML page. Just the piece that changed.</code></pre>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- STEP 9 -->
+      <div class="step" id="step9">
+        <div class="step-number">9</div>
+        <div class="step-content">
+          <h3>Loading Indicators and CSS Transitions</h3>
+          <p class="explanation">When HTMX makes a request, there's a brief moment between the user action and the response arriving. For fast local servers, this is imperceptible. But for real routes that call a database or an external API, there can be a noticeable delay. Without any feedback, the user might think the button didn't work and click it again. HTMX has a built-in system for this: while any HTMX request is in-flight, it adds the CSS class <code>htmx-request</code> to the element that made the request. You can use this class in your CSS to show a spinner, change the button text, or dim the container.</p>
+          <p class="explanation">The <code>htmx-indicator</code> pattern goes further: you create a separate element (usually a spinner SVG or animated dots) and give it the class <code>htmx-indicator</code>. HTMX hides it by default (opacity 0) and shows it (opacity 1) while any request is in-flight. You control which request shows which indicator using the <code>hx-indicator</code> attribute, pointing it at your spinner element's CSS selector. This is clean because the spinner is just an HTML element and a CSS class — no JavaScript state, no conditionals in your frontend code.</p>
+          <p class="explanation">CSS transitions on HTMX swaps make the UI feel polished. When HTMX inserts new content, it briefly adds the class <code>htmx-added</code> to newly inserted elements. You can use this with a CSS keyframe animation to fade new items in. The swap also briefly has <code>htmx-swapping</code> on the outgoing content, letting you animate it out before the new content arrives. A simple <code>transition: opacity 0.2s</code> on your task items transforms the experience from abrupt replacement to smooth update.</p>
+          <div class="tabs" data-step="step9">
+            <div class="tab-bar">
+              <button class="tab-btn active" onclick="switchTab('step9',0)">HTML — indicator</button>
+              <button class="tab-btn" onclick="switchTab('step9',1)">CSS — transitions</button>
+              <button class="tab-btn" onclick="switchTab('step9',2)">button loading state</button>
+            </div>
+            <div class="tab-panel active" id="step9_panel0">
+              <div class="code-header"><span class="lang-label">html</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-comment">&lt;!-- The spinner is hidden by default (htmx-indicator class sets opacity: 0) --&gt;</span>
+<span class="hl-comment">&lt;!-- hx-indicator="#spinner" on the form makes HTMX show it during the request --&gt;</span>
+<span class="hl-tag">&lt;form</span>
+  <span class="hl-attr">hx-post</span>=<span class="hl-string">"/tasks"</span>
+  <span class="hl-attr">hx-target</span>=<span class="hl-string">"#task-list"</span>
+  <span class="hl-attr">hx-swap</span>=<span class="hl-string">"innerHTML"</span>
+  <span class="hl-attr">hx-indicator</span>=<span class="hl-string">"#spinner"</span>       <span class="hl-comment">&lt;!-- show this element while the request is in-flight --&gt;</span>
+  <span class="hl-attr">hx-on::after-request</span>=<span class="hl-string">"this.reset()"</span>
+<span class="hl-tag">&gt;</span>
+  <span class="hl-tag">&lt;input</span> <span class="hl-attr">type</span>=<span class="hl-string">"text"</span> <span class="hl-attr">name</span>=<span class="hl-string">"title"</span> <span class="hl-attr">placeholder</span>=<span class="hl-string">"New task..."</span><span class="hl-tag">&gt;</span>
+  <span class="hl-tag">&lt;button</span> <span class="hl-attr">type</span>=<span class="hl-string">"submit"</span><span class="hl-tag">&gt;</span>Add<span class="hl-tag">&lt;/button&gt;</span>
+  <span class="hl-comment">&lt;!-- The spinner element — htmx-indicator class hides it by default --&gt;</span>
+  <span class="hl-tag">&lt;span</span> <span class="hl-attr">id</span>=<span class="hl-string">"spinner"</span> <span class="hl-attr">class</span>=<span class="hl-string">"htmx-indicator"</span><span class="hl-tag">&gt;</span>⏳<span class="hl-tag">&lt;/span&gt;</span>
+<span class="hl-tag">&lt;/form&gt;</span>
+
+<span class="hl-comment">&lt;!-- Task list — new items fade in via CSS on the htmx-added class --&gt;</span>
+<span class="hl-tag">&lt;ul</span> <span class="hl-attr">id</span>=<span class="hl-string">"task-list"</span><span class="hl-tag">&gt;</span>
+  {% include "partials/task_list.html" %}
+<span class="hl-tag">&lt;/ul&gt;</span></code></pre>
+            </div>
+            <div class="tab-panel" id="step9_panel1">
+              <div class="code-header"><span class="lang-label">css</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code>/* HTMX hides indicators by default with opacity 0 */
+/* When a request is in-flight, it sets opacity 1 on the indicator */
+.htmx-indicator {
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+/* HTMX adds this class during the request, removing it when done */
+.htmx-request .htmx-indicator,
+.htmx-request.htmx-indicator {
+  opacity: 1;
+}
+
+/* Fade in newly inserted content */
+/* HTMX adds htmx-added to elements it just inserted into the DOM */
+.htmx-added {
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* Dim the button while the request is in-flight */
+/* htmx-request is added to the element that made the request */
+button.htmx-request {
+  opacity: 0.6;
+  cursor: not-allowed;
+  pointer-events: none; /* prevent double-submit */
+}</code></pre>
+            </div>
+            <div class="tab-panel" id="step9_panel2">
+              <div class="code-header"><span class="lang-label">html</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-comment">&lt;!-- A button that shows "Loading..." while the request is in-flight --&gt;</span>
+<span class="hl-comment">&lt;!-- Uses two spans: one visible by default, one visible during htmx-request --&gt;</span>
+<span class="hl-tag">&lt;button</span>
+  <span class="hl-attr">hx-post</span>=<span class="hl-string">"/tasks"</span>
+  <span class="hl-attr">hx-target</span>=<span class="hl-string">"#task-list"</span>
+<span class="hl-tag">&gt;</span>
+  <span class="hl-comment">&lt;!-- Shown normally, hidden during request (CSS: .htmx-request .default-text) --&gt;</span>
+  <span class="hl-tag">&lt;span</span> <span class="hl-attr">class</span>=<span class="hl-string">"default-text"</span><span class="hl-tag">&gt;</span>Add Task<span class="hl-tag">&lt;/span&gt;</span>
+
+  <span class="hl-comment">&lt;!-- Hidden by default, shown during request --&gt;</span>
+  <span class="hl-tag">&lt;span</span> <span class="hl-attr">class</span>=<span class="hl-string">"htmx-indicator"</span><span class="hl-tag">&gt;</span>Adding...<span class="hl-tag">&lt;/span&gt;</span>
+<span class="hl-tag">&lt;/button&gt;</span></code></pre>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- STEP 10 -->
+      <div class="step" id="step10">
+        <div class="step-number">10</div>
+        <div class="step-content">
+          <h3>HTMX + WebSockets</h3>
+          <p class="explanation">HTMX can also connect to a WebSocket server, and this is where it becomes genuinely powerful for real-time features. With the <code>hx-ws</code> attribute, HTMX maintains a persistent WebSocket connection to your FastAPI backend. When the server sends a message, HTMX expects it to be an HTML fragment and swaps it into the target element on the page — automatically, without any JavaScript. This is the opposite of the HTMX request model: instead of the user triggering a request, the <em>server</em> pushes updates to the client whenever it wants.</p>
+          <p class="explanation">The setup requires the HTMX WebSocket extension, which is a separate script tag alongside the main HTMX script. On the FastAPI side, you write a normal WebSocket route — the same as you'd write without HTMX. The only difference is what you send: instead of JSON, you send HTML strings. HTMX receives them and swaps them into the page. The HTML you send can include HTMX attributes itself, so dynamically inserted content can also make requests — the whole system is composable.</p>
+          <p class="explanation">A typical pattern: when a new task is created, the server broadcasts an HTML fragment containing the new task row to all connected WebSocket clients. Each browser tab receives the fragment and HTMX appends it to the task list. Every tab sees the new task appear in real-time, with no polling, no page refresh, and no JavaScript beyond loading the HTMX library.</p>
+          <div class="info-box"><strong>hx-ws="connect:/ws"</strong> opens the WebSocket connection. <strong>hx-ws="send"</strong> on a form inside the same element sends form data to the server via that WebSocket connection instead of HTTP. You can use connect and send together on the same element, or use them independently.</div>
+          <div class="tabs" data-step="step10">
+            <div class="tab-bar">
+              <button class="tab-btn active" onclick="switchTab('step10',0)">HTML — hx-ws</button>
+              <button class="tab-btn" onclick="switchTab('step10',1)">FastAPI WebSocket route</button>
+              <button class="tab-btn" onclick="switchTab('step10',2)">broadcast on task create</button>
+            </div>
+            <div class="tab-panel active" id="step10_panel0">
+              <div class="code-header"><span class="lang-label">html</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-comment">&lt;!-- Load the WebSocket extension alongside main HTMX --&gt;</span>
+<span class="hl-tag">&lt;script</span> <span class="hl-attr">src</span>=<span class="hl-string">"https://unpkg.com/htmx.org@1.9.12"</span><span class="hl-tag">&gt;&lt;/script&gt;</span>
+<span class="hl-tag">&lt;script</span> <span class="hl-attr">src</span>=<span class="hl-string">"https://unpkg.com/htmx.org@1.9.12/dist/ext/ws.js"</span><span class="hl-tag">&gt;&lt;/script&gt;</span>
+
+<span class="hl-comment">&lt;!-- hx-ext="ws" activates the WebSocket extension for this element --&gt;</span>
+<span class="hl-comment">&lt;!-- hx-ws="connect:/ws" opens a WS connection to ws://localhost:8000/ws --&gt;</span>
+<span class="hl-tag">&lt;div</span>
+  <span class="hl-attr">hx-ext</span>=<span class="hl-string">"ws"</span>
+  <span class="hl-attr">hx-ws</span>=<span class="hl-string">"connect:/ws"</span>
+<span class="hl-tag">&gt;</span>
+  <span class="hl-comment">&lt;!-- When the server sends HTML here, HTMX looks for an element --&gt;</span>
+  <span class="hl-comment">&lt;!-- whose id matches the id in the message and swaps it in --&gt;</span>
+
+  <span class="hl-comment">&lt;!-- Task list: server pushes new &lt;li&gt;s that get appended here --&gt;</span>
+  <span class="hl-tag">&lt;ul</span> <span class="hl-attr">id</span>=<span class="hl-string">"task-list"</span><span class="hl-tag">&gt;</span>
+    {% for task in tasks %}
+      <span class="hl-tag">&lt;li&gt;</span>{{ task.title }}<span class="hl-tag">&lt;/li&gt;</span>
+    {% endfor %}
+  <span class="hl-tag">&lt;/ul&gt;</span>
+
+  <span class="hl-comment">&lt;!-- Form that sends data via WebSocket instead of HTTP --&gt;</span>
+  <span class="hl-comment">&lt;!-- hx-ws="send" means submit sends to the WS connection, not via HTTP --&gt;</span>
+  <span class="hl-tag">&lt;form</span> <span class="hl-attr">hx-ws</span>=<span class="hl-string">"send"</span><span class="hl-tag">&gt;</span>
+    <span class="hl-tag">&lt;input</span> <span class="hl-attr">type</span>=<span class="hl-string">"text"</span> <span class="hl-attr">name</span>=<span class="hl-string">"title"</span> <span class="hl-attr">placeholder</span>=<span class="hl-string">"New task (live)..."</span><span class="hl-tag">&gt;</span>
+    <span class="hl-tag">&lt;button</span> <span class="hl-attr">type</span>=<span class="hl-string">"submit"</span><span class="hl-tag">&gt;</span>Add<span class="hl-tag">&lt;/button&gt;</span>
+  <span class="hl-tag">&lt;/form&gt;</span>
+<span class="hl-tag">&lt;/div&gt;</span></code></pre>
+            </div>
+            <div class="tab-panel" id="step10_panel1">
+              <div class="code-header"><span class="lang-label">python</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-keyword">from</span> fastapi <span class="hl-keyword">import</span> FastAPI, WebSocket, WebSocketDisconnect
+<span class="hl-keyword">from</span> typing <span class="hl-keyword">import</span> List
+<span class="hl-keyword">import</span> json
+
+app = FastAPI()
+
+<span class="hl-comment"># All currently connected WebSocket clients</span>
+connections: List[WebSocket] = []
+
+
+<span class="hl-decorator">@app.websocket</span>(<span class="hl-string">"/ws"</span>)
+<span class="hl-keyword">async def</span> websocket_endpoint(websocket: WebSocket):
+    <span class="hl-keyword">await</span> websocket.accept()       <span class="hl-comment"># complete the handshake</span>
+    connections.append(websocket)  <span class="hl-comment"># track this client</span>
+    <span class="hl-keyword">try</span>:
+        <span class="hl-keyword">while</span> <span class="hl-keyword">True</span>:
+            <span class="hl-comment"># Wait for a message from this client</span>
+            <span class="hl-comment"># HTMX sends form data as a JSON string: {"title": "Walk the dog", "HEADERS": {...}}</span>
+            data = <span class="hl-keyword">await</span> websocket.receive_text()
+            payload = json.loads(data)
+
+            <span class="hl-comment"># Extract the title field from the form submission</span>
+            title = payload.get(<span class="hl-string">"title"</span>, <span class="hl-string">""</span>).strip()
+            <span class="hl-keyword">if</span> <span class="hl-keyword">not</span> title:
+                <span class="hl-keyword">continue</span>
+
+            <span class="hl-comment"># Build the HTML fragment for the new task row</span>
+            new_id = <span class="hl-builtin">len</span>(tasks) + <span class="hl-number">1</span>
+            tasks.append({<span class="hl-string">"id"</span>: new_id, <span class="hl-string">"title"</span>: title, <span class="hl-string">"done"</span>: <span class="hl-keyword">False</span>})
+
+            <span class="hl-comment"># Craft the HTML to broadcast — HTMX uses the id to find where to swap it</span>
+            <span class="hl-comment"># hx-swap-oob="beforeend:#task-list" appends to the list on all clients</span>
+            fragment = <span class="hl-string">f"""
+            &lt;li id="task-{new_id}" hx-swap-oob="beforeend:#task-list"&gt;
+                &lt;span&gt;{title}&lt;/span&gt;
+            &lt;/li&gt;
+            """</span>
+
+            <span class="hl-comment"># Broadcast to ALL connected clients (including the sender)</span>
+            dead = []
+            <span class="hl-keyword">for</span> conn <span class="hl-keyword">in</span> list(connections):  <span class="hl-comment"># iterate a copy in case list changes</span>
+                <span class="hl-keyword">try</span>:
+                    <span class="hl-keyword">await</span> conn.send_text(fragment)
+                <span class="hl-keyword">except</span>:
+                    dead.append(conn)  <span class="hl-comment"># mark disconnected clients for cleanup</span>
+            <span class="hl-keyword">for</span> conn <span class="hl-keyword">in</span> dead:
+                connections.remove(conn)
+
+    <span class="hl-keyword">except</span> WebSocketDisconnect:
+        <span class="hl-comment"># Client closed the tab or lost connection — remove from list</span>
+        connections.remove(websocket)</code></pre>
+            </div>
+            <div class="tab-panel" id="step10_panel2">
+              <div class="code-header"><span class="lang-label">python</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-comment"># Out-of-band (OOB) swaps: the server sends HTML that targets elements</span>
+<span class="hl-comment"># anywhere on the page, not just the current WebSocket container.</span>
+<span class="hl-comment"># hx-swap-oob="beforeend:#task-list" means: append this &lt;li&gt; to #task-list,</span>
+<span class="hl-comment"># regardless of where the WebSocket container is in the DOM.</span>
+
+<span class="hl-keyword">async def</span> broadcast_new_task(task: dict):
+    <span class="hl-string">"""Send a new task row to every connected browser."""</span>
+    <span class="hl-comment"># The fragment uses hx-swap-oob so HTMX puts it in #task-list</span>
+    fragment = <span class="hl-string">f"""
+    &lt;li
+      id="task-{task['id']}"
+      hx-swap-oob="beforeend:#task-list"
+    &gt;
+      &lt;span&gt;{task['title']}&lt;/span&gt;
+      &lt;button
+        hx-delete="/tasks/{task['id']}"
+        hx-target="#task-{task['id']}"
+        hx-swap="outerHTML"
+      &gt;✕&lt;/button&gt;
+    &lt;/li&gt;
+    """</span>
+
+    dead = []
+    <span class="hl-keyword">for</span> conn <span class="hl-keyword">in</span> list(connections):
+        <span class="hl-keyword">try</span>:
+            <span class="hl-keyword">await</span> conn.send_text(fragment)
+        <span class="hl-keyword">except</span>:
+            dead.append(conn)
+    <span class="hl-keyword">for</span> conn <span class="hl-keyword">in</span> dead:
+        connections.remove(conn)
+
+
+<span class="hl-comment"># Call broadcast_new_task() from your POST /tasks route</span>
+<span class="hl-comment"># to push new tasks to all open browser tabs in real time</span>
+<span class="hl-decorator">@app.post</span>(<span class="hl-string">"/tasks"</span>, response_class=HTMLResponse)
+<span class="hl-keyword">async def</span> create_task(request: Request, title: <span class="hl-builtin">str</span> = Form(...)):
+    new_task = {<span class="hl-string">"id"</span>: <span class="hl-builtin">len</span>(tasks) + <span class="hl-number">1</span>, <span class="hl-string">"title"</span>: title, <span class="hl-string">"done"</span>: <span class="hl-keyword">False</span>}
+    tasks.append(new_task)
+    <span class="hl-keyword">await</span> broadcast_new_task(new_task)  <span class="hl-comment"># push to all WebSocket tabs</span>
+    <span class="hl-keyword">return</span> HTMLResponse(<span class="hl-string">""</span>)  <span class="hl-comment"># HTMX form gets empty response — the WS broadcast handles the UI update</span></code></pre>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- end .steps -->
+  </main>
+</div>
+
+<script>
+function switchTab(step, idx) {
+  const container = document.querySelector(`[data-step="${step}"]`);
+  container.querySelectorAll('.tab-btn').forEach((b, i) => b.classList.toggle('active', i === idx));
+  container.querySelectorAll('.tab-panel').forEach((p, i) => p.classList.toggle('active', i === idx));
+}
+function copyCode(btn) {
+  const code = btn.closest('.tabs').querySelector('.tab-panel.active pre code');
+  navigator.clipboard.writeText(code.innerText).then(() => {
+    btn.textContent = 'Copied!';
+    setTimeout(() => btn.textContent = 'Copy', 1500);
+  });
+}
+function toggleSidebar() {
+  document.getElementById('guideSidebar').classList.toggle('open');
+  document.getElementById('sidebarOverlay').classList.toggle('open');
+}
+const toggle = document.getElementById('themeToggle');
+const saved = localStorage.getItem('theme');
+if (saved === 'light') { document.documentElement.classList.add('light'); toggle.checked = true; }
+toggle.addEventListener('change', () => {
+  const light = toggle.checked;
+  document.documentElement.classList.toggle('light', light);
+  localStorage.setItem('theme', light ? 'light' : 'dark');
+});
+</script>
+<script>
+function toggleSbDesktop() {
+  var c = document.body.classList.toggle('sb-collapsed');
+  localStorage.setItem('sb-collapsed', c ? '1' : '0');
+}
+(function() { if (localStorage.getItem('sb-collapsed') === '1') document.body.classList.add('sb-collapsed'); })();
+</script>
+</body>
+</html>

@@ -1,0 +1,1045 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>RAG Knowledge Base API - FastAPI Capstone - pyoffline</title>
+<style>
+:root {
+  --bg:          #121212;
+  --surface:     #1e1e1e;
+  --surface2:    #2a2a2a;
+  --sidebar-bg:  #1a1a1a;
+  --text:        #e0e0e0;
+  --text-muted:  #aaa;
+  --text-dim:    #666;
+  --border:      #333;
+  --code-bg:     #1e1e1e;
+  --code-text:   #d4d4d4;
+  --shadow:      rgba(0,0,0,.4);
+  --accent:      #5E35B1;
+  --hl-keyword:  #569cd6;
+  --hl-string:   #ce9178;
+  --hl-comment:  #6a9955;
+  --hl-number:   #b5cea8;
+  --hl-decorator:#dcdcaa;
+  --hl-builtin:  #4ec9b0;
+  --hl-tag:      #4ec9b0;
+  --hl-attr:     #9cdcfe;
+  --hl-template: #c586c0;
+}
+html.light {
+  --bg:          #f5f7fa;
+  --surface:     #ffffff;
+  --surface2:    #eef0f3;
+  --sidebar-bg:  #ffffff;
+  --text:        #1a1a1a;
+  --text-muted:  #555;
+  --text-dim:    #888;
+  --border:      #dde1e7;
+  --code-bg:     #f8f8f8;
+  --code-text:   #24292e;
+  --shadow:      rgba(0,0,0,.1);
+  --hl-keyword:  #0000ff;
+  --hl-string:   #a31515;
+  --hl-comment:  #008000;
+  --hl-number:   #098658;
+  --hl-decorator:#795e26;
+  --hl-builtin:  #267f99;
+  --hl-tag:      #800000;
+  --hl-attr:     #e50000;
+  --hl-template: #af00db;
+}
+.hl-keyword  { color: var(--hl-keyword);  }
+.hl-string   { color: var(--hl-string);   }
+.hl-comment  { color: #adb4a7; font-size: 12px; font-style: italic; }
+.hl-number   { color: var(--hl-number);   }
+.hl-decorator{ color: var(--hl-decorator);}
+.hl-builtin  { color: var(--hl-builtin);  }
+.hl-tag      { color: var(--hl-tag);      }
+.hl-attr     { color: var(--hl-attr);     }
+.hl-template { color: var(--hl-template); }
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: var(--bg); color: var(--text); font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; transition: background .2s, color .2s; }
+a { color: var(--accent); }
+.layout { display: flex; min-height: 100vh; }
+.sidebar { width: 260px; min-width: 260px; background: var(--sidebar-bg); border-right: 1px solid var(--border); padding: 24px 16px; position: sticky; top: 0; height: 100vh; overflow-y: auto; }
+.sidebar h2 { font-size: 1.1rem; margin: 16px 0 8px; color: var(--text); }
+.sidebar nav ol { padding-left: 18px; }
+.sidebar nav li { margin: 6px 0; }
+.sidebar nav a { color: var(--text-muted); text-decoration: none; font-size: 0.85rem; }
+.sidebar nav a:hover { color: var(--accent); }
+.back-link { color: var(--text-dim); text-decoration: none; font-size: 0.85rem; display: block; margin-bottom: 8px; }
+.install-box { margin-top: 24px; background: var(--bg); border: 1px solid var(--border); padding: 12px; border-radius: 6px; font-size: 0.8rem; }
+.install-box code { display: block; word-break: break-all; color: var(--hl-comment); font-family: monospace; margin-top: 4px; }
+main { flex: 1; padding: 40px; max-width: 860px; }
+.guide-header { padding: 20px 20px 20px 24px; background: var(--surface); border-radius: 8px; margin-bottom: 32px; box-shadow: 0 1px 3px var(--shadow); }
+.guide-header h1 { font-size: 1.8rem; margin-bottom: 8px; }
+.guide-header p { color: var(--text-muted); }
+.step { display: flex; gap: 16px; margin-bottom: 40px; }
+.step-number { width: 32px; min-width: 32px; height: 32px; background: var(--accent); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 0.9rem; margin-top: 4px; color: #fff; }
+.step-content { flex: 1; min-width: 0; }
+.step-content h3 { font-size: 1.1rem; margin-bottom: 8px; color: var(--text); }
+.explanation { color: var(--text-muted); font-size: 0.9rem; line-height: 1.6; margin-bottom: 14px; }
+.info-box { background: var(--surface); border-left: 3px solid var(--accent); border-radius: 0 6px 6px 0; padding: 12px 16px; margin-bottom: 14px; font-size: 0.88rem; color: var(--text-muted); line-height: 1.6; }
+.info-box strong { color: var(--text); }
+.tabs { background: var(--surface); border-radius: 6px; overflow: hidden; border: 1px solid var(--border); }
+.tab-bar { display: flex; background: var(--surface2); overflow-x: auto; border-bottom: 1px solid var(--border); }
+.tab-btn { padding: 8px 16px; background: none; border: none; color: var(--text-muted); cursor: pointer; font-size: 0.8rem; white-space: nowrap; border-bottom: 2px solid transparent; margin-bottom: -1px; }
+.tab-btn.active { color: var(--text); border-bottom-color: var(--accent); }
+.tab-panel { display: none; }
+.tab-panel.active { display: block; }
+.code-header { display: flex; justify-content: space-between; align-items: center; padding: 5px 12px; background: var(--surface2); border-bottom: 1px solid var(--border); }
+.lang-label { font-size: 0.72rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: .04em; }
+.copy-btn { background: none; border: 1px solid var(--border); color: var(--text-muted); padding: 2px 8px; cursor: pointer; border-radius: 3px; font-size: 0.72rem; }
+.copy-btn:hover { color: var(--text); border-color: var(--text-muted); }
+pre { overflow-x: auto; padding: 16px; background: var(--code-bg); }
+code { font-family: "Fira Code", "Cascadia Code", "Consolas", monospace; font-size: 0.82rem; line-height: 1.65; color: var(--code-text); }
+.theme-row { display: flex; align-items: center; gap: 8px; margin-top: 20px; }
+.theme-label { font-size: 0.78rem; color: var(--text-muted); }
+.toggle-switch { position: relative; display: inline-block; width: 40px; height: 22px; }
+.toggle-switch input { opacity: 0; width: 0; height: 0; }
+.slider { position: absolute; cursor: pointer; inset: 0; background: var(--surface2); border: 1px solid var(--border); border-radius: 22px; transition: background .2s; }
+.slider:before { content: ""; position: absolute; width: 16px; height: 16px; left: 2px; top: 2px; background: var(--text-muted); border-radius: 50%; transition: transform .2s, background .2s; }
+.toggle-switch input:checked + .slider { background: var(--accent); border-color: var(--accent); }
+.toggle-switch input:checked + .slider:before { transform: translateX(18px); background: #fff; }
+.sidebar-toggle { display: none; position: fixed; top: 12px; left: 12px; z-index: 300; background: var(--accent); color: #fff; border: none; padding: 7px 14px; border-radius: 6px; cursor: pointer; font-size: 0.85rem; font-weight: 600; box-shadow: 0 2px 8px var(--shadow); align-items: center; gap: 6px; }
+.sidebar-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.45); z-index: 190; }
+.sidebar-overlay.open { display: block; }
+@media (max-width: 900px) {
+  .sidebar-toggle { display: flex; }
+  .layout { display: block; }
+  .sidebar { position: fixed; left: -280px; top: 0; height: 100vh; z-index: 200; transition: left .25s ease; box-shadow: 2px 0 16px var(--shadow); min-width: 260px; }
+  .sidebar.open { left: 0; }
+  main { padding: 60px 20px 40px; max-width: 100%; }
+  pre { overflow-x: auto; max-width: 100%; white-space: pre-wrap; word-break: break-word; }
+  .tabs { max-width: 100%; }
+}
+
+/* ── Desktop sidebar collapse ─────────────────────────────── */
+.sidebar { transition: width .2s ease, min-width .2s ease, padding .2s ease; }
+.sb-pin { display: flex; justify-content: flex-end; margin-bottom: 8px; }
+.sb-pin button { background: none; border: 1px solid var(--border); color: var(--text-dim); cursor: pointer; border-radius: 4px; padding: 2px 7px; font-size: 11px; line-height: 1.6; }
+.sb-pin button:hover { color: var(--accent); border-color: var(--accent); }
+.sb-reopen { display: none; position: fixed; left: 0; top: 50%; transform: translateY(-50%); background: var(--accent); color: #fff; border: none; border-radius: 0 4px 4px 0; padding: 10px 5px; cursor: pointer; z-index: 300; font-size: 11px; font-weight: 600; writing-mode: vertical-rl; letter-spacing: .05em; }
+@media (min-width: 901px) { body.sb-collapsed .sidebar { width: 0; min-width: 0; padding: 0; overflow: hidden; border-right: none; } body.sb-collapsed .sb-reopen { display: block; } }
+@media (max-width: 900px) { .sb-pin { display: none; } .sb-reopen { display: none !important; } }
+</style>
+</head>
+<body>
+<button class="sidebar-toggle" id="sidebarToggle" onclick="toggleSidebar()">&#9776; Steps</button>
+<div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+<button class="sb-reopen" onclick="toggleSbDesktop()">Steps</button>
+<div class="layout">
+  <aside class="sidebar" id="guideSidebar">
+    <div class="sb-pin"><button onclick="toggleSbDesktop()">&#9664; Hide</button></div>
+    <a href="index.html" class="back-link">← All Guides</a>
+    <h2>RAG Knowledge Base API</h2>
+    <nav><ol>
+      <li><a href="#step1">How RAG Works</a></li>
+      <li><a href="#step2">Database Setup + pgvector</a></li>
+      <li><a href="#step3">File Upload + Text Extraction</a></li>
+      <li><a href="#step4">Text Chunking</a></li>
+      <li><a href="#step5">Generating Embeddings</a></li>
+      <li><a href="#step6">Storing Vectors in PostgreSQL</a></li>
+      <li><a href="#step7">Cosine Similarity Search</a></li>
+      <li><a href="#step8">The Chat Endpoint</a></li>
+      <li><a href="#step9">StreamingResponse</a></li>
+      <li><a href="#step10">Auth + Testing</a></li>
+    </ol></nav>
+    <div class="install-box">
+      <p><strong>Install</strong></p>
+      <code>pip install fastapi uvicorn sqlalchemy psycopg2-binary pgvector openai pypdf python-multipart bcrypt tenacity pytest httpx python-dotenv</code>
+      <p style="margin-top:12px"><strong>PostgreSQL + pgvector</strong></p>
+      <code>CREATE EXTENSION IF NOT EXISTS vector;</code>
+      <p style="margin-top:12px"><strong>Run</strong></p>
+      <code>uvicorn main:app --reload</code>
+    </div>
+    <div class="theme-row">
+      <span class="theme-label">Dark</span>
+      <label class="toggle-switch">
+        <input type="checkbox" id="themeToggle">
+        <span class="slider"></span>
+      </label>
+      <span class="theme-label">Light</span>
+    </div>
+  </aside>
+
+  <main>
+    <header class="guide-header" style="border-left: 5px solid #5E35B1">
+      <h1>Capstone 2: Company Knowledge Base RAG API</h1>
+      <p>Upload internal documents and chat with them intelligently. This project teaches the full Retrieval-Augmented Generation pipeline: chunking text, generating embeddings, storing them in PostgreSQL with pgvector, running cosine similarity search at query time, injecting retrieved context into an LLM prompt, and streaming the answer token-by-token to the client.</p>
+    </header>
+
+    <div class="steps">
+
+      <!-- STEP 1 -->
+      <div class="step" id="step1">
+        <div class="step-number">1</div>
+        <div class="step-content">
+          <h3>How RAG Works</h3>
+          <p class="explanation">Large language models have a knowledge cutoff and a context window limit. They don't know about your company's internal documents — your HR policies, your product manuals, your support runbooks — and even if you tried to paste all that content into a single prompt, you'd quickly exceed the token limit. Retrieval-Augmented Generation (RAG) solves both problems by turning your documents into a searchable database of meaning, then fetching only the relevant pieces at query time to inject into the LLM's context.</p>
+          <p class="explanation">The word "embedding" is the key concept to understand. An embedding is what you get when you take a piece of text — a sentence, a paragraph, a document chunk — and feed it through a neural network that converts it into a list of hundreds or thousands of numbers. This list of numbers is called a vector, and it encodes the semantic meaning of the text. Texts with similar meanings produce vectors that are numerically close to each other. Texts with unrelated meanings produce vectors that are numerically distant. This is why you can search a corpus by meaning rather than by keywords — instead of looking for exact word matches, you find semantically similar text.</p>
+          <p class="explanation">The RAG pipeline has two phases. The <strong>ingestion phase</strong> (done once per document): split the document into chunks → embed each chunk → store the chunk text and its vector in the database. The <strong>query phase</strong> (done per user question): embed the question → find the top-k chunks whose vectors are closest to the question vector → inject those chunks as context into the LLM prompt → the LLM answers using only the provided context. Because you only inject the most relevant chunks, you stay well within the token limit and the LLM's answer is grounded in your documents.</p>
+          <div class="info-box">
+            <strong>Data flow in this project:</strong><br>
+            POST /documents → chunk text → embed each chunk → store in pgvector<br>
+            POST /chat → embed question → cosine similarity search → top 5 chunks → LLM → StreamingResponse
+          </div>
+        </div>
+      </div>
+
+      <!-- STEP 2 -->
+      <div class="step" id="step2">
+        <div class="step-number">2</div>
+        <div class="step-content">
+          <h3>Database Setup + pgvector</h3>
+          <p class="explanation">This project uses PostgreSQL with the pgvector extension. pgvector adds a native <code>VECTOR</code> column type to PostgreSQL and implements distance operations including cosine similarity, Euclidean distance, and inner product. You install it once per PostgreSQL database by running <code>CREATE EXTENSION IF NOT EXISTS vector;</code>. After that, SQLAlchemy can use the <code>Vector(dimensions)</code> type from the <code>pgvector.sqlalchemy</code> package to define vector columns in your models.</p>
+          <p class="explanation">The dimension count must match the embedding model you use. OpenAI's <code>text-embedding-3-small</code> produces 1536-dimensional vectors. OpenAI's <code>text-embedding-3-large</code> produces 3072. If you use a local model like <code>all-MiniLM-L6-v2</code> from sentence-transformers, it produces 384-dimensional vectors. You cannot mix dimensions in the same column — pick a model and define the column size accordingly. This guide uses <code>text-embedding-3-small</code> and 1536 dimensions.</p>
+          <p class="explanation">There are two models. <code>Document</code> tracks each uploaded file — its name, when it was uploaded, and who owns it. <code>DocumentChunk</code> stores the individual text fragments created by chunking, with a foreign key to the parent Document and the embedding vector. When a document is deleted, its chunks are deleted automatically by the cascade rule on the relationship.</p>
+          <div class="tabs" data-step="step2">
+            <div class="tab-bar">
+              <button class="tab-btn active" onclick="switchTab('step2',0)">models.py</button>
+              <button class="tab-btn" onclick="switchTab('step2',1)">database.py</button>
+              <button class="tab-btn" onclick="switchTab('step2',2)">enable pgvector in postgres</button>
+            </div>
+            <div class="tab-panel active" id="step2_panel0">
+              <div class="code-header"><span class="lang-label">python</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-keyword">from</span> sqlalchemy <span class="hl-keyword">import</span> Column, Integer, String, Text, DateTime, ForeignKey
+<span class="hl-keyword">from</span> sqlalchemy.orm <span class="hl-keyword">import</span> relationship
+<span class="hl-keyword">from</span> sqlalchemy.ext.declarative <span class="hl-keyword">import</span> declarative_base
+<span class="hl-keyword">from</span> pgvector.sqlalchemy <span class="hl-keyword">import</span> Vector   <span class="hl-comment"># pip install pgvector</span>
+<span class="hl-keyword">from</span> datetime <span class="hl-keyword">import</span> datetime
+
+Base = declarative_base()
+
+
+<span class="hl-keyword">class</span> Document(Base):
+    __tablename__ = <span class="hl-string">"documents"</span>
+
+    id         = Column(Integer, primary_key=<span class="hl-keyword">True</span>)
+    name       = Column(String)          <span class="hl-comment"># original filename from the upload</span>
+    owner_id   = Column(Integer)         <span class="hl-comment"># user who uploaded (from API key lookup)</span>
+    created_at = Column(DateTime, default=datetime.utcnow)
+
+    <span class="hl-comment"># All chunks for this document — deleted automatically when document is deleted</span>
+    chunks     = relationship(<span class="hl-string">"DocumentChunk"</span>, back_populates=<span class="hl-string">"document"</span>, cascade=<span class="hl-string">"all, delete-orphan"</span>)
+
+
+<span class="hl-keyword">class</span> DocumentChunk(Base):
+    __tablename__ = <span class="hl-string">"document_chunks"</span>
+
+    id          = Column(Integer, primary_key=<span class="hl-keyword">True</span>)
+    document_id = Column(Integer, ForeignKey(<span class="hl-string">"documents.id"</span>))  <span class="hl-comment"># which document this came from</span>
+    chunk_index = Column(Integer)        <span class="hl-comment"># position within the document (0, 1, 2, ...)</span>
+    text        = Column(Text)           <span class="hl-comment"># the raw text content of this chunk</span>
+
+    <span class="hl-comment"># The embedding vector — 1536 dimensions for text-embedding-3-small</span>
+    <span class="hl-comment"># This is the column pgvector adds — it stores a list of 1536 floats</span>
+    embedding   = Column(Vector(<span class="hl-number">1536</span>))
+
+    document    = relationship(<span class="hl-string">"Document"</span>, back_populates=<span class="hl-string">"chunks"</span>)</code></pre>
+            </div>
+            <div class="tab-panel" id="step2_panel1">
+              <div class="code-header"><span class="lang-label">python</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-keyword">from</span> sqlalchemy <span class="hl-keyword">import</span> create_engine, text
+<span class="hl-keyword">from</span> sqlalchemy.orm <span class="hl-keyword">import</span> sessionmaker
+<span class="hl-keyword">import</span> os
+
+DATABASE_URL = os.getenv(<span class="hl-string">"DATABASE_URL"</span>, <span class="hl-string">"postgresql://user:password@localhost/ragdb"</span>)
+
+engine       = create_engine(DATABASE_URL)
+SessionLocal = sessionmaker(autocommit=<span class="hl-keyword">False</span>, autoflush=<span class="hl-keyword">False</span>, bind=engine)
+
+
+<span class="hl-keyword">def</span> init_db():
+    <span class="hl-string">"""
+    Creates tables and enables pgvector extension.
+    Call this once on startup — safe to call on an existing DB.
+    """</span>
+    <span class="hl-keyword">from</span> models <span class="hl-keyword">import</span> Base
+    <span class="hl-comment"># Enable the pgvector extension — required before creating VECTOR columns</span>
+    <span class="hl-keyword">with</span> engine.connect() <span class="hl-keyword">as</span> conn:
+        conn.execute(text(<span class="hl-string">"CREATE EXTENSION IF NOT EXISTS vector"</span>))
+        conn.commit()
+    <span class="hl-comment"># Now create tables (VECTOR column type is available after the extension is enabled)</span>
+    Base.metadata.create_all(bind=engine)
+
+
+<span class="hl-keyword">def</span> get_db():
+    db = SessionLocal()
+    <span class="hl-keyword">try</span>:
+        <span class="hl-keyword">yield</span> db
+    <span class="hl-keyword">finally</span>:
+        db.close()</code></pre>
+            </div>
+            <div class="tab-panel" id="step2_panel2">
+              <div class="code-header"><span class="lang-label">text</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code># Option A: Using psql (run this once on your database)
+psql -U postgres -d ragdb -c "CREATE EXTENSION IF NOT EXISTS vector;"
+
+# Option B: Automatic on startup (handled in database.py init_db())
+# The init_db() function runs CREATE EXTENSION IF NOT EXISTS vector
+# before calling Base.metadata.create_all()
+
+# Option C: Docker with pgvector pre-installed
+docker run -d \
+  --name ragdb \
+  -e POSTGRES_PASSWORD=password \
+  -e POSTGRES_DB=ragdb \
+  -p 5432:5432 \
+  pgvector/pgvector:pg16
+
+# The pgvector/pgvector Docker image has the extension pre-installed.
+# You still need to run CREATE EXTENSION inside the database.</code></pre>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- STEP 3 -->
+      <div class="step" id="step3">
+        <div class="step-number">3</div>
+        <div class="step-content">
+          <h3>File Upload + Text Extraction</h3>
+          <p class="explanation">The document upload endpoint accepts text and PDF files. For plain text files (<code>.txt</code>), extraction is trivial: read the bytes and decode to a string. For PDF files, you need a library that can parse the PDF binary format and extract the text from each page. <code>pypdf</code> is a pure-Python library that does this without any system-level dependencies — it reads pages one at a time and joins their text content. The quality of text extraction from PDFs varies: PDFs with real text (generated from Word, LaTeX, etc.) extract cleanly. Scanned image PDFs produce garbage or nothing, because the text is an image, not actual characters.</p>
+          <p class="explanation">After extraction, the route passes the text to the chunking function, then to the embedding and storage pipeline. The whole process can take a few seconds for large documents, but it runs synchronously here — it's a reasonable trade-off because document upload is not a frequent operation and users expect it to take a moment. If you have very large documents or very many concurrent users, you'd move the chunking and embedding into a BackgroundTask (which you now know how to do from Capstone 1).</p>
+          <div class="tabs" data-step="step3">
+            <div class="tab-bar">
+              <button class="tab-btn active" onclick="switchTab('step3',0)">main.py — upload route</button>
+              <button class="tab-btn" onclick="switchTab('step3',1)">services/extractor.py</button>
+            </div>
+            <div class="tab-panel active" id="step3_panel0">
+              <div class="code-header"><span class="lang-label">python</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-keyword">from</span> fastapi <span class="hl-keyword">import</span> FastAPI, UploadFile, File, Depends, HTTPException
+<span class="hl-keyword">from</span> sqlalchemy.orm <span class="hl-keyword">import</span> Session
+
+<span class="hl-keyword">from</span> database <span class="hl-keyword">import</span> get_db, init_db
+<span class="hl-keyword">from</span> models <span class="hl-keyword">import</span> Document, DocumentChunk
+<span class="hl-keyword">from</span> middleware.api_key <span class="hl-keyword">import</span> verify_api_key, get_user_id_from_key
+<span class="hl-keyword">from</span> services.extractor <span class="hl-keyword">import</span> extract_text
+<span class="hl-keyword">from</span> services.chunker <span class="hl-keyword">import</span> chunk_text
+<span class="hl-keyword">from</span> services.embedder <span class="hl-keyword">import</span> embed_texts
+
+app = FastAPI(title=<span class="hl-string">"Knowledge Base RAG API"</span>)
+
+<span class="hl-decorator">@app.on_event</span>(<span class="hl-string">"startup"</span>)
+<span class="hl-keyword">def</span> startup():
+    init_db()  <span class="hl-comment"># enables pgvector extension + creates tables</span>
+
+
+<span class="hl-decorator">@app.post</span>(<span class="hl-string">"/documents"</span>, dependencies=[Depends(verify_api_key)])
+<span class="hl-keyword">async def</span> upload_document(
+    file: UploadFile = File(...),
+    db: Session = Depends(get_db)
+):
+    <span class="hl-comment"># Validate file type — only accept .txt and .pdf</span>
+    allowed = [<span class="hl-string">"text/plain"</span>, <span class="hl-string">"application/pdf"</span>]
+    <span class="hl-keyword">if</span> file.content_type <span class="hl-keyword">not</span> <span class="hl-keyword">in</span> allowed:
+        <span class="hl-keyword">raise</span> HTTPException(status_code=<span class="hl-number">400</span>, detail=<span class="hl-string">"Only .txt and .pdf files are accepted."</span>)
+
+    <span class="hl-comment"># Read the file bytes and extract text</span>
+    file_bytes = <span class="hl-keyword">await</span> file.read()
+    text = extract_text(file_bytes, file.content_type)
+
+    <span class="hl-keyword">if</span> <span class="hl-keyword">not</span> text.strip():
+        <span class="hl-keyword">raise</span> HTTPException(status_code=<span class="hl-number">422</span>, detail=<span class="hl-string">"Could not extract text from this file."</span>)
+
+    <span class="hl-comment"># Create a Document record</span>
+    doc = Document(name=file.filename, owner_id=<span class="hl-number">1</span>)  <span class="hl-comment"># owner_id from API key in production</span>
+    db.add(doc)
+    db.flush()  <span class="hl-comment"># flush to get doc.id without committing yet</span>
+
+    <span class="hl-comment"># Chunk the extracted text into overlapping fragments</span>
+    chunks = chunk_text(text)
+
+    <span class="hl-comment"># Embed all chunks in one API call (more efficient than one call per chunk)</span>
+    vectors = embed_texts(chunks)
+
+    <span class="hl-comment"># Save each chunk + its vector as a DocumentChunk row</span>
+    <span class="hl-keyword">for</span> i, (chunk, vector) <span class="hl-keyword">in</span> <span class="hl-builtin">enumerate</span>(<span class="hl-builtin">zip</span>(chunks, vectors)):
+        db.add(DocumentChunk(
+            document_id=doc.id,
+            chunk_index=i,
+            text=chunk,
+            embedding=vector  <span class="hl-comment"># pgvector stores this list of floats as a VECTOR</span>
+        ))
+
+    db.commit()
+    <span class="hl-keyword">return</span> {<span class="hl-string">"document_id"</span>: doc.id, <span class="hl-string">"chunks_created"</span>: <span class="hl-builtin">len</span>(chunks)}</code></pre>
+            </div>
+            <div class="tab-panel" id="step3_panel1">
+              <div class="code-header"><span class="lang-label">python</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-keyword">import</span> io
+<span class="hl-keyword">from</span> pypdf <span class="hl-keyword">import</span> PdfReader   <span class="hl-comment"># pip install pypdf</span>
+
+
+<span class="hl-keyword">def</span> extract_text(file_bytes: <span class="hl-builtin">bytes</span>, content_type: <span class="hl-builtin">str</span>) -> <span class="hl-builtin">str</span>:
+    <span class="hl-string">"""
+    Extracts plain text from a file's bytes, based on content type.
+    Returns a single string of all the text content.
+    """</span>
+    <span class="hl-keyword">if</span> content_type == <span class="hl-string">"text/plain"</span>:
+        <span class="hl-comment"># Plain text — just decode the bytes to a string</span>
+        <span class="hl-comment"># errors="replace" handles files with unusual encodings gracefully</span>
+        <span class="hl-keyword">return</span> file_bytes.decode(<span class="hl-string">"utf-8"</span>, errors=<span class="hl-string">"replace"</span>)
+
+    <span class="hl-keyword">elif</span> content_type == <span class="hl-string">"application/pdf"</span>:
+        <span class="hl-comment"># PDF — use pypdf to read pages and extract text from each one</span>
+        reader = PdfReader(io.BytesIO(file_bytes))  <span class="hl-comment"># wrap bytes in a file-like object</span>
+        pages = []
+        <span class="hl-keyword">for</span> page <span class="hl-keyword">in</span> reader.pages:
+            page_text = page.extract_text()
+            <span class="hl-keyword">if</span> page_text:
+                pages.append(page_text)
+        <span class="hl-comment"># Join all pages with a newline between them</span>
+        <span class="hl-keyword">return</span> <span class="hl-string">"\n"</span>.join(pages)
+
+    <span class="hl-keyword">return</span> <span class="hl-string">""</span>  <span class="hl-comment"># unsupported type — caller checks for empty string</span></code></pre>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- STEP 4 -->
+      <div class="step" id="step4">
+        <div class="step-number">4</div>
+        <div class="step-content">
+          <h3>Text Chunking</h3>
+          <p class="explanation">Chunking is the process of splitting a document into smaller pieces before embedding. You can't embed an entire 50-page document as a single vector — the embedding model has a token limit (typically 8192 tokens for OpenAI's models), and even within that limit, a single vector for an entire document would be too coarse to retrieve specific passages accurately. A chunk should be small enough to contain one focused idea — a paragraph or two — but large enough to provide meaningful context to the LLM when retrieved.</p>
+          <p class="explanation">The most important parameter is <strong>overlap</strong>. If you split a document into perfectly non-overlapping chunks, you'll inevitably cut through sentences or ideas at the boundaries. A question about content that spans a chunk boundary will retrieve a chunk containing only half the relevant context. Overlap solves this by duplicating some characters at the beginning of each chunk, ensuring that boundary content appears in at least one chunk fully. A typical overlap is 10–15% of the chunk size — so for 400-character chunks, a 50-character overlap is reasonable.</p>
+          <p class="explanation">This guide uses a simple character-based splitter, which works well for structured text documents. More sophisticated approaches — sentence-aware splitting, paragraph-aware splitting, semantic chunking — produce better retrieval quality but are significantly more complex to implement. Master the simple approach first; improving it is a natural v2 upgrade.</p>
+          <div class="tabs" data-step="step4">
+            <div class="tab-bar">
+              <button class="tab-btn active" onclick="switchTab('step4',0)">services/chunker.py</button>
+              <button class="tab-btn" onclick="switchTab('step4',1)">visualising chunks</button>
+            </div>
+            <div class="tab-panel active" id="step4_panel0">
+              <div class="code-header"><span class="lang-label">python</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-keyword">from</span> typing <span class="hl-keyword">import</span> List
+
+
+<span class="hl-keyword">def</span> chunk_text(
+    text: <span class="hl-builtin">str</span>,
+    chunk_size: <span class="hl-builtin">int</span> = <span class="hl-number">400</span>,    <span class="hl-comment"># characters per chunk — tune based on your documents</span>
+    overlap: <span class="hl-builtin">int</span> = <span class="hl-number">50</span>         <span class="hl-comment"># characters shared between consecutive chunks</span>
+) -> List[<span class="hl-builtin">str</span>]:
+    <span class="hl-string">"""
+    Splits text into overlapping chunks.
+    Returns a list of strings, each of length approximately chunk_size.
+    """</span>
+    <span class="hl-comment"># Normalise whitespace — collapse multiple spaces/newlines to single spaces</span>
+    text = <span class="hl-string">" "</span>.join(text.split())
+
+    chunks = []
+    start = <span class="hl-number">0</span>
+
+    <span class="hl-keyword">while</span> start < <span class="hl-builtin">len</span>(text):
+        end = start + chunk_size
+
+        <span class="hl-comment"># Try to break at a word boundary — find the last space before the end</span>
+        <span class="hl-comment"># This avoids cutting a word in the middle of a chunk</span>
+        <span class="hl-keyword">if</span> end < <span class="hl-builtin">len</span>(text):
+            last_space = text.rfind(<span class="hl-string">" "</span>, start, end)
+            <span class="hl-keyword">if</span> last_space > start:   <span class="hl-comment"># found a space within the chunk range</span>
+                end = last_space
+
+        chunk = text[start:end].strip()
+        <span class="hl-keyword">if</span> chunk:               <span class="hl-comment"># skip empty chunks (can happen at end of text)</span>
+            chunks.append(chunk)
+
+        <span class="hl-comment"># Next chunk starts (chunk_size - overlap) characters after current start</span>
+        <span class="hl-comment"># The overlap means the next chunk shares 'overlap' chars with the current one</span>
+        start += chunk_size - overlap
+
+    <span class="hl-keyword">return</span> chunks</code></pre>
+            </div>
+            <div class="tab-panel" id="step4_panel1">
+              <div class="code-header"><span class="lang-label">python</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-comment"># Quick test — run this in a Python shell to see what chunking produces</span>
+<span class="hl-keyword">from</span> services.chunker <span class="hl-keyword">import</span> chunk_text
+
+sample = <span class="hl-string">"""Our refund policy allows customers to request a full refund within 30 days of purchase.
+After 30 days, refunds are handled on a case-by-case basis. To initiate a refund, contact
+support@example.com with your order number. Refunds are processed within 5-7 business days."""</span>
+
+chunks = chunk_text(sample, chunk_size=<span class="hl-number">150</span>, overlap=<span class="hl-number">30</span>)
+<span class="hl-keyword">for</span> i, chunk <span class="hl-keyword">in</span> <span class="hl-builtin">enumerate</span>(chunks):
+    <span class="hl-builtin">print</span>(f<span class="hl-string">"[Chunk {i}] ({len(chunk)} chars): {chunk[:80]}..."</span>)
+
+<span class="hl-comment"># Output shows chunks that share some content at boundaries:</span>
+<span class="hl-comment"># [Chunk 0] (147 chars): Our refund policy allows customers to request a full refund within 30 days...</span>
+<span class="hl-comment"># [Chunk 1] (143 chars): After 30 days, refunds are handled on a case-by-case basis. To initiate a...</span>
+<span class="hl-comment"># The 30-char overlap means chunk 1 starts slightly before chunk 0 ends</span></code></pre>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- STEP 5 -->
+      <div class="step" id="step5">
+        <div class="step-number">5</div>
+        <div class="step-content">
+          <h3>Generating Embeddings</h3>
+          <p class="explanation">Generating embeddings means calling the OpenAI embeddings API with your text and getting back a list of floats. The key difference from the chat completions API you've used before is that this returns numbers, not words. There's no prompt, no system message, no temperature — just text in, vector out. The vector always has the same number of dimensions regardless of how long or short the input text is. A single word and a three-paragraph excerpt both produce a 1536-dimensional vector.</p>
+          <p class="explanation">The most important efficiency tip: batch your embedding calls. Instead of sending one API request per chunk (which could mean 100+ API calls for a single document), send all chunks in a single call using the list format. The OpenAI embeddings endpoint accepts a list of strings and returns a list of vectors in the same order. This reduces API call overhead dramatically and is significantly faster and cheaper than embedding chunks one at a time. The model handles batches up to 2048 inputs per call — well beyond what most documents need.</p>
+          <div class="tabs" data-step="step5">
+            <div class="tab-bar">
+              <button class="tab-btn active" onclick="switchTab('step5',0)">services/embedder.py</button>
+              <button class="tab-btn" onclick="switchTab('step5',1)">mock embedder (no API key)</button>
+            </div>
+            <div class="tab-panel active" id="step5_panel0">
+              <div class="code-header"><span class="lang-label">python</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-keyword">import</span> os
+<span class="hl-keyword">from</span> typing <span class="hl-keyword">import</span> List
+<span class="hl-keyword">from</span> openai <span class="hl-keyword">import</span> OpenAI
+<span class="hl-keyword">from</span> tenacity <span class="hl-keyword">import</span> retry, wait_exponential, stop_after_attempt
+
+client = OpenAI(api_key=os.getenv(<span class="hl-string">"OPENAI_API_KEY"</span>))
+
+EMBEDDING_MODEL = <span class="hl-string">"text-embedding-3-small"</span>  <span class="hl-comment"># produces 1536-dimensional vectors</span>
+EMBEDDING_DIMS  = <span class="hl-number">1536</span>                       <span class="hl-comment"># must match the Vector(1536) in models.py</span>
+
+
+<span class="hl-decorator">@retry</span>(wait=wait_exponential(multiplier=<span class="hl-number">1</span>, min=<span class="hl-number">1</span>, max=<span class="hl-number">30</span>), stop=stop_after_attempt(<span class="hl-number">3</span>))
+<span class="hl-keyword">def</span> embed_texts(texts: List[<span class="hl-builtin">str</span>]) -> List[List[<span class="hl-builtin">float</span>]]:
+    <span class="hl-string">"""
+    Embeds a list of strings in a single API call.
+    Returns a list of vectors in the same order as the input.
+    Uses tenacity to retry on rate limit errors.
+    """</span>
+    <span class="hl-keyword">if</span> <span class="hl-keyword">not</span> texts:
+        <span class="hl-keyword">return</span> []
+
+    <span class="hl-comment"># Send all texts in one call — far more efficient than one call per text</span>
+    response = client.embeddings.create(
+        model=EMBEDDING_MODEL,
+        input=texts,            <span class="hl-comment"># list of strings — returns a list of vectors</span>
+    )
+
+    <span class="hl-comment"># Response.data is a list of Embedding objects, each with .embedding (list of floats)</span>
+    <span class="hl-comment"># Sort by index to ensure order matches input (API guarantees this but be safe)</span>
+    <span class="hl-keyword">return</span> [item.embedding <span class="hl-keyword">for</span> item <span class="hl-keyword">in</span> sorted(response.data, key=<span class="hl-keyword">lambda</span> x: x.index)]
+
+
+<span class="hl-keyword">def</span> embed_query(text: <span class="hl-builtin">str</span>) -> List[<span class="hl-builtin">float</span>]:
+    <span class="hl-string">"""Convenience wrapper for embedding a single query string."""</span>
+    <span class="hl-keyword">return</span> embed_texts([text])[<span class="hl-number">0</span>]</code></pre>
+            </div>
+            <div class="tab-panel" id="step5_panel1">
+              <div class="code-header"><span class="lang-label">python</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-keyword">import</span> random
+<span class="hl-keyword">from</span> typing <span class="hl-keyword">import</span> List
+
+EMBEDDING_DIMS = <span class="hl-number">1536</span>
+
+
+<span class="hl-keyword">def</span> embed_texts(texts: List[<span class="hl-builtin">str</span>]) -> List[List[<span class="hl-builtin">float</span>]]:
+    <span class="hl-string">"""
+    Mock embedder — returns random vectors of the correct dimension.
+    Use this while building the pipeline to avoid OpenAI API costs.
+    WARNING: similarity search will produce random results with mock vectors.
+    Replace with the real embedder once the pipeline structure is correct.
+    """</span>
+    <span class="hl-keyword">return</span> [
+        [random.uniform(-<span class="hl-number">1</span>, <span class="hl-number">1</span>) <span class="hl-keyword">for</span> _ <span class="hl-keyword">in</span> <span class="hl-builtin">range</span>(EMBEDDING_DIMS)]
+        <span class="hl-keyword">for</span> _ <span class="hl-keyword">in</span> texts
+    ]
+
+
+<span class="hl-keyword">def</span> embed_query(text: <span class="hl-builtin">str</span>) -> List[<span class="hl-builtin">float</span>]:
+    <span class="hl-keyword">return</span> embed_texts([text])[<span class="hl-number">0</span>]</code></pre>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- STEP 6 -->
+      <div class="step" id="step6">
+        <div class="step-number">6</div>
+        <div class="step-content">
+          <h3>Storing Vectors in PostgreSQL</h3>
+          <p class="explanation">Storing the vectors is straightforward — you assign the list of floats directly to the <code>embedding</code> column of a <code>DocumentChunk</code> model, and SQLAlchemy + pgvector handles the rest. What's worth understanding is what pgvector actually stores and how it indexes it. Under the hood, pgvector stores vectors as compact binary arrays and provides several index types for fast similarity search. For most applications, an IVFFlat index or HNSW index dramatically speeds up search on large datasets.</p>
+          <p class="explanation">For your first build, you don't need an index — a brute-force linear scan over a few thousand chunks is fast enough. At tens of thousands of chunks, you'd add an HNSW index. The index is created with a single SQL statement after populating the table, and it's transparent to the application code — you query the same way with or without it. This guide includes the index creation command for completeness, but you can skip it while developing and add it before deploying.</p>
+          <div class="tabs" data-step="step6">
+            <div class="tab-bar">
+              <button class="tab-btn active" onclick="switchTab('step6',0)">storing chunks (in upload route)</button>
+              <button class="tab-btn" onclick="switchTab('step6',1)">creating an HNSW index (optional)</button>
+            </div>
+            <div class="tab-panel active" id="step6_panel0">
+              <div class="code-header"><span class="lang-label">python</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-comment"># This is the saving portion of the upload route from Step 3 — shown in isolation for clarity</span>
+
+<span class="hl-comment"># After chunking and embedding:</span>
+chunks  = chunk_text(extracted_text)   <span class="hl-comment"># List[str]</span>
+vectors = embed_texts(chunks)          <span class="hl-comment"># List[List[float]] — same length as chunks</span>
+
+<span class="hl-comment"># Save each chunk + its vector — zip pairs each chunk with its corresponding vector</span>
+<span class="hl-keyword">for</span> i, (chunk_text_content, vector) <span class="hl-keyword">in</span> <span class="hl-builtin">enumerate</span>(<span class="hl-builtin">zip</span>(chunks, vectors)):
+    chunk = DocumentChunk(
+        document_id=doc.id,           <span class="hl-comment"># which document this came from</span>
+        chunk_index=i,                 <span class="hl-comment"># position within the document</span>
+        text=chunk_text_content,       <span class="hl-comment"># the raw text — returned to the LLM as context</span>
+        embedding=vector               <span class="hl-comment"># the 1536-float list — used for similarity search</span>
+    )
+    db.add(chunk)
+
+db.commit()  <span class="hl-comment"># commit all chunks at once — faster than committing per chunk</span>
+
+<span class="hl-comment"># To verify what was stored:</span>
+stored = db.query(DocumentChunk).filter(DocumentChunk.document_id == doc.id).all()
+<span class="hl-keyword">for</span> c <span class="hl-keyword">in</span> stored[:3]:
+    <span class="hl-builtin">print</span>(f<span class="hl-string">"Chunk {c.chunk_index}: {c.text[:60]}... | vector dims: {len(c.embedding)}"</span>)</code></pre>
+            </div>
+            <div class="tab-panel" id="step6_panel1">
+              <div class="code-header"><span class="lang-label">sql</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code>-- Create an HNSW index for fast approximate nearest-neighbor search
+-- Run this AFTER populating the table with data
+-- cosine_ops = use cosine distance for similarity (matches our search query)
+CREATE INDEX ON document_chunks
+USING hnsw (embedding vector_cosine_ops)
+WITH (m = 16, ef_construction = 64);
+
+-- m = 16: number of bidirectional connections per node (higher = better recall, more memory)
+-- ef_construction = 64: search width during index build (higher = better accuracy, slower build)
+
+-- To check the index was created:
+SELECT indexname, indexdef FROM pg_indexes WHERE tablename = 'document_chunks';
+
+-- No code changes needed — queries using <-> automatically use the index</code></pre>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- STEP 7 -->
+      <div class="step" id="step7">
+        <div class="step-number">7</div>
+        <div class="step-content">
+          <h3>Cosine Similarity Search</h3>
+          <p class="explanation">At query time, you convert the user's question into a vector using the same embedding model used during ingestion. This is critical — you must use exactly the same model, because embedding models don't produce compatible vector spaces. A vector from <code>text-embedding-3-small</code> is numerically meaningless if compared against vectors from a different model.</p>
+          <p class="explanation">Once you have the query vector, you use pgvector's <code>&lt;-&gt;</code> operator to measure cosine distance between the query vector and every chunk vector in the database. Cosine distance measures the angle between two vectors in high-dimensional space — a distance of 0 means the vectors point in exactly the same direction (identical meaning), and a distance of 1 means they're maximally different. You order by distance ascending and take the top 5 results: the 5 chunks whose meaning is closest to the user's question. These are the chunks you'll inject into the LLM's context.</p>
+          <div class="tabs" data-step="step7">
+            <div class="tab-bar">
+              <button class="tab-btn active" onclick="switchTab('step7',0)">services/retriever.py</button>
+              <button class="tab-btn" onclick="switchTab('step7',1)">raw SQL equivalent</button>
+            </div>
+            <div class="tab-panel active" id="step7_panel0">
+              <div class="code-header"><span class="lang-label">python</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-keyword">from</span> typing <span class="hl-keyword">import</span> List
+<span class="hl-keyword">from</span> sqlalchemy.orm <span class="hl-keyword">import</span> Session
+<span class="hl-keyword">from</span> pgvector.sqlalchemy <span class="hl-keyword">import</span> Vector
+
+<span class="hl-keyword">from</span> models <span class="hl-keyword">import</span> DocumentChunk
+<span class="hl-keyword">from</span> services.embedder <span class="hl-keyword">import</span> embed_query
+
+
+<span class="hl-keyword">def</span> retrieve_relevant_chunks(
+    question: <span class="hl-builtin">str</span>,
+    db: Session,
+    top_k: <span class="hl-builtin">int</span> = <span class="hl-number">5</span>    <span class="hl-comment"># how many chunks to retrieve — 5 is a good starting point</span>
+) -> List[DocumentChunk]:
+    <span class="hl-string">"""
+    Converts the question to a vector, then finds the top_k most similar chunks
+    using cosine distance. Returns the chunk objects (which contain .text).
+    """</span>
+    <span class="hl-comment"># Step 1: Embed the question — same model as used during ingestion</span>
+    query_vector = embed_query(question)  <span class="hl-comment"># returns a list of 1536 floats</span>
+
+    <span class="hl-comment"># Step 2: Query PostgreSQL using the <-> cosine distance operator</span>
+    <span class="hl-comment"># .order_by(DocumentChunk.embedding.cosine_distance(query_vector)) means:</span>
+    <span class="hl-comment"># "sort chunks by how close their vector is to the query vector"</span>
+    <span class="hl-comment"># .limit(top_k) returns only the top_k closest chunks</span>
+    results = (
+        db.query(DocumentChunk)
+        .order_by(DocumentChunk.embedding.cosine_distance(query_vector))
+        .limit(top_k)
+        .all()
+    )
+
+    <span class="hl-keyword">return</span> results  <span class="hl-comment"># List of DocumentChunk objects — use .text for the content</span></code></pre>
+            </div>
+            <div class="tab-panel" id="step7_panel1">
+              <div class="code-header"><span class="lang-label">sql</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code>-- This is what SQLAlchemy generates under the hood.
+-- The <-> operator is pgvector's cosine distance.
+-- '[0.1, 0.2, ...]'::vector casts the Python list to a pgvector VECTOR type.
+
+SELECT id, document_id, chunk_index, text,
+       embedding <-> '[0.1, 0.2, 0.3, ...]'::vector AS distance
+FROM document_chunks
+ORDER BY distance ASC
+LIMIT 5;
+
+-- distance of 0.0 = identical meaning
+-- distance of 1.0 = completely unrelated
+-- Typical good matches have distance < 0.3</code></pre>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- STEP 8 -->
+      <div class="step" id="step8">
+        <div class="step-number">8</div>
+        <div class="step-content">
+          <h3>The Chat Endpoint</h3>
+          <p class="explanation">The chat endpoint ties everything together. It receives the user's question, retrieves the relevant chunks, constructs a prompt that includes those chunks as context, calls the LLM, and returns the answer. The prompt structure is the most important part to get right. You tell the LLM in the system prompt that it must answer using only the provided context — it should not use any general knowledge. This is called "grounding" the LLM, and it's what makes RAG reliable for enterprise use: the LLM can't hallucinate facts that aren't in the documents, because you've explicitly told it not to use anything else.</p>
+          <p class="explanation">The context injection format matters too. Each chunk is numbered and presented clearly, so if you decide to add citation (telling the user which document a fact came from), you have a numbered reference to work with. A good format includes the document name alongside each chunk, so the LLM can attribute its answer: "According to the HR Policy document, ..."</p>
+          <div class="tabs" data-step="step8">
+            <div class="tab-bar">
+              <button class="tab-btn active" onclick="switchTab('step8',0)">main.py — chat route (full response)</button>
+              <button class="tab-btn" onclick="switchTab('step8',1)">building the context string</button>
+            </div>
+            <div class="tab-panel active" id="step8_panel0">
+              <div class="code-header"><span class="lang-label">python</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-keyword">from</span> pydantic <span class="hl-keyword">import</span> BaseModel
+<span class="hl-keyword">import</span> os
+<span class="hl-keyword">from</span> openai <span class="hl-keyword">import</span> OpenAI
+
+<span class="hl-keyword">from</span> services.retriever <span class="hl-keyword">import</span> retrieve_relevant_chunks
+
+openai_client = OpenAI(api_key=os.getenv(<span class="hl-string">"OPENAI_API_KEY"</span>))
+
+
+<span class="hl-keyword">class</span> ChatRequest(BaseModel):
+    question: <span class="hl-builtin">str</span>    <span class="hl-comment"># the user's question</span>
+
+
+<span class="hl-decorator">@app.post</span>(<span class="hl-string">"/chat"</span>, dependencies=[Depends(verify_api_key)])
+<span class="hl-keyword">async def</span> chat(
+    body: ChatRequest,
+    db: Session = Depends(get_db)
+):
+    <span class="hl-comment"># Step 1: Retrieve the top 5 most relevant chunks</span>
+    chunks = retrieve_relevant_chunks(body.question, db, top_k=<span class="hl-number">5</span>)
+
+    <span class="hl-keyword">if</span> <span class="hl-keyword">not</span> chunks:
+        <span class="hl-keyword">return</span> {<span class="hl-string">"answer"</span>: <span class="hl-string">"No documents have been uploaded yet. Please upload documents first."</span>}
+
+    <span class="hl-comment"># Step 2: Build the context string from retrieved chunk texts</span>
+    context_parts = []
+    <span class="hl-keyword">for</span> i, chunk <span class="hl-keyword">in</span> <span class="hl-builtin">enumerate</span>(chunks, <span class="hl-number">1</span>):
+        <span class="hl-comment"># Include document name so the LLM can cite sources</span>
+        doc_name = chunk.document.name <span class="hl-keyword">if</span> chunk.document <span class="hl-keyword">else</span> <span class="hl-string">"Unknown"</span>
+        context_parts.append(f<span class="hl-string">"[{i}] From '{doc_name}':\n{chunk.text}"</span>)
+
+    context = <span class="hl-string">"\n\n"</span>.join(context_parts)
+
+    <span class="hl-comment"># Step 3: Build the system prompt — "grounding" the LLM to only use the context</span>
+    system_prompt = <span class="hl-string">f"""You are a helpful assistant for this company's knowledge base.
+Answer the user's question using ONLY the context provided below.
+If the answer is not in the context, say "I don't have information about that in the uploaded documents."
+Do not use any knowledge outside the provided context.
+
+CONTEXT:
+{context}"""</span>
+
+    <span class="hl-comment"># Step 4: Call the LLM and return the full response</span>
+    response = openai_client.chat.completions.create(
+        model=<span class="hl-string">"gpt-4o-mini"</span>,
+        messages=[
+            {<span class="hl-string">"role"</span>: <span class="hl-string">"system"</span>, <span class="hl-string">"content"</span>: system_prompt},
+            {<span class="hl-string">"role"</span>: <span class="hl-string">"user"</span>,   <span class="hl-string">"content"</span>: body.question},
+        ],
+        max_tokens=<span class="hl-number">500</span>,
+        temperature=<span class="hl-number">0.1</span>,  <span class="hl-comment"># low temperature = more factual, less creative</span>
+    )
+
+    answer = response.choices[<span class="hl-number">0</span>].message.content
+    <span class="hl-keyword">return</span> {<span class="hl-string">"answer"</span>: answer, <span class="hl-string">"sources_used"</span>: <span class="hl-builtin">len</span>(chunks)}</code></pre>
+            </div>
+            <div class="tab-panel" id="step8_panel1">
+              <div class="code-header"><span class="lang-label">text</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code>User question: "What is the refund policy?"
+
+Top 5 retrieved chunks (from cosine similarity search):
+  Chunk 1 (distance 0.08): "Our refund policy allows customers to request a full refund within 30 days..."
+  Chunk 2 (distance 0.12): "After 30 days, refunds are handled on a case-by-case basis..."
+  Chunk 3 (distance 0.21): "To initiate a refund, contact support@example.com with your order number..."
+  Chunk 4 (distance 0.45): "For subscription products, cancellation stops future billing but does not..."
+  Chunk 5 (distance 0.52): "All prices are listed in USD and exclude applicable taxes..."
+
+System prompt sent to LLM:
+  [1] From 'refund-policy.pdf':
+  Our refund policy allows customers to request a full refund within 30 days...
+
+  [2] From 'refund-policy.pdf':
+  After 30 days, refunds are handled on a case-by-case basis...
+  [... + 3 more chunks ...]
+
+LLM answer:
+  "According to the refund policy, you can request a full refund within 30 days of
+  purchase. After 30 days, refunds are handled case-by-case. To start a refund, email
+  support@example.com with your order number."</code></pre>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- STEP 9 -->
+      <div class="step" id="step9">
+        <div class="step-number">9</div>
+        <div class="step-content">
+          <h3>StreamingResponse</h3>
+          <p class="explanation">The full-response approach in Step 8 waits for the LLM to generate the entire answer before sending anything to the client. For short answers that's fine, but for longer responses it can mean the user stares at a blank screen for 5–10 seconds before any text appears. Streaming fixes this by sending each token to the client as soon as the LLM generates it — the same way ChatGPT's interface works, where you see words appearing in real time.</p>
+          <p class="explanation">In FastAPI, streaming uses a <code>StreamingResponse</code> with an <strong>async generator</strong>. An async generator is a function defined with <code>async def</code> that uses <code>yield</code> instead of <code>return</code>. Each time the loop calls <code>yield</code>, FastAPI sends that chunk of data to the client immediately over the HTTP connection, without waiting for the rest of the generator to finish. You enable streaming from the OpenAI API by passing <code>stream=True</code> to the completions call — this returns an iterator of delta objects, each containing a small piece of the response text.</p>
+          <p class="explanation">The client that calls your streaming endpoint receives a plain text HTTP response that arrives in fragments. In a browser frontend, you'd use the Fetch API with <code>response.body.getReader()</code> to read the stream. In curl, you'd see text appearing token by token. The client needs to understand it's receiving a stream — not a complete response — and handle the partial data accordingly.</p>
+          <div class="tabs" data-step="step9">
+            <div class="tab-bar">
+              <button class="tab-btn active" onclick="switchTab('step9',0)">streaming chat route</button>
+              <button class="tab-btn" onclick="switchTab('step9',1)">test streaming with curl</button>
+              <button class="tab-btn" onclick="switchTab('step9',2)">browser fetch (JavaScript)</button>
+            </div>
+            <div class="tab-panel active" id="step9_panel0">
+              <div class="code-header"><span class="lang-label">python</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-keyword">from</span> fastapi <span class="hl-keyword">import</span> FastAPI, Depends
+<span class="hl-keyword">from</span> fastapi.responses <span class="hl-keyword">import</span> StreamingResponse
+<span class="hl-keyword">from</span> sqlalchemy.orm <span class="hl-keyword">import</span> Session
+<span class="hl-keyword">import</span> os
+<span class="hl-keyword">from</span> openai <span class="hl-keyword">import</span> OpenAI
+
+<span class="hl-keyword">from</span> services.retriever <span class="hl-keyword">import</span> retrieve_relevant_chunks
+
+openai_client = OpenAI(api_key=os.getenv(<span class="hl-string">"OPENAI_API_KEY"</span>))
+
+
+<span class="hl-decorator">@app.post</span>(<span class="hl-string">"/chat/stream"</span>, dependencies=[Depends(verify_api_key)])
+<span class="hl-keyword">async def</span> chat_stream(
+    body: ChatRequest,
+    db: Session = Depends(get_db)
+):
+    chunks = retrieve_relevant_chunks(body.question, db, top_k=<span class="hl-number">5</span>)
+
+    <span class="hl-keyword">if</span> <span class="hl-keyword">not</span> chunks:
+        <span class="hl-keyword">async def</span> empty():
+            <span class="hl-keyword">yield</span> <span class="hl-string">"No documents uploaded yet."</span>
+        <span class="hl-keyword">return</span> StreamingResponse(empty(), media_type=<span class="hl-string">"text/plain"</span>)
+
+    context = <span class="hl-string">"\n\n"</span>.join(
+        f<span class="hl-string">"[{i}] From '{c.document.name}':\n{c.text}"</span>
+        <span class="hl-keyword">for</span> i, c <span class="hl-keyword">in</span> <span class="hl-builtin">enumerate</span>(chunks, <span class="hl-number">1</span>)
+    )
+
+    system_prompt = f<span class="hl-string">"""You are a helpful knowledge base assistant.
+Answer using ONLY the context below. If the answer isn't there, say so.
+
+CONTEXT:
+{context}"""</span>
+
+    <span class="hl-keyword">async def</span> generate():
+        <span class="hl-string">"""
+        Async generator — yields text chunks as the LLM produces them.
+        FastAPI's StreamingResponse calls this generator and sends each
+        yielded string to the client immediately.
+        """</span>
+        <span class="hl-comment"># stream=True makes the OpenAI call return an iterator of delta chunks</span>
+        stream = openai_client.chat.completions.create(
+            model=<span class="hl-string">"gpt-4o-mini"</span>,
+            messages=[
+                {<span class="hl-string">"role"</span>: <span class="hl-string">"system"</span>, <span class="hl-string">"content"</span>: system_prompt},
+                {<span class="hl-string">"role"</span>: <span class="hl-string">"user"</span>,   <span class="hl-string">"content"</span>: body.question},
+            ],
+            max_tokens=<span class="hl-number">500</span>,
+            temperature=<span class="hl-number">0.1</span>,
+            stream=<span class="hl-keyword">True</span>,   <span class="hl-comment"># THIS is what enables streaming</span>
+        )
+
+        <span class="hl-comment"># Iterate over delta chunks as the LLM generates them</span>
+        <span class="hl-keyword">for</span> chunk <span class="hl-keyword">in</span> stream:
+            delta = chunk.choices[<span class="hl-number">0</span>].delta
+            <span class="hl-keyword">if</span> delta.content:              <span class="hl-comment"># some deltas are empty (start/end markers)</span>
+                <span class="hl-keyword">yield</span> delta.content         <span class="hl-comment"># send this token fragment to the client NOW</span>
+
+    <span class="hl-comment"># StreamingResponse takes the async generator and streams each yielded string</span>
+    <span class="hl-comment"># media_type="text/plain" — client receives a stream of plain text</span>
+    <span class="hl-keyword">return</span> StreamingResponse(generate(), media_type=<span class="hl-string">"text/plain"</span>)</code></pre>
+            </div>
+            <div class="tab-panel" id="step9_panel1">
+              <div class="code-header"><span class="lang-label">text</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code># curl -N (--no-buffer) keeps the connection open and prints data as it arrives
+# You'll see the answer appear word by word in the terminal
+curl -N -X POST http://localhost:8000/chat/stream \
+  -H "Content-Type: application/json" \
+  -H "X-API-Key: YOUR_API_KEY" \
+  -d '{"question": "What is the refund policy?"}'
+
+# Output appears token-by-token:
+# According to the... refund policy, you can... request a full refund... within 30 days...
+
+# Compare with non-streaming — no output until the full response is ready:
+curl -X POST http://localhost:8000/chat \
+  -H "Content-Type: application/json" \
+  -H "X-API-Key: YOUR_API_KEY" \
+  -d '{"question": "What is the refund policy?"}'</code></pre>
+            </div>
+            <div class="tab-panel" id="step9_panel2">
+              <div class="code-header"><span class="lang-label">javascript</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-comment">// Browser JS — read the stream and append tokens to the page as they arrive</span>
+<span class="hl-keyword">async function</span> chatStream(question) {
+  <span class="hl-keyword">const</span> response = <span class="hl-keyword">await</span> fetch(<span class="hl-string">"/chat/stream"</span>, {
+    method: <span class="hl-string">"POST"</span>,
+    headers: {
+      <span class="hl-string">"Content-Type"</span>: <span class="hl-string">"application/json"</span>,
+      <span class="hl-string">"X-API-Key"</span>: <span class="hl-string">"YOUR_API_KEY"</span>
+    },
+    body: JSON.stringify({ question })
+  });
+
+  <span class="hl-keyword">const</span> reader = response.body.getReader();    <span class="hl-comment">// get the stream reader</span>
+  <span class="hl-keyword">const</span> decoder = <span class="hl-keyword">new</span> TextDecoder();           <span class="hl-comment">// convert bytes to string</span>
+  <span class="hl-keyword">const</span> output = document.getElementById(<span class="hl-string">"answer"</span>);
+
+  output.textContent = <span class="hl-string">""</span>;  <span class="hl-comment">// clear previous answer</span>
+
+  <span class="hl-keyword">while</span> (<span class="hl-keyword">true</span>) {
+    <span class="hl-keyword">const</span> { done, value } = <span class="hl-keyword">await</span> reader.read();
+    <span class="hl-keyword">if</span> (done) <span class="hl-keyword">break</span>;                             <span class="hl-comment">// stream ended</span>
+    output.textContent += decoder.decode(value); <span class="hl-comment">// append new tokens as they arrive</span>
+  }
+}</code></pre>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- STEP 10 -->
+      <div class="step" id="step10">
+        <div class="step-number">10</div>
+        <div class="step-content">
+          <h3>Auth + Testing</h3>
+          <p class="explanation">The same <code>X-API-Key</code> middleware pattern from Capstone 1 protects all endpoints here. The middleware reads the header, hashes it with bcrypt, and checks it against the database. You can reuse the <code>create_api_key.py</code> script from Capstone 1 exactly as-is — the APIKey model is identical.</p>
+          <p class="explanation">Testing the RAG pipeline requires mocking both the embedder and the LLM. You don't want tests to make real API calls — they'd be slow, cost money, and produce non-deterministic results. Mock the embedder to return fixed vectors, mock the LLM response, and verify that: documents are stored with the correct number of chunks, similarity search returns chunks in order, and the chat route constructs the prompt correctly and returns a response. You can't easily test that the answers are semantically correct in a unit test — that's validated manually with real data.</p>
+          <div class="tabs" data-step="step10">
+            <div class="tab-bar">
+              <button class="tab-btn active" onclick="switchTab('step10',0)">tests/test_rag.py</button>
+              <button class="tab-btn" onclick="switchTab('step10',1)">end-to-end curl test</button>
+            </div>
+            <div class="tab-panel active" id="step10_panel0">
+              <div class="code-header"><span class="lang-label">python</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-keyword">import</span> pytest
+<span class="hl-keyword">from</span> fastapi.testclient <span class="hl-keyword">import</span> TestClient
+<span class="hl-keyword">from</span> unittest.mock <span class="hl-keyword">import</span> patch
+<span class="hl-keyword">from</span> io <span class="hl-keyword">import</span> BytesIO
+
+<span class="hl-keyword">from</span> main <span class="hl-keyword">import</span> app
+<span class="hl-keyword">from</span> database <span class="hl-keyword">import</span> get_db
+<span class="hl-keyword">from</span> middleware.api_key <span class="hl-keyword">import</span> verify_api_key
+
+<span class="hl-comment"># Mock vector — a fixed 1536-float list for deterministic tests</span>
+MOCK_VECTOR = [<span class="hl-number">0.1</span>] * <span class="hl-number">1536</span>
+
+
+<span class="hl-decorator">@pytest.fixture</span>()
+<span class="hl-keyword">def</span> client():
+    <span class="hl-comment"># Skip API key check in tests</span>
+    app.dependency_overrides[verify_api_key] = <span class="hl-keyword">lambda</span>: <span class="hl-keyword">None</span>
+    <span class="hl-keyword">yield</span> TestClient(app)
+    app.dependency_overrides.clear()
+
+
+<span class="hl-keyword">def</span> test_document_upload_creates_chunks(client):
+    <span class="hl-comment"># Mock the embedder so no real API calls are made</span>
+    <span class="hl-keyword">with</span> patch(<span class="hl-string">"main.embed_texts"</span>, <span class="hl-keyword">return_value</span>=[MOCK_VECTOR, MOCK_VECTOR]):
+        response = client.post(
+            <span class="hl-string">"/documents"</span>,
+            files={<span class="hl-string">"file"</span>: (<span class="hl-string">"policy.txt"</span>, BytesIO(<span class="hl-string">b"Our refund policy is 30 days. "</span> * <span class="hl-number">20</span>), <span class="hl-string">"text/plain"</span>)}
+        )
+
+    assert response.status_code == <span class="hl-number">200</span>
+    data = response.json()
+    assert data[<span class="hl-string">"document_id"</span>] == <span class="hl-number">1</span>
+    assert data[<span class="hl-string">"chunks_created"</span>] > <span class="hl-number">0</span>   <span class="hl-comment"># at least one chunk was created</span>
+
+
+<span class="hl-keyword">def</span> test_chat_returns_answer(client):
+    <span class="hl-comment"># First upload a document (with mocked embeddings)</span>
+    <span class="hl-keyword">with</span> patch(<span class="hl-string">"main.embed_texts"</span>, <span class="hl-keyword">return_value</span>=[MOCK_VECTOR]):
+        client.post(
+            <span class="hl-string">"/documents"</span>,
+            files={<span class="hl-string">"file"</span>: (<span class="hl-string">"test.txt"</span>, BytesIO(<span class="hl-string">b"Refunds are available within 30 days."</span>), <span class="hl-string">"text/plain"</span>)}
+        )
+
+    <span class="hl-comment"># Mock both the query embedder and the LLM response</span>
+    mock_completion = type(<span class="hl-string">"C"</span>, (), {
+        <span class="hl-string">"choices"</span>: [type(<span class="hl-string">"Ch"</span>, (), {<span class="hl-string">"message"</span>: type(<span class="hl-string">"M"</span>, (), {<span class="hl-string">"content"</span>: <span class="hl-string">"Refunds are within 30 days."</span>})()})]
+    })()
+
+    <span class="hl-keyword">with</span> patch(<span class="hl-string">"main.embed_query"</span>, <span class="hl-keyword">return_value</span>=MOCK_VECTOR), \
+         patch(<span class="hl-string">"main.openai_client.chat.completions.create"</span>, <span class="hl-keyword">return_value</span>=mock_completion):
+
+        response = client.post(<span class="hl-string">"/chat"</span>, json={<span class="hl-string">"question"</span>: <span class="hl-string">"What is the refund policy?"</span>})
+
+    assert response.status_code == <span class="hl-number">200</span>
+    assert <span class="hl-string">"answer"</span> <span class="hl-keyword">in</span> response.json()
+    assert response.json()[<span class="hl-string">"sources_used"</span>] > <span class="hl-number">0</span></code></pre>
+            </div>
+            <div class="tab-panel" id="step10_panel1">
+              <div class="code-header"><span class="lang-label">text</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code># 1. Upload a text document
+curl -X POST http://localhost:8000/documents \
+  -H "X-API-Key: YOUR_API_KEY" \
+  -F "file=@./company-policy.txt"
+
+# Expected: {"document_id": 1, "chunks_created": 8}
+
+# 2. Ask a question
+curl -X POST http://localhost:8000/chat \
+  -H "Content-Type: application/json" \
+  -H "X-API-Key: YOUR_API_KEY" \
+  -d '{"question": "What is the holiday leave entitlement?"}'
+
+# Expected: {"answer": "According to the HR Policy...", "sources_used": 5}
+
+# 3. Ask about something not in the documents
+curl -X POST http://localhost:8000/chat \
+  -H "Content-Type: application/json" \
+  -H "X-API-Key: YOUR_API_KEY" \
+  -d '{"question": "What is the capital of France?"}'
+
+# Expected: {"answer": "I don't have information about that in the uploaded documents.", ...}
+# The LLM correctly refuses to use general knowledge</code></pre>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- end .steps -->
+  </main>
+</div>
+
+<script>
+function switchTab(step, idx) {
+  const container = document.querySelector(`[data-step="${step}"]`);
+  container.querySelectorAll('.tab-btn').forEach((b, i) => b.classList.toggle('active', i === idx));
+  container.querySelectorAll('.tab-panel').forEach((p, i) => p.classList.toggle('active', i === idx));
+}
+function copyCode(btn) {
+  const code = btn.closest('.tabs').querySelector('.tab-panel.active pre code');
+  navigator.clipboard.writeText(code.innerText).then(() => {
+    btn.textContent = 'Copied!';
+    setTimeout(() => btn.textContent = 'Copy', 1500);
+  });
+}
+function toggleSidebar() {
+  document.getElementById('guideSidebar').classList.toggle('open');
+  document.getElementById('sidebarOverlay').classList.toggle('open');
+}
+const toggle = document.getElementById('themeToggle');
+const saved = localStorage.getItem('theme');
+if (saved === 'light') { document.documentElement.classList.add('light'); toggle.checked = true; }
+toggle.addEventListener('change', () => {
+  const light = toggle.checked;
+  document.documentElement.classList.toggle('light', light);
+  localStorage.setItem('theme', light ? 'light' : 'dark');
+});
+</script>
+<script>
+function toggleSbDesktop() {
+  var c = document.body.classList.toggle('sb-collapsed');
+  localStorage.setItem('sb-collapsed', c ? '1' : '0');
+}
+(function() { if (localStorage.getItem('sb-collapsed') === '1') document.body.classList.add('sb-collapsed'); })();
+</script>
+</body>
+</html>

@@ -1,0 +1,744 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Django REST Framework - pyoffline</title>
+<style>
+:root {
+  --bg:#121212;--surface:#1e1e1e;--surface2:#2a2a2a;--sidebar-bg:#1a1a1a;
+  --text:#e0e0e0;--text-muted:#aaa;--text-dim:#666;--border:#333;
+  --code-bg:#1e1e1e;--code-text:#d4d4d4;--shadow:rgba(0,0,0,.4);
+  --accent:#00897b;
+  --hl-keyword:#569cd6;--hl-string:#ce9178;--hl-comment:#6a9955;--hl-number:#b5cea8;
+  --hl-decorator:#dcdcaa;--hl-builtin:#4ec9b0;--hl-tag:#4ec9b0;--hl-attr:#9cdcfe;--hl-template:#c586c0;
+}
+html.light{
+  --bg:#f5f7fa;--surface:#ffffff;--surface2:#eef0f3;--sidebar-bg:#ffffff;
+  --text:#1a1a1a;--text-muted:#555;--text-dim:#888;--border:#dde1e7;
+  --code-bg:#f8f8f8;--code-text:#24292e;--shadow:rgba(0,0,0,.1);
+  --hl-keyword:#0000ff;--hl-string:#a31515;--hl-comment:#008000;--hl-number:#098658;
+  --hl-decorator:#795e26;--hl-builtin:#267f99;--hl-tag:#800000;--hl-attr:#e50000;--hl-template:#af00db;
+}
+.hl-keyword{color:var(--hl-keyword)}.hl-string{color:var(--hl-string)}.hl-comment{color:#adb4a7;font-size:12px;font-style:italic}
+.hl-number{color:var(--hl-number)}.hl-decorator{color:var(--hl-decorator)}.hl-builtin{color:var(--hl-builtin)}
+.hl-tag{color:var(--hl-tag)}.hl-attr{color:var(--hl-attr)}.hl-template{color:var(--hl-template)}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;transition:background .2s,color .2s}
+a{color:var(--accent)}
+.layout{display:flex;min-height:100vh}
+.sidebar{width:260px;min-width:260px;background:var(--sidebar-bg);border-right:1px solid var(--border);padding:24px 16px;position:sticky;top:0;height:100vh;overflow-y:auto}
+.sidebar h2{font-size:1.1rem;margin:16px 0 8px;color:var(--text)}
+.sidebar nav ol{padding-left:18px}.sidebar nav li{margin:6px 0}
+.sidebar nav a{color:var(--text-muted);text-decoration:none;font-size:0.85rem}
+.sidebar nav a:hover{color:var(--accent)}
+.back-link{color:var(--text-dim);text-decoration:none;font-size:0.85rem;display:block;margin-bottom:8px}
+.install-box{margin-top:24px;background:var(--bg);border:1px solid var(--border);padding:12px;border-radius:6px;font-size:0.8rem}
+.install-box code{display:block;word-break:break-all;color:var(--hl-comment);font-family:monospace;margin-top:4px}
+main{flex:1;padding:40px;max-width:860px}
+.guide-header{padding:20px 20px 20px 24px;background:var(--surface);border-radius:8px;margin-bottom:32px;box-shadow:0 1px 3px var(--shadow)}
+.guide-header h1{font-size:1.8rem;margin-bottom:8px}.guide-header p{color:var(--text-muted)}
+.step{display:flex;gap:16px;margin-bottom:40px}
+.step-number{width:32px;min-width:32px;height:32px;background:var(--accent);border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:bold;font-size:0.9rem;margin-top:4px;color:#fff}
+.step-content{flex:1;min-width:0}
+.step-content h3{font-size:1.1rem;margin-bottom:8px;color:var(--text)}
+.explanation{color:var(--text-muted);font-size:0.9rem;line-height:1.6;margin-bottom:14px}
+.info-box{background:var(--surface);border-left:3px solid var(--accent);border-radius:0 6px 6px 0;padding:12px 16px;margin-bottom:14px;font-size:0.88rem;color:var(--text-muted);line-height:1.6}
+.info-box strong{color:var(--text)}
+.tabs{background:var(--surface);border-radius:6px;overflow:hidden;border:1px solid var(--border)}
+.tab-bar{display:flex;background:var(--surface2);overflow-x:auto;border-bottom:1px solid var(--border)}
+.tab-btn{padding:8px 16px;background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:0.8rem;white-space:nowrap;border-bottom:2px solid transparent;margin-bottom:-1px}
+.tab-btn.active{color:var(--text);border-bottom-color:var(--accent)}
+.tab-panel{display:none}.tab-panel.active{display:block}
+.code-header{display:flex;justify-content:space-between;align-items:center;padding:5px 12px;background:var(--surface2);border-bottom:1px solid var(--border)}
+.lang-label{font-size:0.72rem;color:var(--text-dim);text-transform:uppercase;letter-spacing:.04em}
+.copy-btn{background:none;border:1px solid var(--border);color:var(--text-muted);padding:2px 8px;cursor:pointer;border-radius:3px;font-size:0.72rem}
+.copy-btn:hover{color:var(--text);border-color:var(--text-muted)}
+pre{overflow-x:auto;padding:16px;background:var(--code-bg)}
+code{font-family:"Fira Code","Cascadia Code","Consolas",monospace;font-size:0.82rem;line-height:1.65;color:var(--code-text)}
+.theme-row{display:flex;align-items:center;gap:8px;margin-top:20px}
+.theme-label{font-size:0.78rem;color:var(--text-muted)}
+.toggle-switch{position:relative;display:inline-block;width:40px;height:22px}
+.toggle-switch input{opacity:0;width:0;height:0}
+.slider{position:absolute;cursor:pointer;inset:0;background:var(--surface2);border:1px solid var(--border);border-radius:22px;transition:background .2s}
+.slider:before{content:"";position:absolute;width:16px;height:16px;left:2px;top:2px;background:var(--text-muted);border-radius:50%;transition:transform .2s,background .2s}
+.toggle-switch input:checked+.slider{background:var(--accent);border-color:var(--accent)}
+.toggle-switch input:checked+.slider:before{transform:translateX(18px);background:#fff}
+.sidebar-toggle{display:none;position:fixed;top:12px;left:12px;z-index:300;background:var(--accent);color:#fff;border:none;padding:7px 14px;border-radius:6px;cursor:pointer;font-size:0.85rem;font-weight:600;box-shadow:0 2px 8px var(--shadow);align-items:center;gap:6px}
+.sidebar-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:190}
+.sidebar-overlay.open{display:block}
+@media(max-width:900px){
+  .sidebar-toggle{display:flex}.layout{display:block}
+  .sidebar{position:fixed;left:-280px;top:0;height:100vh;z-index:200;transition:left .25s ease;box-shadow:2px 0 16px var(--shadow);min-width:260px}
+  .sidebar.open{left:0}
+  main{padding:60px 20px 40px;max-width:100%}
+  pre{overflow-x:auto;max-width:100%;white-space:pre-wrap;word-break:break-word}
+  .tabs{max-width:100%}
+}
+
+/* ── Desktop sidebar collapse ─────────────────────────────── */
+.sidebar { transition: width .2s ease, min-width .2s ease, padding .2s ease; }
+.sb-pin { display: flex; justify-content: flex-end; margin-bottom: 8px; }
+.sb-pin button { background: none; border: 1px solid var(--border); color: var(--text-dim); cursor: pointer; border-radius: 4px; padding: 2px 7px; font-size: 11px; line-height: 1.6; }
+.sb-pin button:hover { color: var(--accent); border-color: var(--accent); }
+.sb-reopen { display: none; position: fixed; left: 0; top: 50%; transform: translateY(-50%); background: var(--accent); color: #fff; border: none; border-radius: 0 4px 4px 0; padding: 10px 5px; cursor: pointer; z-index: 300; font-size: 11px; font-weight: 600; writing-mode: vertical-rl; letter-spacing: .05em; }
+@media (min-width: 901px) { body.sb-collapsed .sidebar { width: 0; min-width: 0; padding: 0; overflow: hidden; border-right: none; } body.sb-collapsed .sb-reopen { display: block; } }
+@media (max-width: 900px) { .sb-pin { display: none; } .sb-reopen { display: none !important; } }
+</style>
+</head>
+<body>
+<button class="sidebar-toggle" id="sidebarToggle" onclick="toggleSidebar()">&#9776; Steps</button>
+<div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+<button class="sb-reopen" onclick="toggleSbDesktop()">Steps</button>
+<div class="layout">
+  <aside class="sidebar" id="guideSidebar">
+    <div class="sb-pin"><button onclick="toggleSbDesktop()">&#9664; Hide</button></div>
+    <a href="index.html" class="back-link">← All Guides</a>
+    <h2>Django REST Framework</h2>
+    <nav><ol>
+      <li><a href="#step1">DRF vs Django Templates</a></li>
+      <li><a href="#step2">Install + Setup</a></li>
+      <li><a href="#step3">Serializers</a></li>
+      <li><a href="#step4">APIView</a></li>
+      <li><a href="#step5">ViewSets + Routers</a></li>
+      <li><a href="#step6">Token Authentication</a></li>
+      <li><a href="#step7">Permissions</a></li>
+      <li><a href="#step8">The Browsable API</a></li>
+      <li><a href="#step9">JavaScript Frontend</a></li>
+    </ol></nav>
+    <div class="install-box">
+      <p><strong>Install</strong></p>
+      <code>pip install djangorestframework</code>
+      <p style="margin-top:12px"><strong>Token auth</strong></p>
+      <code>pip install djangorestframework</code>
+      <p style="margin-top:12px"><strong>Start project</strong></p>
+      <code>django-admin startproject myapi .</code>
+      <p style="margin-top:12px"><strong>Run server</strong></p>
+      <code>python manage.py runserver</code>
+    </div>
+    <div class="theme-row">
+      <span class="theme-label">Dark</span>
+      <label class="toggle-switch"><input type="checkbox" id="themeToggle"><span class="slider"></span></label>
+      <span class="theme-label">Light</span>
+    </div>
+  </aside>
+
+  <main>
+    <header class="guide-header" style="border-left: 5px solid #00897b">
+      <h1>Django REST Framework</h1>
+      <p>Build a JSON API with Django — serializers, class-based views, ViewSets, token authentication, and permissions. Connect it to a JavaScript frontend or mobile app.</p>
+    </header>
+
+    <div class="steps">
+
+      <!-- STEP 1 -->
+      <div class="step" id="step1">
+        <div class="step-number">1</div>
+        <div class="step-content">
+          <h3>DRF vs Django Templates</h3>
+          <p class="explanation">The Django guide on this site builds a server-rendered app: Django renders HTML with Jinja2-style templates and sends a full page to the browser on every request. Django REST Framework (DRF) takes the same Django core — models, ORM, admin panel, migrations — and adds a layer for building JSON APIs instead. Instead of returning HTML, your views return JSON. Instead of templates, you have serializers that convert model instances to dicts. Instead of forms, you have request data validation. The result is a backend that any frontend — React, Vue, a mobile app, or another backend service — can talk to over HTTP. You still get the Django admin panel, the ORM, and migrations for free. DRF is how most production Django apps are built when there is a separate frontend team or a mobile app.</p>
+          <div class="info-box"><strong>When to use DRF:</strong> your frontend is React, Vue, or a mobile app. Multiple clients need the same data. You want the Django admin panel for free. Your team works on frontend and backend separately.<br><br><strong>When to use Django templates:</strong> small single-developer project, no mobile app, SEO is critical (server-rendered HTML is better indexed), or you want simplicity without a JSON API layer.</div>
+        </div>
+      </div>
+
+      <!-- STEP 2 -->
+      <div class="step" id="step2">
+        <div class="step-number">2</div>
+        <div class="step-content">
+          <h3>Install and Setup</h3>
+          <p class="explanation">DRF is a Django app — you install it with pip and add it to INSTALLED_APPS exactly like any other Django app. It needs no separate server or process. Once added, your existing Django project gains the DRF toolkit. The REST_FRAMEWORK settings dict controls global defaults — the most common settings are DEFAULT_PERMISSION_CLASSES (who can access the API by default) and DEFAULT_AUTHENTICATION_CLASSES (how the API identifies users). Setting them globally means you do not have to specify auth and permissions on every single view. You can override them per-view when needed.</p>
+          <div class="tabs" data-step="step2">
+            <div class="tab-bar">
+              <button class="tab-btn active" onclick="switchTab('step2',0)">install</button>
+              <button class="tab-btn" onclick="switchTab('step2',1)">settings.py</button>
+              <button class="tab-btn" onclick="switchTab('step2',2)">folder structure</button>
+            </div>
+            <div class="tab-panel active" id="step2_panel0">
+              <div class="code-header"><span class="lang-label">bash</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-comment"># Install DRF</span>
+pip install djangorestframework
+
+<span class="hl-comment"># Create a new Django project (if you don't have one)</span>
+django-admin startproject myapi .
+
+<span class="hl-comment"># Create an app for your models + API</span>
+python manage.py startapp books
+
+<span class="hl-comment"># Run migrations and start the server</span>
+python manage.py migrate
+python manage.py runserver</code></pre>
+            </div>
+            <div class="tab-panel" id="step2_panel1">
+              <div class="code-header"><span class="lang-label">python</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-comment"># settings.py</span>
+INSTALLED_APPS = [
+    <span class="hl-string">"django.contrib.admin"</span>,
+    <span class="hl-string">"django.contrib.auth"</span>,
+    <span class="hl-string">"django.contrib.contenttypes"</span>,
+    <span class="hl-string">"django.contrib.sessions"</span>,
+    <span class="hl-string">"django.contrib.messages"</span>,
+    <span class="hl-string">"django.contrib.staticfiles"</span>,
+    <span class="hl-string">"rest_framework"</span>,               <span class="hl-comment"># add DRF</span>
+    <span class="hl-string">"rest_framework.authtoken"</span>,      <span class="hl-comment"># add if using token auth (step 6)</span>
+    <span class="hl-string">"books"</span>,                          <span class="hl-comment"># your app</span>
+]
+
+<span class="hl-comment"># DRF global configuration</span>
+REST_FRAMEWORK = {
+    <span class="hl-comment"># Who can call the API by default</span>
+    <span class="hl-string">"DEFAULT_PERMISSION_CLASSES"</span>: [
+        <span class="hl-string">"rest_framework.permissions.IsAuthenticatedOrReadOnly"</span>
+        <span class="hl-comment"># ReadOnly for anonymous users, full access for authenticated</span>
+    ],
+    <span class="hl-comment"># How DRF identifies the current user</span>
+    <span class="hl-string">"DEFAULT_AUTHENTICATION_CLASSES"</span>: [
+        <span class="hl-string">"rest_framework.authentication.TokenAuthentication"</span>,
+        <span class="hl-string">"rest_framework.authentication.SessionAuthentication"</span>,
+    ],
+}</code></pre>
+            </div>
+            <div class="tab-panel" id="step2_panel2">
+              <div class="code-header"><span class="lang-label">text</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code>myapi/
+├── manage.py
+├── myapi/
+│   ├── settings.py
+│   └── urls.py         <span class="hl-comment"># project-level URL routing</span>
+└── books/
+    ├── models.py       <span class="hl-comment"># your Django models</span>
+    ├── serializers.py  <span class="hl-comment"># convert model → JSON (new file, doesn't exist yet)</span>
+    ├── views.py        <span class="hl-comment"># DRF views</span>
+    └── urls.py         <span class="hl-comment"># app-level URL routing (new file)</span></code></pre>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- STEP 3 -->
+      <div class="step" id="step3">
+        <div class="step-number">3</div>
+        <div class="step-content">
+          <h3>Serializers — Converting Models to JSON</h3>
+          <p class="explanation">A serializer does two things: it converts a Django model instance into a Python dict that can be turned into JSON (serialisation), and it validates incoming JSON data and converts it back into a model instance (deserialisation). Think of it as the DRF equivalent of a Django form, but for APIs. The ModelSerializer is the most common type — you give it a model class and a list of fields, and it automatically creates all the validation rules and conversion logic from the model's field types. You do not need to re-declare that the title is a CharField with max_length=200 — ModelSerializer reads that from the model definition. You only need to explicitly declare fields when you want to change or add something the model does not already define, like a computed property or a nested relationship.</p>
+          <div class="tabs" data-step="step3">
+            <div class="tab-bar">
+              <button class="tab-btn active" onclick="switchTab('step3',0)">models.py</button>
+              <button class="tab-btn" onclick="switchTab('step3',1)">serializers.py</button>
+              <button class="tab-btn" onclick="switchTab('step3',2)">nested serializer</button>
+            </div>
+            <div class="tab-panel active" id="step3_panel0">
+              <div class="code-header"><span class="lang-label">python</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-comment"># books/models.py</span>
+<span class="hl-keyword">from</span> django.db <span class="hl-keyword">import</span> models
+<span class="hl-keyword">from</span> django.contrib.auth.models <span class="hl-keyword">import</span> User
+
+
+<span class="hl-keyword">class</span> Book(models.Model):
+    title       = models.CharField(max_length=<span class="hl-number">200</span>)
+    author      = models.CharField(max_length=<span class="hl-number">100</span>)
+    published   = models.DateField()
+    description = models.TextField(blank=<span class="hl-keyword">True</span>)
+    created_by  = models.ForeignKey(User, on_delete=models.CASCADE, related_name=<span class="hl-string">"books"</span>)
+    created_at  = models.DateTimeField(auto_now_add=<span class="hl-keyword">True</span>)
+
+    <span class="hl-keyword">def</span> __str__(self):
+        <span class="hl-keyword">return</span> self.title</code></pre>
+            </div>
+            <div class="tab-panel" id="step3_panel1">
+              <div class="code-header"><span class="lang-label">python</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-comment"># books/serializers.py</span>
+<span class="hl-keyword">from</span> rest_framework <span class="hl-keyword">import</span> serializers
+<span class="hl-keyword">from</span> .models <span class="hl-keyword">import</span> Book
+
+
+<span class="hl-keyword">class</span> BookSerializer(serializers.ModelSerializer):
+    <span class="hl-comment"># Extra fields not in the model — computed or read-only</span>
+    <span class="hl-comment"># read_only=True means this field appears in GET responses but not POST/PUT</span>
+    created_by_username = serializers.CharField(
+        source=<span class="hl-string">"created_by.username"</span>,  <span class="hl-comment"># follow the ForeignKey and get .username</span>
+        read_only=<span class="hl-keyword">True</span>
+    )
+
+    <span class="hl-keyword">class</span> Meta:
+        model  = Book                         <span class="hl-comment"># which model to serialise</span>
+        fields = [                            <span class="hl-comment"># which fields to include in the JSON</span>
+            <span class="hl-string">"id"</span>, <span class="hl-string">"title"</span>, <span class="hl-string">"author"</span>, <span class="hl-string">"published"</span>,
+            <span class="hl-string">"description"</span>, <span class="hl-string">"created_by_username"</span>, <span class="hl-string">"created_at"</span>
+        ]
+        read_only_fields = [<span class="hl-string">"id"</span>, <span class="hl-string">"created_at"</span>]  <span class="hl-comment"># auto-set, never from user input</span></code></pre>
+            </div>
+            <div class="tab-panel" id="step3_panel2">
+              <div class="code-header"><span class="lang-label">python</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-comment"># Nested serializer — embed related object data inline instead of just an ID</span>
+<span class="hl-keyword">from</span> django.contrib.auth.models <span class="hl-keyword">import</span> User
+
+<span class="hl-keyword">class</span> UserSerializer(serializers.ModelSerializer):
+    <span class="hl-keyword">class</span> Meta:
+        model  = User
+        fields = [<span class="hl-string">"id"</span>, <span class="hl-string">"username"</span>, <span class="hl-string">"email"</span>]
+
+
+<span class="hl-keyword">class</span> BookSerializer(serializers.ModelSerializer):
+    <span class="hl-comment"># Nest the full user object inside each book</span>
+    <span class="hl-comment"># Without this, created_by would just be an integer (the user's PK)</span>
+    created_by = UserSerializer(read_only=<span class="hl-keyword">True</span>)
+
+    <span class="hl-keyword">class</span> Meta:
+        model  = Book
+        fields = [<span class="hl-string">"id"</span>, <span class="hl-string">"title"</span>, <span class="hl-string">"author"</span>, <span class="hl-string">"published"</span>, <span class="hl-string">"created_by"</span>]</code></pre>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- STEP 4 -->
+      <div class="step" id="step4">
+        <div class="step-number">4</div>
+        <div class="step-content">
+          <h3>APIView — Class-Based Views</h3>
+          <p class="explanation">DRF's APIView is the base class for writing views manually. You define methods named get(), post(), put(), delete() — one per HTTP method you want to support. APIView handles content negotiation (deciding whether to return JSON or XML), parsing the request body (DRF gives you request.data instead of request.POST), and authentication. The Response object knows how to render itself as JSON automatically — you pass a dict and DRF takes care of the encoding. A view class typically has two URL patterns: one for the collection (/books/ — handles list and create) and one for a single item (/books/1/ — handles retrieve, update, delete). This is exactly the REST pattern — the URL identifies the resource, the HTTP method identifies the action.</p>
+          <div class="tabs" data-step="step4">
+            <div class="tab-bar">
+              <button class="tab-btn active" onclick="switchTab('step4',0)">views.py</button>
+              <button class="tab-btn" onclick="switchTab('step4',1)">urls.py</button>
+            </div>
+            <div class="tab-panel active" id="step4_panel0">
+              <div class="code-header"><span class="lang-label">python</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-comment"># books/views.py</span>
+<span class="hl-keyword">from</span> rest_framework.views <span class="hl-keyword">import</span> APIView
+<span class="hl-keyword">from</span> rest_framework.response <span class="hl-keyword">import</span> Response
+<span class="hl-keyword">from</span> rest_framework <span class="hl-keyword">import</span> status
+<span class="hl-keyword">from</span> .models <span class="hl-keyword">import</span> Book
+<span class="hl-keyword">from</span> .serializers <span class="hl-keyword">import</span> BookSerializer
+
+
+<span class="hl-comment"># Handles: GET /books/  and  POST /books/</span>
+<span class="hl-keyword">class</span> BookListCreate(APIView):
+
+    <span class="hl-keyword">def</span> get(self, request):
+        <span class="hl-comment"># Fetch all books, serialise to a list of dicts</span>
+        books = Book.objects.all()
+        serializer = BookSerializer(books, many=<span class="hl-keyword">True</span>)  <span class="hl-comment"># many=True for querysets</span>
+        <span class="hl-keyword">return</span> Response(serializer.data)                   <span class="hl-comment"># 200 OK by default</span>
+
+    <span class="hl-keyword">def</span> post(self, request):
+        <span class="hl-comment"># request.data contains the parsed JSON body</span>
+        serializer = BookSerializer(data=request.data)
+
+        <span class="hl-keyword">if</span> serializer.is_valid():
+            <span class="hl-comment"># save() creates the DB row — pass extra fields not in the request</span>
+            serializer.save(created_by=request.user)
+            <span class="hl-keyword">return</span> Response(serializer.data, status=status.HTTP_201_CREATED)
+
+        <span class="hl-comment"># serializer.errors is a dict of field → list of error messages</span>
+        <span class="hl-keyword">return</span> Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+<span class="hl-comment"># Handles: GET /books/1/  PUT /books/1/  DELETE /books/1/</span>
+<span class="hl-keyword">class</span> BookDetail(APIView):
+
+    <span class="hl-keyword">def</span> get_object(self, pk):
+        <span class="hl-keyword">try</span>:
+            <span class="hl-keyword">return</span> Book.objects.get(pk=pk)
+        <span class="hl-keyword">except</span> Book.DoesNotExist:
+            <span class="hl-keyword">raise</span> Http404         <span class="hl-comment"># DRF converts this to a 404 JSON response</span>
+
+    <span class="hl-keyword">def</span> get(self, request, pk):
+        book = self.get_object(pk)
+        <span class="hl-keyword">return</span> Response(BookSerializer(book).data)
+
+    <span class="hl-keyword">def</span> put(self, request, pk):
+        book = self.get_object(pk)
+        <span class="hl-comment"># partial=True allows updating just some fields (like PATCH)</span>
+        serializer = BookSerializer(book, data=request.data, partial=<span class="hl-keyword">True</span>)
+        <span class="hl-keyword">if</span> serializer.is_valid():
+            serializer.save()
+            <span class="hl-keyword">return</span> Response(serializer.data)
+        <span class="hl-keyword">return</span> Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    <span class="hl-keyword">def</span> delete(self, request, pk):
+        book = self.get_object(pk)
+        book.delete()
+        <span class="hl-keyword">return</span> Response(status=status.HTTP_204_NO_CONTENT)  <span class="hl-comment"># 204 = deleted, no body</span></code></pre>
+            </div>
+            <div class="tab-panel" id="step4_panel1">
+              <div class="code-header"><span class="lang-label">python</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-comment"># books/urls.py</span>
+<span class="hl-keyword">from</span> django.urls <span class="hl-keyword">import</span> path
+<span class="hl-keyword">from</span> . <span class="hl-keyword">import</span> views
+
+urlpatterns = [
+    path(<span class="hl-string">"books/"</span>,     views.BookListCreate.as_view()),  <span class="hl-comment"># list + create</span>
+    path(<span class="hl-string">"books/&lt;int:pk&gt;/"</span>, views.BookDetail.as_view()),   <span class="hl-comment"># retrieve + update + delete</span>
+]
+
+<span class="hl-comment"># myapi/urls.py — include the app's URLs</span>
+<span class="hl-keyword">from</span> django.urls <span class="hl-keyword">import</span> path, include
+
+urlpatterns = [
+    path(<span class="hl-string">"admin/"</span>, admin.site.urls),
+    path(<span class="hl-string">"api/"</span>,   include(<span class="hl-string">"books.urls"</span>)),   <span class="hl-comment"># all book routes at /api/books/</span>
+]</code></pre>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- STEP 5 -->
+      <div class="step" id="step5">
+        <div class="step-number">5</div>
+        <div class="step-content">
+          <h3>ViewSets and Routers — Less Code, Same Result</h3>
+          <p class="explanation">Writing get(), post(), put(), delete() manually for every resource is repetitive — the logic is nearly identical every time. A ViewSet combines all the actions for a resource into one class, and a Router automatically generates all the URL patterns from it. ModelViewSet is the highest-level option: it gives you list, create, retrieve, update, partial_update, and destroy — all six standard REST actions — by inheriting from one class and declaring a queryset and serializer_class. The Router generates /books/ and /books/{id}/ automatically. This is how most DRF projects are built in practice: ViewSets + Routers for standard CRUD, APIView for non-standard logic like login or analytics endpoints that do not map neatly to a model.</p>
+          <div class="tabs" data-step="step5">
+            <div class="tab-bar">
+              <button class="tab-btn active" onclick="switchTab('step5',0)">ViewSet</button>
+              <button class="tab-btn" onclick="switchTab('step5',1)">Router + URLs</button>
+              <button class="tab-btn" onclick="switchTab('step5',2)">custom action</button>
+            </div>
+            <div class="tab-panel active" id="step5_panel0">
+              <div class="code-header"><span class="lang-label">python</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-keyword">from</span> rest_framework <span class="hl-keyword">import</span> viewsets, permissions
+<span class="hl-keyword">from</span> .models <span class="hl-keyword">import</span> Book
+<span class="hl-keyword">from</span> .serializers <span class="hl-keyword">import</span> BookSerializer
+
+
+<span class="hl-keyword">class</span> BookViewSet(viewsets.ModelViewSet):
+    <span class="hl-comment"># queryset  → which objects this ViewSet operates on</span>
+    queryset            = Book.objects.all().order_by(<span class="hl-string">"-created_at"</span>)
+
+    <span class="hl-comment"># serializer_class → used for all read and write operations</span>
+    serializer_class    = BookSerializer
+
+    <span class="hl-comment"># permission_classes → who can call which actions</span>
+    permission_classes  = [permissions.IsAuthenticatedOrReadOnly]
+
+    <span class="hl-comment"># Override perform_create to set fields automatically</span>
+    <span class="hl-comment"># This runs when a new book is created (POST /api/books/)</span>
+    <span class="hl-keyword">def</span> perform_create(self, serializer):
+        <span class="hl-comment"># created_by is set from the authenticated user — not from the request body</span>
+        serializer.save(created_by=self.request.user)</code></pre>
+            </div>
+            <div class="tab-panel" id="step5_panel1">
+              <div class="code-header"><span class="lang-label">python</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-comment"># books/urls.py — Router replaces all manual URL patterns</span>
+<span class="hl-keyword">from</span> rest_framework.routers <span class="hl-keyword">import</span> DefaultRouter
+<span class="hl-keyword">from</span> .views <span class="hl-keyword">import</span> BookViewSet
+
+router = DefaultRouter()
+<span class="hl-comment"># register("books", BookViewSet) generates:</span>
+<span class="hl-comment">#   GET  /api/books/         → list</span>
+<span class="hl-comment">#   POST /api/books/         → create</span>
+<span class="hl-comment">#   GET  /api/books/{id}/    → retrieve</span>
+<span class="hl-comment">#   PUT  /api/books/{id}/    → update</span>
+<span class="hl-comment">#   PATCH /api/books/{id}/   → partial_update</span>
+<span class="hl-comment">#   DELETE /api/books/{id}/  → destroy</span>
+router.register(<span class="hl-string">"books"</span>, BookViewSet)
+
+urlpatterns = router.urls  <span class="hl-comment"># all six patterns from one line</span></code></pre>
+            </div>
+            <div class="tab-panel" id="step5_panel2">
+              <div class="code-header"><span class="lang-label">python</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-keyword">from</span> rest_framework.decorators <span class="hl-keyword">import</span> action
+
+<span class="hl-keyword">class</span> BookViewSet(viewsets.ModelViewSet):
+    queryset         = Book.objects.all()
+    serializer_class = BookSerializer
+
+    <span class="hl-comment"># @action adds a custom route outside the standard six</span>
+    <span class="hl-comment"># detail=True → /books/{id}/featured/  (for a specific book)</span>
+    <span class="hl-comment"># detail=False → /books/featured/       (not tied to an ID)</span>
+    <span class="hl-decorator">@action</span>(detail=<span class="hl-keyword">False</span>, methods=[<span class="hl-string">"get"</span>])
+    <span class="hl-keyword">def</span> featured(self, request):
+        <span class="hl-comment"># Custom logic — return only highly-rated books</span>
+        featured_books = self.queryset.filter(rating__gte=<span class="hl-number">4</span>)
+        serializer = self.get_serializer(featured_books, many=<span class="hl-keyword">True</span>)
+        <span class="hl-keyword">return</span> Response(serializer.data)
+    <span class="hl-comment"># Accessible at GET /api/books/featured/</span></code></pre>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- STEP 6 -->
+      <div class="step" id="step6">
+        <div class="step-number">6</div>
+        <div class="step-content">
+          <h3>Token Authentication</h3>
+          <p class="explanation">Token authentication is the standard way to secure a DRF API for non-browser clients like mobile apps or React frontends. When a user logs in, the server creates a Token object linked to their account and returns the token string. The client stores this string (usually in localStorage or the mobile keychain) and sends it as an Authorization header on every subsequent request. DRF's TokenAuthentication middleware reads this header, looks up the token in the database, and sets request.user automatically — the same request.user you use in views. Tokens do not expire by default in DRF, unlike JWT access tokens. If you need expiring tokens, add the djangorestframework-simplejwt package, but for most projects a static token is simpler and sufficient.</p>
+          <div class="tabs" data-step="step6">
+            <div class="tab-bar">
+              <button class="tab-btn active" onclick="switchTab('step6',0)">setup + login view</button>
+              <button class="tab-btn" onclick="switchTab('step6',1)">using the token</button>
+            </div>
+            <div class="tab-panel active" id="step6_panel0">
+              <div class="code-header"><span class="lang-label">python</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-comment"># 1. Add 'rest_framework.authtoken' to INSTALLED_APPS (already shown in step 2)</span>
+<span class="hl-comment"># 2. Run migrations to create the token table</span>
+<span class="hl-comment">#    python manage.py migrate</span>
+
+<span class="hl-comment"># 3. Add a login view that returns a token</span>
+<span class="hl-keyword">from</span> rest_framework.authtoken.models <span class="hl-keyword">import</span> Token
+<span class="hl-keyword">from</span> rest_framework.views <span class="hl-keyword">import</span> APIView
+<span class="hl-keyword">from</span> rest_framework.response <span class="hl-keyword">import</span> Response
+<span class="hl-keyword">from</span> django.contrib.auth <span class="hl-keyword">import</span> authenticate
+<span class="hl-keyword">from</span> rest_framework <span class="hl-keyword">import</span> status
+<span class="hl-keyword">from</span> rest_framework.permissions <span class="hl-keyword">import</span> AllowAny
+
+
+<span class="hl-keyword">class</span> LoginView(APIView):
+    permission_classes = [AllowAny]  <span class="hl-comment"># no auth required to log in</span>
+
+    <span class="hl-keyword">def</span> post(self, request):
+        username = request.data.get(<span class="hl-string">"username"</span>)
+        password = request.data.get(<span class="hl-string">"password"</span>)
+
+        user = authenticate(username=username, password=password)
+        <span class="hl-keyword">if not</span> user:
+            <span class="hl-keyword">return</span> Response(
+                {<span class="hl-string">"error"</span>: <span class="hl-string">"Invalid credentials"</span>},
+                status=status.HTTP_401_UNAUTHORIZED
+            )
+
+        <span class="hl-comment"># get_or_create returns (token, created_bool)</span>
+        <span class="hl-comment"># If the user already has a token, it returns the existing one</span>
+        token, _ = Token.objects.get_or_create(user=user)
+        <span class="hl-keyword">return</span> Response({<span class="hl-string">"token"</span>: token.key})</code></pre>
+            </div>
+            <div class="tab-panel" id="step6_panel1">
+              <div class="code-header"><span class="lang-label">bash</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-comment"># Step 1: log in and get a token</span>
+curl -X POST http://localhost:8000/api/login/ \
+  -H "Content-Type: application/json" \
+  -d '{"username": "alice", "password": "pass123"}'
+
+<span class="hl-comment"># Response:</span>
+<span class="hl-comment"># { "token": "9944b09199c62bcf9418ad846dd0e4bbdfc6ee4b" }</span>
+
+<span class="hl-comment"># Step 2: use the token on protected routes</span>
+<span class="hl-comment"># Format: "Token " + the token string (note: "Token", not "Bearer")</span>
+curl http://localhost:8000/api/books/ \
+  -H "Authorization: Token 9944b09199c62bcf9418ad846dd0e4bbdfc6ee4b"
+
+<span class="hl-comment"># Create a superuser for testing in the Django admin</span>
+python manage.py createsuperuser</code></pre>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- STEP 7 -->
+      <div class="step" id="step7">
+        <div class="step-number">7</div>
+        <div class="step-content">
+          <h3>Permissions — Controlling Access</h3>
+          <p class="explanation">DRF's permission system controls what authenticated (and unauthenticated) users can do. IsAuthenticated rejects all requests without a valid token. IsAuthenticatedOrReadOnly lets anonymous users read (GET) but requires auth for create, update, and delete — this is the most common setting for public APIs. IsAdminUser requires Django's is_staff flag to be True. You can set defaults in REST_FRAMEWORK settings (applies to every view) and override them per-view with permission_classes. For row-level security — "users can only edit their own posts" — you write a custom permission class. Object permissions receive the object being accessed, so you can check ownership in one place and reuse it everywhere.</p>
+          <div class="tabs" data-step="step7">
+            <div class="tab-bar">
+              <button class="tab-btn active" onclick="switchTab('step7',0)">built-in permissions</button>
+              <button class="tab-btn" onclick="switchTab('step7',1)">custom permission</button>
+            </div>
+            <div class="tab-panel active" id="step7_panel0">
+              <div class="code-header"><span class="lang-label">python</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-keyword">from</span> rest_framework <span class="hl-keyword">import</span> permissions
+
+<span class="hl-comment"># Apply globally in settings.py:</span>
+REST_FRAMEWORK = {
+    <span class="hl-string">"DEFAULT_PERMISSION_CLASSES"</span>: [
+        <span class="hl-string">"rest_framework.permissions.IsAuthenticatedOrReadOnly"</span>
+    ]
+}
+
+<span class="hl-comment"># Override per view or ViewSet:</span>
+<span class="hl-keyword">class</span> AdminOnlyView(APIView):
+    permission_classes = [permissions.IsAdminUser]  <span class="hl-comment"># requires is_staff=True</span>
+
+<span class="hl-keyword">class</span> PublicView(APIView):
+    permission_classes = [permissions.AllowAny]     <span class="hl-comment"># no auth required</span>
+
+<span class="hl-keyword">class</span> PrivateView(APIView):
+    permission_classes = [permissions.IsAuthenticated]  <span class="hl-comment"># token required</span>
+
+<span class="hl-comment"># Combine multiple permissions — ALL must pass</span>
+<span class="hl-keyword">class</span> StrictView(APIView):
+    permission_classes = [permissions.IsAuthenticated, permissions.IsAdminUser]</code></pre>
+            </div>
+            <div class="tab-panel" id="step7_panel1">
+              <div class="code-header"><span class="lang-label">python</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-comment"># books/permissions.py</span>
+<span class="hl-keyword">from</span> rest_framework <span class="hl-keyword">import</span> permissions
+
+
+<span class="hl-keyword">class</span> IsOwnerOrReadOnly(permissions.BasePermission):
+    <span class="hl-string">"""
+    Allow read access to anyone.
+    Allow write access only to the object's owner.
+    """</span>
+
+    <span class="hl-keyword">def</span> has_object_permission(self, request, view, obj):
+        <span class="hl-comment"># SAFE_METHODS = ("GET", "HEAD", "OPTIONS") — read-only</span>
+        <span class="hl-keyword">if</span> request.method <span class="hl-keyword">in</span> permissions.SAFE_METHODS:
+            <span class="hl-keyword">return</span> <span class="hl-keyword">True</span>
+
+        <span class="hl-comment"># Write access — only the user who created this book</span>
+        <span class="hl-keyword">return</span> obj.created_by == request.user
+
+
+<span class="hl-comment"># Use it in a ViewSet:</span>
+<span class="hl-keyword">class</span> BookViewSet(viewsets.ModelViewSet):
+    queryset         = Book.objects.all()
+    serializer_class = BookSerializer
+    permission_classes = [
+        permissions.IsAuthenticatedOrReadOnly,  <span class="hl-comment"># must be logged in to write</span>
+        IsOwnerOrReadOnly                       <span class="hl-comment"># must own the book to edit/delete</span>
+    ]</code></pre>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- STEP 8 -->
+      <div class="step" id="step8">
+        <div class="step-number">8</div>
+        <div class="step-content">
+          <h3>The Browsable API</h3>
+          <p class="explanation">One of DRF's most useful features ships for free: when you open an API URL in a browser, DRF detects that you are a human (by checking the Accept header) and renders a full interactive HTML page instead of raw JSON. This page shows the endpoint's URL, the allowed methods, the response data formatted and syntax-highlighted, and a form to submit POST/PUT requests right from the browser — no curl or Postman needed. This makes development and manual testing dramatically faster. It also serves as live documentation for your team. In production you typically disable the browsable API so users get plain JSON, but during development it is invaluable. Toggle it by changing DEFAULT_RENDERER_CLASSES in REST_FRAMEWORK settings.</p>
+          <div class="tabs" data-step="step8">
+            <div class="tab-bar">
+              <button class="tab-btn active" onclick="switchTab('step8',0)">enable / disable</button>
+            </div>
+            <div class="tab-panel active" id="step8_panel0">
+              <div class="code-header"><span class="lang-label">python</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-comment"># settings.py</span>
+<span class="hl-keyword">import</span> os
+
+REST_FRAMEWORK = {
+    <span class="hl-comment"># Development: show the browsable HTML API in browser, JSON for clients</span>
+    <span class="hl-string">"DEFAULT_RENDERER_CLASSES"</span>: [
+        <span class="hl-string">"rest_framework.renderers.JSONRenderer"</span>,       <span class="hl-comment"># always available</span>
+        <span class="hl-string">"rest_framework.renderers.BrowsableAPIRenderer"</span>,  <span class="hl-comment"># HTML in browser</span>
+    ],
+}
+
+<span class="hl-comment"># Production: JSON only — remove the browsable renderer</span>
+<span class="hl-keyword">if</span> os.getenv(<span class="hl-string">"ENVIRONMENT"</span>) == <span class="hl-string">"production"</span>:
+    REST_FRAMEWORK[<span class="hl-string">"DEFAULT_RENDERER_CLASSES"</span>] = [
+        <span class="hl-string">"rest_framework.renderers.JSONRenderer"</span>
+    ]
+
+<span class="hl-comment"># Now visit http://localhost:8000/api/books/ in your browser</span>
+<span class="hl-comment"># You'll see a fully interactive UI for your API</span>
+<span class="hl-comment"># Add the login URL to enable the "Log in" button in the browsable API:</span>
+
+<span class="hl-comment"># myapi/urls.py</span>
+urlpatterns = [
+    path(<span class="hl-string">"admin/"</span>, admin.site.urls),
+    path(<span class="hl-string">"api/"</span>,   include(<span class="hl-string">"books.urls"</span>)),
+    path(<span class="hl-string">"api-auth/"</span>, include(<span class="hl-string">"rest_framework.urls"</span>)),  <span class="hl-comment"># adds login/logout to browsable API</span>
+]</code></pre>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- STEP 9 -->
+      <div class="step" id="step9">
+        <div class="step-number">9</div>
+        <div class="step-content">
+          <h3>Connecting a JavaScript Frontend</h3>
+          <p class="explanation">A DRF API is consumed by a JavaScript frontend using the browser's fetch() API. The workflow is: log in with a POST request to get a token, store the token, then attach it as an Authorization header on every subsequent request. You must add CORS headers to your Django server so the browser allows requests from a different origin — if your frontend is on localhost:3000 and your API is on localhost:8000, the browser treats them as different origins and blocks the request without CORS headers. Install django-cors-headers and add your frontend URL to CORS_ALLOWED_ORIGINS. In production, replace the localhost URL with your actual frontend domain.</p>
+          <div class="tabs" data-step="step9">
+            <div class="tab-bar">
+              <button class="tab-btn active" onclick="switchTab('step9',0)">CORS setup</button>
+              <button class="tab-btn" onclick="switchTab('step9',1)">JavaScript client</button>
+            </div>
+            <div class="tab-panel active" id="step9_panel0">
+              <div class="code-header"><span class="lang-label">python</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-comment"># Install the CORS middleware</span>
+<span class="hl-comment"># pip install django-cors-headers</span>
+
+<span class="hl-comment"># settings.py</span>
+INSTALLED_APPS = [
+    <span class="hl-string">"corsheaders"</span>,  <span class="hl-comment"># add before your own apps</span>
+    <span class="hl-string">"rest_framework"</span>,
+    <span class="hl-string">"books"</span>,
+    ...
+]
+
+MIDDLEWARE = [
+    <span class="hl-string">"corsheaders.middleware.CorsMiddleware"</span>,  <span class="hl-comment"># must be FIRST in the list</span>
+    <span class="hl-string">"django.middleware.common.CommonMiddleware"</span>,
+    ...
+]
+
+<span class="hl-comment"># Allow requests from your frontend's origin</span>
+CORS_ALLOWED_ORIGINS = [
+    <span class="hl-string">"http://localhost:3000"</span>,    <span class="hl-comment"># React dev server</span>
+    <span class="hl-string">"http://localhost:5173"</span>,    <span class="hl-comment"># Vite dev server</span>
+    <span class="hl-string">"https://myapp.com"</span>,       <span class="hl-comment"># production frontend</span>
+]</code></pre>
+            </div>
+            <div class="tab-panel" id="step9_panel1">
+              <div class="code-header"><span class="lang-label">javascript</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code"><span class="hl-keyword">const</span> API = <span class="hl-string">"http://localhost:8000/api"</span>;
+
+<span class="hl-comment">// Step 1: log in and save the token</span>
+<span class="hl-keyword">async function</span> login(username, password) {
+  <span class="hl-keyword">const</span> resp = <span class="hl-keyword">await</span> fetch(`${API}/login/`, {
+    method:  <span class="hl-string">"POST"</span>,
+    headers: { <span class="hl-string">"Content-Type"</span>: <span class="hl-string">"application/json"</span> },
+    body:    JSON.stringify({ username, password })
+  });
+  <span class="hl-keyword">const</span> data = <span class="hl-keyword">await</span> resp.json();
+  localStorage.setItem(<span class="hl-string">"token"</span>, data.token);  <span class="hl-comment">// store for later requests</span>
+}
+
+<span class="hl-comment">// Step 2: helper that attaches the token to every request</span>
+<span class="hl-keyword">function</span> authHeaders() {
+  <span class="hl-keyword">const</span> token = localStorage.getItem(<span class="hl-string">"token"</span>);
+  <span class="hl-keyword">return</span> {
+    <span class="hl-string">"Authorization"</span>: `Token ${token}`,  <span class="hl-comment">// DRF uses "Token", not "Bearer"</span>
+    <span class="hl-string">"Content-Type"</span>:  <span class="hl-string">"application/json"</span>
+  };
+}
+
+<span class="hl-comment">// GET all books — works without a token (IsAuthenticatedOrReadOnly)</span>
+<span class="hl-keyword">async function</span> getBooks() {
+  <span class="hl-keyword">const</span> resp = <span class="hl-keyword">await</span> fetch(`${API}/books/`);
+  <span class="hl-keyword">return</span> resp.json();
+}
+
+<span class="hl-comment">// POST a new book — requires a token</span>
+<span class="hl-keyword">async function</span> createBook(title, author, published) {
+  <span class="hl-keyword">const</span> resp = <span class="hl-keyword">await</span> fetch(`${API}/books/`, {
+    method:  <span class="hl-string">"POST"</span>,
+    headers: authHeaders(),
+    body:    JSON.stringify({ title, author, published })
+  });
+  <span class="hl-keyword">if</span> (!resp.ok) <span class="hl-keyword">throw new</span> Error(<span class="hl-string">"Failed to create book"</span>);
+  <span class="hl-keyword">return</span> resp.json();
+}</code></pre>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </main>
+</div>
+<script>
+(function(){var s=localStorage.getItem("pyoffline-theme");if(s==="light")document.documentElement.classList.add("light");document.addEventListener("DOMContentLoaded",function(){var t=document.getElementById("themeToggle");if(!t)return;t.checked=(localStorage.getItem("pyoffline-theme")==="light");t.addEventListener("change",function(){if(this.checked){document.documentElement.classList.add("light");localStorage.setItem("pyoffline-theme","light");}else{document.documentElement.classList.remove("light");localStorage.setItem("pyoffline-theme","dark");}});});})();
+function switchTab(stepId,idx){var step=document.getElementById(stepId);var btns=step.querySelectorAll(".tab-btn");var panels=step.querySelectorAll(".tab-panel");btns.forEach(function(b){b.classList.remove("active");});panels.forEach(function(p){p.classList.remove("active");});btns[idx].classList.add("active");panels[idx].classList.add("active");}
+function copyCode(btn){var code=btn.closest(".tab-panel").querySelector("code").innerText;navigator.clipboard.writeText(code).then(function(){var orig=btn.textContent;btn.textContent="Copied!";setTimeout(function(){btn.textContent=orig;},1500);});}
+function toggleSidebar(){var sidebar=document.getElementById("guideSidebar");var overlay=document.getElementById("sidebarOverlay");if(!sidebar)return;sidebar.classList.toggle("open");overlay.classList.toggle("open");}
+document.addEventListener("DOMContentLoaded",function(){var sidebar=document.getElementById("guideSidebar");if(!sidebar)return;sidebar.querySelectorAll("nav a").forEach(function(a){a.addEventListener("click",function(){sidebar.classList.remove("open");var overlay=document.getElementById("sidebarOverlay");if(overlay)overlay.classList.remove("open");});});});
+</script>
+<script>
+function toggleSbDesktop() {
+  var c = document.body.classList.toggle('sb-collapsed');
+  localStorage.setItem('sb-collapsed', c ? '1' : '0');
+}
+(function() { if (localStorage.getItem('sb-collapsed') === '1') document.body.classList.add('sb-collapsed'); })();
+</script>
+</body>
+</html>
