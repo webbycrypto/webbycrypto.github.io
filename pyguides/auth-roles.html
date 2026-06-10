@@ -82,7 +82,7 @@ pre{overflow-x:auto;padding:16px;background:var(--code-bg)}code{font-family:"Fir
         <div class="step-number">1</div>
         <div class="step-content">
           <h3>What Is Role-Based Access Control?</h3>
-          <p class="explanation">Role-based access control (RBAC) assigns each user a role — like <code>user</code> or <code>admin</code> — and uses that role to decide what they can do. A regular user can read and edit their own data. An admin can read and edit everyone's data, access the admin panel, and perform destructive operations like deleting accounts.</p>
+          <p class="explanation">Role-based access control (RBAC) assigns each user a label called a role, such as <code>user</code> or <code>admin</code>. The server checks that role every time a protected action is requested. A regular user can read and edit their own data. An admin can read and edit everyone's data, access the admin panel, and perform actions like deleting accounts.</p>
           <div class="info-box"><strong>Two access patterns:</strong> (1) <strong>Role</strong> — does this user's role permit this action? (2) <strong>Ownership</strong> — does this user own this resource? Most real apps combine both: a user can edit their own content (ownership), an admin can edit everything (role override).</div>
         </div>
       </div>
@@ -91,7 +91,7 @@ pre{overflow-x:auto;padding:16px;background:var(--code-bg)}code{font-family:"Fir
         <div class="step-number">2</div>
         <div class="step-content">
           <h3>role Column on User</h3>
-          <p class="explanation">Add a role enum column to the User model. Use a Python enum so the values are validated by SQLAlchemy and visible in code.</p>
+          <p class="explanation">A role column is added to the User model to store each user's role. Using a Python enum means SQLAlchemy will only accept the values you define, preventing typos or invalid roles from being saved. The enum values are also easy to read and reference throughout your code.</p>
           <div class="tabs">
             <div class="tab-bar"><button class="tab-btn active" onclick="switchTab('step2',0)">models.py — role enum + User update</button></div>
             <div class="tab-panel active">
@@ -125,7 +125,7 @@ pre{overflow-x:auto;padding:16px;background:var(--code-bg)}code{font-family:"Fir
         <div class="step-number">3</div>
         <div class="step-content">
           <h3>require_role() Factory</h3>
-          <p class="explanation">A factory function returns a FastAPI dependency. This means you call <code>require_role("admin")</code> and it returns a function that FastAPI will call — which checks the current user's role. This pattern avoids duplicating the check in every route.</p>
+          <p class="explanation">A factory function is a function that builds and returns another function. Here, calling <code>require_role("admin")</code> returns a new function that FastAPI will run automatically before the route executes. That inner function loads the current user and checks their role. This pattern means you write the role-check logic once and reuse it across as many routes as you need.</p>
           <div class="tabs">
             <div class="tab-bar"><button class="tab-btn active" onclick="switchTab('step3',0)">auth.py — require_role()</button></div>
             <div class="tab-panel active">
@@ -159,7 +159,7 @@ pre{overflow-x:auto;padding:16px;background:var(--code-bg)}code{font-family:"Fir
         <div class="step-number">4</div>
         <div class="step-content">
           <h3>Admin-Only Route</h3>
-          <p class="explanation">Two ways to apply the dependency: in the route parameters (you get the user object) or in the <code>dependencies=[]</code> list (just enforces the check, doesn't inject the user).</p>
+          <p class="explanation">There are two ways to attach the role check to a route. You can add it as a parameter, which runs the check and also gives you the user object inside the route. You can also put it in the <code>dependencies=[]</code> list, which runs the check but does not give you the user object. Use the parameter style when you need the user, and the list style when you only need the guard.</p>
           <div class="tabs">
             <div class="tab-bar">
               <button class="tab-btn active" onclick="switchTab('step4',0)">Via parameter (access the user)</button>
@@ -199,7 +199,7 @@ pre{overflow-x:auto;padding:16px;background:var(--code-bg)}code{font-family:"Fir
         <div class="step-number">5</div>
         <div class="step-content">
           <h3>Multi-Role Check</h3>
-          <p class="explanation">Pass multiple role strings to <code>require_role()</code> to allow any of them.</p>
+          <p class="explanation">You can pass more than one role name to <code>require_role()</code> when a route should be accessible by multiple roles. The check passes if the current user's role matches any of the values you provided. This avoids writing separate dependencies for each role combination.</p>
           <div class="tabs">
             <div class="tab-bar"><button class="tab-btn active" onclick="switchTab('step5',0)">Multiple allowed roles</button></div>
             <div class="tab-panel active">
@@ -225,7 +225,7 @@ pre{overflow-x:auto;padding:16px;background:var(--code-bg)}code{font-family:"Fir
         <div class="step-number">6</div>
         <div class="step-content">
           <h3>Resource Ownership</h3>
-          <p class="explanation">Roles control what type of action is allowed. Ownership controls which resources the user can act on. A user with role <code>"user"</code> should only be able to edit their own notes — not everyone else's.</p>
+          <p class="explanation">Roles decide what kind of action a user is allowed to perform. Ownership decides which specific records they are allowed to act on. A regular user may be allowed to edit notes, but only their own. Checking ownership means comparing the record's owner ID to the current user's ID before allowing the action.</p>
           <div class="tabs">
             <div class="tab-bar"><button class="tab-btn active" onclick="switchTab('step6',0)">Ownership check pattern</button></div>
             <div class="tab-panel active">
@@ -260,7 +260,7 @@ pre{overflow-x:auto;padding:16px;background:var(--code-bg)}code{font-family:"Fir
         <div class="step-number">7</div>
         <div class="step-content">
           <h3>Ownership + Role Combined</h3>
-          <p class="explanation">Most real apps allow owners to edit their own resources AND admins to edit anything. Combine both checks with an <code>or</code>.</p>
+          <p class="explanation">Most real apps need two kinds of access to work together. A user should be able to edit their own content, and an admin should be able to edit anything. You can handle both cases by combining the ownership check and the role check with a Python <code>or</code> statement. If either condition is true, the action is allowed.</p>
           <div class="tabs">
             <div class="tab-bar"><button class="tab-btn active" onclick="switchTab('step7',0)">Combined check</button></div>
             <div class="tab-panel active">
@@ -297,7 +297,7 @@ pre{overflow-x:auto;padding:16px;background:var(--code-bg)}code{font-family:"Fir
         <div class="step-number">8</div>
         <div class="step-content">
           <h3>What's Next</h3>
-          <p class="explanation">You now have the complete auth stack: passwords, JWT tokens, refresh rotation, email verification, and role-based access. The natural next step is deployment — get your app running on a real server with HTTPS.</p>
+          <p class="explanation">You now have the complete auth stack: password hashing, JWT access tokens, refresh token rotation, email verification, and role-based access control. Each piece builds on the last to give you a secure, real-world login system. The natural next step is deployment, where you get your app running on a live server with HTTPS.</p>
           <div class="info-box">
             <strong>OAuth2 scopes:</strong> For API products (not user-facing apps), scopes are more granular than roles — e.g. <code>read:contacts write:contacts</code>. FastAPI has built-in OAuth2 scope support via <code>SecurityScopes</code>. Worth exploring once you're comfortable with the basics here.
           </div>

@@ -83,7 +83,7 @@ pre{overflow-x:auto;padding:16px;background:var(--code-bg)}code{font-family:"Fir
         <div class="step-number">1</div>
         <div class="step-content">
           <h3>Why Access Tokens Expire</h3>
-          <p class="explanation">If an access token is stolen — from a log, a network intercept, a compromised device — the attacker can use it as long as it's valid. A token expiring in 1 hour limits the damage window to 1 hour. A token that never expires gives the attacker permanent access. Short expiry is a security property, not a bug.</p>
+          <p class="explanation">If an access token is stolen from a log, a network intercept, or a compromised device, the attacker can use it for as long as it stays valid. A token that expires in one hour limits the damage to one hour. A token that never expires gives the attacker permanent access. Short expiry is a security feature, not a flaw.</p>
           <div class="info-box"><strong>The tradeoff:</strong> 15-minute expiry = very secure, but users get logged out constantly. 7-day expiry = convenient, but stolen tokens are dangerous for days. Refresh tokens let you have both: short access token (secure) + automatic renewal (convenient).</div>
         </div>
       </div>
@@ -92,7 +92,7 @@ pre{overflow-x:auto;padding:16px;background:var(--code-bg)}code{font-family:"Fir
         <div class="step-number">2</div>
         <div class="step-content">
           <h3>The Two-Token Pattern</h3>
-          <p class="explanation">Login issues two tokens. The access token is short-lived and used for API calls. The refresh token is long-lived and used only to get new access tokens — it never goes in an API call header.</p>
+          <p class="explanation">When you log in, the server gives you two tokens. The access token is short-lived and gets sent with every API request. The refresh token is long-lived and is only used to get a new access token when the old one expires. It never goes into a normal API request header.</p>
           <div class="tabs">
             <div class="tab-bar"><button class="tab-btn active" onclick="switchTab('step2',0)">The flow</button></div>
             <div class="tab-panel active">
@@ -123,7 +123,7 @@ REFRESH TOKEN EXPIRES OR USER LOGS OUT
         <div class="step-number">3</div>
         <div class="step-content">
           <h3>RefreshToken Table</h3>
-          <p class="explanation">Store refresh tokens in the database (not just as JWTs) so you can revoke them. Store the token hashed — if the tokens table is breached, raw tokens can't be used.</p>
+          <p class="explanation">Refresh tokens are stored in the database so you can revoke them at any time. You store a hashed version of the token, not the raw value. That way, if your database is ever breached, the stolen data cannot be used directly. This is the same reason passwords are hashed instead of stored as plain text.</p>
           <div class="tabs">
             <div class="tab-bar"><button class="tab-btn active" onclick="switchTab('step3',0)">models.py — RefreshToken</button></div>
             <div class="tab-panel active">
@@ -160,7 +160,7 @@ REFRESH_TOKEN_EXPIRE_DAYS = <span class="hl-number">30</span>
         <div class="step-number">4</div>
         <div class="step-content">
           <h3>Login Issues Both Tokens</h3>
-          <p class="explanation">After verifying the password, create both tokens and store the refresh token in the database.</p>
+          <p class="explanation">After the password is verified, the server creates both tokens at the same time. The refresh token is saved to the database with its hashed value and expiry date. The raw access token and raw refresh token are then returned to the client.</p>
           <div class="tabs">
             <div class="tab-bar"><button class="tab-btn active" onclick="switchTab('step4',0)">main.py — updated login</button></div>
             <div class="tab-panel active">
@@ -197,7 +197,7 @@ REFRESH_TOKEN_EXPIRE_DAYS = <span class="hl-number">30</span>
         <div class="step-number">5</div>
         <div class="step-content">
           <h3>POST /auth/refresh</h3>
-          <p class="explanation">The client calls this endpoint when the access token expires. It validates the refresh token, issues a new access token, and rotates the refresh token (issues a new one and revokes the old).</p>
+          <p class="explanation">When the access token expires, the client sends the refresh token to this endpoint. The server checks that the refresh token is valid and has not been revoked. If it passes, the server issues a brand new access token and a brand new refresh token. The old refresh token is immediately marked as revoked, which is called rotation.</p>
           <div class="tabs">
             <div class="tab-bar"><button class="tab-btn active" onclick="switchTab('step5',0)">main.py — /auth/refresh</button></div>
             <div class="tab-panel active">
@@ -251,7 +251,7 @@ REFRESH_TOKEN_EXPIRE_DAYS = <span class="hl-number">30</span>
         <div class="step-number">6</div>
         <div class="step-content">
           <h3>Rotation + Theft Detection</h3>
-          <p class="explanation">Rotation means each refresh token can only be used once. The moment it's used, it's revoked and a new one is issued. If a stolen token is used after the legitimate client already rotated it, the stolen token is already revoked — the attacker gets rejected.</p>
+          <p class="explanation">Rotation means each refresh token can only be used once. The moment it is used, it gets revoked and a fresh one takes its place. If a stolen token is used after the real client has already rotated it, the stolen token is already marked revoked and the attacker is rejected. You can also detect theft by watching for attempts to use a token that was already revoked, and revoke all sessions for that user as a precaution.</p>
           <div class="tabs">
             <div class="tab-bar"><button class="tab-btn active" onclick="switchTab('step6',0)">Detecting reuse (theft signal)</button></div>
             <div class="tab-panel active">
@@ -289,7 +289,7 @@ all_candidates = db.query(models.RefreshToken).filter(
         <div class="step-number">7</div>
         <div class="step-content">
           <h3>POST /auth/logout</h3>
-          <p class="explanation">Logout revokes the refresh token. Once revoked, the client can't get new access tokens — they'll need to log in again when the current access token expires.</p>
+          <p class="explanation">Logging out marks the refresh token as revoked in the database. After that, the client can no longer get a new access token. Once the current access token also expires, the user will need to log in again with their email and password.</p>
           <div class="tabs">
             <div class="tab-bar"><button class="tab-btn active" onclick="switchTab('step7',0)">main.py — /auth/logout</button></div>
             <div class="tab-panel active">
@@ -323,7 +323,7 @@ all_candidates = db.query(models.RefreshToken).filter(
         <div class="step-number">8</div>
         <div class="step-content">
           <h3>Client Storage Tradeoff</h3>
-          <p class="explanation">Where the client stores tokens matters. Both options have tradeoffs — there is no universally correct answer.</p>
+          <p class="explanation">Where the client stores tokens affects your app's security. Both common options have tradeoffs, and there is no single correct answer for every situation. The right choice depends on how sensitive your app is and how much you need to guard against different attack types.</p>
           <div class="tabs">
             <div class="tab-bar">
               <button class="tab-btn active" onclick="switchTab('step8',0)">localStorage vs httpOnly cookie</button>

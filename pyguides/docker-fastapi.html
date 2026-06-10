@@ -1,0 +1,589 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Docker - FastAPI Guide - pyoffline</title>
+<style>
+:root {
+  --bg:#121212;--surface:#1e1e1e;--surface2:#2a2a2a;--sidebar-bg:#1a1a1a;--text:#e0e0e0;--text-muted:#aaa;--text-dim:#666;--border:#333;--code-bg:#1e1e1e;--code-text:#d4d4d4;--shadow:rgba(0,0,0,.4);--accent:#2496ed;--hl-keyword:#569cd6;--hl-string:#ce9178;--hl-comment:#6a9955;--hl-number:#b5cea8;--hl-decorator:#dcdcaa;--hl-builtin:#4ec9b0;--hl-tag:#4ec9b0;--hl-attr:#9cdcfe;--hl-template:#c586c0;
+}
+html.light {
+  --bg:#f5f7fa;--surface:#ffffff;--surface2:#eef0f3;--sidebar-bg:#ffffff;--text:#1a1a1a;--text-muted:#555;--text-dim:#888;--border:#dde1e7;--code-bg:#f8f8f8;--code-text:#24292e;--shadow:rgba(0,0,0,.1);--hl-keyword:#0000ff;--hl-string:#a31515;--hl-comment:#008000;--hl-number:#098658;--hl-decorator:#795e26;--hl-builtin:#267f99;--hl-tag:#800000;--hl-attr:#e50000;--hl-template:#af00db;
+}
+.hl-keyword{color:var(--hl-keyword)}.hl-string{color:var(--hl-string)}.hl-comment{color:#adb4a7;font-size:12px;font-style:italic}.hl-number{color:var(--hl-number)}.hl-decorator{color:var(--hl-decorator)}.hl-builtin{color:var(--hl-builtin)}.hl-tag{color:var(--hl-tag)}.hl-attr{color:var(--hl-attr)}.hl-template{color:var(--hl-template)}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;transition:background .2s,color .2s}
+a{color:var(--accent)}
+.layout{display:flex;min-height:100vh}
+.sidebar{width:260px;min-width:260px;background:var(--sidebar-bg);border-right:1px solid var(--border);padding:24px 16px;position:sticky;top:0;height:100vh;overflow-y:auto}
+.sidebar h2{font-size:1.1rem;margin:16px 0 8px;color:var(--text)}
+.sidebar nav ol{padding-left:18px}.sidebar nav li{margin:6px 0}
+.sidebar nav a{color:var(--text-muted);text-decoration:none;font-size:0.85rem}
+.sidebar nav a:hover{color:var(--accent)}
+.back-link{color:var(--text-dim);text-decoration:none;font-size:0.85rem;display:block;margin-bottom:8px}
+.install-box{margin-top:24px;background:var(--bg);border:1px solid var(--border);padding:12px;border-radius:6px;font-size:0.8rem}
+.install-box code{display:block;word-break:break-all;color:var(--hl-comment);font-family:monospace;margin-top:4px}
+main{flex:1;padding:40px;max-width:860px}
+.guide-header{padding:20px 20px 20px 24px;background:var(--surface);border-radius:8px;margin-bottom:32px;box-shadow:0 1px 3px var(--shadow)}
+.guide-header h1{font-size:1.8rem;margin-bottom:8px}
+.guide-header p{color:var(--text-muted)}
+.step{display:flex;gap:16px;margin-bottom:40px}
+.step-number{width:32px;min-width:32px;height:32px;background:var(--accent);border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:bold;font-size:0.9rem;margin-top:4px;color:#fff}
+.step-content{flex:1;min-width:0}
+.step-content h3{font-size:1.1rem;margin-bottom:8px;color:var(--text)}
+.explanation{color:var(--text-muted);font-size:0.9rem;line-height:1.6;margin-bottom:14px}
+.info-box{background:var(--surface);border-left:3px solid var(--accent);border-radius:0 6px 6px 0;padding:12px 16px;margin-bottom:14px;font-size:0.88rem;color:var(--text-muted);line-height:1.6}
+.info-box strong{color:var(--text)}
+.crud-table{width:100%;border-collapse:collapse;margin-bottom:14px;font-size:0.85rem}
+.crud-table th{background:var(--surface2);color:var(--text-muted);text-align:left;padding:8px 12px;border:1px solid var(--border);font-weight:600}
+.crud-table td{padding:8px 12px;border:1px solid var(--border);color:var(--text)}
+.crud-table tr:nth-child(even) td{background:var(--surface)}
+.tabs{background:var(--surface);border-radius:6px;overflow:hidden;border:1px solid var(--border)}
+.tab-bar{display:flex;background:var(--surface2);overflow-x:auto;border-bottom:1px solid var(--border)}
+.tab-btn{padding:8px 16px;background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:0.8rem;white-space:nowrap;border-bottom:2px solid transparent;margin-bottom:-1px}
+.tab-btn.active{color:var(--text);border-bottom-color:var(--accent)}
+.tab-panel{display:none}.tab-panel.active{display:block}
+.code-header{display:flex;justify-content:space-between;align-items:center;padding:5px 12px;background:var(--surface2);border-bottom:1px solid var(--border)}
+.lang-label{font-size:0.72rem;color:var(--text-dim);text-transform:uppercase;letter-spacing:.04em}
+.copy-btn{background:none;border:1px solid var(--border);color:var(--text-muted);padding:2px 8px;cursor:pointer;border-radius:3px;font-size:0.72rem}
+.copy-btn:hover{color:var(--text);border-color:var(--text-muted)}
+pre{overflow-x:auto;padding:16px;background:var(--code-bg)}
+code{font-family:"Fira Code","Cascadia Code","Consolas",monospace;font-size:0.82rem;line-height:1.65;color:var(--code-text)}
+.theme-row{display:flex;align-items:center;gap:8px;margin-top:20px}
+.theme-label{font-size:0.78rem;color:var(--text-muted)}
+.toggle-switch{position:relative;display:inline-block;width:40px;height:22px}
+.toggle-switch input{opacity:0;width:0;height:0}
+.slider{position:absolute;cursor:pointer;inset:0;background:var(--surface2);border:1px solid var(--border);border-radius:22px;transition:background .2s}
+.slider:before{content:"";position:absolute;width:16px;height:16px;left:2px;top:2px;background:var(--text-muted);border-radius:50%;transition:transform .2s,background .2s}
+.toggle-switch input:checked+.slider{background:var(--accent);border-color:var(--accent)}
+.toggle-switch input:checked+.slider:before{transform:translateX(18px);background:#fff}
+.sidebar-toggle{display:none;position:fixed;top:12px;left:12px;z-index:300;background:var(--accent);color:#fff;border:none;padding:7px 14px;border-radius:6px;cursor:pointer;font-size:0.85rem;font-weight:600;box-shadow:0 2px 8px var(--shadow);align-items:center;gap:6px}
+.sidebar-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:190}
+.sidebar-overlay.open{display:block}
+@media(max-width:900px){.sidebar-toggle{display:flex}.layout{display:block}.sidebar{position:fixed;left:-280px;top:0;height:100vh;z-index:200;transition:left .25s ease;box-shadow:2px 0 16px var(--shadow);min-width:260px}.sidebar.open{left:0}main{padding:60px 20px 40px;max-width:100%}pre{overflow-x:auto;max-width:100%;white-space:pre-wrap;word-break:break-word}.tabs{max-width:100%}}
+.sidebar{transition:width .2s ease,min-width .2s ease,padding .2s ease}
+.sb-pin{display:flex;justify-content:flex-end;margin-bottom:8px}
+.sb-pin button{background:none;border:1px solid var(--border);color:var(--text-dim);cursor:pointer;border-radius:4px;padding:2px 7px;font-size:11px;line-height:1.6}
+.sb-pin button:hover{color:var(--accent);border-color:var(--accent)}
+.sb-reopen{display:none;position:fixed;left:0;top:50%;transform:translateY(-50%);background:var(--accent);color:#fff;border:none;border-radius:0 4px 4px 0;padding:10px 5px;cursor:pointer;z-index:300;font-size:11px;font-weight:600;writing-mode:vertical-rl;letter-spacing:.05em}
+@media(min-width:901px){body.sb-collapsed .sidebar{width:0;min-width:0;padding:0;overflow:hidden;border-right:none}body.sb-collapsed .sb-reopen{display:block}}
+@media(max-width:900px){.sb-pin{display:none}.sb-reopen{display:none!important}}
+</style>
+</head>
+<body>
+<button class="sidebar-toggle" id="sidebarToggle" onclick="toggleSidebar()">&#9776; Steps</button>
+<div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+<button class="sb-reopen" onclick="toggleSbDesktop()">Steps</button>
+<div class="layout">
+  <aside class="sidebar" id="guideSidebar">
+    <div class="sb-pin"><button onclick="toggleSbDesktop()">&#9664; Hide</button></div>
+    <a href="index.html" class="back-link">&#8592; All Guides</a>
+    <h2>Docker</h2>
+    <nav><ol>
+      <li><a href="#step1">What is Docker?</a></li>
+      <li><a href="#step2">Install Docker</a></li>
+      <li><a href="#step3">The Dockerfile</a></li>
+      <li><a href="#step4">.dockerignore</a></li>
+      <li><a href="#step5">Build and Run</a></li>
+      <li><a href="#step6">Environment Variables</a></li>
+      <li><a href="#step7">docker compose</a></li>
+      <li><a href="#step8">Production Deploy</a></li>
+      <li><a href="#step9">What's Next</a></li>
+    </ol></nav>
+    <div class="install-box">
+      <p><strong>Install</strong></p>
+      <code>pip install fastapi uvicorn</code>
+      <p style="margin-top:12px"><strong>Build</strong></p>
+      <code>docker build -t myapp .</code>
+      <p style="margin-top:12px"><strong>Run</strong></p>
+      <code>docker run -p 8000:8000 myapp</code>
+      <p style="margin-top:12px"><strong>Compose</strong></p>
+      <code>docker compose up</code>
+    </div>
+    <div class="theme-row">
+      <span class="theme-label">Dark</span>
+      <label class="toggle-switch"><input type="checkbox" id="themeToggle"><span class="slider"></span></label>
+      <span class="theme-label">Light</span>
+    </div>
+  </aside>
+  <main>
+    <header class="guide-header" style="border-left:5px solid #2496ed">
+      <h1>Docker for FastAPI Developers</h1>
+      <p>Package your app into a container so it runs identically on every machine. Covers Dockerfile, .dockerignore, environment variables, docker compose for multi-service apps, and a production deployment workflow.</p>
+    </header>
+    <div class="steps">
+
+      <!-- Step 1 -->
+      <div class="step" id="step1">
+        <div class="step-number">1</div>
+        <div class="step-content">
+          <h3>What is Docker?</h3>
+          <p class="explanation">Your app works on your laptop but breaks on the server because the server has a different Python version, different packages, or a different operating system. Docker fixes this by packaging your app and everything it needs into a single image that runs identically on any machine. An image is the packaged file, a container is a running copy of that image, and a Dockerfile is the recipe used to build the image.</p>
+          <div class="tabs" id="step1">
+            <div class="tab-bar">
+              <button class="tab-btn active" onclick="switchTab('step1',0)">the problem</button>
+              <button class="tab-btn" onclick="switchTab('step1',1)">key terms</button>
+            </div>
+            <div class="tab-panel active" id="step1_panel0">
+              <div class="code-header"><span class="lang-label">bash</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-comment"># On your laptop — works fine</span>
+$ python --version
+Python 3.11.4
+$ pip show fastapi | grep Version
+Version: 0.111.0
+$ uvicorn main:app --reload
+INFO: Application startup complete.
+
+<span class="hl-comment"># On the server — different Python, different packages, things break</span>
+$ python --version
+Python 3.9.2
+$ uvicorn main:app
+ERROR: cannot import name 'Annotated' from 'typing'
+  (this was added in Python 3.9 but the syntax you used needs 3.10+)
+
+<span class="hl-comment"># With Docker — same result on every machine</span>
+<span class="hl-comment"># Build once on your laptop</span>
+docker build -t myapp .
+
+<span class="hl-comment"># Run anywhere — same Python, same packages, same result</span>
+docker run -p 8000:8000 myapp
+INFO: Application startup complete.</code></pre>
+            </div>
+            <div class="tab-panel" id="step1_panel1">
+              <div class="code-header"><span class="lang-label">text</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code>image          the packaged app -- built once, run anywhere.
+               Stored as a file on your machine or in a registry.
+
+container      a running copy of an image -- like a lightweight VM.
+               You can run many containers from the same image.
+
+Dockerfile     the recipe that tells Docker how to build the image.
+               A plain text file with one instruction per line.
+
+docker compose a tool for running multiple containers together.
+               Defined in a docker-compose.yml file.
+
+registry       a place to store and share images.
+               Docker Hub is the default. GitHub Container Registry
+               (ghcr.io) is popular for open source projects.
+
+layer          each instruction in a Dockerfile creates a layer.
+               Docker caches layers -- if nothing changed in a layer,
+               it reuses the cached version. This makes rebuilds fast.</code></pre>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 2 -->
+      <div class="step" id="step2">
+        <div class="step-number">2</div>
+        <div class="step-content">
+          <h3>Install Docker</h3>
+          <p class="explanation">Docker Desktop is the easiest way to get started on Windows and Mac. It includes the Docker engine, the CLI, and a GUI to manage containers. On Linux you install the Docker engine directly. After installing, run the two verification commands to confirm it is working.</p>
+          <div class="tabs" id="step2">
+            <div class="tab-bar">
+              <button class="tab-btn active" onclick="switchTab('step2',0)">install</button>
+              <button class="tab-btn" onclick="switchTab('step2',1)">hello-world output</button>
+            </div>
+            <div class="tab-panel active" id="step2_panel0">
+              <div class="code-header"><span class="lang-label">bash</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-comment"># Windows and Mac -- download Docker Desktop from:</span>
+<span class="hl-comment"># https://www.docker.com/products/docker-desktop</span>
+<span class="hl-comment"># Run the installer, then start Docker Desktop from the Start menu / Applications.</span>
+
+<span class="hl-comment"># Linux (Ubuntu/Debian)</span>
+sudo apt update
+sudo apt install docker.io docker-compose-plugin
+sudo systemctl start docker
+sudo systemctl enable docker          <span class="hl-comment"># start Docker automatically on boot</span>
+sudo usermod -aG docker $USER         <span class="hl-comment"># run docker without sudo (re-login after)</span>
+
+<span class="hl-comment"># Verify the install</span>
+docker --version                      <span class="hl-comment"># should print: Docker version 24.x.x</span>
+docker run hello-world                <span class="hl-comment"># pulls a test image and runs it</span></code></pre>
+            </div>
+            <div class="tab-panel" id="step2_panel1">
+              <div class="code-header"><span class="lang-label">text</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code>$ docker run hello-world
+
+Unable to find image 'hello-world:latest' locally   &lt;-- Docker looked for the image on
+latest: Pulling from library/hello-world                 your machine, didn't find it,
+Status: Downloaded newer image for hello-world:latest    so it pulled it from Docker Hub.
+
+Hello from Docker!                                   &lt;-- The container ran and printed this.
+This message shows that your installation appears
+to be working correctly.
+
+To generate this message, Docker took the following steps:
+ 1. The Docker client contacted the Docker daemon.  &lt;-- The CLI talked to the Docker engine.
+ 2. The Docker daemon pulled the "hello-world"      &lt;-- Engine fetched the image.
+    image from the Docker Hub.
+ 3. The Docker daemon created a new container        &lt;-- A container was created from the image.
+    from that image which runs the executable
+    that produces this output.
+ 4. The Docker daemon streamed that output to        &lt;-- Output was sent back to your terminal.
+    the Docker client, which sent it to your
+    terminal.
+
+The container exited after printing the message.    &lt;-- Containers stop when their process ends.
+It is now in a stopped state (not deleted).</code></pre>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 3 -->
+      <div class="step" id="step3">
+        <div class="step-number">3</div>
+        <div class="step-content">
+          <h3>The Dockerfile</h3>
+          <p class="explanation">A Dockerfile is a plain text file that tells Docker how to build your app image. Each line is an instruction. Docker runs them in order and caches each step so rebuilds are fast. The file always lives in the root of your project folder next to main.py.</p>
+          <div class="tabs" id="step3">
+            <div class="tab-bar">
+              <button class="tab-btn active" onclick="switchTab('step3',0)">Dockerfile</button>
+              <button class="tab-btn" onclick="switchTab('step3',1)">requirements.txt</button>
+            </div>
+            <div class="tab-panel active" id="step3_panel0">
+              <div class="code-header"><span class="lang-label">text</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-comment"># Start from the official Python image -- slim removes extras to keep the image small</span>
+FROM python:3.11-slim
+
+<span class="hl-comment"># Set the working directory inside the container -- all following commands run here</span>
+WORKDIR /app
+
+<span class="hl-comment"># Copy requirements first so Docker can cache the pip install step</span>
+<span class="hl-comment"># If your code changes but requirements.txt doesn't, Docker reuses this layer</span>
+COPY requirements.txt .
+
+<span class="hl-comment"># Install dependencies -- no-cache-dir keeps the image smaller</span>
+RUN pip install --no-cache-dir -r requirements.txt
+
+<span class="hl-comment"># Copy the rest of your project files into the container</span>
+COPY . .
+
+<span class="hl-comment"># Tell Docker this container will listen on port 8000</span>
+EXPOSE 8000
+
+<span class="hl-comment"># The command that runs when the container starts</span>
+<span class="hl-comment"># 0.0.0.0 is required -- without it the app only listens inside the container</span>
+CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]</code></pre>
+            </div>
+            <div class="tab-panel" id="step3_panel1">
+              <div class="code-header"><span class="lang-label">text</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-comment"># requirements.txt -- pin versions so your image is reproducible</span>
+fastapi==0.111.0
+uvicorn==0.29.0
+python-dotenv==1.0.1
+sqlalchemy==2.0.30
+psycopg2-binary==2.9.9
+
+<span class="hl-comment"># Generate this file from your current environment:</span>
+<span class="hl-comment"># pip freeze &gt; requirements.txt</span>
+<span class="hl-comment">#</span>
+<span class="hl-comment"># Or pin only your direct dependencies and let pip resolve the rest.</span>
+<span class="hl-comment"># Pinning every transitive dependency makes the build slower but fully reproducible.</span></code></pre>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 4 -->
+      <div class="step" id="step4">
+        <div class="step-number">4</div>
+        <div class="step-content">
+          <h3>.dockerignore</h3>
+          <p class="explanation">Docker copies your project files into the image. Without a .dockerignore file it copies everything, including your virtual environment, secrets file, and git history. This makes the image much larger and can accidentally expose your .env file. The .dockerignore file works exactly like .gitignore — list what to exclude.</p>
+          <div class="tabs" id="step4">
+            <div class="tab-bar">
+              <button class="tab-btn active" onclick="switchTab('step4',0)">.dockerignore</button>
+              <button class="tab-btn" onclick="switchTab('step4',1)">why it matters</button>
+            </div>
+            <div class="tab-panel active" id="step4_panel0">
+              <div class="code-header"><span class="lang-label">text</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-comment"># Virtual environment -- Docker installs its own from requirements.txt</span>
+venv/
+.venv/
+env/
+
+<span class="hl-comment"># Secrets -- never bake these into an image</span>
+.env
+*.env
+
+<span class="hl-comment"># Python bytecode -- not needed inside the container</span>
+__pycache__/
+*.pyc
+*.pyo
+
+<span class="hl-comment"># Git history -- not needed inside the container</span>
+.git/
+.gitignore
+
+<span class="hl-comment"># Editor files</span>
+.vscode/
+.idea/
+
+<span class="hl-comment"># Local database files</span>
+*.db
+*.sqlite3
+
+<span class="hl-comment"># Test output</span>
+.pytest_cache/
+htmlcov/</code></pre>
+            </div>
+            <div class="tab-panel" id="step4_panel1">
+              <div class="code-header"><span class="lang-label">bash</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-comment"># Without .dockerignore -- Docker copies venv (hundreds of MB) into the image</span>
+$ docker build -t myapp .
+$ docker image ls myapp
+REPOSITORY   TAG       IMAGE ID       SIZE
+myapp        latest    a1b2c3d4e5f6   1.23GB   &lt;-- ballooned by venv + .git
+
+<span class="hl-comment"># After adding .dockerignore -- only your code and pip-installed deps</span>
+$ docker build -t myapp .
+$ docker image ls myapp
+REPOSITORY   TAG       IMAGE ID       SIZE
+myapp        latest    b2c3d4e5f6a1   187MB    &lt;-- much smaller
+
+<span class="hl-comment"># Why each exclusion matters:</span>
+<span class="hl-comment"># venv/         Docker runs pip install inside the container -- its own venv</span>
+<span class="hl-comment"># .env          If pushed to a registry, anyone can read your SECRET_KEY</span>
+<span class="hl-comment"># __pycache__   Bytecode is OS-specific -- Linux container needs its own</span>
+<span class="hl-comment"># .git/         Can be hundreds of MB; not needed at runtime</span>
+<span class="hl-comment"># *.db          Local SQLite file -- the container uses its own database</span></code></pre>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 5 -->
+      <div class="step" id="step5">
+        <div class="step-number">5</div>
+        <div class="step-content">
+          <h3>Build and Run</h3>
+          <p class="explanation">Building creates the image from your Dockerfile. Running starts a container from that image. The -p flag maps a port on your machine to a port inside the container — without it the app is only reachable from inside Docker, not your browser.</p>
+          <div class="tabs" id="step5">
+            <div class="tab-bar">
+              <button class="tab-btn active" onclick="switchTab('step5',0)">build and run</button>
+              <button class="tab-btn" onclick="switchTab('step5',1)">useful commands</button>
+            </div>
+            <div class="tab-panel active" id="step5_panel0">
+              <div class="code-header"><span class="lang-label">bash</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-comment"># Build the image -- tag it with a name so you can reference it later</span>
+<span class="hl-comment"># The dot at the end means "use the Dockerfile in the current folder"</span>
+docker build -t myapp .
+
+<span class="hl-comment"># Run the container</span>
+<span class="hl-comment"># -p 8000:8000  --  map port 8000 on your machine to port 8000 in the container</span>
+<span class="hl-comment"># --rm          --  delete the container automatically when it stops</span>
+docker run -p 8000:8000 --rm myapp
+
+<span class="hl-comment"># Run in detached mode (background) -- you get your terminal back</span>
+docker run -d -p 8000:8000 --name myapp-container myapp</code></pre>
+            </div>
+            <div class="tab-panel" id="step5_panel1">
+              <div class="code-header"><span class="lang-label">bash</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code>docker ps                          <span class="hl-comment"># list running containers</span>
+docker ps -a                       <span class="hl-comment"># list all containers including stopped ones</span>
+docker logs myapp-container        <span class="hl-comment"># see the container's stdout output</span>
+docker logs -f myapp-container     <span class="hl-comment"># follow logs in real time (like tail -f)</span>
+docker stop myapp-container        <span class="hl-comment"># stop a running container gracefully</span>
+docker rm myapp-container          <span class="hl-comment"># delete a stopped container</span>
+docker images                      <span class="hl-comment"># list all images on your machine</span>
+docker rmi myapp                   <span class="hl-comment"># delete an image</span>
+docker exec -it myapp-container sh <span class="hl-comment"># open a shell inside a running container</span></code></pre>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 6 -->
+      <div class="step" id="step6">
+        <div class="step-number">6</div>
+        <div class="step-content">
+          <h3>Environment Variables</h3>
+          <p class="explanation">Never put secrets inside a Docker image. If you build the .env file into the image and push it to Docker Hub, your secrets become public. Instead, pass environment variables at run time using --env-file or -e flags. Inside your Python code, os.getenv() works exactly the same as before.</p>
+          <div class="tabs" id="step6">
+            <div class="tab-bar">
+              <button class="tab-btn active" onclick="switchTab('step6',0)">passing env vars</button>
+              <button class="tab-btn" onclick="switchTab('step6',1)">reading in Python</button>
+            </div>
+            <div class="tab-panel active" id="step6_panel0">
+              <div class="code-header"><span class="lang-label">bash</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-comment"># Pass a single variable at run time</span>
+docker run -p 8000:8000 -e SECRET_KEY=abc123 myapp
+
+<span class="hl-comment"># Pass all variables from a .env file -- the file stays on your machine</span>
+<span class="hl-comment"># It is never copied into the image</span>
+docker run -p 8000:8000 --env-file .env myapp
+
+<span class="hl-comment"># In docker compose (preferred) -- see step 7</span>
+<span class="hl-comment"># env_file:</span>
+<span class="hl-comment">#   - .env</span></code></pre>
+            </div>
+            <div class="tab-panel" id="step6_panel1">
+              <div class="code-header"><span class="lang-label">python</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-keyword">import</span> os
+<span class="hl-keyword">from</span> dotenv <span class="hl-keyword">import</span> load_dotenv
+
+load_dotenv()  <span class="hl-comment"># loads .env when running locally -- ignored if vars are set by Docker</span>
+
+<span class="hl-comment"># os.getenv works the same whether the value came from .env or Docker -e</span>
+SECRET_KEY   = os.getenv(<span class="hl-string">"SECRET_KEY"</span>)
+DATABASE_URL = os.getenv(<span class="hl-string">"DATABASE_URL"</span>)
+
+<span class="hl-comment"># Fail fast at startup if a required variable is missing</span>
+<span class="hl-keyword">if not</span> SECRET_KEY:
+    <span class="hl-keyword">raise</span> <span class="hl-builtin">RuntimeError</span>(<span class="hl-string">"SECRET_KEY is not set"</span>)</code></pre>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 7 -->
+      <div class="step" id="step7">
+        <div class="step-number">7</div>
+        <div class="step-content">
+          <h3>docker compose</h3>
+          <p class="explanation">Most apps need more than one service — a FastAPI app and a PostgreSQL database, for example. Running them with separate docker run commands gets complicated fast. Docker Compose lets you define all your services in a single YAML file and start everything with one command.</p>
+          <div class="tabs" id="step7">
+            <div class="tab-bar">
+              <button class="tab-btn active" onclick="switchTab('step7',0)">docker-compose.yml</button>
+              <button class="tab-btn" onclick="switchTab('step7',1)">compose commands</button>
+            </div>
+            <div class="tab-panel active" id="step7_panel0">
+              <div class="code-header"><span class="lang-label">yaml</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-comment"># docker-compose.yml -- define all services in one place</span>
+
+services:
+
+  app:
+    build: .                        <span class="hl-comment"># build the image from the Dockerfile in this folder</span>
+    ports:
+      - <span class="hl-string">"8000:8000"</span>                 <span class="hl-comment"># host:container port mapping</span>
+    env_file:
+      - .env                        <span class="hl-comment"># load environment variables from .env</span>
+    depends_on:
+      - db                          <span class="hl-comment"># wait for the db service to start first</span>
+    volumes:
+      - .:/app                      <span class="hl-comment"># mount current folder so code changes reflect immediately</span>
+
+  db:
+    image: postgres:16-alpine       <span class="hl-comment"># use the official Postgres image -- no Dockerfile needed</span>
+    environment:
+      POSTGRES_USER: myuser
+      POSTGRES_PASSWORD: mypassword
+      POSTGRES_DB: mydb
+    volumes:
+      - pgdata:/var/lib/postgresql/data  <span class="hl-comment"># persist database files between restarts</span>
+
+volumes:
+  pgdata:                           <span class="hl-comment"># named volume -- Docker manages where it lives on disk</span></code></pre>
+            </div>
+            <div class="tab-panel" id="step7_panel1">
+              <div class="code-header"><span class="lang-label">bash</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code>docker compose up          <span class="hl-comment"># start all services -- shows logs in the terminal</span>
+docker compose up -d       <span class="hl-comment"># start in detached mode (background)</span>
+docker compose down        <span class="hl-comment"># stop and remove all containers</span>
+docker compose down -v     <span class="hl-comment"># also delete the named volumes (wipes the database)</span>
+docker compose logs -f     <span class="hl-comment"># follow logs from all services</span>
+docker compose logs app    <span class="hl-comment"># logs from the app service only</span>
+docker compose build       <span class="hl-comment"># rebuild images without starting containers</span>
+docker compose restart app <span class="hl-comment"># restart one service without stopping others</span></code></pre>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 8 -->
+      <div class="step" id="step8">
+        <div class="step-number">8</div>
+        <div class="step-content">
+          <h3>Production Deploy</h3>
+          <p class="explanation">On a production server you pull a pre-built image from a registry instead of building it there. Docker Hub is the default public registry. GitHub Container Registry is a good choice if your code is on GitHub. The workflow is: build the image locally or in CI, push it to the registry, then pull and run it on your server.</p>
+          <div class="tabs" id="step8">
+            <div class="tab-bar">
+              <button class="tab-btn active" onclick="switchTab('step8',0)">push to Docker Hub</button>
+              <button class="tab-btn" onclick="switchTab('step8',1)">GitHub Actions auto-build</button>
+            </div>
+            <div class="tab-panel active" id="step8_panel0">
+              <div class="code-header"><span class="lang-label">bash</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-comment"># Log in to Docker Hub</span>
+docker login
+
+<span class="hl-comment"># Tag the image with your Docker Hub username and a version</span>
+<span class="hl-comment"># format: username/image-name:tag</span>
+docker tag myapp yourusername/myapp:v1.0
+
+<span class="hl-comment"># Push to Docker Hub -- image is now publicly accessible</span>
+docker push yourusername/myapp:v1.0
+
+<span class="hl-comment"># On your server -- pull and run the image</span>
+docker pull yourusername/myapp:v1.0
+docker run -d -p 8000:8000 --env-file .env --name myapp yourusername/myapp:v1.0</code></pre>
+            </div>
+            <div class="tab-panel" id="step8_panel1">
+              <div class="code-header"><span class="lang-label">yaml</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-comment"># .github/workflows/docker.yml</span>
+<span class="hl-comment"># Builds and pushes the image to Docker Hub on every push to main</span>
+
+name: Build and Push Docker Image
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Build and push
+        uses: docker/build-push-action@v5
+        with:
+          push: true
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/myapp:latest
+
+<span class="hl-comment"># Add DOCKERHUB_USERNAME and DOCKERHUB_TOKEN in:</span>
+<span class="hl-comment"># GitHub repo &gt; Settings &gt; Secrets and variables &gt; Actions</span>
+<span class="hl-comment"># Generate DOCKERHUB_TOKEN at hub.docker.com &gt; Account Settings &gt; Security</span></code></pre>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 9 -->
+      <div class="step" id="step9">
+        <div class="step-number">9</div>
+        <div class="step-content">
+          <h3>What's Next</h3>
+          <p class="explanation">You now have a containerised FastAPI app that builds, runs, and deploys consistently. From here, add a database container with docker compose, wire up your CI/CD pipeline, or look into Kubernetes for managing containers across multiple servers.</p>
+          <div class="info-box"><strong>Multi-stage builds:</strong> Split your Dockerfile into a build stage and a run stage. The final image only contains what is needed to run, not the build tools. This can cut image size by 60% or more.</div>
+          <div class="info-box"><strong>Docker + Celery:</strong> Add a <code>worker</code> service to your docker-compose.yml pointing at the same image but running <code>celery -A tasks worker</code> as the command. Redis runs as a third service. See the Background Tasks guide.</div>
+          <div class="info-box"><strong>GitHub Container Registry:</strong> Use <code>ghcr.io/username/myapp:latest</code> instead of Docker Hub. Authentication uses your existing GitHub token — no separate Docker Hub account needed.</div>
+          <div class="info-box"><strong>Kubernetes:</strong> Once you have multiple containers to manage across multiple servers, Kubernetes (k8s) is the standard tool. It handles load balancing, health checks, rolling deploys, and automatic restarts. Start with the deploy series guides first.</div>
+        </div>
+      </div>
+
+    </div>
+  </main>
+</div>
+<script>
+(function(){var s=localStorage.getItem("pyoffline-theme");if(s==="light")document.documentElement.classList.add("light");document.addEventListener("DOMContentLoaded",function(){var t=document.getElementById("themeToggle");if(!t)return;t.checked=(localStorage.getItem("pyoffline-theme")==="light");t.addEventListener("change",function(){if(this.checked){document.documentElement.classList.add("light");localStorage.setItem("pyoffline-theme","light");}else{document.documentElement.classList.remove("light");localStorage.setItem("pyoffline-theme","dark");}});});})();
+function switchTab(stepId,idx){var s=document.getElementById(stepId);var b=s.querySelectorAll(".tab-btn");var p=s.querySelectorAll(".tab-panel");b.forEach(function(x){x.classList.remove("active")});p.forEach(function(x){x.classList.remove("active")});b[idx].classList.add("active");p[idx].classList.add("active");}
+function copyCode(btn){var code=btn.closest(".tab-panel").querySelector("code").innerText;navigator.clipboard.writeText(code).then(function(){var o=btn.textContent;btn.textContent="Copied!";setTimeout(function(){btn.textContent=o;},1500);});}
+function toggleSidebar(){var s=document.getElementById("guideSidebar");var o=document.getElementById("sidebarOverlay");if(!s)return;s.classList.toggle("open");o.classList.toggle("open");}
+document.addEventListener("DOMContentLoaded",function(){var s=document.getElementById("guideSidebar");if(!s)return;s.querySelectorAll("nav a").forEach(function(a){a.addEventListener("click",function(){s.classList.remove("open");var o=document.getElementById("sidebarOverlay");if(o)o.classList.remove("open");});});});
+function toggleSbDesktop(){var c=document.body.classList.toggle("sb-collapsed");localStorage.setItem("sb-collapsed",c?"1":"0");}
+(function(){if(localStorage.getItem("sb-collapsed")==="1")document.body.classList.add("sb-collapsed");})();
+</script>
+</body>
+</html>

@@ -180,7 +180,7 @@ code { font-family: "Fira Code", "Cascadia Code", "Consolas", monospace; font-si
         <div class="step-number">1</div>
         <div class="step-content">
           <h3>Why Background Tasks?</h3>
-          <p class="explanation">Every HTTP request has a deadline. The browser or client that made the request is waiting, and if your route takes too long — sending an email, resizing an image, calling a slow API, generating a PDF — the user stares at a spinner. Worse, most servers will time out the connection after 30–60 seconds regardless. Background tasks solve this by splitting the response from the work: you immediately tell the client "got it, done" and then do the slow part after the response is already sent. The user's browser is happy, the connection is free, and your slow code runs without any time pressure. This is one of the most common patterns in real production backends — almost every app that sends email, processes uploads, or talks to third-party services uses it.</p>
+          <p class="explanation">Every HTTP request has a deadline. The browser that made the request is waiting, and if your code takes too long to run, the user just sees a spinner. Sending an email, resizing an image, or generating a PDF can take several seconds. Background tasks solve this by separating the response from the slow work: you immediately tell the client the request succeeded, and then the slow code runs after the response is already sent. Almost every real app that sends email, processes uploads, or calls external services uses this pattern.</p>
           <div class="info-box"><strong>The rule of thumb:</strong> if a task takes more than about 200ms and the user doesn't need the result immediately, it belongs in a background task. Sending a welcome email after signup is the classic example — the user just needs to know their account was created, not that the email was delivered.</div>
         </div>
       </div>
@@ -190,7 +190,7 @@ code { font-family: "Fira Code", "Cascadia Code", "Consolas", monospace; font-si
         <div class="step-number">2</div>
         <div class="step-content">
           <h3>FastAPI's Built-in BackgroundTasks</h3>
-          <p class="explanation">FastAPI ships with a simple BackgroundTasks system that requires zero extra packages. You add BackgroundTasks as a parameter to your route function — FastAPI injects it automatically, the same way it injects Depends() dependencies. You call add_task() to register a function to run after the response, then return your response normally. FastAPI sends the response to the client first, then runs your registered task in the same process. This is perfect for fast-finishing background work like sending one email, writing a log entry, or updating a cache. The key limitation is that the task runs in the same process and thread as your server — if it crashes, raises an error, or takes several minutes, it can affect other requests.</p>
+          <p class="explanation">FastAPI includes a simple BackgroundTasks system that needs no extra packages. You add BackgroundTasks as a parameter to your route function and FastAPI injects it automatically. You call add_task() to register a function you want to run later, then return your response as normal. FastAPI sends the response to the client first, then runs your registered task in the same process. This works well for quick jobs like sending one email or writing a log entry. The main limitation is that if the task crashes or takes a very long time, it can slow down other requests coming in to the server.</p>
           <div class="tabs" data-step="step2">
             <div class="tab-bar">
               <button class="tab-btn active" onclick="switchTab('step2',0)">main.py</button>
@@ -244,7 +244,7 @@ curl -X POST "http://localhost:8000/signup?email=alice@example.com"
         <div class="step-number">3</div>
         <div class="step-content">
           <h3>Multiple Tasks and Passing Dependencies</h3>
-          <p class="explanation">You can add as many background tasks as you like to one request — they run in the order you added them, one after another. You can also pass any extra arguments the function needs, including database sessions or config values. One important pattern: if your task needs a database session, do not pass the request's db session into it. FastAPI closes the session when the request ends, which happens before the background task runs — you would get an error trying to use a closed session. Instead, create a fresh session inside the task function itself. This catches many beginners off guard.</p>
+          <p class="explanation">You can add as many background tasks as you like to one request. They run in the order you added them, one after another. You can also pass extra arguments that the task function needs. One important thing to know: if your task needs a database session, do not pass the session from the route into it. FastAPI closes that session when the request ends, which happens before the background task runs. Create a fresh session inside the task function itself instead.</p>
           <div class="tabs" data-step="step3">
             <div class="tab-bar">
               <button class="tab-btn active" onclick="switchTab('step3',0)">multiple tasks</button>
@@ -308,7 +308,7 @@ curl -X POST "http://localhost:8000/signup?email=alice@example.com"
         <div class="step-number">4</div>
         <div class="step-content">
           <h3>When Built-in BackgroundTasks Isn't Enough</h3>
-          <p class="explanation">FastAPI's built-in BackgroundTasks is great for quick fire-and-forget work, but it has real limits. It runs inside the same server process — if your task crashes the worker, it can bring down live traffic. There is no retry: if an email fails to send because the email provider was temporarily down, the task just disappears. There is no scheduling — you cannot say "run this in 10 minutes." There is no queue — if your server restarts mid-task, the work is lost. And there is no visibility — you have no way to check whether a task succeeded or failed after the fact. When any of these matter, you need a proper task queue. Celery is the standard Python answer: it runs tasks in a completely separate worker process, stores them in Redis or RabbitMQ, retries on failure, and gives you a monitoring dashboard.</p>
+          <p class="explanation">FastAPI's built-in BackgroundTasks works well for quick, simple jobs. But it has real limits for more demanding situations. There is no retry: if an email fails because the email provider was briefly down, the task is just lost. There is no scheduling, so you cannot say "run this in 10 minutes." If your server restarts while a task is running, the work disappears with no record. When any of these things matter, you need a proper task queue. Celery is the standard Python answer: it runs tasks in a separate worker process, stores them in Redis, retries on failure, and gives you a monitoring dashboard.</p>
           <div class="info-box"><strong>Use FastAPI BackgroundTasks when:</strong> the task is fast (under a few seconds), failure is acceptable (no retry needed), you don't need to track the result, and you don't need scheduling.</div>
           <div class="info-box"><strong>Use Celery when:</strong> tasks are slow or unpredictable, you need retries on failure, you need to check task status from a frontend, you need scheduled jobs (cron-style), or your server restarts and tasks must survive.</div>
         </div>
@@ -319,7 +319,7 @@ curl -X POST "http://localhost:8000/signup?email=alice@example.com"
         <div class="step-number">5</div>
         <div class="step-content">
           <h3>Install Celery + Redis</h3>
-          <p class="explanation">Celery is the task queue library — it manages the queue of jobs, dispatches them to workers, handles retries, and stores results. Redis is the broker: it's the message bus that sits between your FastAPI app and the Celery worker. When your route calls a task, it sends a message to Redis. The Celery worker is a completely separate process — it polls Redis, picks up messages, and runs the task functions. Redis also stores task results so your app can check whether a task finished and what it returned. You need Redis running before Celery starts. On Windows, the easiest way is to run Redis in Docker. On Linux and macOS you can install it directly.</p>
+          <p class="explanation">Celery is the task queue library. It manages a queue of jobs, sends them to workers, handles retries, and stores results. Redis is the broker: a separate program that acts as a message bus between your FastAPI app and the Celery worker. When your route calls a task, it sends a message to Redis. The Celery worker is a completely separate process that watches Redis, picks up messages, and runs the task functions. You need Redis running before Celery starts. On Windows the easiest option is to run Redis in Docker.</p>
           <div class="tabs" data-step="step5">
             <div class="tab-bar">
               <button class="tab-btn active" onclick="switchTab('step5',0)">install</button>
@@ -368,7 +368,7 @@ redis-cli ping
         <div class="step-number">6</div>
         <div class="step-content">
           <h3>Celery App Setup</h3>
-          <p class="explanation">The Celery app object is the central configuration — it tells Celery where Redis is (the broker), where to store results (the backend), and various behavioural settings. You define it once in a dedicated file, usually called tasks.py or celery_app.py, and import it everywhere else. The broker_url tells Celery where to send task messages. The result_backend tells Celery where to store the return value of each task so you can retrieve it later. Setting result_expires means Redis cleans up old results automatically — without this, completed task results pile up in Redis forever. task_track_started means Celery records when a task starts, not just when it finishes, which is useful for progress tracking.</p>
+          <p class="explanation">The Celery app object holds the central configuration. It tells Celery where Redis is, where to store results, and various other settings. You define it once in a dedicated file called tasks.py and import it everywhere else. The broker_url setting is the address of your Redis server. The result_backend is where Celery stores the return value of each task so you can look it up later. Setting result_expires tells Redis to automatically delete old results after a set time, so they do not pile up forever.</p>
           <div class="tabs" data-step="step6">
             <div class="tab-bar">
               <button class="tab-btn active" onclick="switchTab('step6',0)">tasks.py</button>
@@ -413,7 +413,7 @@ REDIS_URL=redis://localhost:6379/0</code></pre>
         <div class="step-number">7</div>
         <div class="step-content">
           <h3>Defining Tasks</h3>
-          <p class="explanation">A Celery task is just a Python function decorated with @celery_app.task. That decorator registers the function with Celery so it can be serialised and sent through Redis to a worker. Inside the task, you write normal Python code — database calls, HTTP requests, file operations — with no concern about blocking the server. The bind=True option gives the task a self parameter, which is a reference to the task instance. You need self to call self.retry() on failure, or self.update_state() to report progress. Retries use exponential backoff by default when you use countdown — the task waits before trying again, which is sensible for transient failures like a briefly unavailable email server.</p>
+          <p class="explanation">A Celery task is a normal Python function with the @celery_app.task decorator on it. That decorator registers the function with Celery so it can be sent through Redis to a worker process. Inside the task you write ordinary Python code: database queries, HTTP requests, file operations. The bind=True option gives the task a self parameter, which is a reference to the task itself. You need self to call self.retry() when something fails, or self.update_state() to report progress back to the caller. When you use countdown on a retry, the task waits that many seconds before trying again.</p>
           <div class="tabs" data-step="step7">
             <div class="tab-bar">
               <button class="tab-btn active" onclick="switchTab('step7',0)">basic task</button>
@@ -487,7 +487,7 @@ REDIS_URL=redis://localhost:6379/0</code></pre>
         <div class="step-number">8</div>
         <div class="step-content">
           <h3>Calling Tasks from FastAPI Routes</h3>
-          <p class="explanation">To dispatch a Celery task from a FastAPI route, you call task_function.delay() instead of task_function() directly. The .delay() method serialises the arguments to JSON, sends them to Redis, and returns an AsyncResult object immediately — the task has not run yet, it is sitting in the queue waiting for a worker to pick it up. The AsyncResult object has an id attribute — this is a unique string identifier for that specific task run. You should return this ID to the client so they can poll for the result later. The .apply_async() method is the more powerful version of .delay() — it lets you add options like countdown (delay before running), eta (run at a specific time), and queue (which worker queue to use).</p>
+          <p class="explanation">To run a Celery task from a FastAPI route, call task_function.delay() instead of calling it directly. The delay() method sends the task to Redis and returns an AsyncResult object right away. The task has not run yet at that point; it is sitting in the queue waiting for a worker to pick it up. The AsyncResult has an id attribute, which is a unique string for that specific task run. Return this ID to the client so they can check on the task's progress later. The apply_async() method works like delay() but lets you add extra options like countdown to delay the start, or eta to schedule it for a specific time.</p>
           <div class="tabs" data-step="step8">
             <div class="tab-bar">
               <button class="tab-btn active" onclick="switchTab('step8',0)">main.py</button>
@@ -552,7 +552,7 @@ send_email.apply_async(
         <div class="step-number">9</div>
         <div class="step-content">
           <h3>Checking Task Status</h3>
-          <p class="explanation">Once you have the task ID, you can check the task's state at any time using AsyncResult. This is how you build a progress endpoint that a frontend can poll. The task goes through states in order: PENDING means the task is in the queue waiting for a worker. STARTED means a worker picked it up and it is running (only shown if task_track_started is True in your config). SUCCESS means it finished successfully and the result is stored. FAILURE means an exception was raised. PROGRESS is a custom state you can set yourself using self.update_state() inside the task — it is not built-in but widely used for progress bars. The client polls your /tasks/{id} endpoint every few seconds and updates the UI based on the state.</p>
+          <p class="explanation">Once you have the task ID, you can check the task's state at any time using AsyncResult. PENDING means the task is in the queue, waiting for a worker to pick it up. STARTED means a worker is running it right now. SUCCESS means it finished without errors and the result is stored. FAILURE means an exception was raised inside the task. PROGRESS is a custom state you can set yourself with self.update_state(), commonly used to power progress bars. The client polls your /tasks/{id} endpoint every few seconds and updates the page based on the state it receives.</p>
           <div class="tabs" data-step="step9">
             <div class="tab-bar">
               <button class="tab-btn active" onclick="switchTab('step9',0)">status endpoint</button>
@@ -622,7 +622,7 @@ REVOKED   — Task was cancelled before it ran</code></pre>
         <div class="step-number">10</div>
         <div class="step-content">
           <h3>Monitoring with Flower</h3>
-          <p class="explanation">Flower is a real-time web dashboard for Celery — it shows every task that has run, its state, how long it took, which worker handled it, and whether it failed. You run it as a separate process alongside your FastAPI app and Celery worker. In development all three processes run in separate terminals. In production you would run all three as systemd services. Flower reads from the same Redis broker as Celery, so it has a live view of the queue and all workers. It also lets you manually revoke (cancel) pending tasks, inspect task arguments, and see worker CPU and memory usage. It is an optional tool but extremely useful when debugging why tasks are slow or failing.</p>
+          <p class="explanation">Flower is a web dashboard for Celery. It shows every task that has run, its current state, how long it took, which worker handled it, and whether it failed. You run it as a separate process alongside your FastAPI app and Celery worker. In development all three run in separate terminal windows. Flower reads from the same Redis broker, so it always has a live view of the queue. It also lets you cancel pending tasks and inspect what arguments each task was called with.</p>
           <div class="tabs" data-step="step10">
             <div class="tab-bar">
               <button class="tab-btn active" onclick="switchTab('step10',0)">start everything</button>

@@ -1,0 +1,669 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Async Patterns in FastAPI - pyoffline</title>
+<style>
+:root {
+  --bg:          #121212;
+  --surface:     #1e1e1e;
+  --surface2:    #2a2a2a;
+  --sidebar-bg:  #1a1a1a;
+  --text:        #e0e0e0;
+  --text-muted:  #aaa;
+  --text-dim:    #666;
+  --border:      #333;
+  --code-bg:     #1e1e1e;
+  --code-text:   #d4d4d4;
+  --shadow:      rgba(0,0,0,.4);
+  --accent:      #6c5ce7;
+  --hl-keyword:  #569cd6;
+  --hl-string:   #ce9178;
+  --hl-comment:  #6a9955;
+  --hl-number:   #b5cea8;
+  --hl-decorator:#dcdcaa;
+  --hl-builtin:  #4ec9b0;
+  --hl-tag:      #4ec9b0;
+  --hl-attr:     #9cdcfe;
+  --hl-template: #c586c0;
+}
+html.light {
+  --bg:          #f5f7fa;
+  --surface:     #ffffff;
+  --surface2:    #eef0f3;
+  --sidebar-bg:  #ffffff;
+  --text:        #1a1a1a;
+  --text-muted:  #555;
+  --text-dim:    #888;
+  --border:      #dde1e7;
+  --code-bg:     #f8f8f8;
+  --code-text:   #24292e;
+  --shadow:      rgba(0,0,0,.1);
+  --hl-keyword:  #0000ff;
+  --hl-string:   #a31515;
+  --hl-comment:  #008000;
+  --hl-number:   #098658;
+  --hl-decorator:#795e26;
+  --hl-builtin:  #267f99;
+  --hl-tag:      #800000;
+  --hl-attr:     #e50000;
+  --hl-template: #af00db;
+}
+.hl-keyword  { color: var(--hl-keyword);  }
+.hl-string   { color: var(--hl-string);   }
+.hl-comment  { color: #adb4a7; font-size: 12px; font-style: italic; }
+.hl-number   { color: var(--hl-number);   }
+.hl-decorator{ color: var(--hl-decorator);}
+.hl-builtin  { color: var(--hl-builtin);  }
+.hl-tag      { color: var(--hl-tag);      }
+.hl-attr     { color: var(--hl-attr);     }
+.hl-template { color: var(--hl-template); }
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: var(--bg); color: var(--text); font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; transition: background .2s, color .2s; }
+a { color: var(--accent); }
+.layout { display: flex; min-height: 100vh; }
+.sidebar { width: 260px; min-width: 260px; background: var(--sidebar-bg); border-right: 1px solid var(--border); padding: 24px 16px; position: sticky; top: 0; height: 100vh; overflow-y: auto; }
+.sidebar h2 { font-size: 1.1rem; margin: 16px 0 8px; color: var(--text); }
+.sidebar nav ol { padding-left: 18px; }
+.sidebar nav li { margin: 6px 0; }
+.sidebar nav a { color: var(--text-muted); text-decoration: none; font-size: 0.85rem; }
+.sidebar nav a:hover { color: var(--accent); }
+.back-link { color: var(--text-dim); text-decoration: none; font-size: 0.85rem; display: block; margin-bottom: 8px; }
+.install-box { margin-top: 24px; background: var(--bg); border: 1px solid var(--border); padding: 12px; border-radius: 6px; font-size: 0.8rem; }
+.install-box code { display: block; word-break: break-all; color: var(--hl-comment); font-family: monospace; margin-top: 4px; }
+main { flex: 1; padding: 40px; max-width: 860px; }
+.guide-header { padding: 20px 20px 20px 24px; background: var(--surface); border-radius: 8px; margin-bottom: 32px; box-shadow: 0 1px 3px var(--shadow); }
+.guide-header h1 { font-size: 1.8rem; margin-bottom: 8px; }
+.guide-header p { color: var(--text-muted); }
+.step { display: flex; gap: 16px; margin-bottom: 40px; }
+.step-number { width: 32px; min-width: 32px; height: 32px; background: var(--accent); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 0.9rem; margin-top: 4px; color: #fff; }
+.step-content { flex: 1; min-width: 0; }
+.step-content h3 { font-size: 1.1rem; margin-bottom: 8px; color: var(--text); }
+.explanation { color: var(--text-muted); font-size: 0.9rem; line-height: 1.6; margin-bottom: 14px; }
+.info-box { background: var(--surface); border-left: 3px solid var(--accent); border-radius: 0 6px 6px 0; padding: 12px 16px; margin-bottom: 14px; font-size: 0.88rem; color: var(--text-muted); line-height: 1.6; }
+.info-box strong { color: var(--text); }
+.tabs { background: var(--surface); border-radius: 6px; overflow: hidden; border: 1px solid var(--border); }
+.tab-bar { display: flex; background: var(--surface2); overflow-x: auto; border-bottom: 1px solid var(--border); }
+.tab-btn { padding: 8px 16px; background: none; border: none; color: var(--text-muted); cursor: pointer; font-size: 0.8rem; white-space: nowrap; border-bottom: 2px solid transparent; margin-bottom: -1px; }
+.tab-btn.active { color: var(--text); border-bottom-color: var(--accent); }
+.tab-panel { display: none; }
+.tab-panel.active { display: block; }
+.code-header { display: flex; justify-content: space-between; align-items: center; padding: 5px 12px; background: var(--surface2); border-bottom: 1px solid var(--border); }
+.lang-label { font-size: 0.72rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: .04em; }
+.copy-btn { background: none; border: 1px solid var(--border); color: var(--text-muted); padding: 2px 8px; cursor: pointer; border-radius: 3px; font-size: 0.72rem; }
+.copy-btn:hover { color: var(--text); border-color: var(--text-muted); }
+pre { overflow-x: auto; padding: 16px; background: var(--code-bg); }
+code { font-family: "Fira Code", "Cascadia Code", "Consolas", monospace; font-size: 0.82rem; line-height: 1.65; color: var(--code-text); }
+.theme-row { display: flex; align-items: center; gap: 8px; margin-top: 20px; }
+.theme-label { font-size: 0.78rem; color: var(--text-muted); }
+.toggle-switch { position: relative; display: inline-block; width: 40px; height: 22px; }
+.toggle-switch input { opacity: 0; width: 0; height: 0; }
+.slider { position: absolute; cursor: pointer; inset: 0; background: var(--surface2); border: 1px solid var(--border); border-radius: 22px; transition: background .2s; }
+.slider:before { content: ""; position: absolute; width: 16px; height: 16px; left: 2px; top: 2px; background: var(--text-muted); border-radius: 50%; transition: transform .2s, background .2s; }
+.toggle-switch input:checked + .slider { background: var(--accent); border-color: var(--accent); }
+.toggle-switch input:checked + .slider:before { transform: translateX(18px); background: #fff; }
+.sidebar-toggle { display: none; position: fixed; top: 12px; left: 12px; z-index: 300; background: var(--accent); color: #fff; border: none; padding: 7px 14px; border-radius: 6px; cursor: pointer; font-size: 0.85rem; font-weight: 600; box-shadow: 0 2px 8px var(--shadow); align-items: center; gap: 6px; }
+.sidebar-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.45); z-index: 190; }
+.sidebar-overlay.open { display: block; }
+@media (max-width: 900px) {
+  .sidebar-toggle { display: flex; }
+  .layout { display: block; }
+  .sidebar { position: fixed; left: -280px; top: 0; height: 100vh; z-index: 200; transition: left .25s ease; box-shadow: 2px 0 16px var(--shadow); min-width: 260px; }
+  .sidebar.open { left: 0; }
+  main { padding: 60px 20px 40px; max-width: 100%; }
+  pre { overflow-x: auto; max-width: 100%; white-space: pre-wrap; word-break: break-word; }
+  .tabs { max-width: 100%; }
+}
+.sidebar { transition: width .2s ease, min-width .2s ease, padding .2s ease; }
+.sb-pin { display: flex; justify-content: flex-end; margin-bottom: 8px; }
+.sb-pin button { background: none; border: 1px solid var(--border); color: var(--text-dim); cursor: pointer; border-radius: 4px; padding: 2px 7px; font-size: 11px; line-height: 1.6; }
+.sb-pin button:hover { color: var(--accent); border-color: var(--accent); }
+.sb-reopen { display: none; position: fixed; left: 0; top: 50%; transform: translateY(-50%); background: var(--accent); color: #fff; border: none; border-radius: 0 4px 4px 0; padding: 10px 5px; cursor: pointer; z-index: 300; font-size: 11px; font-weight: 600; writing-mode: vertical-rl; letter-spacing: .05em; }
+@media (min-width: 901px) { body.sb-collapsed .sidebar { width: 0; min-width: 0; padding: 0; overflow: hidden; border-right: none; } body.sb-collapsed .sb-reopen { display: block; } }
+@media (max-width: 900px) { .sb-pin { display: none; } .sb-reopen { display: none !important; } }
+</style>
+</head>
+<body>
+<button class="sidebar-toggle" id="sidebarToggle" onclick="toggleSidebar()">&#9776; Steps</button>
+<div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+<button class="sb-reopen" onclick="toggleSbDesktop()">Steps</button>
+<div class="layout">
+  <aside class="sidebar" id="guideSidebar">
+    <div class="sb-pin"><button onclick="toggleSbDesktop()">&#9664; Hide</button></div>
+    <a href="index.html" class="back-link">← All Guides</a>
+    <h2>Lessons</h2>
+    <nav><ol>
+      <li><a href="#step1">Sync vs Async Fundamentals</a></li>
+      <li><a href="#step2">async/await Syntax</a></li>
+      <li><a href="#step3">asyncio.gather() Patterns</a></li>
+      <li><a href="#step4">FastAPI Async Endpoints</a></li>
+      <li><a href="#step5">Blocking vs Non-Blocking I/O</a></li>
+      <li><a href="#step6">Timeouts and Cancellation</a></li>
+      <li><a href="#step7">Concurrent Database Queries</a></li>
+      <li><a href="#step8">Rate Limiting with Async</a></li>
+      <li><a href="#step9">Testing Async Code</a></li>
+      <li><a href="#step10">Real-World: Portfolio Tracker</a></li>
+    </ol></nav>
+    <div class="install-box">
+      <strong>Requirements:</strong>
+      <code>pip install fastapi httpx aiosqlite</code>
+      <code style="margin-top: 6px;">uvicorn app:app --reload</code>
+    </div>
+    <div class="theme-row">
+      <span class="theme-label">Dark</span>
+      <label class="toggle-switch">
+        <input type="checkbox" id="themeToggle">
+        <span class="slider"></span>
+      </label>
+      <span class="theme-label">Light</span>
+    </div>
+  </aside>
+  <main>
+    <header class="guide-header" style="border-left: 5px solid #6c5ce7">
+      <h1>Async Patterns in FastAPI</h1>
+      <p><strong>Requires completing <a href="crud-fastapi.html">CRUD + HTML</a> and <a href="pydantic-fastapi.html">Pydantic Models</a> first.</strong> Master asyncio, concurrent requests, and async patterns needed for real-time applications and performance-critical APIs.</p>
+    </header>
+    <div class="steps">
+
+<div class="step" id="step1">
+  <div class="step-number">1</div>
+  <div class="step-content">
+    <h3>Sync vs Async Fundamentals</h3>
+    <p class="explanation">Synchronous code waits for each operation to finish before moving to the next. Asynchronous code starts multiple operations and doesn't wait. This matters when an operation involves network requests, file I/O, or database queries that take time.</p>
+    <div class="tabs" data-step="step1">
+      <div class="tab-bar">
+        <button class="tab-btn active" onclick="switchTab('step1',0)">Sync Example</button>
+        <button class="tab-btn" onclick="switchTab('step1',1)">Async Example</button>
+      </div>
+      <div class="tab-panel active" id="step1_panel0">
+        <div class="code-header">
+          <span class="lang-label">python</span>
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+        </div>
+        <pre><code><span class="hl-keyword">import</span> time
+
+<span class="hl-keyword">def</span> <span class="hl-decorator">slow_task</span>(n):
+    time.sleep(<span class="hl-number">2</span>)  <span class="hl-comment">// blocks for 2 seconds</span>
+    <span class="hl-keyword">return</span> <span class="hl-string">f"Task {n} done"</span>
+
+<span class="hl-comment">// This takes 6 seconds total</span>
+<span class="hl-keyword">for</span> i <span class="hl-keyword">in</span> <span class="hl-builtin">range</span>(<span class="hl-number">3</span>):
+    result = slow_task(i)
+    <span class="hl-keyword">print</span>(result)</code></pre>
+      </div>
+      <div class="tab-panel" id="step1_panel1">
+        <div class="code-header">
+          <span class="lang-label">python</span>
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+        </div>
+        <pre><code><span class="hl-keyword">import</span> asyncio
+
+<span class="hl-keyword">async def</span> <span class="hl-decorator">slow_task</span>(n):
+    <span class="hl-keyword">await</span> asyncio.sleep(<span class="hl-number">2</span>)  <span class="hl-comment">// doesn't block others</span>
+    <span class="hl-keyword">return</span> <span class="hl-string">f"Task {n} done"</span>
+
+<span class="hl-comment">// This takes 2 seconds total (all run in parallel)</span>
+<span class="hl-keyword">await</span> asyncio.gather(
+    slow_task(<span class="hl-number">0</span>),
+    slow_task(<span class="hl-number">1</span>),
+    slow_task(<span class="hl-number">2</span>)
+)</code></pre>
+      </div>
+    </div>
+    <div class="info-box">
+      <strong>Key difference:</strong> Sync blocks the entire program. Async starts tasks and moves on, so multiple operations can progress at the same time (concurrently).
+    </div>
+  </div>
+</div>
+
+<div class="step" id="step2">
+  <div class="step-number">2</div>
+  <div class="step-content">
+    <h3>async/await Syntax</h3>
+    <p class="explanation">The <code>async</code> keyword marks a function as asynchronous. The <code>await</code> keyword pauses inside an async function until the awaited operation completes, then continues. Always use <code>await</code> inside async functions.</p>
+    <div class="tabs" data-step="step2">
+      <div class="tab-bar">
+        <button class="tab-btn active" onclick="switchTab('step2',0)">Basic async</button>
+        <button class="tab-btn" onclick="switchTab('step2',1)">Multiple awaits</button>
+      </div>
+      <div class="tab-panel active" id="step2_panel0">
+        <div class="code-header">
+          <span class="lang-label">python</span>
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+        </div>
+        <pre><code><span class="hl-keyword">async def</span> <span class="hl-decorator">fetch_data</span>():
+    <span class="hl-comment">// pause here until the operation finishes</span>
+    result = <span class="hl-keyword">await</span> some_slow_operation()
+    <span class="hl-keyword">return</span> result
+
+<span class="hl-comment">// Call async functions with await</span>
+data = <span class="hl-keyword">await</span> fetch_data()
+<span class="hl-keyword">print</span>(data)</code></pre>
+      </div>
+      <div class="tab-panel" id="step2_panel1">
+        <div class="code-header">
+          <span class="lang-label">python</span>
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+        </div>
+        <pre><code><span class="hl-keyword">async def</span> <span class="hl-decorator">process</span>():
+    user = <span class="hl-keyword">await</span> fetch_user(<span class="hl-number">1</span>)    <span class="hl-comment">// wait for user</span>
+    posts = <span class="hl-keyword">await</span> fetch_posts(user.id)  <span class="hl-comment">// then fetch posts</span>
+    comments = <span class="hl-keyword">await</span> fetch_comments(posts[<span class="hl-number">0</span>].id)
+    <span class="hl-keyword">return</span> {<span class="hl-string">"user"</span>: user, <span class="hl-string">"posts"</span>: posts, <span class="hl-string">"comments"</span>: comments}</code></pre>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="step" id="step3">
+  <div class="step-number">3</div>
+  <div class="step-content">
+    <h3>asyncio.gather() for Concurrent Execution</h3>
+    <p class="explanation"><code>asyncio.gather()</code> runs multiple async functions at the same time and waits for all of them to finish. Use it when you have independent tasks that don't depend on each other's results.</p>
+    <div class="tabs" data-step="step3">
+      <div class="tab-bar">
+        <button class="tab-btn active" onclick="switchTab('step3',0)">gather()</button>
+        <button class="tab-btn" onclick="switchTab('step3',1)">gather with errors</button>
+      </div>
+      <div class="tab-panel active" id="step3_panel0">
+        <div class="code-header">
+          <span class="lang-label">python</span>
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+        </div>
+        <pre><code><span class="hl-keyword">import</span> asyncio
+
+<span class="hl-keyword">async def</span> <span class="hl-decorator">main</span>():
+    <span class="hl-comment">// All three run at the same time</span>
+    results = <span class="hl-keyword">await</span> asyncio.gather(
+        fetch_user(<span class="hl-number">1</span>),
+        fetch_user(<span class="hl-number">2</span>),
+        fetch_user(<span class="hl-number">3</span>)
+    )
+    <span class="hl-keyword">return</span> results  <span class="hl-comment">// list of 3 users</span>
+
+<span class="hl-comment">// Run async function from sync code</span>
+asyncio.run(main())</code></pre>
+      </div>
+      <div class="tab-panel" id="step3_panel1">
+        <div class="code-header">
+          <span class="lang-label">python</span>
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+        </div>
+        <pre><code><span class="hl-keyword">async def</span> <span class="hl-decorator">safe_gather</span>():
+    results = <span class="hl-keyword">await</span> asyncio.gather(
+        fetch_user(<span class="hl-number">1</span>),
+        fetch_user(<span class="hl-number">2</span>),
+        fetch_user(<span class="hl-number">3</span>),
+        return_exceptions=<span class="hl-keyword">True</span>  <span class="hl-comment">// don't stop on error</span>
+    )
+    <span class="hl-comment">// results may contain Exception objects</span>
+    <span class="hl-keyword">for</span> result <span class="hl-keyword">in</span> results:
+        <span class="hl-keyword">if</span> <span class="hl-keyword">isinstance</span>(result, Exception):
+            <span class="hl-keyword">print</span>(<span class="hl-string">f"Error: {result}"</span>)
+        <span class="hl-keyword">else</span>:
+            <span class="hl-keyword">print</span>(<span class="hl-string">f"User: {result}"</span>)</code></pre>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="step" id="step4">
+  <div class="step-number">4</div>
+  <div class="step-content">
+    <h3>FastAPI Async Endpoints</h3>
+    <p class="explanation">FastAPI routes can be async or sync. Define async routes with <code>async def</code>. FastAPI runs async routes in a thread pool and sync routes in another, so both work without blocking the server.</p>
+    <div class="tabs" data-step="step4">
+      <div class="tab-bar">
+        <button class="tab-btn active" onclick="switchTab('step4',0)">Async endpoint</button>
+        <button class="tab-btn" onclick="switchTab('step4',1)">Concurrent calls</button>
+      </div>
+      <div class="tab-panel active" id="step4_panel0">
+        <div class="code-header">
+          <span class="lang-label">python</span>
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+        </div>
+        <pre><code><span class="hl-keyword">from</span> fastapi <span class="hl-keyword">import</span> FastAPI
+<span class="hl-keyword">import</span> httpx
+
+app = FastAPI()
+
+<span class="hl-decorator">@app.get</span>(<span class="hl-string">"/user/{user_id}"</span>)
+<span class="hl-keyword">async def</span> <span class="hl-decorator">get_user</span>(user_id: <span class="hl-builtin">int</span>):
+    <span class="hl-comment">// This endpoint is async</span>
+    <span class="hl-keyword">async with</span> httpx.AsyncClient() <span class="hl-keyword">as</span> client:
+        response = <span class="hl-keyword">await</span> client.get(<span class="hl-string">f"https://api.example.com/users/{user_id}"</span>)
+    <span class="hl-keyword">return</span> response.json()</code></pre>
+      </div>
+      <div class="tab-panel" id="step4_panel1">
+        <div class="code-header">
+          <span class="lang-label">python</span>
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+        </div>
+        <pre><code><span class="hl-decorator">@app.get</span>(<span class="hl-string">"/dashboard/{user_id}"</span>)
+<span class="hl-keyword">async def</span> <span class="hl-decorator">get_dashboard</span>(user_id: <span class="hl-builtin">int</span>):
+    <span class="hl-comment">// Fetch user, posts, and comments concurrently</span>
+    <span class="hl-keyword">async with</span> httpx.AsyncClient() <span class="hl-keyword">as</span> client:
+        user, posts, comments = <span class="hl-keyword">await</span> asyncio.gather(
+            client.get(<span class="hl-string">f"https://api.example.com/users/{user_id}"</span>),
+            client.get(<span class="hl-string">f"https://api.example.com/users/{user_id}/posts"</span>),
+            client.get(<span class="hl-string">f"https://api.example.com/users/{user_id}/comments"</span>)
+        )
+    <span class="hl-keyword">return</span> {
+        <span class="hl-string">"user"</span>: user.json(),
+        <span class="hl-string">"posts"</span>: posts.json(),
+        <span class="hl-string">"comments"</span>: comments.json()
+    }</code></pre>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="step" id="step5">
+  <div class="step-number">5</div>
+  <div class="step-content">
+    <h3>Blocking vs Non-Blocking I/O</h3>
+    <p class="explanation">Blocking calls pause the program until the operation finishes. Non-blocking calls start the operation and return immediately. Network, file, and database operations are blocking; use async versions to avoid blocking the entire server.</p>
+    <div class="tabs" data-step="step5">
+      <div class="tab-bar">
+        <button class="tab-btn active" onclick="switchTab('step5',0)">Blocking (bad)</button>
+        <button class="tab-btn" onclick="switchTab('step5',1)">Non-blocking (good)</button>
+      </div>
+      <div class="tab-panel active" id="step5_panel0">
+        <div class="code-header">
+          <span class="lang-label">python</span>
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+        </div>
+        <pre><code><span class="hl-keyword">import</span> requests  <span class="hl-comment">// blocking HTTP library</span>
+
+<span class="hl-decorator">@app.get</span>(<span class="hl-string">"/weather"</span>)
+<span class="hl-keyword">def</span> <span class="hl-decorator">get_weather</span>():
+    <span class="hl-comment">// This blocks the entire server for ~1 second</span>
+    response = requests.get(<span class="hl-string">"https://api.weather.com/forecast"</span>)  <span class="hl-comment">// blocks!</span>
+    <span class="hl-keyword">return</span> response.json()
+
+<span class="hl-comment">// While one user is getting weather, others must wait</span></code></pre>
+      </div>
+      <div class="tab-panel" id="step5_panel1">
+        <div class="code-header">
+          <span class="lang-label">python</span>
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+        </div>
+        <pre><code><span class="hl-keyword">import</span> httpx  <span class="hl-comment">// can be used async</span>
+
+<span class="hl-decorator">@app.get</span>(<span class="hl-string">"/weather"</span>)
+<span class="hl-keyword">async def</span> <span class="hl-decorator">get_weather</span>():
+    <span class="hl-comment">// This pauses only this request, not the server</span>
+    <span class="hl-keyword">async with</span> httpx.AsyncClient() <span class="hl-keyword">as</span> client:
+        response = <span class="hl-keyword">await</span> client.get(<span class="hl-string">"https://api.weather.com/forecast"</span>)  <span class="hl-comment">// doesn't block!</span>
+    <span class="hl-keyword">return</span> response.json()
+
+<span class="hl-comment">// Other users can be served while this one waits</span></code></pre>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="step" id="step6">
+  <div class="step-number">6</div>
+  <div class="step-content">
+    <h3>Timeouts and Cancellation</h3>
+    <p class="explanation">Long-running operations can hang. Use <code>asyncio.wait_for()</code> to set a timeout. Use <code>asyncio.CancelledError</code> to handle cancellation when a request is interrupted.</p>
+    <div class="tabs" data-step="step6">
+      <div class="tab-bar">
+        <button class="tab-btn active" onclick="switchTab('step6',0)">Timeout</button>
+        <button class="tab-btn" onclick="switchTab('step6',1)">Cancellation</button>
+      </div>
+      <div class="tab-panel active" id="step6_panel0">
+        <div class="code-header">
+          <span class="lang-label">python</span>
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+        </div>
+        <pre><code><span class="hl-keyword">import</span> asyncio
+
+<span class="hl-decorator">@app.get</span>(<span class="hl-string">"/data"</span>)
+<span class="hl-keyword">async def</span> <span class="hl-decorator">get_data</span>():
+    <span class="hl-keyword">try</span>:
+        <span class="hl-comment">// If this takes longer than 5 seconds, raise TimeoutError</span>
+        result = <span class="hl-keyword">await</span> asyncio.wait_for(fetch_remote_data(), timeout=<span class="hl-number">5.0</span>)
+        <span class="hl-keyword">return</span> result
+    <span class="hl-keyword">except</span> asyncio.TimeoutError:
+        <span class="hl-keyword">return</span> {<span class="hl-string">"error"</span>: <span class="hl-string">"Request took too long"</span>}</code></pre>
+      </div>
+      <div class="tab-panel" id="step6_panel1">
+        <div class="code-header">
+          <span class="lang-label">python</span>
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+        </div>
+        <pre><code><span class="hl-decorator">@app.get</span>(<span class="hl-string">"/stream"</span>)
+<span class="hl-keyword">async def</span> <span class="hl-decorator">stream_data</span>():
+    task = asyncio.create_task(long_running_operation())
+    <span class="hl-keyword">try</span>:
+        <span class="hl-keyword">return</span> <span class="hl-keyword">await</span> asyncio.wait_for(task, timeout=<span class="hl-number">30</span>)
+    <span class="hl-keyword">except</span> asyncio.TimeoutError:
+        task.cancel()  <span class="hl-comment">// stop the background task</span>
+        <span class="hl-keyword">return</span> {<span class="hl-string">"error"</span>: <span class="hl-string">"Stream cancelled"</span>}</code></pre>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="step" id="step7">
+  <div class="step-number">7</div>
+  <div class="step-content">
+    <h3>Concurrent Database Queries</h3>
+    <p class="explanation">Use async database drivers like <code>aiosqlite</code> for SQLite or <code>asyncpg</code> for PostgreSQL. They don't block the server while waiting for database responses.</p>
+    <div class="tabs" data-step="step7">
+      <div class="tab-bar">
+        <button class="tab-btn active" onclick="switchTab('step7',0)">aiosqlite</button>
+      </div>
+      <div class="tab-panel active" id="step7_panel0">
+        <div class="code-header">
+          <span class="lang-label">python</span>
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+        </div>
+        <pre><code><span class="hl-keyword">import</span> aiosqlite
+
+<span class="hl-decorator">@app.get</span>(<span class="hl-string">"/users"</span>)
+<span class="hl-keyword">async def</span> <span class="hl-decorator">get_users</span>():
+    <span class="hl-keyword">async with</span> aiosqlite.connect(<span class="hl-string">"db.sqlite"</span>) <span class="hl-keyword">as</span> db:
+        cursor = <span class="hl-keyword">await</span> db.execute(<span class="hl-string">"SELECT * FROM users"</span>)
+        users = <span class="hl-keyword">await</span> cursor.fetchall()
+    <span class="hl-keyword">return</span> users
+
+<span class="hl-comment">// Fetch user and posts concurrently</span>
+<span class="hl-decorator">@app.get</span>(<span class="hl-string">"/dashboard/{user_id}"</span>)
+<span class="hl-keyword">async def</span> <span class="hl-decorator">get_dashboard</span>(user_id: <span class="hl-builtin">int</span>):
+    <span class="hl-keyword">async with</span> aiosqlite.connect(<span class="hl-string">"db.sqlite"</span>) <span class="hl-keyword">as</span> db:
+        user, posts = <span class="hl-keyword">await</span> asyncio.gather(
+            db.execute_one(<span class="hl-string">f"SELECT * FROM users WHERE id = {user_id}"</span>),
+            db.execute(<span class="hl-string">f"SELECT * FROM posts WHERE user_id = {user_id}"</span>)
+        )
+    <span class="hl-keyword">return</span> {<span class="hl-string">"user"</span>: user, <span class="hl-string">"posts"</span>: posts}</code></pre>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="step" id="step8">
+  <div class="step-number">8</div>
+  <div class="step-content">
+    <h3>Rate Limiting with Async</h3>
+    <p class="explanation">When calling external APIs, respect rate limits using semaphores. A semaphore ensures only N operations run at the same time, preventing API rejection.</p>
+    <div class="tabs" data-step="step8">
+      <div class="tab-bar">
+        <button class="tab-btn active" onclick="switchTab('step8',0)">Semaphore</button>
+      </div>
+      <div class="tab-panel active" id="step8_panel0">
+        <div class="code-header">
+          <span class="lang-label">python</span>
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+        </div>
+        <pre><code><span class="hl-keyword">import</span> asyncio
+<span class="hl-keyword">import</span> httpx
+
+<span class="hl-comment">// Allow only 5 concurrent requests</span>
+semaphore = asyncio.Semaphore(<span class="hl-number">5</span>)
+
+<span class="hl-keyword">async def</span> <span class="hl-decorator">fetch_with_limit</span>(client, url):
+    <span class="hl-keyword">async with</span> semaphore:  <span class="hl-comment">// wait if 5 already running</span>
+        response = <span class="hl-keyword">await</span> client.get(url)
+        <span class="hl-keyword">return</span> response.json()
+
+<span class="hl-decorator">@app.get</span>(<span class="hl-string">"/batch"</span>)
+<span class="hl-keyword">async def</span> <span class="hl-decorator">batch_fetch</span>():
+    urls = [<span class="hl-string">"https://api.example.com/item/1"</span>, <span class="hl-string">"https://api.example.com/item/2"</span>, ...]
+    <span class="hl-keyword">async with</span> httpx.AsyncClient() <span class="hl-keyword">as</span> client:
+        results = <span class="hl-keyword">await</span> asyncio.gather(*[fetch_with_limit(client, url) <span class="hl-keyword">for</span> url <span class="hl-keyword">in</span> urls])
+    <span class="hl-keyword">return</span> results</code></pre>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="step" id="step9">
+  <div class="step-number">9</div>
+  <div class="step-content">
+    <h3>Testing Async Code</h3>
+    <p class="explanation">Use pytest with pytest-asyncio to test async functions. Mark test functions with <code>@pytest.mark.asyncio</code> and use <code>async def</code> for the test.</p>
+    <div class="tabs" data-step="step9">
+      <div class="tab-bar">
+        <button class="tab-btn active" onclick="switchTab('step9',0)">Test setup</button>
+      </div>
+      <div class="tab-panel active" id="step9_panel0">
+        <div class="code-header">
+          <span class="lang-label">python</span>
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+        </div>
+        <pre><code><span class="hl-keyword">import</span> pytest
+<span class="hl-keyword">from</span> httpx <span class="hl-keyword">import</span> AsyncClient
+<span class="hl-keyword">from</span> app <span class="hl-keyword">import</span> app
+
+<span class="hl-decorator">@pytest.mark.asyncio</span>
+<span class="hl-keyword">async def</span> <span class="hl-decorator">test_get_user</span>():
+    <span class="hl-keyword">async with</span> AsyncClient(app=app, base_url=<span class="hl-string">"http://test"</span>) <span class="hl-keyword">as</span> client:
+        response = <span class="hl-keyword">await</span> client.get(<span class="hl-string">"/user/1"</span>)
+    <span class="hl-keyword">assert</span> response.status_code == <span class="hl-number">200</span>
+    <span class="hl-keyword">assert</span> response.json()[<span class="hl-string">"id"</span>] == <span class="hl-number">1</span>
+
+<span class="hl-decorator">@pytest.mark.asyncio</span>
+<span class="hl-keyword">async def</span> <span class="hl-decorator">test_concurrent_requests</span>():
+    <span class="hl-keyword">async with</span> AsyncClient(app=app, base_url=<span class="hl-string">"http://test"</span>) <span class="hl-keyword">as</span> client:
+        results = <span class="hl-keyword">await</span> asyncio.gather(
+            client.get(<span class="hl-string">"/user/1"</span>),
+            client.get(<span class="hl-string">"/user/2"</span>)
+        )
+    <span class="hl-keyword">assert</span> <span class="hl-builtin">len</span>(results) == <span class="hl-number">2</span></code></pre>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="step" id="step10">
+  <div class="step-number">10</div>
+  <div class="step-content">
+    <h3>Real-World: Financial Portfolio Tracker</h3>
+    <p class="explanation">Apply async patterns to fetch live stock and crypto prices concurrently. Multiple API calls run at the same time, then we calculate portfolio metrics all at once.</p>
+    <div class="tabs" data-step="step10">
+      <div class="tab-bar">
+        <button class="tab-btn active" onclick="switchTab('step10',0)">Async portfolio fetch</button>
+      </div>
+      <div class="tab-panel active" id="step10_panel0">
+        <div class="code-header">
+          <span class="lang-label">python</span>
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+        </div>
+        <pre><code><span class="hl-keyword">async def</span> <span class="hl-decorator">get_portfolio</span>(user_id: <span class="hl-builtin">int</span>):
+    <span class="hl-keyword">async with</span> httpx.AsyncClient() <span class="hl-keyword">as</span> client:
+        <span class="hl-comment">// Fetch portfolio, stock prices, and crypto prices concurrently</span>
+        portfolio, stocks, cryptos = <span class="hl-keyword">await</span> asyncio.gather(
+            client.get(<span class="hl-string">f"https://api.example.com/portfolio/{user_id}"</span>),
+            client.get(<span class="hl-string">"https://api.alphavantage.co/stocks"</span>),
+            client.get(<span class="hl-string">"https://api.coingecko.com/crypto"</span>),
+            return_exceptions=<span class="hl-keyword">True</span>
+        )
+
+        <span class="hl-comment">// Calculate net worth</span>
+        portfolio_data = portfolio.json()
+        stock_prices = stocks.json()
+        crypto_prices = cryptos.json()
+
+        net_worth = <span class="hl-number">0</span>
+        <span class="hl-keyword">for</span> holding <span class="hl-keyword">in</span> portfolio_data[<span class="hl-string">"holdings"</span>]:
+            <span class="hl-keyword">if</span> holding[<span class="hl-string">"type"</span>] == <span class="hl-string">"stock"</span>:
+                price = stock_prices[holding[<span class="hl-string">"symbol"</span>]]
+            <span class="hl-keyword">else</span>:
+                price = crypto_prices[holding[<span class="hl-string">"symbol"</span>]]
+            net_worth += holding[<span class="hl-string">"amount"</span>] * price
+
+        <span class="hl-keyword">return</span> {<span class="hl-string">"portfolio"</span>: portfolio_data, <span class="hl-string">"net_worth"</span>: net_worth}</code></pre>
+      </div>
+    </div>
+  </div>
+</div>
+
+    </div>
+  </main>
+</div>
+<script>
+(function() {
+  var saved = localStorage.getItem("pyoffline-theme");
+  if (saved === "light") { document.documentElement.classList.add("light"); }
+  document.addEventListener("DOMContentLoaded", function() {
+    var toggle = document.getElementById("themeToggle");
+    if (!toggle) return;
+    toggle.checked = (localStorage.getItem("pyoffline-theme") === "light");
+    toggle.addEventListener("change", function() {
+      if (this.checked) {
+        document.documentElement.classList.add("light");
+        localStorage.setItem("pyoffline-theme", "light");
+      } else {
+        document.documentElement.classList.remove("light");
+        localStorage.setItem("pyoffline-theme", "dark");
+      }
+    });
+  });
+})();
+function switchTab(stepId, idx) {
+  var step   = document.getElementById(stepId);
+  var btns   = step.querySelectorAll(".tab-btn");
+  var panels = step.querySelectorAll(".tab-panel");
+  btns.forEach(function(b) { b.classList.remove("active"); });
+  panels.forEach(function(p) { p.classList.remove("active"); });
+  btns[idx].classList.add("active");
+  panels[idx].classList.add("active");
+}
+function copyCode(btn) {
+  var code = btn.closest(".tab-panel").querySelector("code").innerText;
+  navigator.clipboard.writeText(code).then(function() {
+    var orig = btn.textContent;
+    btn.textContent = "Copied!";
+    setTimeout(function() { btn.textContent = orig; }, 1500);
+  });
+}
+function toggleSidebar() {
+  var sidebar = document.getElementById("guideSidebar");
+  var overlay = document.getElementById("sidebarOverlay");
+  if (!sidebar) return;
+  sidebar.classList.toggle("open");
+  overlay.classList.toggle("open");
+}
+document.addEventListener("DOMContentLoaded", function() {
+  var sidebar = document.getElementById("guideSidebar");
+  if (!sidebar) return;
+  sidebar.querySelectorAll("nav a").forEach(function(a) {
+    a.addEventListener("click", function() {
+      sidebar.classList.remove("open");
+      var overlay = document.getElementById("sidebarOverlay");
+      if (overlay) overlay.classList.remove("open");
+    });
+  });
+});
+function toggleSbDesktop() {
+  var c = document.body.classList.toggle('sb-collapsed');
+  localStorage.setItem('sb-collapsed', c ? '1' : '0');
+}
+(function() { if (localStorage.getItem('sb-collapsed') === '1') document.body.classList.add('sb-collapsed'); })();
+</script>
+</body>
+</html>

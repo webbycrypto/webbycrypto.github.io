@@ -1,0 +1,583 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>API Security Best Practices - pyoffline</title>
+<style>
+:root {
+  --bg:          #121212;
+  --surface:     #1e1e1e;
+  --surface2:    #2a2a2a;
+  --sidebar-bg:  #1a1a1a;
+  --text:        #e0e0e0;
+  --text-muted:  #aaa;
+  --text-dim:    #666;
+  --border:      #333;
+  --code-bg:     #1e1e1e;
+  --code-text:   #d4d4d4;
+  --shadow:      rgba(0,0,0,.4);
+  --accent:      #e74c3c;
+  --hl-keyword:  #569cd6;
+  --hl-string:   #ce9178;
+  --hl-comment:  #6a9955;
+  --hl-number:   #b5cea8;
+  --hl-decorator:#dcdcaa;
+  --hl-builtin:  #4ec9b0;
+  --hl-tag:      #4ec9b0;
+  --hl-attr:     #9cdcfe;
+  --hl-template: #c586c0;
+}
+html.light {
+  --bg:          #f5f7fa;
+  --surface:     #ffffff;
+  --surface2:    #eef0f3;
+  --sidebar-bg:  #ffffff;
+  --text:        #1a1a1a;
+  --text-muted:  #555;
+  --text-dim:    #888;
+  --border:      #dde1e7;
+  --code-bg:     #f8f8f8;
+  --code-text:   #24292e;
+  --shadow:      rgba(0,0,0,.1);
+  --hl-keyword:  #0000ff;
+  --hl-string:   #a31515;
+  --hl-comment:  #008000;
+  --hl-number:   #098658;
+  --hl-decorator:#795e26;
+  --hl-builtin:  #267f99;
+  --hl-tag:      #800000;
+  --hl-attr:     #e50000;
+  --hl-template: #af00db;
+}
+.hl-keyword  { color: var(--hl-keyword);  }
+.hl-string   { color: var(--hl-string);   }
+.hl-comment  { color: #adb4a7; font-size: 12px; font-style: italic; }
+.hl-number   { color: var(--hl-number);   }
+.hl-decorator{ color: var(--hl-decorator);}
+.hl-builtin  { color: var(--hl-builtin);  }
+.hl-tag      { color: var(--hl-tag);      }
+.hl-attr     { color: var(--hl-attr);     }
+.hl-template { color: var(--hl-template); }
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: var(--bg); color: var(--text); font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; transition: background .2s, color .2s; }
+a { color: var(--accent); }
+.layout { display: flex; min-height: 100vh; }
+.sidebar { width: 260px; min-width: 260px; background: var(--sidebar-bg); border-right: 1px solid var(--border); padding: 24px 16px; position: sticky; top: 0; height: 100vh; overflow-y: auto; }
+.sidebar h2 { font-size: 1.1rem; margin: 16px 0 8px; color: var(--text); }
+.sidebar nav ol { padding-left: 18px; }
+.sidebar nav li { margin: 6px 0; }
+.sidebar nav a { color: var(--text-muted); text-decoration: none; font-size: 0.85rem; }
+.sidebar nav a:hover { color: var(--accent); }
+.back-link { color: var(--text-dim); text-decoration: none; font-size: 0.85rem; display: block; margin-bottom: 8px; }
+.install-box { margin-top: 24px; background: var(--bg); border: 1px solid var(--border); padding: 12px; border-radius: 6px; font-size: 0.8rem; }
+.install-box code { display: block; word-break: break-all; color: var(--hl-comment); font-family: monospace; margin-top: 4px; }
+main { flex: 1; padding: 40px; max-width: 860px; }
+.guide-header { padding: 20px 20px 20px 24px; background: var(--surface); border-radius: 8px; margin-bottom: 32px; box-shadow: 0 1px 3px var(--shadow); }
+.guide-header h1 { font-size: 1.8rem; margin-bottom: 8px; }
+.guide-header p { color: var(--text-muted); }
+.step { display: flex; gap: 16px; margin-bottom: 40px; }
+.step-number { width: 32px; min-width: 32px; height: 32px; background: var(--accent); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 0.9rem; margin-top: 4px; color: #fff; }
+.step-content { flex: 1; min-width: 0; }
+.step-content h3 { font-size: 1.1rem; margin-bottom: 8px; color: var(--text); }
+.explanation { color: var(--text-muted); font-size: 0.9rem; line-height: 1.6; margin-bottom: 14px; }
+.info-box { background: var(--surface); border-left: 3px solid var(--accent); border-radius: 0 6px 6px 0; padding: 12px 16px; margin-bottom: 14px; font-size: 0.88rem; color: var(--text-muted); line-height: 1.6; }
+.info-box strong { color: var(--text); }
+.tabs { background: var(--surface); border-radius: 6px; overflow: hidden; border: 1px solid var(--border); }
+.tab-bar { display: flex; background: var(--surface2); overflow-x: auto; border-bottom: 1px solid var(--border); }
+.tab-btn { padding: 8px 16px; background: none; border: none; color: var(--text-muted); cursor: pointer; font-size: 0.8rem; white-space: nowrap; border-bottom: 2px solid transparent; margin-bottom: -1px; }
+.tab-btn.active { color: var(--text); border-bottom-color: var(--accent); }
+.tab-panel { display: none; }
+.tab-panel.active { display: block; }
+.code-header { display: flex; justify-content: space-between; align-items: center; padding: 5px 12px; background: var(--surface2); border-bottom: 1px solid var(--border); }
+.lang-label { font-size: 0.72rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: .04em; }
+.copy-btn { background: none; border: 1px solid var(--border); color: var(--text-muted); padding: 2px 8px; cursor: pointer; border-radius: 3px; font-size: 0.72rem; }
+.copy-btn:hover { color: var(--text); border-color: var(--text-muted); }
+pre { overflow-x: auto; padding: 16px; background: var(--code-bg); }
+code { font-family: "Fira Code", "Cascadia Code", "Consolas", monospace; font-size: 0.82rem; line-height: 1.65; color: var(--code-text); }
+.theme-row { display: flex; align-items: center; gap: 8px; margin-top: 20px; }
+.theme-label { font-size: 0.78rem; color: var(--text-muted); }
+.toggle-switch { position: relative; display: inline-block; width: 40px; height: 22px; }
+.toggle-switch input { opacity: 0; width: 0; height: 0; }
+.slider { position: absolute; cursor: pointer; inset: 0; background: var(--surface2); border: 1px solid var(--border); border-radius: 22px; transition: background .2s; }
+.slider:before { content: ""; position: absolute; width: 16px; height: 16px; left: 2px; top: 2px; background: var(--text-muted); border-radius: 50%; transition: transform .2s, background .2s; }
+.toggle-switch input:checked + .slider { background: var(--accent); border-color: var(--accent); }
+.toggle-switch input:checked + .slider:before { transform: translateX(18px); background: #fff; }
+.sidebar-toggle { display: none; position: fixed; top: 12px; left: 12px; z-index: 300; background: var(--accent); color: #fff; border: none; padding: 7px 14px; border-radius: 6px; cursor: pointer; font-size: 0.85rem; font-weight: 600; box-shadow: 0 2px 8px var(--shadow); align-items: center; gap: 6px; }
+.sidebar-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.45); z-index: 190; }
+.sidebar-overlay.open { display: block; }
+@media (max-width: 900px) {
+  .sidebar-toggle { display: flex; }
+  .layout { display: block; }
+  .sidebar { position: fixed; left: -280px; top: 0; height: 100vh; z-index: 200; transition: left .25s ease; box-shadow: 2px 0 16px var(--shadow); min-width: 260px; }
+  .sidebar.open { left: 0; }
+  main { padding: 60px 20px 40px; max-width: 100%; }
+  pre { overflow-x: auto; max-width: 100%; white-space: pre-wrap; word-break: break-word; }
+  .tabs { max-width: 100%; }
+}
+.sidebar { transition: width .2s ease, min-width .2s ease, padding .2s ease; }
+.sb-pin { display: flex; justify-content: flex-end; margin-bottom: 8px; }
+.sb-pin button { background: none; border: 1px solid var(--border); color: var(--text-dim); cursor: pointer; border-radius: 4px; padding: 2px 7px; font-size: 11px; line-height: 1.6; }
+.sb-pin button:hover { color: var(--accent); border-color: var(--accent); }
+.sb-reopen { display: none; position: fixed; left: 0; top: 50%; transform: translateY(-50%); background: var(--accent); color: #fff; border: none; border-radius: 0 4px 4px 0; padding: 10px 5px; cursor: pointer; z-index: 300; font-size: 11px; font-weight: 600; writing-mode: vertical-rl; letter-spacing: .05em; }
+@media (min-width: 901px) { body.sb-collapsed .sidebar { width: 0; min-width: 0; padding: 0; overflow: hidden; border-right: none; } body.sb-collapsed .sb-reopen { display: block; } }
+@media (max-width: 900px) { .sb-pin { display: none; } .sb-reopen { display: none !important; } }
+</style>
+</head>
+<body>
+<button class="sidebar-toggle" id="sidebarToggle" onclick="toggleSidebar()">&#9776; Steps</button>
+<div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+<button class="sb-reopen" onclick="toggleSbDesktop()">Steps</button>
+<div class="layout">
+  <aside class="sidebar" id="guideSidebar">
+    <div class="sb-pin"><button onclick="toggleSbDesktop()">&#9664; Hide</button></div>
+    <a href="index.html" class="back-link">← All Guides</a>
+    <h2>Lessons</h2>
+    <nav><ol>
+      <li><a href="#step1">CORS Fundamentals</a></li>
+      <li><a href="#step2">CORS in FastAPI</a></li>
+      <li><a href="#step3">CSRF Attacks</a></li>
+      <li><a href="#step4">SQL Injection Prevention</a></li>
+      <li><a href="#step5">Rate Limiting</a></li>
+      <li><a href="#step6">Input Validation</a></li>
+      <li><a href="#step7">API Key Security</a></li>
+      <li><a href="#step8">Response Headers</a></li>
+      <li><a href="#step9">HTTPS Enforcement</a></li>
+      <li><a href="#step10">Security Checklist</a></li>
+    </ol></nav>
+    <div class="install-box">
+      <strong>Requirements:</strong>
+      <code>pip install fastapi slowapi pydantic</code>
+      <code style="margin-top: 6px;">uvicorn app:app --reload</code>
+    </div>
+    <div class="theme-row">
+      <span class="theme-label">Dark</span>
+      <label class="toggle-switch">
+        <input type="checkbox" id="themeToggle">
+        <span class="slider"></span>
+      </label>
+      <span class="theme-label">Light</span>
+    </div>
+  </aside>
+  <main>
+    <header class="guide-header" style="border-left: 5px solid #e74c3c">
+      <h1>API Security Best Practices</h1>
+      <p><strong>Requires completing <a href="auth-jwt.html">JWT Access Tokens</a> and <a href="auth-passwords.html">Hashing Passwords</a> first.</strong> Learn CORS, CSRF, SQL injection prevention, rate limiting, and security headers to protect your API from common attacks.</p>
+    </header>
+    <div class="steps">
+
+<div class="step" id="step1">
+  <div class="step-number">1</div>
+  <div class="step-content">
+    <h3>CORS Fundamentals</h3>
+    <p class="explanation">CORS (Cross-Origin Resource Sharing) controls which websites can make requests to your API. A browser blocks requests from a different origin unless the server explicitly allows it. Origins are different when domain, protocol, or port differ.</p>
+    <div class="tabs" data-step="step1">
+      <div class="tab-bar">
+        <button class="tab-btn active" onclick="switchTab('step1',0)">Origins</button>
+        <button class="tab-btn" onclick="switchTab('step1',1)">When CORS blocks</button>
+      </div>
+      <div class="tab-panel active" id="step1_panel0">
+        <div class="code-header">
+          <span class="lang-label">text</span>
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+        </div>
+        <pre><code><span class="hl-comment">Same origin (no CORS needed):</span>
+https://example.com/page1
+https://example.com/page2  ← same domain, protocol, port
+
+<span class="hl-comment">Different origins (CORS needed):</span>
+https://example.com        ← port 443
+https://example.com:8000   ← port 8000 (different!)
+
+https://example.com        ← HTTPS
+http://example.com         ← HTTP (different protocol!)
+
+https://example.com        ← example.com
+https://app.example.com    ← different subdomain (different!)</span></code></pre>
+      </div>
+      <div class="tab-panel" id="step1_panel1">
+        <div class="code-header">
+          <span class="lang-label">text</span>
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+        </div>
+        <pre><code><span class="hl-comment">Browser makes request from https://app.example.com to https://api.example.com</span>
+
+1. Browser checks: are these the same origin?
+   - Different subdomains → NO
+
+2. Browser blocks the request and waits for CORS headers
+
+3. Server must send:
+   Access-Control-Allow-Origin: https://app.example.com
+   (or *)
+
+4. If header is present, browser allows the request
+   If missing, request fails (CORS error)</span></code></pre>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="step" id="step2">
+  <div class="step-number">2</div>
+  <div class="step-content">
+    <h3>CORS in FastAPI</h3>
+    <p class="explanation">Use CORSMiddleware to allow cross-origin requests. Specify which origins, methods, and headers are allowed. For public APIs, allow all origins with <code>allow_origins=["*"]</code>. For SaaS, whitelist specific domains.</p>
+    <div class="tabs" data-step="step2">
+      <div class="tab-bar">
+        <button class="tab-btn active" onclick="switchTab('step2',0)">Public API</button>
+        <button class="tab-btn" onclick="switchTab('step2',1)">Restricted</button>
+      </div>
+      <div class="tab-panel active" id="step2_panel0">
+        <div class="code-header">
+          <span class="lang-label">python</span>
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+        </div>
+        <pre><code><span class="hl-keyword">from</span> fastapi.middleware.cors <span class="hl-keyword">import</span> CORSMiddleware
+<span class="hl-keyword">from</span> fastapi <span class="hl-keyword">import</span> FastAPI
+
+app = FastAPI()
+
+<span class="hl-comment">// Allow all origins (for public APIs)</span>
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=[<span class="hl-string">"*"</span>],             <span class="hl-comment">// any domain can request</span>
+    allow_credentials=<span class="hl-keyword">False</span>,         <span class="hl-comment">// don't send cookies</span>
+    allow_methods=[<span class="hl-string">"*"</span>],            <span class="hl-comment">// GET, POST, DELETE, etc.</span>
+    allow_headers=[<span class="hl-string">"*"</span>]             <span class="hl-comment">// any header</span>
+)
+
+<span class="hl-decorator">@app.get</span>(<span class="hl-string">"/api/public"</span>)
+<span class="hl-keyword">def</span> <span class="hl-decorator">public_endpoint</span>():
+    <span class="hl-keyword">return</span> {<span class="hl-string">"data"</span>: <span class="hl-string">"public"</span>}</code></pre>
+      </div>
+      <div class="tab-panel" id="step2_panel1">
+        <div class="code-header">
+          <span class="lang-label">python</span>
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+        </div>
+        <pre><code><span class="hl-keyword">from</span> fastapi.middleware.cors <span class="hl-keyword">import</span> CORSMiddleware
+
+<span class="hl-comment">// Allow only specific domains</span>
+allowed_origins = [
+    <span class="hl-string">"https://app.example.com"</span>,
+    <span class="hl-string">"https://admin.example.com"</span>
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=allowed_origins,     <span class="hl-comment">// only these domains</span>
+    allow_credentials=<span class="hl-keyword">True</span>,          <span class="hl-comment">// allow cookies/auth</span>
+    allow_methods=[<span class="hl-string">"GET"</span>, <span class="hl-string">"POST"</span>, <span class="hl-string">"PATCH"</span>],  <span class="hl-comment">// specific methods</span>
+    allow_headers=[<span class="hl-string">"Authorization"</span>, <span class="hl-string">"Content-Type"</span>]
+)</code></pre>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="step" id="step3">
+  <div class="step-number">3</div>
+  <div class="step-content">
+    <h3>CSRF Attacks</h3>
+    <p class="explanation">CSRF (Cross-Site Request Forgery) happens when a hacker tricks a logged-in user into making unwanted requests. A CSRF token ensures requests came from your app, not from another website. FastAPI's CORS protection mostly prevents this, but add CSRF tokens for extra safety with browser-based forms.</p>
+    <div class="info-box">
+      <strong>Example attack:</strong> User is logged into their bank. Hacker's website has a hidden form that transfers money. Since the user is already logged in, the request succeeds. A CSRF token would stop this because the token is specific to your domain.
+    </div>
+  </div>
+</div>
+
+<div class="step" id="step4">
+  <div class="step-number">4</div>
+  <div class="step-content">
+    <h3>SQL Injection Prevention</h3>
+    <p class="explanation">Never concatenate user input into SQL queries. Always use parameterized queries where placeholders (?) are filled safely by the database driver. SQLAlchemy does this automatically when you use the ORM.</p>
+    <div class="tabs" data-step="step4">
+      <div class="tab-bar">
+        <button class="tab-btn active" onclick="switchTab('step4',0)">Vulnerable (bad)</button>
+        <button class="tab-btn" onclick="switchTab('step4',1)">Safe (good)</button>
+      </div>
+      <div class="tab-panel active" id="step4_panel0">
+        <div class="code-header">
+          <span class="lang-label">python</span>
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+        </div>
+        <pre><code><span class="hl-comment">// NEVER do this!</span>
+search_term = request.query_params.get(<span class="hl-string">"q"</span>)
+query = <span class="hl-string">f"SELECT * FROM users WHERE name = '{search_term}'"</span>
+<span class="hl-comment">// If search_term = "'; DROP TABLE users; --"</span>
+<span class="hl-comment">// Database executes: DROP TABLE users!</span></code></pre>
+      </div>
+      <div class="tab-panel" id="step4_panel1">
+        <div class="code-header">
+          <span class="lang-label">python</span>
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+        </div>
+        <pre><code><span class="hl-comment">// Use SQLAlchemy ORM (safe)</span>
+<span class="hl-decorator">@app.get</span>(<span class="hl-string">"/search"</span>)
+<span class="hl-keyword">def</span> <span class="hl-decorator">search</span>(q: <span class="hl-builtin">str</span>, db: Session = Depends(get_db)):
+    users = db.query(User).filter(User.name.like(f<span class="hl-string">"%{q}%"</span>)).all()
+    <span class="hl-keyword">return</span> users
+    <span class="hl-comment">// SQLAlchemy escapes q automatically</span></code></pre>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="step" id="step5">
+  <div class="step-number">5</div>
+  <div class="step-content">
+    <h3>Rate Limiting</h3>
+    <p class="explanation">Rate limiting stops attackers from brute-forcing passwords or DDoS attacks by allowing only N requests per time window (e.g., 5 requests per minute). Use SlowAPI to enforce this in FastAPI.</p>
+    <div class="tabs" data-step="step5">
+      <div class="tab-bar">
+        <button class="tab-btn active" onclick="switchTab('step5',0)">SlowAPI setup</button>
+      </div>
+      <div class="tab-panel active" id="step5_panel0">
+        <div class="code-header">
+          <span class="lang-label">python</span>
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+        </div>
+        <pre><code><span class="hl-keyword">from</span> slowapi <span class="hl-keyword">import</span> Limiter
+<span class="hl-keyword">from</span> slowapi.util <span class="hl-keyword">import</span> get_remote_address
+
+limiter = Limiter(key_func=get_remote_address)
+app.state.limiter = limiter
+
+<span class="hl-comment">// Allow 5 logins per hour per IP</span>
+<span class="hl-decorator">@app.post</span>(<span class="hl-string">"/login"</span>)
+<span class="hl-decorator">@limiter.limit</span>(<span class="hl-string">"5/hour"</span>)
+<span class="hl-keyword">def</span> <span class="hl-decorator">login</span>(request: Request, credentials: LoginRequest):
+    <span class="hl-keyword">return</span> authenticate(credentials)
+
+<span class="hl-comment">// Allow 100 requests per minute to public endpoint</span>
+<span class="hl-decorator">@app.get</span>(<span class="hl-string">"/api/data"</span>)
+<span class="hl-decorator">@limiter.limit</span>(<span class="hl-string">"100/minute"</span>)
+<span class="hl-keyword">def</span> <span class="hl-decorator">get_data</span>(request: Request):
+    <span class="hl-keyword">return</span> {<span class="hl-string">"data"</span>: []}</code></pre>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="step" id="step6">
+  <div class="step-number">6</div>
+  <div class="step-content">
+    <h3>Input Validation</h3>
+    <p class="explanation">Always validate and constrain user input using Pydantic. Set min/max lengths, regex patterns, and enum values. Reject anything that doesn't match the expected format.</p>
+    <div class="tabs" data-step="step6">
+      <div class="tab-bar">
+        <button class="tab-btn active" onclick="switchTab('step6',0)">Validation</button>
+      </div>
+      <div class="tab-panel active" id="step6_panel0">
+        <div class="code-header">
+          <span class="lang-label">python</span>
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+        </div>
+        <pre><code><span class="hl-keyword">from</span> pydantic <span class="hl-keyword">import</span> BaseModel, Field, validator
+
+<span class="hl-keyword">class</span> <span class="hl-decorator">User</span>(BaseModel):
+    username: <span class="hl-builtin">str</span> = Field(min_length=<span class="hl-number">3</span>, max_length=<span class="hl-number">20</span>)
+    email: <span class="hl-builtin">str</span> = Field(regex=<span class="hl-string">r"^[\\w\\.-]+@[\\w\\.-]+\\.\\w+$"</span>)
+    age: <span class="hl-builtin">int</span> = Field(ge=<span class="hl-number">0</span>, le=<span class="hl-number">150</span>)  <span class="hl-comment">// greater than 0, less than 150</span>
+
+    <span class="hl-decorator">@validator</span>(<span class="hl-string">'username'</span>)
+    <span class="hl-keyword">def</span> <span class="hl-decorator">validate_username</span>(cls, v):
+        <span class="hl-keyword">if</span> <span class="hl-string">"admin"</span> <span class="hl-keyword">in</span> v.lower():
+            <span class="hl-keyword">raise</span> ValueError(<span class="hl-string">"Username cannot contain 'admin'"</span>)
+        <span class="hl-keyword">return</span> v
+
+<span class="hl-decorator">@app.post</span>(<span class="hl-string">"/register"</span>)
+<span class="hl-keyword">def</span> <span class="hl-decorator">register</span>(user: User):
+    <span class="hl-comment">// If request violates any Field constraint, FastAPI returns 422</span>
+    <span class="hl-keyword">return</span> {<span class="hl-string">"status"</span>: <span class="hl-string">"registered"</span>}</code></pre>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="step" id="step7">
+  <div class="step-number">7</div>
+  <div class="step-content">
+    <h3>API Key Security</h3>
+    <p class="explanation">API keys should be stored securely, rotated regularly, and never exposed in client-side code. Use environment variables, rate limit by key, and log when keys are used. Revoke compromised keys immediately.</p>
+    <div class="tabs" data-step="step7">
+      <div class="tab-bar">
+        <button class="tab-btn active" onclick="switchTab('step7',0)">API key check</button>
+      </div>
+      <div class="tab-panel active" id="step7_panel0">
+        <div class="code-header">
+          <span class="lang-label">python</span>
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+        </div>
+        <pre><code><span class="hl-keyword">import</span> os
+<span class="hl-keyword">from</span> fastapi.security <span class="hl-keyword">import</span> APIKeyHeader
+
+api_key_header = APIKeyHeader(name=<span class="hl-string">"X-API-Key"</span>)
+
+<span class="hl-keyword">def</span> <span class="hl-decorator">verify_api_key</span>(api_key: <span class="hl-builtin">str</span> = Depends(api_key_header)):
+    valid_key = os.getenv(<span class="hl-string">"API_KEY"</span>)
+    <span class="hl-keyword">if</span> api_key != valid_key:
+        <span class="hl-keyword">raise</span> HTTPException(status_code=<span class="hl-number">403</span>, detail=<span class="hl-string">"Invalid API key"</span>)
+    <span class="hl-keyword">return</span> api_key
+
+<span class="hl-decorator">@app.get</span>(<span class="hl-string">"/api/data"</span>)
+<span class="hl-keyword">def</span> <span class="hl-decorator">get_data</span>(api_key: <span class="hl-builtin">str</span> = Depends(verify_api_key)):
+    <span class="hl-keyword">return</span> {<span class="hl-string">"data"</span>: <span class="hl-string">"only for key holders"</span>}</code></pre>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="step" id="step8">
+  <div class="step-number">8</div>
+  <div class="step-content">
+    <h3>Response Headers Security</h3>
+    <p class="explanation">Security headers tell browsers and proxies how to handle your content. Add headers to prevent clickjacking, disable caching of sensitive data, enforce HTTPS, and prevent MIME sniffing.</p>
+    <div class="tabs" data-step="step8">
+      <div class="tab-bar">
+        <button class="tab-btn active" onclick="switchTab('step8',0)">Headers</button>
+      </div>
+      <div class="tab-panel active" id="step8_panel0">
+        <div class="code-header">
+          <span class="lang-label">python</span>
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+        </div>
+        <pre><code><span class="hl-keyword">from</span> fastapi.middleware <span class="hl-keyword">import</span> Middleware
+<span class="hl-keyword">from</span> starlette.middleware.base <span class="hl-keyword">import</span> BaseHTTPMiddleware
+
+<span class="hl-keyword">class</span> <span class="hl-decorator">SecurityHeadersMiddleware</span>(BaseHTTPMiddleware):
+    <span class="hl-keyword">async def</span> <span class="hl-decorator">dispatch</span>(self, request, call_next):
+        response = <span class="hl-keyword">await</span> call_next(request)
+        response.headers[<span class="hl-string">"X-Content-Type-Options"</span>] = <span class="hl-string">"nosniff"</span>  <span class="hl-comment">// prevent MIME sniffing</span>
+        response.headers[<span class="hl-string">"X-Frame-Options"</span>] = <span class="hl-string">"DENY"</span>            <span class="hl-comment">// prevent clickjacking</span>
+        response.headers[<span class="hl-string">"X-XSS-Protection"</span>] = <span class="hl-string">"1; mode=block"</span>   <span class="hl-comment">// XSS protection</span>
+        response.headers[<span class="hl-string">"Strict-Transport-Security"</span>] = <span class="hl-string">"max-age=31536000; includeSubDomains"</span>
+        <span class="hl-keyword">return</span> response
+
+app.add_middleware(SecurityHeadersMiddleware)</code></pre>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="step" id="step9">
+  <div class="step-number">9</div>
+  <div class="step-content">
+    <h3>HTTPS Enforcement</h3>
+    <p class="explanation">Always use HTTPS in production to encrypt data in transit. Redirect HTTP to HTTPS, set secure cookies, and use HSTS headers to tell browsers to always use HTTPS.</p>
+    <div class="tabs" data-step="step9">
+      <div class="tab-bar">
+        <button class="tab-btn active" onclick="switchTab('step9',0)">HTTPS redirect</button>
+      </div>
+      <div class="tab-panel active" id="step9_panel0">
+        <div class="code-header">
+          <span class="lang-label">python</span>
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+        </div>
+        <pre><code><span class="hl-keyword">from</span> fastapi.middleware.trustedhost <span class="hl-keyword">import</span> TrustedHostMiddleware
+
+<span class="hl-comment">// Only accept requests from your domain</span>
+app.add_middleware(
+    TrustedHostMiddleware,
+    allowed_hosts=[<span class="hl-string">"example.com"</span>, <span class="hl-string">"*.example.com"</span>]
+)
+
+<span class="hl-comment">// Redirect HTTP to HTTPS</span>
+<span class="hl-keyword">from</span> fastapi.middleware.httpsredirect <span class="hl-keyword">import</span> HTTPSRedirectMiddleware
+app.add_middleware(HTTPSRedirectMiddleware)
+
+<span class="hl-comment">// In production, use: uvicorn app:app --ssl-keyfile key.pem --ssl-certfile cert.pem</span></code></pre>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="step" id="step10">
+  <div class="step-number">10</div>
+  <div class="step-content">
+    <h3>Security Checklist</h3>
+    <p class="explanation">Before deploying to production, verify you've covered all critical security areas. This checklist helps ensure no common vulnerabilities slip through.</p>
+    <div class="info-box">
+      <strong>Pre-deployment checklist:</strong><br>
+      ✅ HTTPS enabled (SSL certificate installed)<br>
+      ✅ CORS configured (whitelist allowed origins)<br>
+      ✅ Rate limiting enabled (SlowAPI on auth endpoints)<br>
+      ✅ Input validation (Pydantic constraints)<br>
+      ✅ SQL injection prevented (using ORM, not f-strings)<br>
+      ✅ API keys not hardcoded (using env vars)<br>
+      ✅ Security headers set (X-Frame-Options, etc.)<br>
+      ✅ HSTS enabled (force HTTPS)<br>
+      ✅ Secrets rotated (JWT keys, API keys, DB password)<br>
+      ✅ Logging enabled (audit trail for security events)<br>
+      ✅ Error responses don't leak info (generic messages to users)<br>
+      ✅ Dependencies updated (no known vulnerabilities)
+    </div>
+  </div>
+</div>
+
+    </div>
+  </main>
+</div>
+<script>
+(function() {
+  var saved = localStorage.getItem("pyoffline-theme");
+  if (saved === "light") { document.documentElement.classList.add("light"); }
+  document.addEventListener("DOMContentLoaded", function() {
+    var toggle = document.getElementById("themeToggle");
+    if (!toggle) return;
+    toggle.checked = (localStorage.getItem("pyoffline-theme") === "light");
+    toggle.addEventListener("change", function() {
+      if (this.checked) {
+        document.documentElement.classList.add("light");
+        localStorage.setItem("pyoffline-theme", "light");
+      } else {
+        document.documentElement.classList.remove("light");
+        localStorage.setItem("pyoffline-theme", "dark");
+      }
+    });
+  });
+})();
+function switchTab(stepId, idx) {
+  var step   = document.getElementById(stepId);
+  var btns   = step.querySelectorAll(".tab-btn");
+  var panels = step.querySelectorAll(".tab-panel");
+  btns.forEach(function(b) { b.classList.remove("active"); });
+  panels.forEach(function(p) { p.classList.remove("active"); });
+  btns[idx].classList.add("active");
+  panels[idx].classList.add("active");
+}
+function copyCode(btn) {
+  var code = btn.closest(".tab-panel").querySelector("code").innerText;
+  navigator.clipboard.writeText(code).then(function() {
+    var orig = btn.textContent;
+    btn.textContent = "Copied!";
+    setTimeout(function() { btn.textContent = orig; }, 1500);
+  });
+}
+function toggleSidebar() {
+  var sidebar = document.getElementById("guideSidebar");
+  var overlay = document.getElementById("sidebarOverlay");
+  if (!sidebar) return;
+  sidebar.classList.toggle("open");
+  overlay.classList.toggle("open");
+}
+document.addEventListener("DOMContentLoaded", function() {
+  var sidebar = document.getElementById("guideSidebar");
+  if (!sidebar) return;
+  sidebar.querySelectorAll("nav a").forEach(function(a) {
+    a.addEventListener("click", function() {
+      sidebar.classList.remove("open");
+      var overlay = document.getElementById("sidebarOverlay");
+      if (overlay) overlay.classList.remove("open");
+    });
+  });
+});
+function toggleSbDesktop() {
+  var c = document.body.classList.toggle('sb-collapsed');
+  localStorage.setItem('sb-collapsed', c ? '1' : '0');
+}
+(function() { if (localStorage.getItem('sb-collapsed') === '1') document.body.classList.add('sb-collapsed'); })();
+</script>
+</body>
+</html>

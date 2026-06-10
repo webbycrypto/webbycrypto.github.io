@@ -88,7 +88,7 @@ pre{overflow-x:auto;padding:16px;background:var(--code-bg)}code{font-family:"Fir
         <div class="step-number">1</div>
         <div class="step-content">
           <h3>What is a VPS?</h3>
-          <p class="explanation">A VPS (Virtual Private Server) is a Linux computer you rent in a data centre. It runs 24/7, has a public IP address, and is accessible from anywhere. You connect to it with SSH — like a terminal but over the internet. Your FastAPI app runs on it as a process.</p>
+          <p class="explanation">A VPS (Virtual Private Server) is a Linux computer you rent in a data centre. It runs 24 hours a day, has a public IP address, and is accessible from anywhere in the world. You connect to it using SSH, which is like opening a terminal on a remote computer over the internet. Your FastAPI app runs on it as a background process.</p>
           <div class="info-box"><strong>How to pick:</strong> For a hobby project or early SaaS, a $5–6/month server (2GB RAM, 1 vCPU) is plenty. Hetzner CAX11 (~€4.15/mo) is the best value in Europe. DigitalOcean Droplet ($6/mo) has the best docs for beginners. Both use Ubuntu 22.04 LTS — the most widely documented Linux for hosting.</div>
         </div>
       </div>
@@ -97,7 +97,7 @@ pre{overflow-x:auto;padding:16px;background:var(--code-bg)}code{font-family:"Fir
         <div class="step-number">2</div>
         <div class="step-content">
           <h3>Creating the Server</h3>
-          <p class="explanation">Before clicking "Create", generate an SSH key on your local machine. This is the credential you'll use to log in — more secure than a password and required by most providers.</p>
+          <p class="explanation">Before clicking "Create", generate an SSH key on your local machine. An SSH key is a file-based credential that proves who you are without a password. It is more secure than a password and required by most VPS providers.</p>
           <div class="tabs">
             <div class="tab-bar">
               <button class="tab-btn active" onclick="switchTab('step2',0)">Generate SSH key (local machine)</button>
@@ -142,7 +142,7 @@ Both give you a server with root access via SSH in ~60 seconds.</code></pre>
         <div class="step-number">3</div>
         <div class="step-content">
           <h3>First Login — Create a Non-Root User</h3>
-          <p class="explanation">Your first login is as <code>root</code>. Immediately create a regular user with <code>sudo</code> access — running apps as root is a security risk. After creating the user, log in as them for everything else.</p>
+          <p class="explanation">Your first login is as <code>root</code>, which is the all-powerful administrator account. Running your app as root is a security risk, so you should create a regular user with <code>sudo</code> access right away. After that, log in as the new user for everything else.</p>
           <div class="tabs">
             <div class="tab-bar"><button class="tab-btn active" onclick="switchTab('step3',0)">bash — first login commands</button></div>
             <div class="tab-panel active">
@@ -175,7 +175,7 @@ ssh deploy@YOUR_SERVER_IP
         <div class="step-number">4</div>
         <div class="step-content">
           <h3>Firewall + Basic Hardening</h3>
-          <p class="explanation">Enable the firewall, allow only the ports you need, and disable root login via SSH. These three steps stop the majority of automated attacks that scan the internet for open servers.</p>
+          <p class="explanation">A firewall blocks all incoming connections except the ones you explicitly allow. You only need SSH (port 22), HTTP (port 80), and HTTPS (port 443) open. Disabling root login over SSH means even if someone gets your password, they cannot log straight in as root.</p>
           <div class="tabs">
             <div class="tab-bar"><button class="tab-btn active" onclick="switchTab('step4',0)">bash — ufw + SSH hardening</button></div>
             <div class="tab-panel active">
@@ -207,7 +207,7 @@ sudo apt update &amp;&amp; sudo apt upgrade -y</code></pre>
         <div class="step-number">5</div>
         <div class="step-content">
           <h3>Install Python</h3>
-          <p class="explanation">Ubuntu 22.04 comes with Python 3.10. Install pip and venv so you can create a virtual environment for your app.</p>
+          <p class="explanation">Ubuntu 22.04 ships with Python 3.10 already installed. You just need to add pip (the package installer) and venv (the tool for creating virtual environments). A virtual environment keeps your app's packages separate from the rest of the system.</p>
           <div class="tabs">
             <div class="tab-bar"><button class="tab-btn active" onclick="switchTab('step5',0)">bash</button></div>
             <div class="tab-panel active">
@@ -227,7 +227,7 @@ pip3 --version</code></pre>
         <div class="step-number">6</div>
         <div class="step-content">
           <h3>Upload Your App</h3>
-          <p class="explanation">The recommended way is to push your code to GitHub and clone it on the server. Alternatively, use <code>scp</code> to copy files directly.</p>
+          <p class="explanation">The easiest way to get your code onto the server is to push it to GitHub and then clone it from there. If you are not using GitHub, you can use <code>scp</code> to copy files directly from your local machine over SSH.</p>
           <div class="tabs">
             <div class="tab-bar">
               <button class="tab-btn active" onclick="switchTab('step6',0)">git clone (recommended)</button>
@@ -291,7 +291,7 @@ python -c "import fastapi, uvicorn; print('OK')"
         <div class="step-number">8</div>
         <div class="step-content">
           <h3>Run uvicorn Manually</h3>
-          <p class="explanation">Test that the app starts. Bind to <code>0.0.0.0</code> so it listens on all network interfaces (not just localhost), and port 8000.</p>
+          <p class="explanation">This step just confirms the app starts without errors. Binding to <code>0.0.0.0</code> tells uvicorn to listen on all network interfaces, not just the loopback address, so you can reach it from your browser. Port 8000 is the standard development port for FastAPI apps.</p>
           <div class="tabs">
             <div class="tab-bar"><button class="tab-btn active" onclick="switchTab('step8',0)">bash</button></div>
             <div class="tab-panel active">
@@ -315,7 +315,7 @@ uvicorn main:app --host 0.0.0.0 --port 8000
         <div class="step-number">9</div>
         <div class="step-content">
           <h3>What's Wrong With Running It Manually</h3>
-          <p class="explanation">The manual uvicorn run works for testing but isn't suitable for production. Three problems need to be fixed in the next guides.</p>
+          <p class="explanation">Running uvicorn by hand works fine for testing, but it is not ready for real users yet. The process dies the moment you close your SSH session, the port number shows in the URL, and there is no HTTPS. The next three guides fix each of these problems.</p>
           <div class="tabs">
             <div class="tab-bar"><button class="tab-btn active" onclick="switchTab('step9',0)">The three problems</button></div>
             <div class="tab-panel active">

@@ -207,7 +207,7 @@ code { font-family: "Fira Code", "Cascadia Code", "Consolas", monospace; font-si
         <div class="step-number">1</div>
         <div class="step-content">
           <h3>What CRMs Expose</h3>
-          <p class="explanation">Every CRM, regardless of brand, stores roughly the same objects: <strong>Contacts</strong> (people), <strong>Companies</strong> (organisations), <strong>Deals</strong> or Opportunities (sales pipeline), and <strong>Activities</strong> (calls, emails, notes). The field names differ, but the data model is nearly identical across HubSpot, Salesforce, Zoho, and Pipedrive. Learn the pattern once and it transfers everywhere.</p>
+          <p class="explanation">Every CRM stores roughly the same types of data: <strong>Contacts</strong> (people), <strong>Companies</strong> (organisations), <strong>Deals</strong> or Opportunities (sales pipeline), and <strong>Activities</strong> (calls, emails, notes). The field names differ between CRMs, but the overall structure is nearly identical across HubSpot, Salesforce, Zoho, and Pipedrive. Learn the pattern once and it applies everywhere.</p>
           <table class="crm-table">
             <tr><th>Concept</th><th>HubSpot</th><th>Salesforce</th><th>Zoho</th><th>Pipedrive</th></tr>
             <tr><td>A person</td><td>Contact</td><td>Contact / Lead</td><td>Contact / Lead</td><td>Person</td></tr>
@@ -224,7 +224,7 @@ code { font-family: "Fira Code", "Cascadia Code", "Consolas", monospace; font-si
         <div class="step-number">2</div>
         <div class="step-content">
           <h3>Auth: API Key vs OAuth2</h3>
-          <p class="explanation">CRMs use two main auth methods. Start with the simpler one for your first integration — you can add OAuth2 later once you understand the data flow.</p>
+          <p class="explanation">CRMs use two main ways to prove your identity: an API key (a simple token you paste into your code) and OAuth2 (a multi-step flow where users grant your app permission). Start with the API key approach for your first integration. You can add OAuth2 later once you understand how the data flows.</p>
           <div class="tabs">
             <div class="tab-bar">
               <button class="tab-btn active" onclick="switchTab('step2',0)">API Key (Bearer token)</button>
@@ -294,7 +294,7 @@ auth_url = (
         <div class="step-number">3</div>
         <div class="step-content">
           <h3>Getting a HubSpot Sandbox</h3>
-          <p class="explanation">HubSpot's free developer account gives you a sandbox CRM with sample data. It takes about 3 minutes to set up and you'll have a real API token in your hands.</p>
+          <p class="explanation">HubSpot's free developer account gives you a sandbox CRM loaded with sample data. It takes about 3 minutes to set up. At the end you will have a real API token you can paste straight into your code.</p>
           <div class="tabs">
             <div class="tab-bar">
               <button class="tab-btn active" onclick="switchTab('step3',0)">Setup steps</button>
@@ -329,7 +329,7 @@ auth_url = (
         <div class="step-number">4</div>
         <div class="step-content">
           <h3>Project Setup</h3>
-          <p class="explanation">Split CRM calls into their own file — <code>crm_client.py</code> — so your routes in <code>main.py</code> stay clean. Routes decide <em>what</em> to do; the client handles <em>how</em> to talk to the API.</p>
+          <p class="explanation">Put all CRM calls in their own file called <code>crm_client.py</code> so your routes in <code>main.py</code> stay short and easy to read. The routes decide what to do, and the client handles how to talk to the CRM's API. Keeping them separate also makes it easier to swap one CRM for another later.</p>
           <div class="tabs">
             <div class="tab-bar">
               <button class="tab-btn active" onclick="switchTab('step4',0)">File tree</button>
@@ -374,7 +374,7 @@ TOKEN    = os.getenv(<span class="hl-string">"HUBSPOT_TOKEN"</span>)
         <div class="step-number">5</div>
         <div class="step-content">
           <h3>Your First CRM Read</h3>
-          <p class="explanation">Reading contacts is the most common first operation. HubSpot's v3 API returns paginated results in a <code>results</code> array. Each contact has a <code>properties</code> object with the actual field values.</p>
+          <p class="explanation">Reading contacts is the most common first thing you will do with a CRM. HubSpot's API returns results in pages, each inside a <code>results</code> array. Each contact has a <code>properties</code> object that holds the actual field values like name and email. To get the next page, you pass a cursor value called <code>after</code> with your next request.</p>
           <div class="tabs">
             <div class="tab-bar">
               <button class="tab-btn active" onclick="switchTab('step5',0)">crm_client.py — list_contacts()</button>
@@ -448,7 +448,7 @@ TOKEN    = os.getenv(<span class="hl-string">"HUBSPOT_TOKEN"</span>)
         <div class="step-number">6</div>
         <div class="step-content">
           <h3>Wrapping It in FastAPI</h3>
-          <p class="explanation">Your FastAPI routes are thin — they call <code>crm_client.py</code> functions and return the results. This keeps business logic out of routes and makes the CRM client easy to swap later.</p>
+          <p class="explanation">Your FastAPI routes should be short. They call a function from <code>crm_client.py</code> and return whatever it gives back. This keeps all the CRM-specific details in one place, so your routes stay easy to read and the CRM client is easy to swap out later.</p>
           <div class="tabs">
             <div class="tab-bar">
               <button class="tab-btn active" onclick="switchTab('step6',0)">main.py — contacts route</button>
@@ -484,7 +484,7 @@ app = FastAPI()
         <div class="step-number">7</div>
         <div class="step-content">
           <h3>Creating a Contact</h3>
-          <p class="explanation">Before creating a contact, always check if one already exists with that email — otherwise every re-run of your sync script creates duplicates. This deduplication pattern is the same across every CRM integration you'll ever build.</p>
+          <p class="explanation">Before creating a contact, always search for an existing one with the same email address. If you skip this step, every time your script runs it will create a duplicate record. This deduplication check is something you will use in every CRM integration you build, so it is worth learning well.</p>
           <div class="tabs">
             <div class="tab-bar">
               <button class="tab-btn active" onclick="switchTab('step7',0)">crm_client.py — create + dedupe</button>
@@ -557,7 +557,7 @@ app = FastAPI()
         <div class="step-number">8</div>
         <div class="step-content">
           <h3>Updating a Contact</h3>
-          <p class="explanation">Updates use <code>PATCH</code> — you only send the fields you want to change, not the entire record. This is standard across all modern CRM APIs.</p>
+          <p class="explanation">To update a contact, use the <code>PATCH</code> HTTP method and send only the fields you want to change. You do not need to send the full record, just the parts that are different. This approach is standard across all modern CRM APIs.</p>
           <div class="tabs">
             <div class="tab-bar">
               <button class="tab-btn active" onclick="switchTab('step8',0)">crm_client.py — update_contact()</button>
@@ -601,7 +601,7 @@ app = FastAPI()
         <div class="step-number">9</div>
         <div class="step-content">
           <h3>Webhooks: CRM Pushes to You</h3>
-          <p class="explanation">Instead of polling the CRM every few minutes, you register a webhook URL and the CRM calls <em>you</em> whenever something changes. Your endpoint must return <code>200 OK</code> quickly — process the work in the background so the CRM doesn't time out and retry.</p>
+          <p class="explanation">Instead of checking the CRM for changes every few minutes, you can register a webhook URL and the CRM will call your endpoint whenever something changes. Your endpoint needs to respond with <code>200 OK</code> quickly, so do any heavy work in the background. If you take too long to respond, the CRM will assume something went wrong and send the request again.</p>
           <div class="tabs">
             <div class="tab-bar">
               <button class="tab-btn active" onclick="switchTab('step9',0)">main.py — webhook endpoint</button>
@@ -671,7 +671,7 @@ CLIENT_SECRET = os.getenv(<span class="hl-string">"HUBSPOT_CLIENT_SECRET"</span>
         <div class="step-number">10</div>
         <div class="step-content">
           <h3>Unified.to: One SDK for All CRMs</h3>
-          <p class="explanation">Unified.to is a middleware layer that normalises CRM APIs. You write code once against the Unified.to SDK and it works with HubSpot, Salesforce, Zoho, Pipedrive, and 30+ others. Worth it when you need to support multiple CRMs without maintaining separate clients for each.</p>
+          <p class="explanation">Unified.to sits between your app and the CRM, translating all the different APIs into one standard format. You write your code once using the Unified.to SDK and it works with HubSpot, Salesforce, Zoho, Pipedrive, and over 30 others. This is worth it when you need to support multiple CRMs and do not want to maintain a separate client for each one.</p>
           <div class="tabs">
             <div class="tab-bar">
               <button class="tab-btn active" onclick="switchTab('step10',0)">Unified.to — list contacts</button>
@@ -737,7 +737,7 @@ Use UNIFIED.TO when:
         <div class="step-number">11</div>
         <div class="step-content">
           <h3>Syncing to Your Local Database</h3>
-          <p class="explanation">When you pull contacts from a CRM into your own database, you need a way to match records on future syncs without creating duplicates. Store the CRM's ID alongside your local record and use it as the uniqueness key on every upsert.</p>
+          <p class="explanation">When you pull contacts from a CRM into your own database, you need a reliable way to match them on future syncs. Store the CRM's ID in your local table as a unique key. Then on each sync you can update existing rows instead of inserting duplicates, which is called an upsert.</p>
           <div class="tabs">
             <div class="tab-bar">
               <button class="tab-btn active" onclick="switchTab('step11',0)">SQLite upsert pattern</button>
@@ -812,7 +812,7 @@ Use UNIFIED.TO when:
         <div class="step-number">12</div>
         <div class="step-content">
           <h3>What's Next</h3>
-          <p class="explanation">You now understand the core patterns that power every CRM integration: auth, CRUD, webhooks, deduplication, and upsert syncing. These four things repeat in every integration job you'll see.</p>
+          <p class="explanation">You now know the core patterns behind every CRM integration: authentication, reading and writing records, webhooks, deduplication, and upsert syncing. These same ideas show up in every integration project you will work on. The details change between CRMs, but the structure stays the same.</p>
           <div class="info-box">
             <strong>Pagination:</strong> The bulk sync above handles it with a <code>while True / break</code> loop. For very large CRMs (100k+ contacts), run this in a background task via <code>BackgroundTasks</code> so the HTTP request doesn't time out.
           </div>

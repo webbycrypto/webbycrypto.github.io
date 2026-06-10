@@ -1,0 +1,834 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>FastAPI Admin Panel Project - pyoffline</title>
+<style>
+:root {
+  --bg:          #121212;
+  --surface:     #1e1e1e;
+  --surface2:    #2a2a2a;
+  --sidebar-bg:  #1a1a1a;
+  --text:        #e0e0e0;
+  --text-muted:  #aaa;
+  --text-dim:    #666;
+  --border:      #333;
+  --code-bg:     #1e1e1e;
+  --code-text:   #d4d4d4;
+  --shadow:      rgba(0,0,0,.4);
+  --accent:      #4ecdc4;
+  --hl-keyword:  #569cd6;
+  --hl-string:   #ce9178;
+  --hl-comment:  #6a9955;
+  --hl-number:   #b5cea8;
+  --hl-decorator:#dcdcaa;
+  --hl-builtin:  #4ec9b0;
+  --hl-tag:      #4ec9b0;
+  --hl-attr:     #9cdcfe;
+  --hl-template: #c586c0;
+}
+html.light {
+  --bg:          #f5f7fa;
+  --surface:     #ffffff;
+  --surface2:    #eef0f3;
+  --sidebar-bg:  #ffffff;
+  --text:        #1a1a1a;
+  --text-muted:  #555;
+  --text-dim:    #888;
+  --border:      #dde1e7;
+  --code-bg:     #f8f8f8;
+  --code-text:   #24292e;
+  --shadow:      rgba(0,0,0,.1);
+  --hl-keyword:  #0000ff;
+  --hl-string:   #a31515;
+  --hl-comment:  #008000;
+  --hl-number:   #098658;
+  --hl-decorator:#795e26;
+  --hl-builtin:  #267f99;
+  --hl-tag:      #800000;
+  --hl-attr:     #e50000;
+  --hl-template: #af00db;
+}
+.hl-keyword  { color: var(--hl-keyword);  }
+.hl-string   { color: var(--hl-string);   }
+.hl-comment  { color: #adb4a7; font-size: 12px; font-style: italic; }
+.hl-number   { color: var(--hl-number);   }
+.hl-decorator{ color: var(--hl-decorator);}
+.hl-builtin  { color: var(--hl-builtin);  }
+.hl-tag      { color: var(--hl-tag);      }
+.hl-attr     { color: var(--hl-attr);     }
+.hl-template { color: var(--hl-template); }
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: var(--bg); color: var(--text); font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; transition: background .2s, color .2s; }
+a { color: var(--accent); }
+.layout { display: flex; min-height: 100vh; }
+.sidebar { width: 260px; min-width: 260px; background: var(--sidebar-bg); border-right: 1px solid var(--border); padding: 24px 16px; position: sticky; top: 0; height: 100vh; overflow-y: auto; }
+.sidebar h2 { font-size: 1.1rem; margin: 16px 0 8px; color: var(--text); }
+.sidebar nav ol { padding-left: 18px; }
+.sidebar nav li { margin: 6px 0; }
+.sidebar nav a { color: var(--text-muted); text-decoration: none; font-size: 0.85rem; }
+.sidebar nav a:hover { color: var(--accent); }
+.back-link { color: var(--text-dim); text-decoration: none; font-size: 0.85rem; display: block; margin-bottom: 8px; }
+.install-box { margin-top: 24px; background: var(--bg); border: 1px solid var(--border); padding: 12px; border-radius: 6px; font-size: 0.8rem; }
+.install-box code { display: block; word-break: break-all; color: var(--hl-comment); font-family: monospace; margin-top: 4px; }
+main { flex: 1; padding: 40px; max-width: 860px; }
+.guide-header { padding: 20px 20px 20px 24px; background: var(--surface); border-radius: 8px; margin-bottom: 32px; box-shadow: 0 1px 3px var(--shadow); }
+.guide-header h1 { font-size: 1.8rem; margin-bottom: 8px; }
+.guide-header p { color: var(--text-muted); }
+.step { display: flex; gap: 16px; margin-bottom: 40px; }
+.step-number { width: 32px; min-width: 32px; height: 32px; background: var(--accent); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 0.9rem; margin-top: 4px; color: #000; }
+.step-content { flex: 1; min-width: 0; }
+.step-content h3 { font-size: 1.1rem; margin-bottom: 8px; color: var(--text); }
+.explanation { color: var(--text-muted); font-size: 0.9rem; line-height: 1.6; margin-bottom: 14px; }
+.info-box { background: var(--surface); border-left: 3px solid var(--accent); border-radius: 0 6px 6px 0; padding: 12px 16px; margin-bottom: 14px; font-size: 0.88rem; color: var(--text-muted); line-height: 1.6; }
+.info-box strong { color: var(--text); }
+.tabs { background: var(--surface); border-radius: 6px; overflow: hidden; border: 1px solid var(--border); }
+.tab-bar { display: flex; background: var(--surface2); overflow-x: auto; border-bottom: 1px solid var(--border); }
+.tab-btn { padding: 8px 16px; background: none; border: none; color: var(--text-muted); cursor: pointer; font-size: 0.8rem; white-space: nowrap; border-bottom: 2px solid transparent; margin-bottom: -1px; }
+.tab-btn.active { color: var(--text); border-bottom-color: var(--accent); }
+.tab-panel { display: none; }
+.tab-panel.active { display: block; }
+.code-header { display: flex; justify-content: space-between; align-items: center; padding: 5px 12px; background: var(--surface2); border-bottom: 1px solid var(--border); }
+.lang-label { font-size: 0.72rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: .04em; }
+.copy-btn { background: none; border: 1px solid var(--border); color: var(--text-muted); padding: 2px 8px; cursor: pointer; border-radius: 3px; font-size: 0.72rem; }
+.copy-btn:hover { color: var(--text); border-color: var(--text-muted); }
+pre { overflow-x: auto; padding: 16px; background: var(--code-bg); }
+code { font-family: "Fira Code", "Cascadia Code", "Consolas", monospace; font-size: 0.82rem; line-height: 1.65; color: var(--code-text); }
+.theme-row { display: flex; align-items: center; gap: 8px; margin-top: 20px; }
+.theme-label { font-size: 0.78rem; color: var(--text-muted); }
+.toggle-switch { position: relative; display: inline-block; width: 40px; height: 22px; }
+.toggle-switch input { opacity: 0; width: 0; height: 0; }
+.slider { position: absolute; cursor: pointer; inset: 0; background: var(--surface2); border: 1px solid var(--border); border-radius: 22px; transition: background .2s; }
+.slider:before { content: ""; position: absolute; width: 16px; height: 16px; left: 2px; top: 2px; background: var(--text-muted); border-radius: 50%; transition: transform .2s, background .2s; }
+.toggle-switch input:checked + .slider { background: var(--accent); border-color: var(--accent); }
+.toggle-switch input:checked + .slider:before { transform: translateX(18px); background: #000; }
+.sidebar-toggle { display: none; position: fixed; top: 12px; left: 12px; z-index: 300; background: var(--accent); color: #000; border: none; padding: 7px 14px; border-radius: 6px; cursor: pointer; font-size: 0.85rem; font-weight: 600; box-shadow: 0 2px 8px var(--shadow); align-items: center; gap: 6px; }
+.sidebar-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.45); z-index: 190; }
+.sidebar-overlay.open { display: block; }
+@media (max-width: 900px) {
+  .sidebar-toggle { display: flex; }
+  .layout { display: block; }
+  .sidebar { position: fixed; left: -280px; top: 0; height: 100vh; z-index: 200; transition: left .25s ease; box-shadow: 2px 0 16px var(--shadow); min-width: 260px; }
+  .sidebar.open { left: 0; }
+  main { padding: 60px 20px 40px; max-width: 100%; }
+  pre { overflow-x: auto; max-width: 100%; white-space: pre-wrap; word-break: break-word; }
+  .tabs { max-width: 100%; }
+}
+.sidebar { transition: width .2s ease, min-width .2s ease, padding .2s ease; }
+.sb-pin { display: flex; justify-content: flex-end; margin-bottom: 8px; }
+.sb-pin button { background: none; border: 1px solid var(--border); color: var(--text-dim); cursor: pointer; border-radius: 4px; padding: 2px 7px; font-size: 11px; line-height: 1.6; }
+.sb-pin button:hover { color: var(--accent); border-color: var(--accent); }
+.sb-reopen { display: none; position: fixed; left: 0; top: 50%; transform: translateY(-50%); background: var(--accent); color: #000; border: none; border-radius: 0 4px 4px 0; padding: 10px 5px; cursor: pointer; z-index: 300; font-size: 11px; font-weight: 600; writing-mode: vertical-rl; letter-spacing: .05em; }
+@media (min-width: 901px) { body.sb-collapsed .sidebar { width: 0; min-width: 0; padding: 0; overflow: hidden; border-right: none; } body.sb-collapsed .sb-reopen { display: block; } }
+@media (max-width: 900px) { .sb-pin { display: none; } .sb-reopen { display: none !important; } }
+</style>
+</head>
+<body>
+<button class="sidebar-toggle" id="sidebarToggle" onclick="toggleSidebar()">&#9776; Steps</button>
+<div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+<button class="sb-reopen" onclick="toggleSbDesktop()">Steps</button>
+<div class="layout">
+  <aside class="sidebar" id="guideSidebar">
+    <div class="sb-pin"><button onclick="toggleSbDesktop()">&#9664; Hide</button></div>
+    <a href="index.html" class="back-link">← All Guides</a>
+    <h2>Project Parts</h2>
+    <nav><ol>
+      <li><a href="#step1">Project Overview</a></li>
+      <li><a href="#step2">FastAPI Backend</a></li>
+      <li><a href="#step3">Login Module</a></li>
+      <li><a href="#step4">Dashboard Layout</a></li>
+      <li><a href="#step5">Products Table</a></li>
+      <li><a href="#step6">Create Product</a></li>
+      <li><a href="#step7">Update and Delete</a></li>
+      <li><a href="#step8">Search and Filter</a></li>
+      <li><a href="#step9">File Uploads</a></li>
+      <li><a href="#step10">Polling Updates</a></li>
+    </ol></nav>
+    <div class="install-box">
+      <strong>Setup:</strong>
+      <code>pip install fastapi uvicorn pydantic python-multipart</code>
+      <code style="margin-top: 6px;">uvicorn app:app --reload</code>
+    </div>
+    <div class="theme-row">
+      <span class="theme-label">Dark</span>
+      <label class="toggle-switch">
+        <input type="checkbox" id="themeToggle">
+        <span class="slider"></span>
+      </label>
+      <span class="theme-label">Light</span>
+    </div>
+  </aside>
+  <main>
+    <header class="guide-header" style="border-left: 5px solid #4ecdc4">
+      <h1>FastAPI Admin Panel Project</h1>
+      <p><strong>Requires completing <a href="javascript-api-patterns.html">API Patterns</a> first.</strong> Build a product catalog admin panel with authentication, CRUD operations, file uploads, and real-time updates using FastAPI and vanilla JavaScript.</p>
+    </header>
+    <div class="steps">
+
+<div class="step" id="step1">
+  <div class="step-number">1</div>
+  <div class="step-content">
+    <h3>Project Overview</h3>
+    <p class="explanation">This project is a product catalog admin panel. Users log in with email and password. The dashboard shows a searchable product table with create, update, delete, and upload image functionality. Polling checks for new products every 30 seconds.</p>
+    <div class="info-box">
+      <strong>Files needed:</strong> Create <code>app.py</code> (FastAPI backend), <code>index.html</code> (admin panel), and <code>products.db</code> (SQLite database, auto-created).
+    </div>
+  </div>
+</div>
+
+<div class="step" id="step2">
+  <div class="step-number">2</div>
+  <div class="step-content">
+    <h3>FastAPI Backend: Models and Routes</h3>
+    <p class="explanation">The backend has User and Product models, JWT login, and full CRUD endpoints. It uses SQLite for persistence. All endpoints under /api/ return JSON.</p>
+    <div class="tabs" data-step="step2">
+      <div class="tab-bar">
+        <button class="tab-btn active" onclick="switchTab('step2',0)">app.py (Part 1)</button>
+      </div>
+      <div class="tab-panel active" id="step2_panel0">
+        <div class="code-header">
+          <span class="lang-label">python</span>
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+        </div>
+        <pre><code><span class="hl-keyword">from</span> fastapi <span class="hl-keyword">import</span> FastAPI, Depends, HTTPException, UploadFile, File
+<span class="hl-keyword">from</span> fastapi.middleware.cors <span class="hl-keyword">import</span> CORSMiddleware
+<span class="hl-keyword">from</span> pydantic <span class="hl-keyword">import</span> BaseModel
+<span class="hl-keyword">from</span> sqlalchemy <span class="hl-keyword">import</span> create_engine, Column, Integer, String, Float
+<span class="hl-keyword">from</span> sqlalchemy.ext.declarative <span class="hl-keyword">import</span> declarative_base
+<span class="hl-keyword">from</span> sqlalchemy.orm <span class="hl-keyword">import</span> sessionmaker, Session
+<span class="hl-keyword">from</span> passlib.context <span class="hl-keyword">import</span> CryptContext
+<span class="hl-keyword">from</span> datetime <span class="hl-keyword">import</span> datetime, timedelta
+<span class="hl-keyword">import</span> jwt, os
+<span class="hl-keyword">from</span> typing <span class="hl-keyword">import</span> Optional
+
+<span class="hl-comment">#### Setup ####</span>
+app = FastAPI()
+app.add_middleware(CORSMiddleware, allow_origins=[<span class="hl-string">"*"</span>], allow_methods=[<span class="hl-string">"*"</span>], allow_headers=[<span class="hl-string">"*"</span>])
+
+DATABASE_URL = <span class="hl-string">"sqlite:///./products.db"</span>
+engine = create_engine(DATABASE_URL, connect_args={<span class="hl-string">"check_same_thread"</span>: <span class="hl-keyword">False</span>})
+SessionLocal = sessionmaker(bind=engine)
+Base = declarative_base()
+
+SECRET_KEY = <span class="hl-string">"your-secret-key-change-this"</span>
+pwd_context = CryptContext(schemes=[<span class="hl-string">"bcrypt"</span>], deprecated=<span class="hl-string">"auto"</span>)
+
+<span class="hl-comment">#### Models ####</span>
+<span class="hl-keyword">class</span> <span class="hl-decorator">UserDB</span>(Base):
+    __tablename__ = <span class="hl-string">"users"</span>
+    id = Column(Integer, primary_key=<span class="hl-keyword">True</span>)
+    email = Column(String, unique=<span class="hl-keyword">True</span>, index=<span class="hl-keyword">True</span>)
+    hashed_password = Column(String)
+
+<span class="hl-keyword">class</span> <span class="hl-decorator">ProductDB</span>(Base):
+    __tablename__ = <span class="hl-string">"products"</span>
+    id = Column(Integer, primary_key=<span class="hl-keyword">True</span>)
+    name = Column(String, index=<span class="hl-keyword">True</span>)
+    price = Column(Float)
+    inventory = Column(Integer)
+    image_url = Column(String, nullable=<span class="hl-keyword">True</span>)
+
+Base.metadata.create_all(bind=engine)
+
+<span class="hl-comment">#### Schemas ####</span>
+<span class="hl-keyword">class</span> <span class="hl-decorator">LoginRequest</span>(BaseModel):
+    email: <span class="hl-builtin">str</span>
+    password: <span class="hl-builtin">str</span>
+
+<span class="hl-keyword">class</span> <span class="hl-decorator">LoginResponse</span>(BaseModel):
+    access_token: <span class="hl-builtin">str</span>
+
+<span class="hl-keyword">class</span> <span class="hl-decorator">Product</span>(BaseModel):
+    id: <span class="hl-builtin">int</span>
+    name: <span class="hl-builtin">str</span>
+    price: <span class="hl-builtin">float</span>
+    inventory: <span class="hl-builtin">int</span>
+    image_url: Optional[<span class="hl-builtin">str</span>] = <span class="hl-keyword">None</span></code></pre>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="step" id="step3">
+  <div class="step-number">3</div>
+  <div class="step-content">
+    <h3>Login Module</h3>
+    <p class="explanation">The login endpoint validates email and password, returns a JWT token. The token is sent in the Authorization header for protected endpoints.</p>
+    <div class="tabs" data-step="step3">
+      <div class="tab-bar">
+        <button class="tab-btn active" onclick="switchTab('step3',0)">Helpers</button>
+        <button class="tab-btn" onclick="switchTab('step3',1)">Login Endpoint</button>
+      </div>
+      <div class="tab-panel active" id="step3_panel0">
+        <div class="code-header">
+          <span class="lang-label">python</span>
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+        </div>
+        <pre><code><span class="hl-keyword">def</span> <span class="hl-decorator">get_db</span>():
+    db = SessionLocal()
+    <span class="hl-keyword">try</span>:
+        <span class="hl-keyword">yield</span> db
+    <span class="hl-keyword">finally</span>:
+        db.close()
+
+<span class="hl-keyword">def</span> <span class="hl-decorator">hash_password</span>(password: <span class="hl-builtin">str</span>):
+    <span class="hl-keyword">return</span> pwd_context.hash(password)
+
+<span class="hl-keyword">def</span> <span class="hl-decorator">verify_password</span>(plain, hashed):
+    <span class="hl-keyword">return</span> pwd_context.verify(plain, hashed)
+
+<span class="hl-keyword">def</span> <span class="hl-decorator">create_token</span>(user_id: <span class="hl-builtin">int</span>) -&gt; <span class="hl-builtin">str</span>:
+    payload = {
+        <span class="hl-string">"user_id"</span>: user_id,
+        <span class="hl-string">"exp"</span>: datetime.utcnow() + timedelta(hours=<span class="hl-number">24</span>)
+    }
+    <span class="hl-keyword">return</span> jwt.encode(payload, SECRET_KEY, algorithm=<span class="hl-string">"HS256"</span>)
+
+<span class="hl-keyword">def</span> <span class="hl-decorator">verify_token</span>(token: <span class="hl-builtin">str</span>):
+    <span class="hl-keyword">try</span>:
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[<span class="hl-string">"HS256"</span>])
+        <span class="hl-keyword">return</span> payload[<span class="hl-string">"user_id"</span>]
+    <span class="hl-keyword">except</span>:
+        <span class="hl-keyword">raise</span> HTTPException(status_code=<span class="hl-number">401</span>, detail=<span class="hl-string">"Invalid token"</span>)</code></pre>
+      </div>
+      <div class="tab-panel" id="step3_panel1">
+        <div class="code-header">
+          <span class="lang-label">python</span>
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+        </div>
+        <pre><code><span class="hl-decorator">@app.post</span>(<span class="hl-string">"/api/login"</span>)
+<span class="hl-keyword">def</span> <span class="hl-decorator">login</span>(req: LoginRequest, db: Session = Depends(get_db)):
+    user = db.query(UserDB).filter(UserDB.email == req.email).first()
+    <span class="hl-keyword">if</span> <span class="hl-keyword">not</span> user <span class="hl-keyword">or</span> <span class="hl-keyword">not</span> verify_password(req.password, user.hashed_password):
+        <span class="hl-keyword">raise</span> HTTPException(status_code=<span class="hl-number">401</span>, detail=<span class="hl-string">"Wrong credentials"</span>)
+    token = create_token(user.id)
+    <span class="hl-keyword">return</span> {<span class="hl-string">"access_token"</span>: token}</code></pre>
+      </div>
+    </div>
+    <div class="info-box">
+      <strong>Setup test user:</strong> Run this once to create a test account with email <code>admin@example.com</code> password <code>password123</code>.
+    </div>
+    <div class="tabs" data-step="step3b">
+      <div class="tab-bar">
+        <button class="tab-btn active" onclick="switchTab('step3b',0)">Create Test User</button>
+      </div>
+      <div class="tab-panel active" id="step3b_panel0">
+        <div class="code-header">
+          <span class="lang-label">python</span>
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+        </div>
+        <pre><code><span class="hl-comment">#### Run this once to create test user ####</span>
+db = SessionLocal()
+<span class="hl-keyword">if</span> <span class="hl-keyword">not</span> db.query(UserDB).filter(UserDB.email == <span class="hl-string">"admin@example.com"</span>).first():
+    user = UserDB(
+        email=<span class="hl-string">"admin@example.com"</span>,
+        hashed_password=hash_password(<span class="hl-string">"password123"</span>)
+    )
+    db.add(user)
+    db.commit()
+    print(<span class="hl-string">"Test user created"</span>)
+db.close()</code></pre>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="step" id="step4">
+  <div class="step-number">4</div>
+  <div class="step-content">
+    <h3>Dashboard Layout</h3>
+    <p class="explanation">The HTML dashboard has a navbar with logout, a search bar, buttons for create and refresh, and containers for the products table and forms. CSS is minimal and embedded for self-containment.</p>
+    <div class="tabs" data-step="step4">
+      <div class="tab-bar">
+        <button class="tab-btn active" onclick="switchTab('step4',0)">HTML Skeleton</button>
+      </div>
+      <div class="tab-panel active" id="step4_panel0">
+        <div class="code-header">
+          <span class="lang-label">html</span>
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+        </div>
+        <pre><code>&lt;!DOCTYPE html&gt;
+&lt;<span class="hl-tag">html</span>&gt;
+&lt;<span class="hl-tag">head</span>&gt;
+  &lt;<span class="hl-tag">title</span>&gt;Product Admin&lt;/<span class="hl-tag">title</span>&gt;
+  &lt;<span class="hl-tag">style</span>&gt;
+    * { margin: <span class="hl-number">0</span>; padding: <span class="hl-number">0</span>; box-sizing: border-box; }
+    body { font-family: system-ui; background: #f5f5f5; }
+    nav { background: <span class="hl-string">#333</span>; color: white; padding: <span class="hl-number">16px</span>; display: flex; justify-content: space-between; }
+    nav <span class="hl-builtin">button</span> { background: <span class="hl-string">#ff6b6b</span>; color: white; border: none; padding: <span class="hl-number">8px</span> <span class="hl-number">16px</span>; border-radius: <span class="hl-number">4px</span>; cursor: pointer; }
+    main { padding: <span class="hl-number">24px</span>; max-width: <span class="hl-number">1200px</span>; margin: <span class="hl-number">0</span> auto; }
+    .controls { display: flex; gap: <span class="hl-number">8px</span>; margin-bottom: <span class="hl-number">24px</span>; flex-wrap: wrap; }
+    .controls input { padding: <span class="hl-number">8px</span>; border: <span class="hl-number">1px</span> solid <span class="hl-string">#ddd</span>; border-radius: <span class="hl-number">4px</span>; }
+    .controls <span class="hl-builtin">button</span> { padding: <span class="hl-number">8px</span> <span class="hl-number">16px</span>; background: <span class="hl-string">#4ecdc4</span>; color: white; border: none; border-radius: <span class="hl-number">4px</span>; cursor: pointer; }
+    table { width: <span class="hl-number">100</span>%; background: white; border-collapse: collapse; margin-bottom: <span class="hl-number">24px</span>; }
+    th, td { padding: <span class="hl-number">12px</span>; text-align: left; border-bottom: <span class="hl-number">1px</span> solid <span class="hl-string">#ddd</span>; }
+    th { background: <span class="hl-string">#f9f9f9</span>; font-weight: <span class="hl-number">600</span>; }
+    .actions { display: flex; gap: <span class="hl-number">4px</span>; }
+    .actions <span class="hl-builtin">button</span> { padding: <span class="hl-number">4px</span> <span class="hl-number">8px</span>; font-size: <span class="hl-number">12px</span>; cursor: pointer; border: none; border-radius: <span class="hl-number">3px</span>; }
+  &lt;/<span class="hl-tag">style</span>&gt;
+&lt;/<span class="hl-tag">head</span>&gt;
+&lt;<span class="hl-tag">body</span>&gt;
+  &lt;<span class="hl-tag">nav</span>&gt;
+    &lt;<span class="hl-tag">h1</span>&gt;Product Admin&lt;/<span class="hl-tag">h1</span>&gt;
+    &lt;<span class="hl-tag">button</span> <span class="hl-attr">id</span>=<span class="hl-string">"logoutBtn"</span>&gt;Logout&lt;/<span class="hl-tag">button</span>&gt;
+  &lt;/<span class="hl-tag">nav</span>&gt;
+
+  &lt;<span class="hl-tag">main</span> <span class="hl-attr">id</span>=<span class="hl-string">"dashboard"</span> <span class="hl-attr">style</span>=<span class="hl-string">"display:none"</span>&gt;
+    &lt;<span class="hl-tag">div</span> <span class="hl-attr">class</span>=<span class="hl-string">"controls"</span>&gt;
+      &lt;<span class="hl-tag">input</span> <span class="hl-attr">type</span>=<span class="hl-string">"text"</span> <span class="hl-attr">id</span>=<span class="hl-string">"searchInput"</span> <span class="hl-attr">placeholder</span>=<span class="hl-string">"Search products..."</span>&gt;
+      &lt;<span class="hl-tag">button</span> <span class="hl-attr">id</span>=<span class="hl-string">"createBtn"</span>&gt;New Product&lt;/<span class="hl-tag">button</span>&gt;
+      &lt;<span class="hl-tag">button</span> <span class="hl-attr">id</span>=<span class="hl-string">"refreshBtn"</span>&gt;Refresh&lt;/<span class="hl-tag">button</span>&gt;
+    &lt;/<span class="hl-tag">div</span>&gt;
+    &lt;<span class="hl-tag">table</span> <span class="hl-attr">id</span>=<span class="hl-string">"productTable"</span>&gt;
+      &lt;<span class="hl-tag">thead</span>&gt;
+        &lt;<span class="hl-tag">tr</span>&gt;
+          &lt;<span class="hl-tag">th</span>&gt;ID&lt;/<span class="hl-tag">th</span>&gt;&lt;<span class="hl-tag">th</span>&gt;Name&lt;/<span class="hl-tag">th</span>&gt;&lt;<span class="hl-tag">th</span>&gt;Price&lt;/<span class="hl-tag">th</span>&gt;&lt;<span class="hl-tag">th</span>&gt;Inventory&lt;/<span class="hl-tag">th</span>&gt;&lt;<span class="hl-tag">th</span>&gt;Actions&lt;/<span class="hl-tag">th</span>&gt;
+        &lt;/<span class="hl-tag">tr</span>&gt;
+      &lt;/<span class="hl-tag">thead</span>&gt;
+      &lt;<span class="hl-tag">tbody</span>&gt;&lt;/<span class="hl-tag">tbody</span>&gt;
+    &lt;/<span class="hl-tag">table</span>&gt;
+  &lt;/<span class="hl-tag">main</span>&gt;
+
+  &lt;<span class="hl-tag">main</span> <span class="hl-attr">id</span>=<span class="hl-string">"loginPage"</span>&gt;
+    &lt;<span class="hl-tag">form</span> <span class="hl-attr">id</span>=<span class="hl-string">"loginForm"</span> <span class="hl-attr">style</span>=<span class="hl-string">"max-width: 400px; margin: 100px auto; padding: 24px; background: white; border-radius: 8px;"</span>&gt;
+      &lt;<span class="hl-tag">h2</span>&gt;Admin Login&lt;/<span class="hl-tag">h2</span>&gt;
+      &lt;<span class="hl-tag">input</span> <span class="hl-attr">type</span>=<span class="hl-string">"email"</span> <span class="hl-attr">id</span>=<span class="hl-string">"emailInput"</span> <span class="hl-attr">placeholder</span>=<span class="hl-string">"Email"</span> <span class="hl-attr">style</span>=<span class="hl-string">"width: 100%; padding: 8px; margin: 8px 0;"</span>&gt;
+      &lt;<span class="hl-tag">input</span> <span class="hl-attr">type</span>=<span class="hl-string">"password"</span> <span class="hl-attr">id</span>=<span class="hl-string">"passwordInput"</span> <span class="hl-attr">placeholder</span>=<span class="hl-string">"Password"</span> <span class="hl-attr">style</span>=<span class="hl-string">"width: 100%; padding: 8px; margin: 8px 0;"</span>&gt;
+      &lt;<span class="hl-tag">button</span> <span class="hl-attr">type</span>=<span class="hl-string">"submit"</span> <span class="hl-attr">style</span>=<span class="hl-string">"width: 100%; padding: 8px; background: #4ecdc4; color: white; border: none; border-radius: 4px; cursor: pointer;"</span>&gt;Login&lt;/<span class="hl-tag">button</span>&gt;
+    &lt;/<span class="hl-tag">form</span>&gt;
+  &lt;/<span class="hl-tag">main</span>&gt;
+
+  &lt;<span class="hl-tag">script</span>&gt;
+    <span class="hl-comment">// JavaScript goes here (see next steps)</span>
+  &lt;/<span class="hl-tag">script</span>&gt;
+&lt;/<span class="hl-tag">body</span>&gt;
+&lt;/<span class="hl-tag">html</span>&gt;</code></pre>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="step" id="step5">
+  <div class="step-number">5</div>
+  <div class="step-content">
+    <h3>Products Table and API Integration</h3>
+    <p class="explanation">Fetch products from the API and populate the table. Send the JWT token in the Authorization header. Handle loading state and errors.</p>
+    <div class="tabs" data-step="step5">
+      <div class="tab-bar">
+        <button class="tab-btn active" onclick="switchTab('step5',0)">Backend Endpoint</button>
+        <button class="tab-btn" onclick="switchTab('step5',1)">Frontend JavaScript</button>
+      </div>
+      <div class="tab-panel active" id="step5_panel0">
+        <div class="code-header">
+          <span class="lang-label">python</span>
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+        </div>
+        <pre><code><span class="hl-decorator">@app.get</span>(<span class="hl-string">"/api/products"</span>)
+<span class="hl-keyword">def</span> <span class="hl-decorator">list_products</span>(
+    search: Optional[<span class="hl-builtin">str</span>] = <span class="hl-keyword">None</span>,
+    skip: <span class="hl-builtin">int</span> = <span class="hl-number">0</span>,
+    limit: <span class="hl-builtin">int</span> = <span class="hl-number">100</span>,
+    authorization: <span class="hl-builtin">str</span> = Header(...),
+    db: Session = Depends(get_db)
+):
+    user_id = verify_token(authorization.replace(<span class="hl-string">"Bearer "</span>, <span class="hl-string">""</span>))
+    query = db.query(ProductDB)
+    <span class="hl-keyword">if</span> search:
+        query = query.filter(ProductDB.name.ilike(<span class="hl-string">f"%{search}%"</span>))
+    <span class="hl-keyword">return</span> query.offset(skip).limit(limit).all()</code></pre>
+      </div>
+      <div class="tab-panel" id="step5_panel1">
+        <div class="code-header">
+          <span class="lang-label">javascript</span>
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+        </div>
+        <pre><code><span class="hl-keyword">const</span> <span class="hl-decorator">loadProducts</span> = <span class="hl-keyword">async</span> (search = <span class="hl-string">""</span>) =&gt; {
+  <span class="hl-keyword">const</span> token = localStorage.getItem(<span class="hl-string">"token"</span>);
+  <span class="hl-keyword">const</span> params = <span class="hl-keyword">new</span> URLSearchParams({ search });
+
+  <span class="hl-keyword">try</span> {
+    <span class="hl-keyword">const</span> response = <span class="hl-keyword">await</span> fetch(<span class="hl-string">"/api/products?"</span> + params, {
+      headers: { <span class="hl-string">"Authorization"</span>: <span class="hl-string">"Bearer "</span> + token }
+    });
+
+    <span class="hl-keyword">if</span> (response.status === <span class="hl-number">401</span>) {
+      localStorage.removeItem(<span class="hl-string">"token"</span>);
+      location.reload();
+      <span class="hl-keyword">return</span>;
+    }
+
+    <span class="hl-keyword">const</span> products = <span class="hl-keyword">await</span> response.json();
+    <span class="hl-keyword">const</span> tbody = document.querySelector(<span class="hl-string">"#productTable tbody"</span>);
+    tbody.innerHTML = <span class="hl-string">""</span>;
+
+    products.forEach(p =&gt; {
+      <span class="hl-keyword">const</span> row = document.createElement(<span class="hl-string">"tr"</span>);
+      row.innerHTML = <span class="hl-string">`
+        &lt;td&gt;${p.id}&lt;/td&gt;
+        &lt;td&gt;${p.name}&lt;/td&gt;
+        &lt;td&gt;$${p.price}&lt;/td&gt;
+        &lt;td&gt;${p.inventory}&lt;/td&gt;
+        &lt;td class="actions"&gt;
+          &lt;button onclick="editProduct(${p.id})"&gt;Edit&lt;/button&gt;
+          &lt;button onclick="deleteProduct(${p.id})"&gt;Delete&lt;/button&gt;
+        &lt;/td&gt;
+      `</span>;
+      tbody.appendChild(row);
+    });
+  } <span class="hl-keyword">catch</span> (err) {
+    alert(<span class="hl-string">"Error loading products"</span>);
+  }
+};
+
+<span class="hl-decorator">loadProducts</span>();</code></pre>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="step" id="step6">
+  <div class="step-number">6</div>
+  <div class="step-content">
+    <h3>Create and Update Products</h3>
+    <p class="explanation">POST creates new products. PATCH updates existing ones. Use a modal form to collect name, price, and inventory. Validate before sending.</p>
+    <div class="tabs" data-step="step6">
+      <div class="tab-bar">
+        <button class="tab-btn active" onclick="switchTab('step6',0)">FastAPI</button>
+        <button class="tab-btn" onclick="switchTab('step6',1)">JavaScript</button>
+      </div>
+      <div class="tab-panel active" id="step6_panel0">
+        <div class="code-header">
+          <span class="lang-label">python</span>
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+        </div>
+        <pre><code><span class="hl-keyword">class</span> <span class="hl-decorator">ProductCreate</span>(BaseModel):
+    name: <span class="hl-builtin">str</span>
+    price: <span class="hl-builtin">float</span>
+    inventory: <span class="hl-builtin">int</span>
+
+<span class="hl-decorator">@app.post</span>(<span class="hl-string">"/api/products"</span>)
+<span class="hl-keyword">def</span> <span class="hl-decorator">create_product</span>(
+    data: ProductCreate,
+    authorization: <span class="hl-builtin">str</span> = Header(...),
+    db: Session = Depends(get_db)
+):
+    verify_token(authorization.replace(<span class="hl-string">"Bearer "</span>, <span class="hl-string">""</span>))
+    product = ProductDB(name=data.name, price=data.price, inventory=data.inventory)
+    db.add(product)
+    db.commit()
+    db.refresh(product)
+    <span class="hl-keyword">return</span> product
+
+<span class="hl-decorator">@app.patch</span>(<span class="hl-string">"/api/products/{id}"</span>)
+<span class="hl-keyword">def</span> <span class="hl-decorator">update_product</span>(
+    id: <span class="hl-builtin">int</span>,
+    data: ProductCreate,
+    authorization: <span class="hl-builtin">str</span> = Header(...),
+    db: Session = Depends(get_db)
+):
+    verify_token(authorization.replace(<span class="hl-string">"Bearer "</span>, <span class="hl-string">""</span>))
+    product = db.query(ProductDB).filter(ProductDB.id == id).first()
+    <span class="hl-keyword">if</span> <span class="hl-keyword">not</span> product:
+        <span class="hl-keyword">raise</span> HTTPException(status_code=<span class="hl-number">404</span>)
+    product.name = data.name
+    product.price = data.price
+    product.inventory = data.inventory
+    db.commit()
+    <span class="hl-keyword">return</span> product</code></pre>
+      </div>
+      <div class="tab-panel" id="step6_panel1">
+        <div class="code-header">
+          <span class="lang-label">javascript</span>
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+        </div>
+        <pre><code><span class="hl-keyword">const</span> <span class="hl-decorator">createProduct</span> = <span class="hl-keyword">async</span> (e) =&gt; {
+  e.preventDefault();
+  <span class="hl-keyword">const</span> token = localStorage.getItem(<span class="hl-string">"token"</span>);
+  <span class="hl-keyword">const</span> name = document.getElementById(<span class="hl-string">"productName"</span>).value;
+  <span class="hl-keyword">const</span> price = <span class="hl-builtin">parseFloat</span>(document.getElementById(<span class="hl-string">"productPrice"</span>).value);
+  <span class="hl-keyword">const</span> inventory = <span class="hl-builtin">parseInt</span>(document.getElementById(<span class="hl-string">"productInventory"</span>).value);
+
+  <span class="hl-keyword">if</span> (!name || !price || !inventory) {
+    alert(<span class="hl-string">"All fields required"</span>);
+    <span class="hl-keyword">return</span>;
+  }
+
+  <span class="hl-keyword">const</span> response = <span class="hl-keyword">await</span> fetch(<span class="hl-string">"/api/products"</span>, {
+    method: <span class="hl-string">"POST"</span>,
+    headers: {
+      <span class="hl-string">"Authorization"</span>: <span class="hl-string">"Bearer "</span> + token,
+      <span class="hl-string">"Content-Type"</span>: <span class="hl-string">"application/json"</span>
+    },
+    body: JSON.stringify({ name, price, inventory })
+  });
+
+  <span class="hl-keyword">if</span> (response.ok) {
+    <span class="hl-decorator">loadProducts</span>();
+    e.target.reset();
+  } <span class="hl-keyword">else</span> {
+    alert(<span class="hl-string">"Create failed"</span>);
+  }
+};</code></pre>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="step" id="step7">
+  <div class="step-number">7</div>
+  <div class="step-content">
+    <h3>Delete Products</h3>
+    <p class="explanation">DELETE removes a product. Confirm with the user before deleting. The backend checks authorization before allowing deletion.</p>
+    <div class="tabs" data-step="step7">
+      <div class="tab-bar">
+        <button class="tab-btn active" onclick="switchTab('step7',0)">Backend</button>
+        <button class="tab-btn" onclick="switchTab('step7',1)">Frontend</button>
+      </div>
+      <div class="tab-panel active" id="step7_panel0">
+        <div class="code-header">
+          <span class="lang-label">python</span>
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+        </div>
+        <pre><code><span class="hl-decorator">@app.delete</span>(<span class="hl-string">"/api/products/{id}"</span>)
+<span class="hl-keyword">def</span> <span class="hl-decorator">delete_product</span>(
+    id: <span class="hl-builtin">int</span>,
+    authorization: <span class="hl-builtin">str</span> = Header(...),
+    db: Session = Depends(get_db)
+):
+    verify_token(authorization.replace(<span class="hl-string">"Bearer "</span>, <span class="hl-string">""</span>))
+    product = db.query(ProductDB).filter(ProductDB.id == id).first()
+    <span class="hl-keyword">if</span> <span class="hl-keyword">not</span> product:
+        <span class="hl-keyword">raise</span> HTTPException(status_code=<span class="hl-number">404</span>)
+    db.delete(product)
+    db.commit()
+    <span class="hl-keyword">return</span> {<span class="hl-string">"success"</span>: <span class="hl-keyword">True</span>}</code></pre>
+      </div>
+      <div class="tab-panel" id="step7_panel1">
+        <div class="code-header">
+          <span class="lang-label">javascript</span>
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+        </div>
+        <pre><code><span class="hl-keyword">const</span> <span class="hl-decorator">deleteProduct</span> = <span class="hl-keyword">async</span> (id) =&gt; {
+  <span class="hl-keyword">if</span> (!confirm(<span class="hl-string">"Delete this product?"</span>)) <span class="hl-keyword">return</span>;
+
+  <span class="hl-keyword">const</span> token = localStorage.getItem(<span class="hl-string">"token"</span>);
+  <span class="hl-keyword">const</span> response = <span class="hl-keyword">await</span> fetch(<span class="hl-string">"/api/products/"</span> + id, {
+    method: <span class="hl-string">"DELETE"</span>,
+    headers: { <span class="hl-string">"Authorization"</span>: <span class="hl-string">"Bearer "</span> + token }
+  });
+
+  <span class="hl-keyword">if</span> (response.ok) {
+    <span class="hl-decorator">loadProducts</span>();
+  } <span class="hl-keyword">else</span> {
+    alert(<span class="hl-string">"Delete failed"</span>);
+  }
+};</code></pre>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="step" id="step8">
+  <div class="step-number">8</div>
+  <div class="step-content">
+    <h3>Search and Filter</h3>
+    <p class="explanation">The search input filters products by name. Use a debounce to avoid too many requests while typing. Send the query parameter to the API.</p>
+    <div class="tabs" data-step="step8">
+      <div class="tab-bar">
+        <button class="tab-btn active" onclick="switchTab('step8',0)">JavaScript</button>
+      </div>
+      <div class="tab-panel active" id="step8_panel0">
+        <div class="code-header">
+          <span class="lang-label">javascript</span>
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+        </div>
+        <pre><code><span class="hl-keyword">let</span> searchTimeout;
+
+document.getElementById(<span class="hl-string">"searchInput"</span>).addEventListener(<span class="hl-string">"input"</span>, (e) =&gt; {
+  clearTimeout(searchTimeout);
+  searchTimeout = setTimeout(() =&gt; {
+    <span class="hl-decorator">loadProducts</span>(e.target.value);  <span class="hl-comment">// wait 300ms before searching</span>
+  }, <span class="hl-number">300</span>);
+});
+
+document.getElementById(<span class="hl-string">"refreshBtn"</span>).addEventListener(<span class="hl-string">"click"</span>, () =&gt; {
+  document.getElementById(<span class="hl-string">"searchInput"</span>).value = <span class="hl-string">""</span>;
+  <span class="hl-decorator">loadProducts</span>();
+});</code></pre>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="step" id="step9">
+  <div class="step-number">9</div>
+  <div class="step-content">
+    <h3>File Uploads for Product Images</h3>
+    <p class="explanation">Use FormData to upload image files alongside product data. The backend saves the file and stores the filename in the database.</p>
+    <div class="tabs" data-step="step9">
+      <div class="tab-bar">
+        <button class="tab-btn active" onclick="switchTab('step9',0)">Backend</button>
+        <button class="tab-btn" onclick="switchTab('step9',1)">Frontend</button>
+      </div>
+      <div class="tab-panel active" id="step9_panel0">
+        <div class="code-header">
+          <span class="lang-label">python</span>
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+        </div>
+        <pre><code><span class="hl-decorator">@app.post</span>(<span class="hl-string">"/api/products/{id}/upload"</span>)
+<span class="hl-keyword">async def</span> <span class="hl-decorator">upload_image</span>(
+    id: <span class="hl-builtin">int</span>,
+    file: UploadFile = File(...),
+    authorization: <span class="hl-builtin">str</span> = Header(...),
+    db: Session = Depends(get_db)
+):
+    verify_token(authorization.replace(<span class="hl-string">"Bearer "</span>, <span class="hl-string">""</span>))
+    product = db.query(ProductDB).filter(ProductDB.id == id).first()
+    <span class="hl-keyword">if</span> <span class="hl-keyword">not</span> product:
+        <span class="hl-keyword">raise</span> HTTPException(status_code=<span class="hl-number">404</span>)
+
+    filename = <span class="hl-builtin">f</span><span class="hl-string">"product_{id}_{file.filename}"</span>
+    <span class="hl-keyword">with</span> <span class="hl-builtin">open</span>(<span class="hl-builtin">f</span><span class="hl-string">"uploads/{filename}"</span>, <span class="hl-string">"wb"</span>) <span class="hl-keyword">as</span> f:
+        content = <span class="hl-keyword">await</span> file.read()
+        f.write(content)
+
+    product.image_url = filename
+    db.commit()
+    <span class="hl-keyword">return</span> product</code></pre>
+      </div>
+      <div class="tab-panel" id="step9_panel1">
+        <div class="code-header">
+          <span class="lang-label">javascript</span>
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+        </div>
+        <pre><code><span class="hl-keyword">const</span> <span class="hl-decorator">uploadImage</span> = <span class="hl-keyword">async</span> (productId, fileInput) =&gt; {
+  <span class="hl-keyword">const</span> file = fileInput.files[<span class="hl-number">0</span>];
+  <span class="hl-keyword">if</span> (!file) <span class="hl-keyword">return</span>;
+
+  <span class="hl-keyword">const</span> token = localStorage.getItem(<span class="hl-string">"token"</span>);
+  <span class="hl-keyword">const</span> formData = <span class="hl-keyword">new</span> FormData();
+  formData.append(<span class="hl-string">"file"</span>, file);
+
+  <span class="hl-keyword">const</span> response = <span class="hl-keyword">await</span> fetch(<span class="hl-string">"/api/products/"</span> + productId + <span class="hl-string">"/upload"</span>, {
+    method: <span class="hl-string">"POST"</span>,
+    headers: { <span class="hl-string">"Authorization"</span>: <span class="hl-string">"Bearer "</span> + token },
+    body: formData
+  });
+
+  <span class="hl-keyword">if</span> (response.ok) {
+    alert(<span class="hl-string">"Image uploaded"</span>);
+    <span class="hl-decorator">loadProducts</span>();
+  }
+};</code></pre>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="step" id="step10">
+  <div class="step-number">10</div>
+  <div class="step-content">
+    <h3>Polling for New Products</h3>
+    <p class="explanation">Set an interval to check for new products every 30 seconds. This keeps the dashboard synchronized if another admin adds products. Stop polling on logout.</p>
+    <div class="tabs" data-step="step10">
+      <div class="tab-bar">
+        <button class="tab-btn active" onclick="switchTab('step10',0)">JavaScript</button>
+      </div>
+      <div class="tab-panel active" id="step10_panel0">
+        <div class="code-header">
+          <span class="lang-label">javascript</span>
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+        </div>
+        <pre><code><span class="hl-keyword">let</span> pollInterval;
+
+<span class="hl-keyword">const</span> <span class="hl-decorator">startPolling</span> = () =&gt; {
+  pollInterval = setInterval(() =&gt; {
+    <span class="hl-decorator">loadProducts</span>();
+  }, <span class="hl-number">30000</span>);  <span class="hl-comment">// poll every 30 seconds</span>
+};
+
+<span class="hl-keyword">const</span> <span class="hl-decorator">stopPolling</span> = () =&gt; {
+  clearInterval(pollInterval);
+};
+
+document.getElementById(<span class="hl-string">"logoutBtn"</span>).addEventListener(<span class="hl-string">"click"</span>, () =&gt; {
+  localStorage.removeItem(<span class="hl-string">"token"</span>);
+  <span class="hl-decorator">stopPolling</span>();
+  location.reload();
+});
+
+<span class="hl-comment">// Start polling when dashboard loads</span>
+<span class="hl-keyword">if</span> (localStorage.getItem(<span class="hl-string">"token"</span>)) {
+  <span class="hl-decorator">startPolling</span>();
+}</code></pre>
+      </div>
+    </div>
+  </div>
+</div>
+
+    </div>
+  </main>
+</div>
+<script>
+(function() {
+  var saved = localStorage.getItem("pyoffline-theme");
+  if (saved === "light") { document.documentElement.classList.add("light"); }
+  document.addEventListener("DOMContentLoaded", function() {
+    var toggle = document.getElementById("themeToggle");
+    if (!toggle) return;
+    toggle.checked = (localStorage.getItem("pyoffline-theme") === "light");
+    toggle.addEventListener("change", function() {
+      if (this.checked) {
+        document.documentElement.classList.add("light");
+        localStorage.setItem("pyoffline-theme", "light");
+      } else {
+        document.documentElement.classList.remove("light");
+        localStorage.setItem("pyoffline-theme", "dark");
+      }
+    });
+  });
+})();
+function switchTab(stepId, idx) {
+  var step   = document.getElementById(stepId);
+  var btns   = step.querySelectorAll(".tab-btn");
+  var panels = step.querySelectorAll(".tab-panel");
+  btns.forEach(function(b) { b.classList.remove("active"); });
+  panels.forEach(function(p) { p.classList.remove("active"); });
+  btns[idx].classList.add("active");
+  panels[idx].classList.add("active");
+}
+function copyCode(btn) {
+  var code = btn.closest(".tab-panel").querySelector("code").innerText;
+  navigator.clipboard.writeText(code).then(function() {
+    var orig = btn.textContent;
+    btn.textContent = "Copied!";
+    setTimeout(function() { btn.textContent = orig; }, 1500);
+  });
+}
+function toggleSidebar() {
+  var sidebar = document.getElementById("guideSidebar");
+  var overlay = document.getElementById("sidebarOverlay");
+  if (!sidebar) return;
+  sidebar.classList.toggle("open");
+  overlay.classList.toggle("open");
+}
+document.addEventListener("DOMContentLoaded", function() {
+  var sidebar = document.getElementById("guideSidebar");
+  if (!sidebar) return;
+  sidebar.querySelectorAll("nav a").forEach(function(a) {
+    a.addEventListener("click", function() {
+      sidebar.classList.remove("open");
+      var overlay = document.getElementById("sidebarOverlay");
+      if (overlay) overlay.classList.remove("open");
+    });
+  });
+});
+function toggleSbDesktop() {
+  var c = document.body.classList.toggle('sb-collapsed');
+  localStorage.setItem('sb-collapsed', c ? '1' : '0');
+}
+(function() { if (localStorage.getItem('sb-collapsed') === '1') document.body.classList.add('sb-collapsed'); })();
+</script>
+</body>
+</html>

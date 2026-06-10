@@ -204,7 +204,7 @@ code { font-family: "Fira Code", "Cascadia Code", "Consolas", monospace; font-si
         <div class="step-number">1</div>
         <div class="step-content">
           <h3>What is a Public API?</h3>
-          <p class="explanation">A public API is a URL that returns data as JSON. You make an HTTP GET request to it, it replies with structured data, and you use that data in your app. There is no database to set up on your end, no backend to write — the data lives on their servers. You just fetch it.</p>
+          <p class="explanation">A public API is a URL that returns data as JSON. You make an HTTP GET request to it, it replies with structured data, and you use that data in your app. There is no database to set up on your end and no backend to write. The data lives on their servers. You just fetch it.</p>
           <table class="api-table">
             <tr><th>API</th><th>Auth</th><th>What it returns</th><th>Base URL</th></tr>
             <tr><td>PokéAPI</td><td>None — completely free</td><td>Pokémon data</td><td><code>pokeapi.co/api/v2</code></td></tr>
@@ -222,7 +222,7 @@ code { font-family: "Fira Code", "Cascadia Code", "Consolas", monospace; font-si
         <div class="step-number">2</div>
         <div class="step-content">
           <h3>The Core Pattern</h3>
-          <p class="explanation">Every public API call follows the same three lines. Learn this pattern and you can call any API on the internet. Everything else — authentication, query params, parsing the response — is just variations on these three lines.</p>
+          <p class="explanation">Every public API call follows the same three lines. Learn this pattern and you can call any API on the internet. Everything else, such as authentication, query parameters, and parsing the response, is just a variation on these three lines.</p>
           <div class="tabs">
             <div class="tab-bar">
               <button class="tab-btn active" onclick="switchTab('step2',0)">The three lines</button>
@@ -274,7 +274,7 @@ print(<span class="hl-string">"Abilities:"</span>,[a[<span class="hl-string">"ab
         <div class="step-number">3</div>
         <div class="step-content">
           <h3>Example 1 — PokéAPI (No Auth)</h3>
-          <p class="explanation">PokéAPI is the perfect first API to practice with — completely free, no registration, rich data. Add a FastAPI route that fetches a Pokémon by name and returns the data you care about.</p>
+          <p class="explanation">PokéAPI is the perfect first API to practice with. It is completely free, requires no registration, and returns rich data. Add a FastAPI route that fetches a Pokémon by name and returns the fields you care about.</p>
           <div class="tabs">
             <div class="tab-bar">
               <button class="tab-btn active" onclick="switchTab('step3',0)">main.py — /pokemon/{name}</button>
@@ -348,7 +348,7 @@ app = FastAPI()
         <div class="step-number">4</div>
         <div class="step-content">
           <h3>Reading the Docs</h3>
-          <p class="explanation">Every API has documentation. Learning to read docs quickly is the real skill — not memorising any one API. Every doc page has the same four things you need.</p>
+          <p class="explanation">Every API has documentation. Learning to read docs quickly is the real skill, not memorising any one API. Every doc page has the same four things you need to find.</p>
           <div class="tabs">
             <div class="tab-bar">
               <button class="tab-btn active" onclick="switchTab('step4',0)">The four things you always need</button>
@@ -392,7 +392,7 @@ and the "sprites.front_default" image URL.</code></pre>
         <div class="step-number">5</div>
         <div class="step-content">
           <h3>Example 2 — OpenWeatherMap (API Key)</h3>
-          <p class="explanation">OpenWeatherMap gives 1,000 free calls per day. You pass your API key as a query parameter — it's not a secret in the same way a password is, but you still load it from <code>.env</code> so it's not hardcoded in your source code.</p>
+          <p class="explanation">OpenWeatherMap gives 1,000 free calls per day. You pass your API key as a query parameter in the URL. It is not as sensitive as a password, but you should still load it from a <code>.env</code> file so it is not hardcoded in your source code.</p>
           <div class="tabs">
             <div class="tab-bar">
               <button class="tab-btn active" onclick="switchTab('step5',0)">main.py — /weather/{city}</button>
@@ -473,7 +473,7 @@ WEATHER_KEY = os.getenv(<span class="hl-string">"OPENWEATHER_API_KEY"</span>)
         <div class="step-number">6</div>
         <div class="step-content">
           <h3>Handling Errors</h3>
-          <p class="explanation">APIs can fail in several ways. A proper error handler means your app returns a clear message to the user instead of crashing with an unhandled Python exception.</p>
+          <p class="explanation">APIs can fail in several ways. A proper error handler means your app returns a clear message to the user instead of crashing with an unhandled Python exception. Handling these cases makes your app much more reliable and easier to debug.</p>
           <div class="tabs">
             <div class="tab-bar">
               <button class="tab-btn active" onclick="switchTab('step6',0)">Common status codes</button>
@@ -536,7 +536,7 @@ WEATHER_KEY = os.getenv(<span class="hl-string">"OPENWEATHER_API_KEY"</span>)
         <div class="step-number">7</div>
         <div class="step-content">
           <h3>Caching Responses</h3>
-          <p class="explanation">If your FastAPI route calls an external API on every request, you'll quickly hit rate limits and slow down your app. A simple in-memory cache stores the last response with a timestamp. If the cache is fresh, return it immediately without hitting the API again.</p>
+          <p class="explanation">If your FastAPI route calls an external API on every request, you will quickly hit rate limits and slow down your app. A simple in-memory cache stores the last response along with a timestamp. If the cached data is still fresh, you return it immediately without calling the API again.</p>
           <div class="tabs">
             <div class="tab-bar">
               <button class="tab-btn active" onclick="switchTab('step7',0)">Simple TTL cache</button>
@@ -603,7 +603,7 @@ _cache: dict = {}
         <div class="step-number">8</div>
         <div class="step-content">
           <h3>Example 3 — NewsAPI (API Key + Query Params)</h3>
-          <p class="explanation">NewsAPI searches live headlines by topic. It introduces multiple query parameters — <code>q</code> for the search term, <code>language</code>, <code>pageSize</code> — and a response that's a list inside a <code>articles</code> key.</p>
+          <p class="explanation">NewsAPI searches live headlines by topic. It introduces multiple query parameters, such as <code>q</code> for the search term, <code>language</code>, and <code>pageSize</code>. The response includes a list of articles nested inside an <code>articles</code> key, so you need to dig one level into the JSON to get the data you want.</p>
           <div class="tabs">
             <div class="tab-bar">
               <button class="tab-btn active" onclick="switchTab('step8',0)">main.py — /news</button>
@@ -683,7 +683,7 @@ _cache: dict = {}
         <div class="step-number">9</div>
         <div class="step-content">
           <h3>Building a Mini Dashboard</h3>
-          <p class="explanation">Wire all three APIs into a single-page Jinja2 dashboard — a Pokémon lookup by name, a weather card for any city, and a news feed by topic. Three forms, three FastAPI routes, one template. No JavaScript.</p>
+          <p class="explanation">Wire all three APIs into a single-page Jinja2 dashboard. It includes a Pokémon lookup by name, a weather card for any city, and a news feed by topic. There are three forms, three FastAPI routes, and one template. No JavaScript required.</p>
           <div class="tabs">
             <div class="tab-bar">
               <button class="tab-btn active" onclick="switchTab('step9',0)">main.py — dashboard route</button>
@@ -802,7 +802,7 @@ app.mount(<span class="hl-string">"/static"</span>, StaticFiles(directory=<span 
         <div class="step-number">10</div>
         <div class="step-content">
           <h3>What's Next</h3>
-          <p class="explanation">You've learned the universal pattern for calling any external API from FastAPI. Everything in the CRM guide, the AI chat guide, and real freelance projects uses these same three lines: <code>httpx.get()</code> → <code>.json()</code> → use the data.</p>
+          <p class="explanation">You have learned the universal pattern for calling any external API from FastAPI. Everything in the CRM guide, the AI chat guide, and real-world projects uses these same three steps: call <code>httpx.get()</code>, call <code>.json()</code>, and use the data. From here you can call nearly any API on the internet.</p>
           <div class="info-box">
             <strong>Async routes:</strong> Replace <code>httpx.get()</code> with <code>await httpx.AsyncClient().get()</code> and mark your route with <code>async def</code>. This lets FastAPI handle other requests while waiting for the API to respond — important when you have many users.
           </div>

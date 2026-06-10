@@ -86,7 +86,7 @@ pre{overflow-x:auto;padding:16px;background:var(--code-bg)}code{font-family:"Fir
         <div class="step-number">1</div>
         <div class="step-content">
           <h3>What is a JWT?</h3>
-          <p class="explanation">A JWT (JSON Web Token) is a compact string the server gives to the client after a successful login. The client sends it back with every request, and the server uses it to know who's asking — without querying the database. It has three parts separated by dots: <code>header.payload.signature</code>.</p>
+          <p class="explanation">A JWT (JSON Web Token) is a compact string the server gives to the client after a successful login. The client sends it back with every request so the server knows who is asking, without querying the database each time. It has three parts joined by dots: <code>header.payload.signature</code>. Each part holds different information about the token and who it belongs to.</p>
           <div class="tabs">
             <div class="tab-bar">
               <button class="tab-btn active" onclick="switchTab('step1',0)">The three parts</button>
@@ -127,7 +127,7 @@ Paste any JWT at https://jwt.io to decode it — it's not encrypted.</code></pre
         <div class="step-number">2</div>
         <div class="step-content">
           <h3>Install python-jose + Set SECRET_KEY</h3>
-          <p class="explanation"><code>python-jose</code> creates and verifies JWTs. The <code>SECRET_KEY</code> is used to sign every token — if it leaks, attackers can forge tokens for any user. Generate it once with Python's <code>secrets</code> module and store it in your <code>.env</code>.</p>
+          <p class="explanation"><code>python-jose</code> is the library that creates and verifies JWTs in Python. The <code>SECRET_KEY</code> is used to sign every token, and if it leaks, attackers can forge tokens for any user. Generate it once using Python's <code>secrets</code> module and save it in your <code>.env</code> file. Never share it or commit it to version control.</p>
           <div class="tabs">
             <div class="tab-bar">
               <button class="tab-btn active" onclick="switchTab('step2',0)">Install + .env</button>
@@ -153,7 +153,7 @@ ACCESS_TOKEN_EXPIRE_MINUTES=60</code></pre>
         <div class="step-number">3</div>
         <div class="step-content">
           <h3>create_access_token()</h3>
-          <p class="explanation">The function takes a dict of data to embed in the token, adds an expiry timestamp, and signs it with the SECRET_KEY. Add this to <code>auth.py</code> alongside the password helpers.</p>
+          <p class="explanation">This function takes a dictionary of data to embed in the token and adds an expiry timestamp to it. It then signs the whole thing with the <code>SECRET_KEY</code> and returns a string. Add this to <code>auth.py</code> alongside the password helpers from the previous guide.</p>
           <div class="tabs">
             <div class="tab-bar"><button class="tab-btn active" onclick="switchTab('step3',0)">auth.py — token creation</button></div>
             <div class="tab-panel active">
@@ -189,7 +189,7 @@ ACCESS_TOKEN_EXPIRE_MINUTES = int(os.getenv(<span class="hl-string">"ACCESS_TOKE
         <div class="step-number">4</div>
         <div class="step-content">
           <h3>decode_token()</h3>
-          <p class="explanation"><code>jwt.decode()</code> verifies the signature and checks the expiry. If either fails, it raises a <code>JWTError</code>. You catch that and return <code>None</code> — the caller then raises a 401.</p>
+          <p class="explanation"><code>jwt.decode()</code> checks that the signature is valid and that the token has not expired. If either check fails, it raises a <code>JWTError</code>. You catch that error and return <code>None</code>, and the caller then sends back a 401 response to the client.</p>
           <div class="tabs">
             <div class="tab-bar"><button class="tab-btn active" onclick="switchTab('step4',0)">auth.py — decode</button></div>
             <div class="tab-panel active">
@@ -218,7 +218,7 @@ ACCESS_TOKEN_EXPIRE_MINUTES = int(os.getenv(<span class="hl-string">"ACCESS_TOKE
         <div class="step-number">5</div>
         <div class="step-content">
           <h3>get_current_user() Dependency</h3>
-          <p class="explanation">This FastAPI dependency reads the <code>Authorization: Bearer &lt;token&gt;</code> header, decodes the token, and returns the <code>User</code> object from the database. Any route that declares it as a parameter gets the current user injected automatically — and gets a 401 if the token is missing or invalid.</p>
+          <p class="explanation">This FastAPI dependency reads the <code>Authorization: Bearer &lt;token&gt;</code> header, decodes the token, and looks up the matching user in the database. Any route that declares it as a parameter gets the current user passed in automatically. If the token is missing or invalid, FastAPI returns a 401 before your route function even runs.</p>
           <div class="tabs">
             <div class="tab-bar"><button class="tab-btn active" onclick="switchTab('step5',0)">auth.py — get_current_user()</button></div>
             <div class="tab-panel active">
@@ -266,7 +266,7 @@ oauth2_scheme = OAuth2PasswordBearer(tokenUrl=<span class="hl-string">"/login"</
         <div class="step-number">6</div>
         <div class="step-content">
           <h3>Protecting a Route</h3>
-          <p class="explanation">Add <code>current_user: User = Depends(get_current_user)</code> to any route parameter. FastAPI runs the dependency automatically — if the token is missing or invalid, the request is rejected with a 401 before your route function even runs.</p>
+          <p class="explanation">Add <code>current_user: User = Depends(get_current_user)</code> to any route's parameters to protect it. FastAPI runs the dependency automatically before your function runs. If the token is missing or invalid, the request is rejected with a 401 and your code never executes. Routes without this parameter stay public and require no login.</p>
           <div class="tabs">
             <div class="tab-bar"><button class="tab-btn active" onclick="switchTab('step6',0)">Protected route examples</button></div>
             <div class="tab-panel active">
@@ -304,7 +304,7 @@ oauth2_scheme = OAuth2PasswordBearer(tokenUrl=<span class="hl-string">"/login"</
         <div class="step-number">7</div>
         <div class="step-content">
           <h3>Login Route Returns Token</h3>
-          <p class="explanation">Update the login route from the password guide to return a JWT token. The client stores this token and sends it in the <code>Authorization</code> header on every subsequent request.</p>
+          <p class="explanation">Update the login route from the password guide so it returns a JWT token on success. The client stores this token and sends it in the <code>Authorization</code> header with every subsequent request. This is how the server knows who is making each call after login.</p>
           <div class="tabs">
             <div class="tab-bar"><button class="tab-btn active" onclick="switchTab('step7',0)">main.py — POST /login with token</button></div>
             <div class="tab-panel active">
@@ -342,7 +342,7 @@ oauth2_scheme = OAuth2PasswordBearer(tokenUrl=<span class="hl-string">"/login"</
         <div class="step-number">8</div>
         <div class="step-content">
           <h3>Testing with /docs</h3>
-          <p class="explanation">FastAPI's auto-generated docs at <code>/docs</code> has an Authorize button that stores the token for you, making it easy to test protected routes without writing a frontend.</p>
+          <p class="explanation">FastAPI automatically generates a docs page at <code>/docs</code> that lets you test all your routes in the browser. It has an Authorize button that stores your token for you, so you can test protected routes without writing any frontend code. Follow the steps in the code panel to try it.</p>
           <div class="tabs">
             <div class="tab-bar"><button class="tab-btn active" onclick="switchTab('step8',0)">Steps to test</button></div>
             <div class="tab-panel active">
@@ -375,7 +375,7 @@ oauth2_scheme = OAuth2PasswordBearer(tokenUrl=<span class="hl-string">"/login"</
         <div class="step-number">9</div>
         <div class="step-content">
           <h3>Token Expiry</h3>
-          <p class="explanation">When an access token expires, the server returns <code>401 Unauthorized</code>. The client needs to get a new token. In the next guide, this is handled automatically with a refresh token — the client uses the refresh token to get a new access token without the user re-entering their password.</p>
+          <p class="explanation">When an access token expires, the server returns a <code>401 Unauthorized</code> response. The client then needs to get a new token before it can make further requests. The next guide covers refresh tokens, which let the client get a new access token automatically. This means the user does not have to type their password again every time a token expires.</p>
           <div class="tabs">
             <div class="tab-bar"><button class="tab-btn active" onclick="switchTab('step9',0)">What 401 looks like</button></div>
             <div class="tab-panel active">

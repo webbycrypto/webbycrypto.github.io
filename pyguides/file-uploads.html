@@ -151,7 +151,7 @@ code{font-family:"Fira Code","Cascadia Code","Consolas",monospace;font-size:0.82
         <div class="step-number">1</div>
         <div class="step-content">
           <h3>How File Uploads Work Differently</h3>
-          <p class="explanation">Normal form data and JSON bodies are small text strings. A file upload is different: it sends the file's binary data as part of an HTTP request using a special encoding called multipart/form-data. Unlike a query parameter or JSON field, a file is not a simple string — it is a stream of bytes that can be megabytes or gigabytes long. FastAPI gives you a UploadFile object for each uploaded file. This object has metadata like the original filename and MIME type, and a file-like interface (read, seek) so you can process the contents. The critical thing to install is python-multipart — FastAPI needs it to parse multipart form data. Without it you will get a runtime error: "No parser found for content-type multipart/form-data".</p>
+          <p class="explanation">Normal form data and JSON bodies are small text strings. A file upload is different: it sends the file's binary data inside the HTTP request using a special encoding called multipart/form-data. A file is not a simple string; it is a stream of bytes that can be megabytes or gigabytes long. FastAPI gives you an UploadFile object for each uploaded file, which has the original filename, the MIME type, and methods to read the contents. You must install python-multipart for file uploads to work. Without it, FastAPI will throw an error when it tries to parse the multipart data.</p>
           <div class="info-box"><strong>python-multipart is required.</strong> Install it or file uploads will not work: <code style="font-family:monospace">pip install python-multipart</code>. It is not included with FastAPI by default.</div>
         </div>
       </div>
@@ -161,7 +161,7 @@ code{font-family:"Fira Code","Cascadia Code","Consolas",monospace;font-size:0.82
         <div class="step-number">2</div>
         <div class="step-content">
           <h3>Single File Upload</h3>
-          <p class="explanation">To accept a file upload, use UploadFile as the parameter type and File() as the default — the same way you use Form() for text fields. FastAPI handles everything else. The UploadFile object gives you file.filename (the original name the user gave the file on their computer), file.content_type (the MIME type the browser reported, like "image/jpeg" or "text/csv"), and file.file (the actual file object you can read from). Calling await file.read() reads the entire file content into memory as bytes. For large files you would read in chunks instead, but for most use cases a single read() is fine. The file content is bytes, not a string — use .decode() to convert to text if needed.</p>
+          <p class="explanation">To accept a file upload, use UploadFile as the parameter type and File() as its default value. FastAPI handles the rest automatically. The UploadFile object gives you file.filename (the name the user gave the file on their computer), file.content_type (the type the browser reported, like "image/jpeg"), and file.file (the raw file object you can read from). Calling await file.read() reads the entire file into memory as bytes. For most situations a single read() is fine, but for very large files you would read in smaller chunks to avoid using too much memory.</p>
           <div class="tabs" data-step="step2">
             <div class="tab-bar">
               <button class="tab-btn active" onclick="switchTab('step2',0)">main.py</button>
@@ -226,7 +226,7 @@ curl -X POST http://localhost:8000/upload-with-meta \
         <div class="step-number">3</div>
         <div class="step-content">
           <h3>Saving to Disk</h3>
-          <p class="explanation">Reading the file contents with await file.read() gives you raw bytes. Writing those bytes to disk is just a matter of opening a local path and writing. The main decision is the filename. You should never use the original filename from file.filename directly as the save path — a malicious user could upload a file named ../../etc/passwd or overwrite an existing file by using a predictable name. The safe approach is to generate a UUID for the filename and keep only the original extension for the content type. The uploads/ folder should be created at startup if it does not exist. Using pathlib.Path is the modern Python way to handle file paths — it works correctly on both Windows and Linux and makes path joining safe.</p>
+          <p class="explanation">Once you have the file bytes, writing them to disk is straightforward. The important decision is what to name the saved file. Never use the original filename from file.filename directly as the save path. A malicious user could upload a file named something like ../../passwords.txt to overwrite files outside your uploads folder. The safe approach is to generate a random UUID for the filename and keep only the original file extension. Using pathlib.Path is the modern Python way to work with file paths and handles Windows and Linux paths correctly.</p>
           <div class="tabs" data-step="step3">
             <div class="tab-bar">
               <button class="tab-btn active" onclick="switchTab('step3',0)">save to disk</button>
@@ -286,7 +286,7 @@ UPLOAD_DIR.mkdir(parents=<span class="hl-keyword">True</span>, exist_ok=<span cl
         <div class="step-number">4</div>
         <div class="step-content">
           <h3>Multiple Files</h3>
-          <p class="explanation">Accepting multiple files at once uses a List of UploadFile. The HTML form needs multiple attribute on the file input, and the browser will send all selected files under the same field name. On the Python side, FastAPI collects them into a list and you loop over them. Each item in the list is a full UploadFile object with its own filename, content_type, and read() method. If you want to enforce a maximum number of files you just check len(files) at the start and raise an HTTPException if it is too large.</p>
+          <p class="explanation">Accepting multiple files at once uses a List of UploadFile as the parameter type. The HTML form needs the multiple attribute on its file input so the browser sends all selected files together. On the Python side, FastAPI collects them into a list and you loop over each one. Each item is a full UploadFile object with its own filename, content_type, and read() method. To limit the number of files, check the length of the list at the start and raise an HTTPException if it exceeds your limit.</p>
           <div class="tabs" data-step="step4">
             <div class="tab-bar">
               <button class="tab-btn active" onclick="switchTab('step4',0)">python</button>
@@ -332,7 +332,7 @@ curl -X POST http://localhost:8000/upload-many \
         <div class="step-number">5</div>
         <div class="step-content">
           <h3>File Validation — Type and Size</h3>
-          <p class="explanation">Never trust the browser's reported content type alone — it can be spoofed by a malicious user sending a request with any content_type header they choose. Real validation checks the actual file contents. For images, Python's imghdr module (or the Pillow library) reads the first few bytes and identifies the actual format. For any file type, you check the magic bytes — the first bytes of the file that identify its format. For example, JPEG files always start with FF D8 FF. A useful shortcut for most use cases: check the file extension from the original filename and the content_type header as a first filter, then read the first few bytes to confirm. Also always enforce a maximum file size to prevent someone uploading a 10GB file that exhausts your server's memory.</p>
+          <p class="explanation">Never trust the browser's reported content type alone. A malicious user can send a request with any content_type header they choose, regardless of what the file actually contains. Real validation checks the actual file contents by looking at the magic bytes: the first few bytes of a file that identify its true format. For example, every JPEG file starts with the bytes FF D8 FF. As a first filter, check the file extension and the reported content type, then read the first few bytes to confirm the file really is what it claims to be. Always enforce a maximum file size too, to stop someone uploading a huge file that runs your server out of memory.</p>
           <div class="tabs" data-step="step5">
             <div class="tab-bar">
               <button class="tab-btn active" onclick="switchTab('step5',0)">size + type check</button>
@@ -406,7 +406,7 @@ MAGIC_BYTES = {
         <div class="step-number">6</div>
         <div class="step-content">
           <h3>Serving Uploaded Files Back</h3>
-          <p class="explanation">Saving a file to disk is only half the job — you also need to serve it back to users who want to view or download it. FastAPI's StaticFiles mount serves a whole folder at a URL prefix. This is the simplest approach: mount your uploads/ folder at /files/ and every file in it becomes accessible at /files/filename.jpg. For downloading a specific file as an attachment (forcing a browser download dialog rather than displaying in the browser), use FileResponse with the media_type and content-disposition header. FileResponse streams the file efficiently without loading it all into memory, making it suitable for large files.</p>
+          <p class="explanation">Saving a file is only half the job. You also need a way to serve it back to users. FastAPI's StaticFiles mount serves an entire folder at a URL prefix. Mount your uploads/ folder at /files/ and every file inside it becomes accessible at /files/filename.jpg. For forcing a browser download dialog instead of displaying the file, use FileResponse. FileResponse streams the file in chunks without loading it all into memory, so it works well for large files.</p>
           <div class="tabs" data-step="step6">
             <div class="tab-bar">
               <button class="tab-btn active" onclick="switchTab('step6',0)">static mount</button>
@@ -457,7 +457,7 @@ app.mount(<span class="hl-string">"/files"</span>, StaticFiles(directory=<span c
         <div class="step-number">7</div>
         <div class="step-content">
           <h3>S3-Compatible Cloud Storage</h3>
-          <p class="explanation">Saving to local disk works fine for a single server but breaks as soon as you scale out — if you have two servers, each has its own disk, and a file uploaded to server A is not visible from server B. Cloud object storage solves this: AWS S3, Cloudflare R2, DigitalOcean Spaces, and Backblaze B2 all use the same S3-compatible API, so the same Python code works with any of them. The boto3 library is the AWS SDK that also works with all S3-compatible providers. You set the endpoint_url to point at your provider instead of AWS, and the rest is identical. Files stored in S3 get a public URL you can return directly to the frontend — no need to serve them through your own server at all.</p>
+          <p class="explanation">Saving files to local disk works fine for a single server. The problem arises if you run two servers at once: each has its own disk, so a file uploaded to server A is invisible on server B. Cloud object storage solves this. AWS S3, Cloudflare R2, DigitalOcean Spaces, and Backblaze B2 all use the same S3-compatible API, so the same Python code works with any of them. The boto3 library handles uploading to any S3-compatible provider. Files stored in the cloud get a public URL you can return directly to the user, with no need to serve the file through your own server.</p>
           <div class="tabs" data-step="step7">
             <div class="tab-bar">
               <button class="tab-btn active" onclick="switchTab('step7',0)">upload to S3</button>
@@ -528,7 +528,7 @@ S3_REGION=nyc3
         <div class="step-number">8</div>
         <div class="step-content">
           <h3>HTML File Picker Frontend</h3>
-          <p class="explanation">File uploads from HTML require a form with enctype="multipart/form-data" — without this attribute the browser sends the form as URL-encoded text and the file never reaches the server. The file input needs a name attribute that matches the parameter name in your FastAPI route. For drag-and-drop uploads or showing a preview before submission, you use JavaScript's FormData API to capture the file, fetch() to send it, and the FileReader API to generate an object URL for the preview image. The key difference from a regular fetch() call is that you do not set a Content-Type header manually — when you pass a FormData object to fetch(), the browser sets the correct multipart/form-data header with the boundary automatically.</p>
+          <p class="explanation">File uploads from HTML require a form with the enctype="multipart/form-data" attribute. Without it the browser sends the form as plain text and the file never reaches the server. The file input's name attribute must match the parameter name in your FastAPI route. For showing a preview before submitting, use JavaScript's FormData API to capture the file and URL.createObjectURL() to generate a local preview link. When sending the file with fetch(), do not set the Content-Type header manually. When you pass a FormData object to fetch(), the browser sets the correct multipart header with the boundary value automatically.</p>
           <div class="tabs" data-step="step8">
             <div class="tab-bar">
               <button class="tab-btn active" onclick="switchTab('step8',0)">basic HTML form</button>

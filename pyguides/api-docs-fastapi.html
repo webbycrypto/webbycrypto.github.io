@@ -1,0 +1,689 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>API Documentation - FastAPI Guide - pyoffline</title>
+<style>
+:root{--bg:#121212;--surface:#1e1e1e;--surface2:#2a2a2a;--sidebar-bg:#1a1a1a;--text:#e0e0e0;--text-muted:#aaa;--text-dim:#666;--border:#333;--code-bg:#1e1e1e;--code-text:#d4d4d4;--shadow:rgba(0,0,0,.4);--accent:#00acc1;--hl-keyword:#569cd6;--hl-string:#ce9178;--hl-comment:#6a9955;--hl-number:#b5cea8;--hl-decorator:#dcdcaa;--hl-builtin:#4ec9b0;--hl-tag:#4ec9b0;--hl-attr:#9cdcfe;--hl-template:#c586c0}
+html.light{--bg:#f5f7fa;--surface:#ffffff;--surface2:#eef0f3;--sidebar-bg:#ffffff;--text:#1a1a1a;--text-muted:#555;--text-dim:#888;--border:#dde1e7;--code-bg:#f8f8f8;--code-text:#24292e;--shadow:rgba(0,0,0,.1);--hl-keyword:#0000ff;--hl-string:#a31515;--hl-comment:#008000;--hl-number:#098658;--hl-decorator:#795e26;--hl-builtin:#267f99;--hl-tag:#800000;--hl-attr:#e50000;--hl-template:#af00db}
+.hl-keyword{color:var(--hl-keyword)}.hl-string{color:var(--hl-string)}.hl-comment{color:#adb4a7;font-size:12px;font-style:italic}.hl-number{color:var(--hl-number)}.hl-decorator{color:var(--hl-decorator)}.hl-builtin{color:var(--hl-builtin)}.hl-tag{color:var(--hl-tag)}.hl-attr{color:var(--hl-attr)}.hl-template{color:var(--hl-template)}
+*{box-sizing:border-box;margin:0;padding:0}body{background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;transition:background .2s,color .2s}a{color:var(--accent)}.layout{display:flex;min-height:100vh}.sidebar{width:260px;min-width:260px;background:var(--sidebar-bg);border-right:1px solid var(--border);padding:24px 16px;position:sticky;top:0;height:100vh;overflow-y:auto}.sidebar h2{font-size:1.1rem;margin:16px 0 8px;color:var(--text)}.sidebar nav ol{padding-left:18px}.sidebar nav li{margin:6px 0}.sidebar nav a{color:var(--text-muted);text-decoration:none;font-size:0.85rem}.sidebar nav a:hover{color:var(--accent)}.back-link{color:var(--text-dim);text-decoration:none;font-size:0.85rem;display:block;margin-bottom:8px}.install-box{margin-top:24px;background:var(--bg);border:1px solid var(--border);padding:12px;border-radius:6px;font-size:0.8rem}.install-box code{display:block;word-break:break-all;color:var(--hl-comment);font-family:monospace;margin-top:4px}main{flex:1;padding:40px;max-width:860px}.guide-header{padding:20px 20px 20px 24px;background:var(--surface);border-radius:8px;margin-bottom:32px;box-shadow:0 1px 3px var(--shadow)}.guide-header h1{font-size:1.8rem;margin-bottom:8px}.guide-header p{color:var(--text-muted)}.step{display:flex;gap:16px;margin-bottom:40px}.step-number{width:32px;min-width:32px;height:32px;background:var(--accent);border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:bold;font-size:0.9rem;margin-top:4px;color:#fff}.step-content{flex:1;min-width:0}.step-content h3{font-size:1.1rem;margin-bottom:8px;color:var(--text)}.explanation{color:var(--text-muted);font-size:0.9rem;line-height:1.6;margin-bottom:14px}.info-box{background:var(--surface);border-left:3px solid var(--accent);border-radius:0 6px 6px 0;padding:12px 16px;margin-bottom:14px;font-size:0.88rem;color:var(--text-muted);line-height:1.6}.info-box strong{color:var(--text)}.crud-table{width:100%;border-collapse:collapse;margin-bottom:14px;font-size:0.85rem}.crud-table th{background:var(--surface2);color:var(--text-muted);text-align:left;padding:8px 12px;border:1px solid var(--border);font-weight:600}.crud-table td{padding:8px 12px;border:1px solid var(--border);color:var(--text)}.crud-table tr:nth-child(even) td{background:var(--surface)}.tabs{background:var(--surface);border-radius:6px;overflow:hidden;border:1px solid var(--border)}.tab-bar{display:flex;background:var(--surface2);overflow-x:auto;border-bottom:1px solid var(--border)}.tab-btn{padding:8px 16px;background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:0.8rem;white-space:nowrap;border-bottom:2px solid transparent;margin-bottom:-1px}.tab-btn.active{color:var(--text);border-bottom-color:var(--accent)}.tab-panel{display:none}.tab-panel.active{display:block}.code-header{display:flex;justify-content:space-between;align-items:center;padding:5px 12px;background:var(--surface2);border-bottom:1px solid var(--border)}.lang-label{font-size:0.72rem;color:var(--text-dim);text-transform:uppercase;letter-spacing:.04em}.copy-btn{background:none;border:1px solid var(--border);color:var(--text-muted);padding:2px 8px;cursor:pointer;border-radius:3px;font-size:0.72rem}.copy-btn:hover{color:var(--text);border-color:var(--text-muted)}pre{overflow-x:auto;padding:16px;background:var(--code-bg)}code{font-family:"Fira Code","Cascadia Code","Consolas",monospace;font-size:0.82rem;line-height:1.65;color:var(--code-text)}.theme-row{display:flex;align-items:center;gap:8px;margin-top:20px}.theme-label{font-size:0.78rem;color:var(--text-muted)}.toggle-switch{position:relative;display:inline-block;width:40px;height:22px}.toggle-switch input{opacity:0;width:0;height:0}.slider{position:absolute;cursor:pointer;inset:0;background:var(--surface2);border:1px solid var(--border);border-radius:22px;transition:background .2s}.slider:before{content:"";position:absolute;width:16px;height:16px;left:2px;top:2px;background:var(--text-muted);border-radius:50%;transition:transform .2s,background .2s}.toggle-switch input:checked+.slider{background:var(--accent);border-color:var(--accent)}.toggle-switch input:checked+.slider:before{transform:translateX(18px);background:#fff}.sidebar-toggle{display:none;position:fixed;top:12px;left:12px;z-index:300;background:var(--accent);color:#fff;border:none;padding:7px 14px;border-radius:6px;cursor:pointer;font-size:0.85rem;font-weight:600;box-shadow:0 2px 8px var(--shadow);align-items:center;gap:6px}.sidebar-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:190}.sidebar-overlay.open{display:block}@media(max-width:900px){.sidebar-toggle{display:flex}.layout{display:block}.sidebar{position:fixed;left:-280px;top:0;height:100vh;z-index:200;transition:left .25s ease;box-shadow:2px 0 16px var(--shadow);min-width:260px}.sidebar.open{left:0}main{padding:60px 20px 40px;max-width:100%}pre{overflow-x:auto;max-width:100%;white-space:pre-wrap;word-break:break-word}.tabs{max-width:100%}}.sidebar{transition:width .2s ease,min-width .2s ease,padding .2s ease}.sb-pin{display:flex;justify-content:flex-end;margin-bottom:8px}.sb-pin button{background:none;border:1px solid var(--border);color:var(--text-dim);cursor:pointer;border-radius:4px;padding:2px 7px;font-size:11px;line-height:1.6}.sb-pin button:hover{color:var(--accent);border-color:var(--accent)}.sb-reopen{display:none;position:fixed;left:0;top:50%;transform:translateY(-50%);background:var(--accent);color:#fff;border:none;border-radius:0 4px 4px 0;padding:10px 5px;cursor:pointer;z-index:300;font-size:11px;font-weight:600;writing-mode:vertical-rl;letter-spacing:.05em}@media(min-width:901px){body.sb-collapsed .sidebar{width:0;min-width:0;padding:0;overflow:hidden;border-right:none}body.sb-collapsed .sb-reopen{display:block}}@media(max-width:900px){.sb-pin{display:none}.sb-reopen{display:none!important}}
+</style>
+</head>
+<body>
+<button class="sidebar-toggle" id="sidebarToggle" onclick="toggleSidebar()">&#9776; Steps</button>
+<div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+<button class="sb-reopen" onclick="toggleSbDesktop()">Steps</button>
+<div class="layout">
+  <aside class="sidebar" id="guideSidebar">
+    <div class="sb-pin"><button onclick="toggleSbDesktop()">&#9664; Hide</button></div>
+    <a href="index.html" class="back-link">&#8592; All Guides</a>
+    <h2>API Docs</h2>
+    <nav><ol>
+      <li><a href="#step1">Docs Out of the Box</a></li>
+      <li><a href="#step2">Summary and Description</a></li>
+      <li><a href="#step3">Response Schema</a></li>
+      <li><a href="#step4">Multiple Responses</a></li>
+      <li><a href="#step5">Tags and Groups</a></li>
+      <li><a href="#step6">Examples in Schema</a></li>
+      <li><a href="#step7">API Versioning</a></li>
+      <li><a href="#step8">Disable Docs in Production</a></li>
+      <li><a href="#step9">Generating a Client</a></li>
+      <li><a href="#step10">What's Next</a></li>
+    </ol></nav>
+    <div class="install-box">
+      <p><strong>Install</strong></p>
+      <code>pip install fastapi uvicorn</code>
+      <p style="margin-top:8px;color:var(--text-muted);font-size:0.78rem">Docs are built-in. No extra packages needed.</p>
+    </div>
+    <div class="theme-row">
+      <span class="theme-label">Dark</span>
+      <label class="toggle-switch"><input type="checkbox" id="themeToggle"><span class="slider"></span></label>
+      <span class="theme-label">Light</span>
+    </div>
+  </aside>
+  <main>
+    <header class="guide-header" style="border-left:5px solid #00acc1">
+      <h1>API Documentation in FastAPI</h1>
+      <p>FastAPI generates interactive docs automatically. Covers Swagger UI, ReDoc, customising route descriptions, response schemas, tags, versioning, and disabling docs in production.</p>
+    </header>
+    <div class="steps">
+
+      <!-- STEP 1 -->
+      <div class="step" id="step1">
+        <div class="step-number">1</div>
+        <div class="step-content">
+          <h3>Docs Out of the Box</h3>
+          <p class="explanation">FastAPI reads your route decorators and Pydantic models and builds an OpenAPI specification automatically. That specification powers two built-in doc UIs: Swagger UI at /docs (interactive, lets you send test requests) and ReDoc at /redoc (clean reading view). No extra packages, no configuration — they are on by default.</p>
+          <div class="tabs" data-step="step1">
+            <div class="tab-bar">
+              <button class="tab-btn active" onclick="switchTab('step1',0)">minimal app</button>
+              <button class="tab-btn" onclick="switchTab('step1',1)">the openapi.json</button>
+            </div>
+            <div class="tab-panel active" id="step1_panel0">
+              <div class="code-header"><span class="lang-label">python</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-keyword">from</span> fastapi <span class="hl-keyword">import</span> FastAPI
+
+app = <span class="hl-builtin">FastAPI</span>()
+
+<span class="hl-decorator">@app.get</span>(<span class="hl-string">"/users"</span>)
+<span class="hl-keyword">def</span> <span class="hl-decorator">list_users</span>():
+    <span class="hl-keyword">return</span> [<span class="hl-string">"alice"</span>, <span class="hl-string">"bob"</span>]
+
+<span class="hl-decorator">@app.get</span>(<span class="hl-string">"/items/{item_id}"</span>)
+<span class="hl-keyword">def</span> <span class="hl-decorator">get_item</span>(item_id: <span class="hl-builtin">int</span>):
+    <span class="hl-keyword">return</span> {<span class="hl-string">"id"</span>: item_id}
+
+<span class="hl-comment"># Swagger UI  — interactive, lets you send requests</span>
+<span class="hl-comment"># http://localhost:8000/docs</span>
+
+<span class="hl-comment"># ReDoc       — clean reading view, great for sharing</span>
+<span class="hl-comment"># http://localhost:8000/redoc</span>
+
+<span class="hl-comment"># Raw OpenAPI JSON — consumed by tools and generators</span>
+<span class="hl-comment"># http://localhost:8000/openapi.json</span></code></pre>
+            </div>
+            <div class="tab-panel" id="step1_panel1">
+              <div class="code-header"><span class="lang-label">text</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-comment">// Snippet from http://localhost:8000/openapi.json</span>
+{
+  <span class="hl-attr">"openapi"</span>: <span class="hl-string">"3.1.0"</span>,
+  <span class="hl-attr">"info"</span>: { <span class="hl-attr">"title"</span>: <span class="hl-string">"FastAPI"</span>, <span class="hl-attr">"version"</span>: <span class="hl-string">"0.1.0"</span> },
+  <span class="hl-attr">"paths"</span>: {
+    <span class="hl-attr">"/users"</span>: {
+      <span class="hl-attr">"get"</span>: {
+        <span class="hl-attr">"operationId"</span>: <span class="hl-string">"list_users_users_get"</span>,
+        <span class="hl-comment">// operationId is derived from the function name + path</span>
+        <span class="hl-attr">"responses"</span>: {
+          <span class="hl-attr">"200"</span>: { <span class="hl-attr">"description"</span>: <span class="hl-string">"Successful Response"</span> }
+        }
+      }
+    },
+    <span class="hl-attr">"/items/{item_id}"</span>: {
+      <span class="hl-attr">"get"</span>: {
+        <span class="hl-attr">"operationId"</span>: <span class="hl-string">"get_item_items__item_id__get"</span>,
+        <span class="hl-attr">"parameters"</span>: [
+          {
+            <span class="hl-attr">"name"</span>: <span class="hl-string">"item_id"</span>,
+            <span class="hl-attr">"in"</span>: <span class="hl-string">"path"</span>,
+            <span class="hl-attr">"required"</span>: <span class="hl-keyword">true</span>,
+            <span class="hl-attr">"schema"</span>: { <span class="hl-attr">"type"</span>: <span class="hl-string">"integer"</span> }
+            <span class="hl-comment">// FastAPI inferred the type from the int annotation</span>
+          }
+        ]
+      }
+    }
+  }
+}</code></pre>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- STEP 2 -->
+      <div class="step" id="step2">
+        <div class="step-number">2</div>
+        <div class="step-content">
+          <h3>Summary and Description</h3>
+          <p class="explanation">Every route in Swagger shows a one-line summary and an optional longer description. FastAPI reads these directly from the function's docstring and from the summary= and description= arguments on the decorator. Use the docstring for longer explanations — it supports Markdown.</p>
+          <div class="tabs" data-step="step2">
+            <div class="tab-bar">
+              <button class="tab-btn active" onclick="switchTab('step2',0)">with docstring</button>
+              <button class="tab-btn" onclick="switchTab('step2',1)">with decorator args</button>
+            </div>
+            <div class="tab-panel active" id="step2_panel0">
+              <div class="code-header"><span class="lang-label">python</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-keyword">from</span> fastapi <span class="hl-keyword">import</span> FastAPI
+
+app = <span class="hl-builtin">FastAPI</span>()
+
+<span class="hl-decorator">@app.get</span>(<span class="hl-string">"/users/{user_id}"</span>)
+<span class="hl-keyword">def</span> <span class="hl-decorator">get_user</span>(user_id: <span class="hl-builtin">int</span>):
+    <span class="hl-string">"""
+    ## Get a single user
+
+    Returns the **full profile** for one user by their numeric ID.
+
+    - Raises `404` if the user does not exist
+    - The `password` field is never included in the response
+    - Markdown is rendered directly in Swagger UI
+    """</span>
+    <span class="hl-keyword">return</span> {<span class="hl-string">"id"</span>: user_id, <span class="hl-string">"name"</span>: <span class="hl-string">"Alice"</span>}
+
+<span class="hl-comment"># FastAPI uses the first line of the docstring as the summary</span>
+<span class="hl-comment"># and the remaining lines as the longer description in /docs</span></code></pre>
+            </div>
+            <div class="tab-panel" id="step2_panel1">
+              <div class="code-header"><span class="lang-label">python</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-keyword">from</span> fastapi <span class="hl-keyword">import</span> FastAPI
+
+app = <span class="hl-builtin">FastAPI</span>()
+
+<span class="hl-decorator">@app.get</span>(
+    <span class="hl-string">"/users/{user_id}"</span>,
+    summary=<span class="hl-string">"Get a single user"</span>,
+    description=<span class="hl-string">"""
+Returns the **full profile** for one user by their numeric ID.
+
+- Raises `404` if the user does not exist
+- The `password` field is never included in the response
+"""</span>,
+)
+<span class="hl-keyword">def</span> <span class="hl-decorator">get_user</span>(user_id: <span class="hl-builtin">int</span>):
+    <span class="hl-keyword">return</span> {<span class="hl-string">"id"</span>: user_id, <span class="hl-string">"name"</span>: <span class="hl-string">"Alice"</span>}
+
+<span class="hl-comment"># If both a docstring AND summary=/description= are provided,</span>
+<span class="hl-comment"># the decorator arguments take precedence over the docstring.</span></code></pre>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- STEP 3 -->
+      <div class="step" id="step3">
+        <div class="step-number">3</div>
+        <div class="step-content">
+          <h3>Response Schema</h3>
+          <p class="explanation">The response_model argument tells FastAPI which Pydantic model describes the response body. FastAPI uses this to generate the schema in /docs and to filter out any extra fields before sending the response. If a route can return different things, you can use response_model=List[Item] or leave it off and document the shape manually.</p>
+          <div class="tabs" data-step="step3">
+            <div class="tab-bar">
+              <button class="tab-btn active" onclick="switchTab('step3',0)">response_model</button>
+              <button class="tab-btn" onclick="switchTab('step3',1)">list response</button>
+            </div>
+            <div class="tab-panel active" id="step3_panel0">
+              <div class="code-header"><span class="lang-label">python</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-keyword">from</span> fastapi <span class="hl-keyword">import</span> FastAPI
+<span class="hl-keyword">from</span> pydantic <span class="hl-keyword">import</span> BaseModel
+
+app = <span class="hl-builtin">FastAPI</span>()
+
+<span class="hl-comment"># Internal model — has password field</span>
+<span class="hl-keyword">class</span> <span class="hl-builtin">User</span>(BaseModel):
+    id: <span class="hl-builtin">int</span>
+    name: <span class="hl-builtin">str</span>
+    email: <span class="hl-builtin">str</span>
+    password: <span class="hl-builtin">str</span>
+
+<span class="hl-comment"># Public response model — password deliberately excluded</span>
+<span class="hl-keyword">class</span> <span class="hl-builtin">UserOut</span>(BaseModel):
+    id: <span class="hl-builtin">int</span>
+    name: <span class="hl-builtin">str</span>
+    email: <span class="hl-builtin">str</span>
+
+<span class="hl-decorator">@app.get</span>(<span class="hl-string">"/users/{user_id}"</span>, response_model=<span class="hl-builtin">UserOut</span>)
+<span class="hl-keyword">def</span> <span class="hl-decorator">get_user</span>(user_id: <span class="hl-builtin">int</span>):
+    <span class="hl-comment"># Return a User with a password — FastAPI strips it automatically</span>
+    <span class="hl-comment"># because UserOut does not include that field</span>
+    <span class="hl-keyword">return</span> <span class="hl-builtin">User</span>(id=user_id, name=<span class="hl-string">"Alice"</span>, email=<span class="hl-string">"alice@example.com"</span>, password=<span class="hl-string">"secret"</span>)
+
+<span class="hl-comment"># /docs shows only id, name, email in the response schema</span></code></pre>
+            </div>
+            <div class="tab-panel" id="step3_panel1">
+              <div class="code-header"><span class="lang-label">python</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-keyword">from</span> fastapi <span class="hl-keyword">import</span> FastAPI
+<span class="hl-keyword">from</span> pydantic <span class="hl-keyword">import</span> BaseModel
+<span class="hl-keyword">from</span> typing <span class="hl-keyword">import</span> List
+
+app = <span class="hl-builtin">FastAPI</span>()
+
+<span class="hl-keyword">class</span> <span class="hl-builtin">UserOut</span>(BaseModel):
+    id: <span class="hl-builtin">int</span>
+    name: <span class="hl-builtin">str</span>
+    email: <span class="hl-builtin">str</span>
+
+<span class="hl-comment"># response_model accepts any valid type annotation, including List</span>
+<span class="hl-decorator">@app.get</span>(<span class="hl-string">"/users"</span>, response_model=List[<span class="hl-builtin">UserOut</span>])
+<span class="hl-keyword">def</span> <span class="hl-decorator">list_users</span>():
+    <span class="hl-keyword">return</span> [
+        {<span class="hl-string">"id"</span>: <span class="hl-number">1</span>, <span class="hl-string">"name"</span>: <span class="hl-string">"Alice"</span>, <span class="hl-string">"email"</span>: <span class="hl-string">"alice@example.com"</span>},
+        {<span class="hl-string">"id"</span>: <span class="hl-number">2</span>, <span class="hl-string">"name"</span>: <span class="hl-string">"Bob"</span>, <span class="hl-string">"email"</span>: <span class="hl-string">"bob@example.com"</span>},
+    ]
+
+<span class="hl-comment"># Generated JSON schema in /docs:</span>
+<span class="hl-comment">// {</span>
+<span class="hl-comment">//   "type": "array",</span>
+<span class="hl-comment">//   "items": {</span>
+<span class="hl-comment">//     "$ref": "#/components/schemas/UserOut"</span>
+<span class="hl-comment">//   }</span>
+<span class="hl-comment">// }</span></code></pre>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- STEP 4 -->
+      <div class="step" id="step4">
+        <div class="step-number">4</div>
+        <div class="step-content">
+          <h3>Multiple Responses</h3>
+          <p class="explanation">Routes often return different HTTP status codes depending on what happens. The responses= argument documents each possible response with its status code, description, and schema. This does not change the actual behavior, it only adds the documentation so callers know what to expect.</p>
+          <div class="tabs" data-step="step4">
+            <div class="tab-bar">
+              <button class="tab-btn active" onclick="switchTab('step4',0)">responses dict</button>
+              <button class="tab-btn" onclick="switchTab('step4',1)">custom error model</button>
+            </div>
+            <div class="tab-panel active" id="step4_panel0">
+              <div class="code-header"><span class="lang-label">python</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-keyword">from</span> fastapi <span class="hl-keyword">import</span> FastAPI, HTTPException
+<span class="hl-keyword">from</span> pydantic <span class="hl-keyword">import</span> BaseModel
+
+app = <span class="hl-builtin">FastAPI</span>()
+
+<span class="hl-keyword">class</span> <span class="hl-builtin">UserOut</span>(BaseModel):
+    id: <span class="hl-builtin">int</span>
+    name: <span class="hl-builtin">str</span>
+
+<span class="hl-keyword">class</span> <span class="hl-builtin">ErrorDetail</span>(BaseModel):
+    detail: <span class="hl-builtin">str</span>
+
+<span class="hl-decorator">@app.get</span>(
+    <span class="hl-string">"/users/{user_id}"</span>,
+    response_model=<span class="hl-builtin">UserOut</span>,
+    responses={
+        <span class="hl-number">404</span>: {
+            <span class="hl-string">"description"</span>: <span class="hl-string">"User not found"</span>,
+            <span class="hl-string">"model"</span>: <span class="hl-builtin">ErrorDetail</span>,
+        },
+        <span class="hl-number">422</span>: {
+            <span class="hl-string">"description"</span>: <span class="hl-string">"Validation error — user_id must be a positive integer"</span>,
+        },
+    },
+)
+<span class="hl-keyword">def</span> <span class="hl-decorator">get_user</span>(user_id: <span class="hl-builtin">int</span>):
+    <span class="hl-keyword">if</span> user_id != <span class="hl-number">1</span>:
+        <span class="hl-keyword">raise</span> <span class="hl-builtin">HTTPException</span>(status_code=<span class="hl-number">404</span>, detail=<span class="hl-string">"User not found"</span>)
+    <span class="hl-keyword">return</span> <span class="hl-builtin">UserOut</span>(id=<span class="hl-number">1</span>, name=<span class="hl-string">"Alice"</span>)
+
+<span class="hl-comment"># The 200 response comes from response_model=UserOut automatically.</span>
+<span class="hl-comment"># The responses= dict adds additional status codes to the docs.</span></code></pre>
+            </div>
+            <div class="tab-panel" id="step4_panel1">
+              <div class="code-header"><span class="lang-label">python</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-keyword">from</span> pydantic <span class="hl-keyword">import</span> BaseModel
+
+<span class="hl-comment"># Define a structured error model so Swagger shows the exact shape</span>
+<span class="hl-keyword">class</span> <span class="hl-builtin">ErrorDetail</span>(BaseModel):
+    detail: <span class="hl-builtin">str</span>
+
+<span class="hl-comment"># /docs will render the 404 schema as:</span>
+<span class="hl-comment">// {</span>
+<span class="hl-comment">//   "description": "User not found",</span>
+<span class="hl-comment">//   "content": {</span>
+<span class="hl-comment">//     "application/json": {</span>
+<span class="hl-comment">//       "schema": {</span>
+<span class="hl-comment">//         "$ref": "#/components/schemas/ErrorDetail"</span>
+<span class="hl-comment">//       }</span>
+<span class="hl-comment">//     }</span>
+<span class="hl-comment">//   }</span>
+<span class="hl-comment">// }</span>
+
+<span class="hl-comment"># Tip: you can reuse the same ErrorDetail model across many routes.</span>
+<span class="hl-comment"># FastAPI de-duplicates it in the components/schemas section of</span>
+<span class="hl-comment"># openapi.json so it only appears once.</span></code></pre>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- STEP 5 -->
+      <div class="step" id="step5">
+        <div class="step-number">5</div>
+        <div class="step-content">
+          <h3>Tags and Groups</h3>
+          <p class="explanation">Without tags, all routes appear in a single flat list in /docs. Tags group routes by resource type so the docs are easy to navigate. You can set a tag on each individual route or on an entire router with a prefix.</p>
+          <div class="tabs" data-step="step5">
+            <div class="tab-bar">
+              <button class="tab-btn active" onclick="switchTab('step5',0)">route tags</button>
+              <button class="tab-btn" onclick="switchTab('step5',1)">router tags</button>
+            </div>
+            <div class="tab-panel active" id="step5_panel0">
+              <div class="code-header"><span class="lang-label">python</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-keyword">from</span> fastapi <span class="hl-keyword">import</span> FastAPI
+
+app = <span class="hl-builtin">FastAPI</span>()
+
+<span class="hl-comment"># These two routes will appear in a "users" section in /docs</span>
+<span class="hl-decorator">@app.get</span>(<span class="hl-string">"/users"</span>, tags=[<span class="hl-string">"users"</span>])
+<span class="hl-keyword">def</span> <span class="hl-decorator">list_users</span>():
+    <span class="hl-keyword">return</span> []
+
+<span class="hl-decorator">@app.get</span>(<span class="hl-string">"/users/{user_id}"</span>, tags=[<span class="hl-string">"users"</span>])
+<span class="hl-keyword">def</span> <span class="hl-decorator">get_user</span>(user_id: <span class="hl-builtin">int</span>):
+    <span class="hl-keyword">return</span> {<span class="hl-string">"id"</span>: user_id}
+
+<span class="hl-comment"># These two routes appear in a separate "items" section</span>
+<span class="hl-decorator">@app.get</span>(<span class="hl-string">"/items"</span>, tags=[<span class="hl-string">"items"</span>])
+<span class="hl-keyword">def</span> <span class="hl-decorator">list_items</span>():
+    <span class="hl-keyword">return</span> []
+
+<span class="hl-decorator">@app.post</span>(<span class="hl-string">"/items"</span>, tags=[<span class="hl-string">"items"</span>])
+<span class="hl-keyword">def</span> <span class="hl-decorator">create_item</span>():
+    <span class="hl-keyword">return</span> {}</code></pre>
+            </div>
+            <div class="tab-panel" id="step5_panel1">
+              <div class="code-header"><span class="lang-label">python</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-keyword">from</span> fastapi <span class="hl-keyword">import</span> FastAPI, APIRouter
+
+app = <span class="hl-builtin">FastAPI</span>()
+
+<span class="hl-comment"># Every route added to this router automatically gets the "users" tag</span>
+<span class="hl-comment"># and the /users URL prefix — no need to repeat them on each route</span>
+users_router = <span class="hl-builtin">APIRouter</span>(prefix=<span class="hl-string">"/users"</span>, tags=[<span class="hl-string">"users"</span>])
+
+<span class="hl-decorator">@users_router.get</span>(<span class="hl-string">""</span>)
+<span class="hl-keyword">def</span> <span class="hl-decorator">list_users</span>():
+    <span class="hl-keyword">return</span> []
+
+<span class="hl-decorator">@users_router.get</span>(<span class="hl-string">"/{user_id}"</span>)
+<span class="hl-keyword">def</span> <span class="hl-decorator">get_user</span>(user_id: <span class="hl-builtin">int</span>):
+    <span class="hl-keyword">return</span> {<span class="hl-string">"id"</span>: user_id}
+
+items_router = <span class="hl-builtin">APIRouter</span>(prefix=<span class="hl-string">"/items"</span>, tags=[<span class="hl-string">"items"</span>])
+
+<span class="hl-decorator">@items_router.get</span>(<span class="hl-string">""</span>)
+<span class="hl-keyword">def</span> <span class="hl-decorator">list_items</span>():
+    <span class="hl-keyword">return</span> []
+
+<span class="hl-comment"># Include both routers into the main app</span>
+app.include_router(users_router)
+app.include_router(items_router)</code></pre>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- STEP 6 -->
+      <div class="step" id="step6">
+        <div class="step-number">6</div>
+        <div class="step-content">
+          <h3>Examples in Schema</h3>
+          <p class="explanation">Swagger UI shows the schema for request bodies, but it is even more useful when it shows a real filled-in example. You can add examples to Pydantic Field() calls and they appear directly in the /docs Try it out panel.</p>
+          <div class="tabs" data-step="step6">
+            <div class="tab-bar">
+              <button class="tab-btn active" onclick="switchTab('step6',0)">field examples</button>
+              <button class="tab-btn" onclick="switchTab('step6',1)">body-level example</button>
+            </div>
+            <div class="tab-panel active" id="step6_panel0">
+              <div class="code-header"><span class="lang-label">python</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-keyword">from</span> fastapi <span class="hl-keyword">import</span> FastAPI
+<span class="hl-keyword">from</span> pydantic <span class="hl-keyword">import</span> BaseModel, Field
+
+app = <span class="hl-builtin">FastAPI</span>()
+
+<span class="hl-keyword">class</span> <span class="hl-builtin">CreateUser</span>(BaseModel):
+    name: <span class="hl-builtin">str</span> = <span class="hl-builtin">Field</span>(
+        description=<span class="hl-string">"The user's full display name"</span>,
+        examples=[<span class="hl-string">"Alice Nguyen"</span>],
+    )
+    email: <span class="hl-builtin">str</span> = <span class="hl-builtin">Field</span>(
+        description=<span class="hl-string">"A valid email address — used for login"</span>,
+        examples=[<span class="hl-string">"alice@example.com"</span>],
+    )
+    password: <span class="hl-builtin">str</span> = <span class="hl-builtin">Field</span>(
+        description=<span class="hl-string">"Minimum 8 characters"</span>,
+        examples=[<span class="hl-string">"hunter2secure"</span>],
+        min_length=<span class="hl-number">8</span>,
+    )
+
+<span class="hl-decorator">@app.post</span>(<span class="hl-string">"/users"</span>)
+<span class="hl-keyword">def</span> <span class="hl-decorator">create_user</span>(user: <span class="hl-builtin">CreateUser</span>):
+    <span class="hl-keyword">return</span> {<span class="hl-string">"id"</span>: <span class="hl-number">1</span>, <span class="hl-string">"name"</span>: user.name}
+
+<span class="hl-comment"># /docs pre-fills each field with its example value</span>
+<span class="hl-comment"># when the user clicks "Try it out"</span></code></pre>
+            </div>
+            <div class="tab-panel" id="step6_panel1">
+              <div class="code-header"><span class="lang-label">python</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-keyword">from</span> fastapi <span class="hl-keyword">import</span> FastAPI, Body
+<span class="hl-keyword">from</span> pydantic <span class="hl-keyword">import</span> BaseModel
+<span class="hl-keyword">from</span> typing <span class="hl-keyword">import</span> Annotated
+
+app = <span class="hl-builtin">FastAPI</span>()
+
+<span class="hl-keyword">class</span> <span class="hl-builtin">CreateUser</span>(BaseModel):
+    name: <span class="hl-builtin">str</span>
+    email: <span class="hl-builtin">str</span>
+
+<span class="hl-comment"># openapi_examples provides named examples shown as a dropdown</span>
+<span class="hl-comment"># in the Swagger UI "Try it out" panel</span>
+<span class="hl-decorator">@app.post</span>(<span class="hl-string">"/users"</span>)
+<span class="hl-keyword">def</span> <span class="hl-decorator">create_user</span>(
+    user: Annotated[
+        <span class="hl-builtin">CreateUser</span>,
+        <span class="hl-builtin">Body</span>(
+            openapi_examples={
+                <span class="hl-string">"personal"</span>: {
+                    <span class="hl-string">"summary"</span>: <span class="hl-string">"Personal account"</span>,
+                    <span class="hl-string">"value"</span>: {<span class="hl-string">"name"</span>: <span class="hl-string">"Alice Nguyen"</span>, <span class="hl-string">"email"</span>: <span class="hl-string">"alice@example.com"</span>},
+                },
+                <span class="hl-string">"business"</span>: {
+                    <span class="hl-string">"summary"</span>: <span class="hl-string">"Business account"</span>,
+                    <span class="hl-string">"value"</span>: {<span class="hl-string">"name"</span>: <span class="hl-string">"Acme Corp"</span>, <span class="hl-string">"email"</span>: <span class="hl-string">"billing@acme.com"</span>},
+                },
+            }
+        ),
+    ]
+):
+    <span class="hl-keyword">return</span> {<span class="hl-string">"name"</span>: user.name}
+
+<span class="hl-comment"># The user can pick "personal" or "business" from a dropdown</span>
+<span class="hl-comment"># and Swagger pre-fills the request body with that example</span></code></pre>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- STEP 7 -->
+      <div class="step" id="step7">
+        <div class="step-number">7</div>
+        <div class="step-content">
+          <h3>API Versioning</h3>
+          <p class="explanation">As your API grows you will need to introduce breaking changes without breaking existing clients. The simplest approach is URL versioning: prefix all routes with /v1/ and deploy /v2/ alongside it when you make a breaking change. FastAPI makes this easy with APIRouter prefixes.</p>
+          <div class="tabs" data-step="step7">
+            <div class="tab-bar">
+              <button class="tab-btn active" onclick="switchTab('step7',0)">v1 and v2 routers</button>
+              <button class="tab-btn" onclick="switchTab('step7',1)">docs for each version</button>
+            </div>
+            <div class="tab-panel active" id="step7_panel0">
+              <div class="code-header"><span class="lang-label">python</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-keyword">from</span> fastapi <span class="hl-keyword">import</span> FastAPI, APIRouter
+
+<span class="hl-comment"># v1 router — original shape, keep forever for old clients</span>
+v1_router = <span class="hl-builtin">APIRouter</span>(prefix=<span class="hl-string">"/v1/users"</span>, tags=[<span class="hl-string">"users v1"</span>])
+
+<span class="hl-decorator">@v1_router.get</span>(<span class="hl-string">""</span>)
+<span class="hl-keyword">def</span> <span class="hl-decorator">list_users_v1</span>():
+    <span class="hl-comment"># Returns a flat list of names (old format)</span>
+    <span class="hl-keyword">return</span> [<span class="hl-string">"alice"</span>, <span class="hl-string">"bob"</span>]
+
+<span class="hl-comment"># v2 router — new shape, richer response object</span>
+v2_router = <span class="hl-builtin">APIRouter</span>(prefix=<span class="hl-string">"/v2/users"</span>, tags=[<span class="hl-string">"users v2"</span>])
+
+<span class="hl-decorator">@v2_router.get</span>(<span class="hl-string">""</span>)
+<span class="hl-keyword">def</span> <span class="hl-decorator">list_users_v2</span>():
+    <span class="hl-comment"># Returns full objects (new format — breaking change from v1)</span>
+    <span class="hl-keyword">return</span> [
+        {<span class="hl-string">"id"</span>: <span class="hl-number">1</span>, <span class="hl-string">"name"</span>: <span class="hl-string">"alice"</span>, <span class="hl-string">"email"</span>: <span class="hl-string">"alice@example.com"</span>},
+        {<span class="hl-string">"id"</span>: <span class="hl-number">2</span>, <span class="hl-string">"name"</span>: <span class="hl-string">"bob"</span>,   <span class="hl-string">"email"</span>: <span class="hl-string">"bob@example.com"</span>},
+    ]</code></pre>
+            </div>
+            <div class="tab-panel" id="step7_panel1">
+              <div class="code-header"><span class="lang-label">python</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-keyword">from</span> fastapi <span class="hl-keyword">import</span> FastAPI
+
+<span class="hl-comment"># Option A: single app, both versions in one /docs page</span>
+app = <span class="hl-builtin">FastAPI</span>(title=<span class="hl-string">"My API"</span>)
+app.include_router(v1_router)
+app.include_router(v2_router)
+<span class="hl-comment"># http://localhost:8000/docs  shows both v1 and v2 sections</span>
+
+<span class="hl-comment"># -----------------------------------------------</span>
+
+<span class="hl-comment"># Option B: separate FastAPI instances, separate /docs pages</span>
+v1_app = <span class="hl-builtin">FastAPI</span>(
+    title=<span class="hl-string">"My API v1"</span>,
+    docs_url=<span class="hl-string">"/v1/docs"</span>,
+    openapi_url=<span class="hl-string">"/v1/openapi.json"</span>,
+)
+v1_app.include_router(v1_router)
+
+v2_app = <span class="hl-builtin">FastAPI</span>(
+    title=<span class="hl-string">"My API v2"</span>,
+    docs_url=<span class="hl-string">"/v2/docs"</span>,
+    openapi_url=<span class="hl-string">"/v2/openapi.json"</span>,
+)
+v2_app.include_router(v2_router)
+
+<span class="hl-comment"># Mount both into one ASGI root app (e.g. with Starlette)</span>
+<span class="hl-keyword">from</span> starlette.applications <span class="hl-keyword">import</span> Starlette
+root = <span class="hl-builtin">Starlette</span>()
+root.mount(<span class="hl-string">"/v1"</span>, v1_app)
+root.mount(<span class="hl-string">"/v2"</span>, v2_app)
+<span class="hl-comment"># http://localhost:8000/v1/docs  — only v1 routes</span>
+<span class="hl-comment"># http://localhost:8000/v2/docs  — only v2 routes</span></code></pre>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- STEP 8 -->
+      <div class="step" id="step8">
+        <div class="step-number">8</div>
+        <div class="step-content">
+          <h3>Disable Docs in Production</h3>
+          <p class="explanation">The /docs and /redoc pages are great during development but you may want to disable them in production to reduce the attack surface. Pass docs_url=None and redoc_url=None to the FastAPI constructor. You can read an environment variable to decide at startup whether to enable them.</p>
+          <div class="tabs" data-step="step8">
+            <div class="tab-bar">
+              <button class="tab-btn active" onclick="switchTab('step8',0)">conditional docs</button>
+              <button class="tab-btn" onclick="switchTab('step8',1)">.env setup</button>
+            </div>
+            <div class="tab-panel active" id="step8_panel0">
+              <div class="code-header"><span class="lang-label">python</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-keyword">import</span> os
+<span class="hl-keyword">from</span> fastapi <span class="hl-keyword">import</span> FastAPI
+
+ENV = os.getenv(<span class="hl-string">"ENV"</span>, <span class="hl-string">"development"</span>)
+
+<span class="hl-comment"># docs_url=None disables Swagger UI entirely</span>
+<span class="hl-comment"># redoc_url=None disables the ReDoc UI</span>
+<span class="hl-comment"># openapi_url=None also hides the raw JSON schema</span>
+app = <span class="hl-builtin">FastAPI</span>(
+    docs_url=<span class="hl-keyword">None</span> <span class="hl-keyword">if</span> ENV == <span class="hl-string">"production"</span> <span class="hl-keyword">else</span> <span class="hl-string">"/docs"</span>,
+    redoc_url=<span class="hl-keyword">None</span> <span class="hl-keyword">if</span> ENV == <span class="hl-string">"production"</span> <span class="hl-keyword">else</span> <span class="hl-string">"/redoc"</span>,
+    openapi_url=<span class="hl-keyword">None</span> <span class="hl-keyword">if</span> ENV == <span class="hl-string">"production"</span> <span class="hl-keyword">else</span> <span class="hl-string">"/openapi.json"</span>,
+)
+
+<span class="hl-decorator">@app.get</span>(<span class="hl-string">"/health"</span>)
+<span class="hl-keyword">def</span> <span class="hl-decorator">health</span>():
+    <span class="hl-keyword">return</span> {<span class="hl-string">"status"</span>: <span class="hl-string">"ok"</span>, <span class="hl-string">"env"</span>: ENV}
+
+<span class="hl-comment"># In development: /docs and /redoc are accessible</span>
+<span class="hl-comment"># In production:  /docs returns 404 — docs are invisible</span></code></pre>
+            </div>
+            <div class="tab-panel" id="step8_panel1">
+              <div class="code-header"><span class="lang-label">text</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-comment"># .env.development  — local machine</span>
+ENV=development
+
+<span class="hl-comment"># .env.production   — VPS / cloud server</span>
+ENV=production
+
+<span class="hl-comment"># Load with python-dotenv at startup:</span>
+<span class="hl-comment"># from dotenv import load_dotenv</span>
+<span class="hl-comment"># load_dotenv(".env.development")  # or pick based on a flag</span>
+
+<span class="hl-comment"># Or set directly in your systemd service file:</span>
+<span class="hl-comment"># [Service]</span>
+<span class="hl-comment"># Environment="ENV=production"</span>
+
+<span class="hl-comment"># Or export in your shell before starting uvicorn:</span>
+<span class="hl-comment"># export ENV=production</span>
+<span class="hl-comment"># uvicorn app.main:app --host 0.0.0.0 --port 8000</span></code></pre>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- STEP 9 -->
+      <div class="step" id="step9">
+        <div class="step-number">9</div>
+        <div class="step-content">
+          <h3>Generating a Client</h3>
+          <p class="explanation">Because FastAPI outputs a standard OpenAPI JSON file, tools can generate a typed client library for your frontend automatically. The openapi-ts tool reads /openapi.json and generates TypeScript types and fetch functions. This means your frontend always has the latest types without any manual work.</p>
+          <div class="tabs" data-step="step9">
+            <div class="tab-bar">
+              <button class="tab-btn active" onclick="switchTab('step9',0)">export the schema</button>
+              <button class="tab-btn" onclick="switchTab('step9',1)">generate typescript client</button>
+            </div>
+            <div class="tab-panel active" id="step9_panel0">
+              <div class="code-header"><span class="lang-label">bash</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-comment"># Start the FastAPI server first</span>
+uvicorn app.main:app --reload --port 8000
+
+<span class="hl-comment"># In a second terminal, save the OpenAPI spec to a file</span>
+curl http://localhost:8000/openapi.json -o openapi.json
+
+<span class="hl-comment"># Verify it looks right</span>
+cat openapi.json | python -m json.tool | head -40
+
+<span class="hl-comment"># You can also commit openapi.json to your repo so the</span>
+<span class="hl-comment"># frontend team always has the latest spec, even offline.</span>
+<span class="hl-comment"># Add a CI step that runs this command and checks for drift.</span></code></pre>
+            </div>
+            <div class="tab-panel" id="step9_panel1">
+              <div class="code-header"><span class="lang-label">bash</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-comment"># Generate a typed TypeScript client from the saved spec</span>
+npx @hey-api/openapi-ts \
+  -i openapi.json \
+  -o src/client \
+  -c fetch
+
+<span class="hl-comment"># Generated file structure:</span>
+<span class="hl-comment"># src/client/</span>
+<span class="hl-comment">#   core/          — base fetch helpers and request options</span>
+<span class="hl-comment">#   types.gen.ts   — TypeScript interfaces for every schema</span>
+<span class="hl-comment">#   services.gen.ts — typed functions for every route</span>
+<span class="hl-comment">#   index.ts       — barrel export</span>
+
+<span class="hl-comment"># Example usage in your frontend after generation:</span>
+<span class="hl-comment"># import { getUser, createUser } from "./client";</span>
+<span class="hl-comment"># const user = await getUser({ path: { user_id: 1 } });</span>
+<span class="hl-comment"># Types are inferred automatically — no manual interfaces needed.</span></code></pre>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- STEP 10 -->
+      <div class="step" id="step10">
+        <div class="step-number">10</div>
+        <div class="step-content">
+          <h3>What's Next</h3>
+          <p class="explanation">You now have fully documented routes with descriptions, response schemas, grouped tags, examples, versioning, and the ability to generate a typed client.</p>
+          <div class="info-box">
+            <strong>OAuth2 in docs:</strong> FastAPI supports adding an Authorize button to /docs for testing JWT-protected routes. When you configure an OAuth2PasswordBearer or HTTPBearer scheme on your app, Swagger UI shows a lock icon on each protected route and a global Authorize button. See the Auth guide for the setup.
+          </div>
+          <div class="info-box">
+            <strong>Postman and Insomnia:</strong> Both tools import OpenAPI JSON directly. Export your /openapi.json and import it to get every route pre-configured with the correct method, path, and parameter schema. Any time your API changes, re-export and re-import to keep your Postman collection current.
+          </div>
+          <div class="info-box">
+            <strong>Custom docs title:</strong> Pass <code>title="My API"</code>, <code>version="2.0.0"</code>, and <code>description="..."</code> to the <code>FastAPI()</code> constructor to customise the header shown in /docs. The description supports Markdown, so you can include links, bold text, and tables in the top-level docs banner.
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </main>
+</div>
+<script>
+(function(){var s=localStorage.getItem("pyoffline-theme");if(s==="light")document.documentElement.classList.add("light");document.addEventListener("DOMContentLoaded",function(){var t=document.getElementById("themeToggle");if(!t)return;t.checked=(localStorage.getItem("pyoffline-theme")==="light");t.addEventListener("change",function(){if(this.checked){document.documentElement.classList.add("light");localStorage.setItem("pyoffline-theme","light");}else{document.documentElement.classList.remove("light");localStorage.setItem("pyoffline-theme","dark");}});});})();
+function switchTab(stepId,idx){var s=document.getElementById(stepId);var b=s.querySelectorAll(".tab-btn");var p=s.querySelectorAll(".tab-panel");b.forEach(function(x){x.classList.remove("active")});p.forEach(function(x){x.classList.remove("active")});b[idx].classList.add("active");p[idx].classList.add("active");}
+function copyCode(btn){var code=btn.closest(".tab-panel").querySelector("code").innerText;navigator.clipboard.writeText(code).then(function(){var o=btn.textContent;btn.textContent="Copied!";setTimeout(function(){btn.textContent=o;},1500);});}
+function toggleSidebar(){var s=document.getElementById("guideSidebar");var o=document.getElementById("sidebarOverlay");if(!s)return;s.classList.toggle("open");o.classList.toggle("open");}
+document.addEventListener("DOMContentLoaded",function(){var s=document.getElementById("guideSidebar");if(!s)return;s.querySelectorAll("nav a").forEach(function(a){a.addEventListener("click",function(){s.classList.remove("open");var o=document.getElementById("sidebarOverlay");if(o)o.classList.remove("open");});});});
+function toggleSbDesktop(){var c=document.body.classList.toggle("sb-collapsed");localStorage.setItem("sb-collapsed",c?"1":"0");}
+(function(){if(localStorage.getItem("sb-collapsed")==="1")document.body.classList.add("sb-collapsed");})();
+</script>
+</body>
+</html>

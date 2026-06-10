@@ -86,7 +86,7 @@ pre{overflow-x:auto;padding:16px;background:var(--code-bg)}code{font-family:"Fir
         <div class="step-number">1</div>
         <div class="step-content">
           <h3>What Nginx Does</h3>
-          <p class="explanation">Nginx sits between the internet and uvicorn. Browsers connect to Nginx on port 80 (or 443 for HTTPS). Nginx forwards the request to uvicorn on localhost:8000, gets the response, and sends it back. uvicorn never talks directly to the outside world.</p>
+          <p class="explanation">Nginx is a web server that sits in front of your Python app. Browsers connect to Nginx on the standard ports (80 for HTTP and 443 for HTTPS), and Nginx forwards each request to uvicorn running on port 8000 on the same machine. uvicorn sends the response back to Nginx, and Nginx returns it to the browser. This means uvicorn never needs to talk directly to the internet.</p>
           <div class="tabs">
             <div class="tab-bar"><button class="tab-btn active" onclick="switchTab('step1',0)">Request flow</button></div>
             <div class="tab-panel active">
@@ -136,7 +136,7 @@ curl http://localhost
         <div class="step-number">3</div>
         <div class="step-content">
           <h3>Write the Site Config</h3>
-          <p class="explanation">Each website gets its own config file in <code>/etc/nginx/sites-available/</code>. The core directive is <code>proxy_pass</code> — it tells Nginx where to forward requests.</p>
+          <p class="explanation">Each website you host gets its own config file saved in <code>/etc/nginx/sites-available/</code>. The most important setting in that file is <code>proxy_pass</code>, which tells Nginx the address of your uvicorn server to forward requests to.</p>
           <div class="tabs">
             <div class="tab-bar">
               <button class="tab-btn active" onclick="switchTab('step3',0)">Minimal config (domain)</button>
@@ -186,7 +186,7 @@ curl http://localhost
         <div class="step-number">4</div>
         <div class="step-content">
           <h3>Enable the Site</h3>
-          <p class="explanation">Nginx reads from <code>sites-enabled/</code> — symlink your config there, remove the default, test, and reload.</p>
+          <p class="explanation">Nginx only reads configs from the <code>sites-enabled/</code> folder. To activate your new config, you create a shortcut (called a symlink) that points from <code>sites-enabled/</code> to your file in <code>sites-available/</code>. Always run <code>nginx -t</code> to check for typos before reloading, so you do not accidentally break a running server.</p>
           <div class="tabs">
             <div class="tab-bar"><button class="tab-btn active" onclick="switchTab('step4',0)">bash</button></div>
             <div class="tab-panel active">
@@ -216,7 +216,7 @@ curl http://YOUR_SERVER_IP     <span class="hl-comment"># same from outside</spa
         <div class="step-number">5</div>
         <div class="step-content">
           <h3>Serve Static Files via Nginx</h3>
-          <p class="explanation">Nginx can serve CSS, JS, and images directly from disk — much faster than routing them through Python. Add a <code>location /static</code> block that points to your app's static folder.</p>
+          <p class="explanation">When a browser requests a CSS file or an image, there is no reason to send that request all the way through Python. Nginx can read those files straight from disk and return them, which is much faster. You add a separate <code>location /static</code> block in the config that points directly to your static files folder.</p>
           <div class="tabs">
             <div class="tab-bar"><button class="tab-btn active" onclick="switchTab('step5',0)">Updated config with static files</button></div>
             <div class="tab-panel active">
@@ -285,7 +285,7 @@ curl http://YOUR_SERVER_IP     <span class="hl-comment"># same from outside</spa
         <div class="step-number">7</div>
         <div class="step-content">
           <h3>What's Next</h3>
-          <p class="explanation">Nginx is running and proxying to uvicorn. Two problems remain: uvicorn stops when you close the terminal, and the site is HTTP not HTTPS. Fix both in the next two guides.</p>
+          <p class="explanation">Nginx is now running and forwarding requests to uvicorn. Two problems still remain. First, uvicorn stops as soon as you close your SSH session. Second, the site is still plain HTTP, so browsers will show a security warning. The next two guides fix both of those issues.</p>
           <div class="info-box"><strong>Next:</strong> <a href="deploy-ssl.html">HTTPS with Certbot</a> — get a free TLS certificate and configure Nginx to serve HTTPS. Takes about 5 minutes.</div>
           <div class="info-box"><strong>After that:</strong> <a href="deploy-systemd.html">systemd + Env Vars</a> — keep uvicorn alive as a background service that restarts on crash and starts on boot.</div>
         </div>

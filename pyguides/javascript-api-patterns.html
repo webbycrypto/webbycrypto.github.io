@@ -1,0 +1,702 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>FastAPI API Interaction Patterns - pyoffline</title>
+<style>
+:root {
+  --bg:          #121212;
+  --surface:     #1e1e1e;
+  --surface2:    #2a2a2a;
+  --sidebar-bg:  #1a1a1a;
+  --text:        #e0e0e0;
+  --text-muted:  #aaa;
+  --text-dim:    #666;
+  --border:      #333;
+  --code-bg:     #1e1e1e;
+  --code-text:   #d4d4d4;
+  --shadow:      rgba(0,0,0,.4);
+  --accent:      #ff6b6b;
+  --hl-keyword:  #569cd6;
+  --hl-string:   #ce9178;
+  --hl-comment:  #6a9955;
+  --hl-number:   #b5cea8;
+  --hl-decorator:#dcdcaa;
+  --hl-builtin:  #4ec9b0;
+  --hl-tag:      #4ec9b0;
+  --hl-attr:     #9cdcfe;
+  --hl-template: #c586c0;
+}
+html.light {
+  --bg:          #f5f7fa;
+  --surface:     #ffffff;
+  --surface2:    #eef0f3;
+  --sidebar-bg:  #ffffff;
+  --text:        #1a1a1a;
+  --text-muted:  #555;
+  --text-dim:    #888;
+  --border:      #dde1e7;
+  --code-bg:     #f8f8f8;
+  --code-text:   #24292e;
+  --shadow:      rgba(0,0,0,.1);
+  --hl-keyword:  #0000ff;
+  --hl-string:   #a31515;
+  --hl-comment:  #008000;
+  --hl-number:   #098658;
+  --hl-decorator:#795e26;
+  --hl-builtin:  #267f99;
+  --hl-tag:      #800000;
+  --hl-attr:     #e50000;
+  --hl-template: #af00db;
+}
+.hl-keyword  { color: var(--hl-keyword);  }
+.hl-string   { color: var(--hl-string);   }
+.hl-comment  { color: #adb4a7; font-size: 12px; font-style: italic; }
+.hl-number   { color: var(--hl-number);   }
+.hl-decorator{ color: var(--hl-decorator);}
+.hl-builtin  { color: var(--hl-builtin);  }
+.hl-tag      { color: var(--hl-tag);      }
+.hl-attr     { color: var(--hl-attr);     }
+.hl-template { color: var(--hl-template); }
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: var(--bg); color: var(--text); font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; transition: background .2s, color .2s; }
+a { color: var(--accent); }
+.layout { display: flex; min-height: 100vh; }
+.sidebar { width: 260px; min-width: 260px; background: var(--sidebar-bg); border-right: 1px solid var(--border); padding: 24px 16px; position: sticky; top: 0; height: 100vh; overflow-y: auto; }
+.sidebar h2 { font-size: 1.1rem; margin: 16px 0 8px; color: var(--text); }
+.sidebar nav ol { padding-left: 18px; }
+.sidebar nav li { margin: 6px 0; }
+.sidebar nav a { color: var(--text-muted); text-decoration: none; font-size: 0.85rem; }
+.sidebar nav a:hover { color: var(--accent); }
+.back-link { color: var(--text-dim); text-decoration: none; font-size: 0.85rem; display: block; margin-bottom: 8px; }
+.install-box { margin-top: 24px; background: var(--bg); border: 1px solid var(--border); padding: 12px; border-radius: 6px; font-size: 0.8rem; }
+.install-box code { display: block; word-break: break-all; color: var(--hl-comment); font-family: monospace; margin-top: 4px; }
+main { flex: 1; padding: 40px; max-width: 860px; }
+.guide-header { padding: 20px 20px 20px 24px; background: var(--surface); border-radius: 8px; margin-bottom: 32px; box-shadow: 0 1px 3px var(--shadow); }
+.guide-header h1 { font-size: 1.8rem; margin-bottom: 8px; }
+.guide-header p { color: var(--text-muted); }
+.step { display: flex; gap: 16px; margin-bottom: 40px; }
+.step-number { width: 32px; min-width: 32px; height: 32px; background: var(--accent); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 0.9rem; margin-top: 4px; color: #fff; }
+.step-content { flex: 1; min-width: 0; }
+.step-content h3 { font-size: 1.1rem; margin-bottom: 8px; color: var(--text); }
+.explanation { color: var(--text-muted); font-size: 0.9rem; line-height: 1.6; margin-bottom: 14px; }
+.info-box { background: var(--surface); border-left: 3px solid var(--accent); border-radius: 0 6px 6px 0; padding: 12px 16px; margin-bottom: 14px; font-size: 0.88rem; color: var(--text-muted); line-height: 1.6; }
+.info-box strong { color: var(--text); }
+.tabs { background: var(--surface); border-radius: 6px; overflow: hidden; border: 1px solid var(--border); }
+.tab-bar { display: flex; background: var(--surface2); overflow-x: auto; border-bottom: 1px solid var(--border); }
+.tab-btn { padding: 8px 16px; background: none; border: none; color: var(--text-muted); cursor: pointer; font-size: 0.8rem; white-space: nowrap; border-bottom: 2px solid transparent; margin-bottom: -1px; }
+.tab-btn.active { color: var(--text); border-bottom-color: var(--accent); }
+.tab-panel { display: none; }
+.tab-panel.active { display: block; }
+.code-header { display: flex; justify-content: space-between; align-items: center; padding: 5px 12px; background: var(--surface2); border-bottom: 1px solid var(--border); }
+.lang-label { font-size: 0.72rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: .04em; }
+.copy-btn { background: none; border: 1px solid var(--border); color: var(--text-muted); padding: 2px 8px; cursor: pointer; border-radius: 3px; font-size: 0.72rem; }
+.copy-btn:hover { color: var(--text); border-color: var(--text-muted); }
+pre { overflow-x: auto; padding: 16px; background: var(--code-bg); }
+code { font-family: "Fira Code", "Cascadia Code", "Consolas", monospace; font-size: 0.82rem; line-height: 1.65; color: var(--code-text); }
+.theme-row { display: flex; align-items: center; gap: 8px; margin-top: 20px; }
+.theme-label { font-size: 0.78rem; color: var(--text-muted); }
+.toggle-switch { position: relative; display: inline-block; width: 40px; height: 22px; }
+.toggle-switch input { opacity: 0; width: 0; height: 0; }
+.slider { position: absolute; cursor: pointer; inset: 0; background: var(--surface2); border: 1px solid var(--border); border-radius: 22px; transition: background .2s; }
+.slider:before { content: ""; position: absolute; width: 16px; height: 16px; left: 2px; top: 2px; background: var(--text-muted); border-radius: 50%; transition: transform .2s, background .2s; }
+.toggle-switch input:checked + .slider { background: var(--accent); border-color: var(--accent); }
+.toggle-switch input:checked + .slider:before { transform: translateX(18px); background: #fff; }
+.sidebar-toggle { display: none; position: fixed; top: 12px; left: 12px; z-index: 300; background: var(--accent); color: #fff; border: none; padding: 7px 14px; border-radius: 6px; cursor: pointer; font-size: 0.85rem; font-weight: 600; box-shadow: 0 2px 8px var(--shadow); align-items: center; gap: 6px; }
+.sidebar-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.45); z-index: 190; }
+.sidebar-overlay.open { display: block; }
+@media (max-width: 900px) {
+  .sidebar-toggle { display: flex; }
+  .layout { display: block; }
+  .sidebar { position: fixed; left: -280px; top: 0; height: 100vh; z-index: 200; transition: left .25s ease; box-shadow: 2px 0 16px var(--shadow); min-width: 260px; }
+  .sidebar.open { left: 0; }
+  main { padding: 60px 20px 40px; max-width: 100%; }
+  pre { overflow-x: auto; max-width: 100%; white-space: pre-wrap; word-break: break-word; }
+  .tabs { max-width: 100%; }
+}
+.sidebar { transition: width .2s ease, min-width .2s ease, padding .2s ease; }
+.sb-pin { display: flex; justify-content: flex-end; margin-bottom: 8px; }
+.sb-pin button { background: none; border: 1px solid var(--border); color: var(--text-dim); cursor: pointer; border-radius: 4px; padding: 2px 7px; font-size: 11px; line-height: 1.6; }
+.sb-pin button:hover { color: var(--accent); border-color: var(--accent); }
+.sb-reopen { display: none; position: fixed; left: 0; top: 50%; transform: translateY(-50%); background: var(--accent); color: #fff; border: none; border-radius: 0 4px 4px 0; padding: 10px 5px; cursor: pointer; z-index: 300; font-size: 11px; font-weight: 600; writing-mode: vertical-rl; letter-spacing: .05em; }
+@media (min-width: 901px) { body.sb-collapsed .sidebar { width: 0; min-width: 0; padding: 0; overflow: hidden; border-right: none; } body.sb-collapsed .sb-reopen { display: block; } }
+@media (max-width: 900px) { .sb-pin { display: none; } .sb-reopen { display: none !important; } }
+</style>
+</head>
+<body>
+<button class="sidebar-toggle" id="sidebarToggle" onclick="toggleSidebar()">&#9776; Steps</button>
+<div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+<button class="sb-reopen" onclick="toggleSbDesktop()">Steps</button>
+<div class="layout">
+  <aside class="sidebar" id="guideSidebar">
+    <div class="sb-pin"><button onclick="toggleSbDesktop()">&#9664; Hide</button></div>
+    <a href="index.html" class="back-link">← All Guides</a>
+    <h2>Lessons</h2>
+    <nav><ol>
+      <li><a href="#step1">Request Bodies and Options</a></li>
+      <li><a href="#step2">Query Parameters and Search</a></li>
+      <li><a href="#step3">Validation Error Responses</a></li>
+      <li><a href="#step4">State Management in UI</a></li>
+      <li><a href="#step5">JWT Login Flow</a></li>
+      <li><a href="#step6">Authorization Headers</a></li>
+      <li><a href="#step7">File Uploads with FormData</a></li>
+      <li><a href="#step8">API Pagination</a></li>
+      <li><a href="#step9">Request Cancellation</a></li>
+      <li><a href="#step10">Polling for Updates</a></li>
+      <li><a href="#step11">WebSocket Connections</a></li>
+      <li><a href="#step12">Real-Time Events</a></li>
+    </ol></nav>
+    <div class="install-box">
+      <strong>Requires:</strong>
+      <code>uvicorn app:app --reload</code>
+    </div>
+    <div class="theme-row">
+      <span class="theme-label">Dark</span>
+      <label class="toggle-switch">
+        <input type="checkbox" id="themeToggle">
+        <span class="slider"></span>
+      </label>
+      <span class="theme-label">Light</span>
+    </div>
+  </aside>
+  <main>
+    <header class="guide-header" style="border-left: 5px solid #ff6b6b">
+      <h1>FastAPI API Interaction Patterns</h1>
+      <p><strong>Requires completing <a href="javascript-fastapi-foundations.html">JavaScript Foundations</a> first.</strong> Learn real-world API patterns including authentication, file uploads, pagination, polling, and WebSockets.</p>
+    </header>
+    <div class="steps">
+
+<div class="step" id="step1">
+  <div class="step-number">1</div>
+  <div class="step-content">
+    <h3>Structuring Request Bodies and Options</h3>
+    <p class="explanation">POST and PATCH requests send data in the body. The fetch options object controls the method, headers, and body. Always set Content-Type to application/json for JSON data.</p>
+    <div class="tabs" data-step="step1">
+      <div class="tab-bar">
+        <button class="tab-btn active" onclick="switchTab('step1',0)">POST</button>
+        <button class="tab-btn" onclick="switchTab('step1',1)">PATCH</button>
+      </div>
+      <div class="tab-panel active" id="step1_panel0">
+        <div class="code-header">
+          <span class="lang-label">javascript</span>
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+        </div>
+        <pre><code><span class="hl-keyword">const</span> <span class="hl-decorator">createProduct</span> = <span class="hl-keyword">async</span> (name, price) =&gt; {
+  <span class="hl-keyword">const</span> response = <span class="hl-keyword">await</span> fetch(<span class="hl-string">"/api/products"</span>, {
+    method: <span class="hl-string">"POST"</span>,
+    headers: { <span class="hl-string">"Content-Type"</span>: <span class="hl-string">"application/json"</span> },
+    body: JSON.stringify({ name: name, price: price })
+  });
+  <span class="hl-keyword">return</span> <span class="hl-keyword">await</span> response.json();
+};</code></pre>
+      </div>
+      <div class="tab-panel" id="step1_panel1">
+        <div class="code-header">
+          <span class="lang-label">javascript</span>
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+        </div>
+        <pre><code><span class="hl-keyword">const</span> <span class="hl-decorator">updateProduct</span> = <span class="hl-keyword">async</span> (id, updates) =&gt; {
+  <span class="hl-keyword">const</span> response = <span class="hl-keyword">await</span> fetch(<span class="hl-string">"/api/products/"</span> + id, {
+    method: <span class="hl-string">"PATCH"</span>,                                  <span class="hl-comment">// PATCH for partial updates</span>
+    headers: { <span class="hl-string">"Content-Type"</span>: <span class="hl-string">"application/json"</span> },
+    body: JSON.stringify(updates)                        <span class="hl-comment">// only changed fields</span>
+  });
+  <span class="hl-keyword">return</span> <span class="hl-keyword">await</span> response.json();
+};</code></pre>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="step" id="step2">
+  <div class="step-number">2</div>
+  <div class="step-content">
+    <h3>Query Parameters and Search</h3>
+    <p class="explanation">Query parameters go after the question mark in the URL. Use them for filtering and searching. Build them with URLSearchParams to avoid encoding mistakes.</p>
+    <div class="tabs" data-step="step2">
+      <div class="tab-bar">
+        <button class="tab-btn active" onclick="switchTab('step2',0)">Manual</button>
+        <button class="tab-btn" onclick="switchTab('step2',1)">URLSearchParams</button>
+      </div>
+      <div class="tab-panel active" id="step2_panel0">
+        <div class="code-header">
+          <span class="lang-label">javascript</span>
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+        </div>
+        <pre><code><span class="hl-comment">// Manual URL building</span>
+<span class="hl-keyword">const</span> search = <span class="hl-string">"laptop"</span>;
+<span class="hl-keyword">const</span> limit = <span class="hl-number">10</span>;
+<span class="hl-keyword">const</span> url = <span class="hl-string">"/api/products?search="</span> + search + <span class="hl-string">"&limit="</span> + limit;
+<span class="hl-keyword">const</span> products = <span class="hl-keyword">await</span> fetch(url).then(r =&gt; r.json());</code></pre>
+      </div>
+      <div class="tab-panel" id="step2_panel1">
+        <div class="code-header">
+          <span class="lang-label">javascript</span>
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+        </div>
+        <pre><code><span class="hl-comment">// URLSearchParams handles encoding automatically</span>
+<span class="hl-keyword">const</span> params = <span class="hl-keyword">new</span> URLSearchParams({
+  search: <span class="hl-string">"laptop"</span>,
+  limit: <span class="hl-number">10</span>,
+  sort: <span class="hl-string">"price_asc"</span>
+});
+<span class="hl-keyword">const</span> url = <span class="hl-string">"/api/products?"</span> + params;
+<span class="hl-keyword">const</span> products = <span class="hl-keyword">await</span> fetch(url).then(r =&gt; r.json());</code></pre>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="step" id="step3">
+  <div class="step-number">3</div>
+  <div class="step-content">
+    <h3>Handling Validation Error Responses</h3>
+    <p class="explanation">FastAPI returns 422 Unprocessable Entity when data validation fails. The response includes a detail array explaining which fields failed and why.</p>
+    <div class="tabs" data-step="step3">
+      <div class="tab-bar">
+        <button class="tab-btn active" onclick="switchTab('step3',0)">Error Handling</button>
+      </div>
+      <div class="tab-panel active" id="step3_panel0">
+        <div class="code-header">
+          <span class="lang-label">javascript</span>
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+        </div>
+        <pre><code><span class="hl-keyword">try</span> {
+  <span class="hl-keyword">const</span> response = <span class="hl-keyword">await</span> fetch(<span class="hl-string">"/api/products"</span>, {
+    method: <span class="hl-string">"POST"</span>,
+    headers: { <span class="hl-string">"Content-Type"</span>: <span class="hl-string">"application/json"</span> },
+    body: JSON.stringify({ name: <span class="hl-string">""</span>, price: <span class="hl-string">"invalid"</span> })
+  });
+
+  <span class="hl-keyword">if</span> (response.status === <span class="hl-number">422</span>) {  <span class="hl-comment">// validation error</span>
+    <span class="hl-keyword">const</span> error = <span class="hl-keyword">await</span> response.json();
+    console.log(error.detail);  <span class="hl-comment">// array of field errors</span>
+  } <span class="hl-keyword">else</span> <span class="hl-keyword">if</span> (response.ok) {
+    <span class="hl-keyword">const</span> product = <span class="hl-keyword">await</span> response.json();
+    console.log(product);
+  }
+} <span class="hl-keyword">catch</span> (err) {
+  console.error(<span class="hl-string">"Network error"</span>, err);
+}</code></pre>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="step" id="step4">
+  <div class="step-number">4</div>
+  <div class="step-content">
+    <h3>State Management in the UI</h3>
+    <p class="explanation">Keep track of request state with variables. Show loading spinners while fetching, display errors if the request fails, and show the data when it arrives.</p>
+    <div class="tabs" data-step="step4">
+      <div class="tab-bar">
+        <button class="tab-btn active" onclick="switchTab('step4',0)">HTML</button>
+        <button class="tab-btn" onclick="switchTab('step4',1)">JavaScript</button>
+      </div>
+      <div class="tab-panel active" id="step4_panel0">
+        <div class="code-header">
+          <span class="lang-label">html</span>
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+        </div>
+        <pre><code>&lt;<span class="hl-tag">div</span> <span class="hl-attr">id</span>=<span class="hl-string">"status"</span>&gt;&lt;/<span class="hl-tag">div</span>&gt;          <span class="hl-comment">// shows loading/error/success</span>
+&lt;<span class="hl-tag">div</span> <span class="hl-attr">id</span>=<span class="hl-string">"products"</span>&gt;&lt;/<span class="hl-tag">div</span>&gt;        <span class="hl-comment">// shows the product list</span></code></pre>
+      </div>
+      <div class="tab-panel" id="step4_panel1">
+        <div class="code-header">
+          <span class="lang-label">javascript</span>
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+        </div>
+        <pre><code><span class="hl-keyword">const</span> <span class="hl-decorator">loadProducts</span> = <span class="hl-keyword">async</span> () =&gt; {
+  <span class="hl-keyword">const</span> statusDiv = document.getElementById(<span class="hl-string">"status"</span>);
+  <span class="hl-keyword">const</span> productsDiv = document.getElementById(<span class="hl-string">"products"</span>);
+
+  statusDiv.textContent = <span class="hl-string">"Loading..."</span>;
+
+  <span class="hl-keyword">try</span> {
+    <span class="hl-keyword">const</span> response = <span class="hl-keyword">await</span> fetch(<span class="hl-string">"/api/products"</span>);
+    <span class="hl-keyword">if</span> (!response.ok) <span class="hl-keyword">throw</span> <span class="hl-keyword">new</span> Error(<span class="hl-string">"Request failed"</span>);
+
+    <span class="hl-keyword">const</span> products = <span class="hl-keyword">await</span> response.json();
+
+    statusDiv.textContent = <span class="hl-string">"Success"</span>;
+    productsDiv.textContent = JSON.stringify(products);
+  } <span class="hl-keyword">catch</span> (err) {
+    statusDiv.textContent = <span class="hl-string">"Error: "</span> + err.message;
+  }
+};
+
+<span class="hl-decorator">loadProducts</span>();</code></pre>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="step" id="step5">
+  <div class="step-number">5</div>
+  <div class="step-content">
+    <h3>JWT Login Flow</h3>
+    <p class="explanation">JWT authentication starts with login. The backend returns an access token. Store it in localStorage and send it with every request. Tokens expire, so handle 401 Unauthorized by asking the user to log in again.</p>
+    <div class="tabs" data-step="step5">
+      <div class="tab-bar">
+        <button class="tab-btn active" onclick="switchTab('step5',0)">Login</button>
+      </div>
+      <div class="tab-panel active" id="step5_panel0">
+        <div class="code-header">
+          <span class="lang-label">javascript</span>
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+        </div>
+        <pre><code><span class="hl-keyword">const</span> <span class="hl-decorator">login</span> = <span class="hl-keyword">async</span> (email, password) =&gt; {
+  <span class="hl-keyword">const</span> response = <span class="hl-keyword">await</span> fetch(<span class="hl-string">"/api/auth/login"</span>, {
+    method: <span class="hl-string">"POST"</span>,
+    headers: { <span class="hl-string">"Content-Type"</span>: <span class="hl-string">"application/json"</span> },
+    body: JSON.stringify({ email: email, password: password })
+  });
+
+  <span class="hl-keyword">if</span> (!response.ok) <span class="hl-keyword">throw</span> <span class="hl-keyword">new</span> Error(<span class="hl-string">"Login failed"</span>);
+
+  <span class="hl-keyword">const</span> data = <span class="hl-keyword">await</span> response.json();
+  localStorage.setItem(<span class="hl-string">"token"</span>, data.access_token);  <span class="hl-comment">// store the token</span>
+  <span class="hl-keyword">return</span> data;
+};</code></pre>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="step" id="step6">
+  <div class="step-number">6</div>
+  <div class="step-content">
+    <h3>Authorization Headers and Bearer Tokens</h3>
+    <p class="explanation">Once logged in, retrieve the token from localStorage and send it with every request in the Authorization header using Bearer format.</p>
+    <div class="tabs" data-step="step6">
+      <div class="tab-bar">
+        <button class="tab-btn active" onclick="switchTab('step6',0)">With Token</button>
+      </div>
+      <div class="tab-panel active" id="step6_panel0">
+        <div class="code-header">
+          <span class="lang-label">javascript</span>
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+        </div>
+        <pre><code><span class="hl-keyword">const</span> <span class="hl-decorator">getProtectedData</span> = <span class="hl-keyword">async</span> () =&gt; {
+  <span class="hl-keyword">const</span> token = localStorage.getItem(<span class="hl-string">"token"</span>);
+
+  <span class="hl-keyword">const</span> response = <span class="hl-keyword">await</span> fetch(<span class="hl-string">"/api/profile"</span>, {
+    headers: { <span class="hl-string">"Authorization"</span>: <span class="hl-string">"Bearer "</span> + token }
+  });
+
+  <span class="hl-keyword">if</span> (response.status === <span class="hl-number">401</span>) {  <span class="hl-comment">// token expired</span>
+    localStorage.removeItem(<span class="hl-string">"token"</span>);
+    <span class="hl-keyword">throw</span> <span class="hl-keyword">new</span> Error(<span class="hl-string">"Please log in again"</span>);
+  }
+
+  <span class="hl-keyword">return</span> <span class="hl-keyword">await</span> response.json();
+};</code></pre>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="step" id="step7">
+  <div class="step-number">7</div>
+  <div class="step-content">
+    <h3>File Uploads with FormData</h3>
+    <p class="explanation">FormData is a browser API for multipart form submission. It handles files and text fields together without needing to manually encode them.</p>
+    <div class="tabs" data-step="step7">
+      <div class="tab-bar">
+        <button class="tab-btn active" onclick="switchTab('step7',0)">HTML</button>
+        <button class="tab-btn" onclick="switchTab('step7',1)">JavaScript</button>
+      </div>
+      <div class="tab-panel active" id="step7_panel0">
+        <div class="code-header">
+          <span class="lang-label">html</span>
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+        </div>
+        <pre><code>&lt;<span class="hl-tag">form</span> <span class="hl-attr">id</span>=<span class="hl-string">"uploadForm"</span>&gt;
+  &lt;<span class="hl-tag">input</span> <span class="hl-attr">type</span>=<span class="hl-string">"text"</span> <span class="hl-attr">id</span>=<span class="hl-string">"productName"</span> <span class="hl-attr">placeholder</span>=<span class="hl-string">"Product name"</span> /&gt;
+  &lt;<span class="hl-tag">input</span> <span class="hl-attr">type</span>=<span class="hl-string">"file"</span> <span class="hl-attr">id</span>=<span class="hl-string">"productImage"</span> <span class="hl-attr">accept</span>=<span class="hl-string">"image/*"</span> /&gt;
+  &lt;<span class="hl-tag">button</span> <span class="hl-attr">type</span>=<span class="hl-string">"submit"</span>&gt;Upload&lt;/<span class="hl-tag">button</span>&gt;
+&lt;/<span class="hl-tag">form</span>&gt;</code></pre>
+      </div>
+      <div class="tab-panel" id="step7_panel1">
+        <div class="code-header">
+          <span class="lang-label">javascript</span>
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+        </div>
+        <pre><code><span class="hl-keyword">const</span> form = document.getElementById(<span class="hl-string">"uploadForm"</span>);
+
+form.addEventListener(<span class="hl-string">"submit"</span>, <span class="hl-keyword">async</span> (e) =&gt; {
+  e.preventDefault();
+
+  <span class="hl-keyword">const</span> formData = <span class="hl-keyword">new</span> FormData();
+  <span class="hl-comment">// Add text fields</span>
+  formData.append(<span class="hl-string">"name"</span>, document.getElementById(<span class="hl-string">"productName"</span>).value);
+  <span class="hl-comment">// Add file input</span>
+  formData.append(<span class="hl-string">"image"</span>, document.getElementById(<span class="hl-string">"productImage"</span>).files[<span class="hl-number">0</span>]);
+
+  <span class="hl-keyword">const</span> response = <span class="hl-keyword">await</span> fetch(<span class="hl-string">"/api/products"</span>, {
+    method: <span class="hl-string">"POST"</span>,
+    <span class="hl-comment">// do NOT set Content-Type, browser does it</span>
+    body: formData
+  });
+
+  <span class="hl-keyword">const</span> product = <span class="hl-keyword">await</span> response.json();
+  console.log(product);
+});</code></pre>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="step" id="step8">
+  <div class="step-number">8</div>
+  <div class="step-content">
+    <h3>Working with API Pagination</h3>
+    <p class="explanation">Large datasets are split into pages. The API returns a limit, skip, and total. Use these to implement next/previous buttons and calculate total pages.</p>
+    <div class="tabs" data-step="step8">
+      <div class="tab-bar">
+        <button class="tab-btn active" onclick="switchTab('step8',0)">Pagination</button>
+      </div>
+      <div class="tab-panel active" id="step8_panel0">
+        <div class="code-header">
+          <span class="lang-label">javascript</span>
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+        </div>
+        <pre><code><span class="hl-keyword">let</span> currentPage = <span class="hl-number">1</span>;
+<span class="hl-keyword">const</span> pageSize = <span class="hl-number">10</span>;
+
+<span class="hl-keyword">const</span> <span class="hl-decorator">loadProducts</span> = <span class="hl-keyword">async</span> (page) =&gt; {
+  <span class="hl-keyword">const</span> skip = (page - <span class="hl-number">1</span>) * pageSize;
+  <span class="hl-keyword">const</span> params = <span class="hl-keyword">new</span> URLSearchParams({ skip: skip, limit: pageSize });
+
+  <span class="hl-keyword">const</span> response = <span class="hl-keyword">await</span> fetch(<span class="hl-string">"/api/products?"</span> + params);
+  <span class="hl-keyword">const</span> data = <span class="hl-keyword">await</span> response.json();
+
+  <span class="hl-comment">// data.items contains the products</span>
+  <span class="hl-comment">// data.total is the total count of all products</span>
+  <span class="hl-keyword">const</span> totalPages = Math.ceil(data.total / pageSize);
+
+  console.log(<span class="hl-string">"Page "</span> + page + <span class="hl-string">" of "</span> + totalPages);
+  currentPage = page;
+  <span class="hl-keyword">return</span> data.items;
+};</code></pre>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="step" id="step9">
+  <div class="step-number">9</div>
+  <div class="step-content">
+    <h3>Request Cancellation and Timeouts</h3>
+    <p class="explanation">Long-running requests can be cancelled with AbortController. This is useful when the user navigates away or wants to stop a request.</p>
+    <div class="tabs" data-step="step9">
+      <div class="tab-bar">
+        <button class="tab-btn active" onclick="switchTab('step9',0)">Abort</button>
+        <button class="tab-btn" onclick="switchTab('step9',1)">Timeout</button>
+      </div>
+      <div class="tab-panel active" id="step9_panel0">
+        <div class="code-header">
+          <span class="lang-label">javascript</span>
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+        </div>
+        <pre><code><span class="hl-keyword">const</span> controller = <span class="hl-keyword">new</span> AbortController();
+
+<span class="hl-comment">// Start the request</span>
+<span class="hl-keyword">const</span> response = <span class="hl-keyword">await</span> fetch(<span class="hl-string">"/api/products"</span>, {
+  signal: controller.signal  <span class="hl-comment">// give the controller to fetch</span>
+});
+
+<span class="hl-comment">// Later, user clicks "Cancel"</span>
+controller.abort();  <span class="hl-comment">// cancels the fetch request</span></code></pre>
+      </div>
+      <div class="tab-panel" id="step9_panel1">
+        <div class="code-header">
+          <span class="lang-label">javascript</span>
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+        </div>
+        <pre><code><span class="hl-keyword">const</span> <span class="hl-decorator">fetchWithTimeout</span> = (<span class="hl-keyword">async</span> (url, timeout = <span class="hl-number">5000</span>) =&gt; {
+  <span class="hl-keyword">const</span> controller = <span class="hl-keyword">new</span> AbortController();
+  <span class="hl-keyword">const</span> timer = setTimeout(() =&gt; controller.abort(), timeout);
+
+  <span class="hl-keyword">try</span> {
+    <span class="hl-keyword">return</span> <span class="hl-keyword">await</span> fetch(url, { signal: controller.signal });
+  } <span class="hl-keyword">finally</span> {
+    clearTimeout(timer);
+  }
+});</code></pre>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="step" id="step10">
+  <div class="step-number">10</div>
+  <div class="step-content">
+    <h3>Polling for Updates</h3>
+    <p class="explanation">Polling means fetching repeatedly at intervals. Set an interval to check for new data every few seconds. Clear the interval when you're done or the user leaves.</p>
+    <div class="tabs" data-step="step10">
+      <div class="tab-bar">
+        <button class="tab-btn active" onclick="switchTab('step10',0)">Polling</button>
+      </div>
+      <div class="tab-panel active" id="step10_panel0">
+        <div class="code-header">
+          <span class="lang-label">javascript</span>
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+        </div>
+        <pre><code><span class="hl-keyword">let</span> pollInterval;
+
+<span class="hl-keyword">const</span> <span class="hl-decorator">startPolling</span> = () =&gt; {
+  <span class="hl-comment">// Check for updates every 3 seconds</span>
+  pollInterval = setInterval(<span class="hl-keyword">async</span> () =&gt; {
+    <span class="hl-keyword">const</span> response = <span class="hl-keyword">await</span> fetch(<span class="hl-string">"/api/orders"</span>);
+    <span class="hl-keyword">const</span> orders = <span class="hl-keyword">await</span> response.json();
+    <span class="hl-comment">// Update the page with new orders</span>
+    console.log(orders);
+  }, <span class="hl-number">3000</span>);  <span class="hl-comment">// 3000 ms = 3 seconds</span>
+};
+
+<span class="hl-keyword">const</span> <span class="hl-decorator">stopPolling</span> = () =&gt; {
+  clearInterval(pollInterval);  <span class="hl-comment">// stop checking</span>
+};
+
+<span class="hl-decorator">startPolling</span>();</code></pre>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="step" id="step11">
+  <div class="step-number">11</div>
+  <div class="step-content">
+    <h3>Basic WebSocket Connections</h3>
+    <p class="explanation">WebSockets maintain an open connection instead of closing after each request. Use them for real-time updates that don't need a full HTTP roundtrip.</p>
+    <div class="tabs" data-step="step11">
+      <div class="tab-bar">
+        <button class="tab-btn active" onclick="switchTab('step11',0)">Connect</button>
+      </div>
+      <div class="tab-panel active" id="step11_panel0">
+        <div class="code-header">
+          <span class="lang-label">javascript</span>
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+        </div>
+        <pre><code><span class="hl-keyword">const</span> ws = <span class="hl-keyword">new</span> WebSocket(<span class="hl-string">"ws://localhost:8001/ws/notifications"</span>);
+
+<span class="hl-comment">// Connection opened</span>
+ws.onopen = () =&gt; {
+  console.log(<span class="hl-string">"Connected to WebSocket"</span>);
+};
+
+<span class="hl-comment">// Server sends a message</span>
+ws.onmessage = (event) =&gt; {
+  <span class="hl-keyword">const</span> data = JSON.parse(event.data);
+  console.log(<span class="hl-string">"Got message:"</span>, data);
+};
+
+<span class="hl-comment">// Connection closed</span>
+ws.onclose = () =&gt; {
+  console.log(<span class="hl-string">"Disconnected from WebSocket"</span>);
+};</code></pre>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="step" id="step12">
+  <div class="step-number">12</div>
+  <div class="step-content">
+    <h3>Handling Real-Time Events</h3>
+    <p class="explanation">Update the page when WebSocket messages arrive. Parse the message, update the DOM, and show the user the new data immediately.</p>
+    <div class="tabs" data-step="step12">
+      <div class="tab-bar">
+        <button class="tab-btn active" onclick="switchTab('step12',0)">Event Handling</button>
+      </div>
+      <div class="tab-panel active" id="step12_panel0">
+        <div class="code-header">
+          <span class="lang-label">javascript</span>
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+        </div>
+        <pre><code><span class="hl-keyword">const</span> ws = <span class="hl-keyword">new</span> WebSocket(<span class="hl-string">"ws://localhost:8001/ws/orders"</span>);
+<span class="hl-keyword">const</span> ordersList = document.getElementById(<span class="hl-string">"orders"</span>);
+
+ws.onmessage = (event) =&gt; {
+  <span class="hl-keyword">const</span> newOrder = JSON.parse(event.data);
+
+  <span class="hl-comment">// Create a new list item for the order</span>
+  <span class="hl-keyword">const</span> li = document.createElement(<span class="hl-string">"li"</span>);
+  li.textContent = <span class="hl-string">"Order #"</span> + newOrder.id + <span class="hl-string">": "</span> + newOrder.status;
+  ordersList.appendChild(li);
+
+  <span class="hl-comment">// Scroll to the new order so user sees it</span>
+  li.scrollIntoView({ behavior: <span class="hl-string">"smooth"</span> });
+};</code></pre>
+      </div>
+    </div>
+  </div>
+</div>
+
+    </div>
+  </main>
+</div>
+<script>
+(function() {
+  var saved = localStorage.getItem("pyoffline-theme");
+  if (saved === "light") { document.documentElement.classList.add("light"); }
+  document.addEventListener("DOMContentLoaded", function() {
+    var toggle = document.getElementById("themeToggle");
+    if (!toggle) return;
+    toggle.checked = (localStorage.getItem("pyoffline-theme") === "light");
+    toggle.addEventListener("change", function() {
+      if (this.checked) {
+        document.documentElement.classList.add("light");
+        localStorage.setItem("pyoffline-theme", "light");
+      } else {
+        document.documentElement.classList.remove("light");
+        localStorage.setItem("pyoffline-theme", "dark");
+      }
+    });
+  });
+})();
+function switchTab(stepId, idx) {
+  var step   = document.getElementById(stepId);
+  var btns   = step.querySelectorAll(".tab-btn");
+  var panels = step.querySelectorAll(".tab-panel");
+  btns.forEach(function(b) { b.classList.remove("active"); });
+  panels.forEach(function(p) { p.classList.remove("active"); });
+  btns[idx].classList.add("active");
+  panels[idx].classList.add("active");
+}
+function copyCode(btn) {
+  var code = btn.closest(".tab-panel").querySelector("code").innerText;
+  navigator.clipboard.writeText(code).then(function() {
+    var orig = btn.textContent;
+    btn.textContent = "Copied!";
+    setTimeout(function() { btn.textContent = orig; }, 1500);
+  });
+}
+function toggleSidebar() {
+  var sidebar = document.getElementById("guideSidebar");
+  var overlay = document.getElementById("sidebarOverlay");
+  if (!sidebar) return;
+  sidebar.classList.toggle("open");
+  overlay.classList.toggle("open");
+}
+document.addEventListener("DOMContentLoaded", function() {
+  var sidebar = document.getElementById("guideSidebar");
+  if (!sidebar) return;
+  sidebar.querySelectorAll("nav a").forEach(function(a) {
+    a.addEventListener("click", function() {
+      sidebar.classList.remove("open");
+      var overlay = document.getElementById("sidebarOverlay");
+      if (overlay) overlay.classList.remove("open");
+    });
+  });
+});
+function toggleSbDesktop() {
+  var c = document.body.classList.toggle('sb-collapsed');
+  localStorage.setItem('sb-collapsed', c ? '1' : '0');
+}
+(function() { if (localStorage.getItem('sb-collapsed') === '1') document.body.classList.add('sb-collapsed'); })();
+</script>
+</body>
+</html>

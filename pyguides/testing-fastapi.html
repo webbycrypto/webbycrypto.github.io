@@ -135,7 +135,7 @@ code{font-family:"Fira Code","Cascadia Code","Consolas",monospace;font-size:0.82
         <div class="step-number">1</div>
         <div class="step-content">
           <h3>Why Tests Matter</h3>
-          <p class="explanation">A test is just code that calls your code and checks that the result is what you expected. The reason to write them is not bureaucratic — it is practical: without tests, every time you change a function you have to manually check that you did not break something else. With tests, you run one command and in a few seconds you know whether everything still works. This matters especially for APIs because the surface area is large — there are dozens of routes, each with different inputs, different error cases, and different database interactions. FastAPI makes testing unusually easy: the TestClient wraps your entire app and lets you make real HTTP requests against it in a normal Python function, no running server needed. You write a test the same way you would use curl, but the result is checked automatically and the pass/fail is recorded.</p>
+          <p class="explanation">A test is code that calls your code and checks whether the result is what you expected. Without tests, every time you change a function you have to manually verify that nothing else broke. With tests, you run one command and in a few seconds you know whether everything still works. This matters especially for APIs, which can have dozens of routes, each with different inputs and different error cases. FastAPI makes testing easy: the TestClient wraps your app and lets you make real HTTP requests against it inside a normal Python function, with no running server needed.</p>
           <div class="info-box"><strong>What makes a good test:</strong> it tests one specific behaviour, it is fast (under a second), it does not depend on external services (email, real database, third-party APIs), and it tells you exactly what broke when it fails. A test that passes 99% of the time and fails randomly is worse than no test.</div>
         </div>
       </div>
@@ -145,7 +145,7 @@ code{font-family:"Fira Code","Cascadia Code","Consolas",monospace;font-size:0.82
         <div class="step-number">2</div>
         <div class="step-content">
           <h3>Setup: pytest + TestClient</h3>
-          <p class="explanation">pytest is the standard Python test runner. It discovers any file named test_*.py or *_test.py, finds functions named test_*, and runs them. If a function raises an AssertionError, the test fails. FastAPI's TestClient wraps your app and gives you a requests-like interface — client.get(), client.post(), etc. — that makes real HTTP calls against the app without starting a server. The httpx library is the dependency TestClient uses under the hood. You only need to install pytest and httpx — FastAPI's TestClient import already handles the rest. The test file lives alongside your application code, typically in a tests/ folder.</p>
+          <p class="explanation">pytest is the standard Python test runner. It automatically finds any file named test_*.py, looks for functions named test_*, and runs them. If a function raises an AssertionError, the test fails. FastAPI's TestClient wraps your app and gives you methods like client.get() and client.post() that make real HTTP calls against the app without starting a server. You only need to install pytest and httpx. TestClient handles the rest. Test files live in a tests/ folder alongside your application code.</p>
           <div class="tabs" data-step="step2">
             <div class="tab-bar">
               <button class="tab-btn active" onclick="switchTab('step2',0)">install + structure</button>
@@ -208,7 +208,7 @@ client = TestClient(app)
         <div class="step-number">3</div>
         <div class="step-content">
           <h3>Testing GET Routes</h3>
-          <p class="explanation">GET route tests are the simplest — you call client.get() with a URL, check the status code, and check the response body. The response object has status_code (an integer), json() (parsed JSON as a Python dict or list), text (raw response body as a string), and headers. A good test covers the happy path (valid request, expected response) and the error paths (invalid ID returns 404, missing param returns 422). Testing error cases is just as important as testing success — they are often where bugs hide. The assert keyword is the only thing pytest needs — if the assert is True, the test passes; if False, pytest shows you exactly what the actual and expected values were.</p>
+          <p class="explanation">GET route tests are the simplest. You call client.get() with a URL, check the status code, and check the response body. The response object has a status_code integer, a json() method that returns the parsed response as a Python dictionary or list, and a text attribute with the raw response string. A good test covers the happy path and the error paths. Testing what happens when you pass an invalid ID or a missing parameter is just as important as testing success, because error cases are often where bugs hide.</p>
           <div class="tabs" data-step="step3">
             <div class="tab-bar">
               <button class="tab-btn active" onclick="switchTab('step3',0)">happy path</button>
@@ -276,7 +276,7 @@ client = TestClient(app)
         <div class="step-number">4</div>
         <div class="step-content">
           <h3>Testing POST Routes with a JSON Body</h3>
-          <p class="explanation">POST routes that accept a JSON body use client.post() with a json= argument — TestClient serialises the dict to JSON and sets the correct Content-Type header automatically. You should never serialise manually with json.dumps() when the json= shortcut is available. For routes that use Form() parameters instead of JSON, use data= instead of json= — this sends the request as application/x-www-form-urlencoded, which is what HTML forms produce. For file uploads, use files= with a dict mapping the field name to a tuple of (filename, file-object, content-type). Always test both the successful creation and the validation failures — what happens when you send an empty body, a wrong type, or a missing required field.</p>
+          <p class="explanation">For POST routes that accept JSON, use client.post() with a json= argument. TestClient converts the dictionary to JSON and sets the Content-Type header automatically. For routes that use Form() parameters instead of JSON, use data= instead. This sends the request as URL-encoded form data, which is what HTML forms send. For file uploads, use files= with a dictionary that maps the field name to a tuple containing the filename, a file object, and the content type. Always test both the successful case and validation failures like missing fields or wrong data types.</p>
           <div class="tabs" data-step="step4">
             <div class="tab-bar">
               <button class="tab-btn active" onclick="switchTab('step4',0)">JSON body</button>
@@ -343,7 +343,7 @@ client = TestClient(app)
         <div class="step-number">5</div>
         <div class="step-content">
           <h3>Testing Protected Routes with Auth Headers</h3>
-          <p class="explanation">Routes that require a JWT or API key check the Authorization header. In tests, you need to either log in first and use the real token, or inject a fake token for a test user. Logging in first is more realistic but requires the auth routes to work correctly. You can also use dependency_overrides (covered in step 7) to skip auth entirely for unit tests. The simplest approach for integration tests is to have a helper that creates a test user and returns a valid token, then pass that token as a header. The headers= argument to client.get() and client.post() accepts a plain dict — TestClient sets them on every request in that call.</p>
+          <p class="explanation">Routes that require a JWT or API key check the Authorization header. In tests you need to either log in first and use a real token, or skip auth entirely using dependency_overrides, which is covered in step 7. The simplest approach for integration tests is a helper function that creates a test user, logs in, and returns a headers dictionary with the token. You then pass that dictionary to the headers= argument on client.get() or client.post(). TestClient adds those headers to the request automatically.</p>
           <div class="tabs" data-step="step5">
             <div class="tab-bar">
               <button class="tab-btn active" onclick="switchTab('step5',0)">login + use token</button>
@@ -412,7 +412,7 @@ client = TestClient(app)
         <div class="step-number">6</div>
         <div class="step-content">
           <h3>Fixtures and conftest.py</h3>
-          <p class="explanation">A fixture is a function that sets up something a test needs and tears it down afterwards. The @pytest.fixture decorator marks a function as a fixture. Any test function that lists the fixture's name as a parameter automatically gets the return value. conftest.py is a special file pytest looks for automatically in your tests/ folder — fixtures defined there are available to all test files without any imports. This is where you put the client fixture (so every test file shares one TestClient), the test database fixture, and any other setup that multiple tests need. The yield keyword in a fixture is the dividing line between setup (before yield) and teardown (after yield) — teardown always runs even if the test fails.</p>
+          <p class="explanation">A fixture is a function that sets up something a test needs and cleans it up afterwards. The @pytest.fixture decorator marks a function as a fixture. Any test function that lists the fixture's name as a parameter automatically receives its return value. The conftest.py file is a special file pytest finds automatically in your tests/ folder. Fixtures defined there are available to all test files without any imports. The yield keyword in a fixture separates setup from teardown: code before yield runs before the test and code after yield runs after, even if the test fails.</p>
           <div class="tabs" data-step="step6">
             <div class="tab-bar">
               <button class="tab-btn active" onclick="switchTab('step6',0)">conftest.py</button>
@@ -474,7 +474,7 @@ client = TestClient(app)
         <div class="step-number">7</div>
         <div class="step-content">
           <h3>Mocking Dependencies</h3>
-          <p class="explanation">FastAPI's dependency injection system — the Depends() mechanism — can be overridden in tests. app.dependency_overrides is a dictionary that maps a dependency function to a replacement function. When the app runs a test, it calls your replacement instead of the real dependency. This is how you skip authentication in tests (replace get_current_user with a function that returns a fake user), avoid hitting a real database (replace get_db with an in-memory session), or avoid calling external APIs (replace get_stripe_client with a mock). This makes tests fast and self-contained — they do not need real credentials, live services, or internet access. Always clean up overrides after each test so they do not affect other tests.</p>
+          <p class="explanation">FastAPI's Depends() system can be overridden in tests. The app.dependency_overrides dictionary maps a real dependency function to a replacement function. When the app runs, it calls your replacement instead of the real one. This is how you skip authentication by returning a fake user, avoid hitting a real database by using an in-memory session, or avoid calling external services by using a mock. Tests that use overrides are fast and self-contained because they do not need real credentials or internet access. Always clear the overrides after each test so they do not leak into other tests.</p>
           <div class="tabs" data-step="step7">
             <div class="tab-bar">
               <button class="tab-btn active" onclick="switchTab('step7',0)">skip auth</button>
@@ -552,7 +552,7 @@ fake_email = FakeEmailService()
         <div class="step-number">8</div>
         <div class="step-content">
           <h3>Testing with a Real (SQLite) Database</h3>
-          <p class="explanation">If your routes read and write a database, your tests need a database too. The best approach is a separate SQLite test database that is created fresh for each test run and deleted afterwards. You override the get_db dependency to return a session connected to the test database instead of the production one. SQLite is perfect for this because it can store the database in a temporary file (or even purely in memory with :memory:) with no server setup. The key rule is to create a fresh database for every test — not every test run, but every test function — so tests do not affect each other. If test_create_item runs before test_list_items, you do not want the item created by the first test to appear in the second test's list.</p>
+          <p class="explanation">If your routes read and write a database, your tests need a database too. The best approach is a separate SQLite database that is created fresh for each test and deleted afterwards. You override the get_db dependency to return a session connected to the test database instead of the real one. SQLite is perfect for this because it needs no server setup and can even run entirely in memory. The key rule is to create a fresh database for every test function, not just every test run. If one test creates a record, you do not want that record to show up in the next test's results.</p>
           <div class="tabs" data-step="step8">
             <div class="tab-bar">
               <button class="tab-btn active" onclick="switchTab('step8',0)">conftest.py setup</button>
@@ -628,7 +628,7 @@ TestingSession = sessionmaker(autocommit=<span class="hl-keyword">False</span>, 
         <div class="step-number">9</div>
         <div class="step-content">
           <h3>Running Tests and Checking Coverage</h3>
-          <p class="explanation">Coverage tells you which lines of your code are actually executed when the tests run. A line that is never executed by any test is a line that could contain a bug you would never detect. pytest-cov is the plugin that measures this. You run pytest with --cov=app (replace app with your package name) and it shows you a table of files with the percentage of lines covered. The missing lines column shows you exactly which line numbers were never reached. 100% coverage does not mean your app has no bugs — it just means every line ran. You still need meaningful assertions. But below 60% coverage usually means large chunks of your logic are completely untested, which is a real risk.</p>
+          <p class="explanation">Coverage tells you which lines of your code actually ran during the tests. A line that was never executed could contain a bug you would never catch. The pytest-cov plugin measures this. Run pytest with --cov=app and it shows a table with the percentage of lines covered in each file. The missing lines column shows you exactly which line numbers were never reached by any test. One hundred percent coverage does not guarantee your app has no bugs, because you still need meaningful assertions. Below 60% coverage usually means large parts of your logic are completely untested, which is a real risk in production.</p>
           <div class="tabs" data-step="step9">
             <div class="tab-bar">
               <button class="tab-btn active" onclick="switchTab('step9',0)">coverage commands</button>

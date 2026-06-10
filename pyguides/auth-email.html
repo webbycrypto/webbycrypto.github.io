@@ -85,7 +85,7 @@ pre{overflow-x:auto;padding:16px;background:var(--code-bg)}code{font-family:"Fir
         <div class="step-number">1</div>
         <div class="step-content">
           <h3>Why Email Verification?</h3>
-          <p class="explanation">Without verification, anyone can register with <code>ceo@bigcorp.com</code> and your app has no way to know the person doesn't own that address. Email verification confirms the registrant can receive mail at that address — they clicked a link that only arrived in their inbox.</p>
+          <p class="explanation">Without email verification, anyone can sign up using an address they do not own, like <code>ceo@bigcorp.com</code>, and your app has no way to tell the difference. Email verification proves the person signing up can actually receive mail at that address. The link in the email only arrives in their inbox, so only the real owner of that address could have clicked it.</p>
           <div class="info-box"><strong>Three benefits:</strong> (1) Prevents spam/bot accounts using fake addresses. (2) Ensures you can actually contact the user for password resets. (3) Reduces abuse from throwaway signups. Most SaaS products require it before the account can do anything meaningful.</div>
         </div>
       </div>
@@ -130,7 +130,7 @@ pre{overflow-x:auto;padding:16px;background:var(--code-bg)}code{font-family:"Fir
         <div class="step-number">3</div>
         <div class="step-content">
           <h3>email_verified Column</h3>
-          <p class="explanation">Add one column to the User model. This is the only change to the existing model — the verification logic lives in a separate table.</p>
+          <p class="explanation">Add one new column to the <code>User</code> model to track whether the email has been confirmed. This is the only change needed to the existing model. All the verification logic lives in a separate table covered in the next step.</p>
           <div class="tabs">
             <div class="tab-bar"><button class="tab-btn active" onclick="switchTab('step3',0)">models.py — User update</button></div>
             <div class="tab-panel active">
@@ -153,7 +153,7 @@ pre{overflow-x:auto;padding:16px;background:var(--code-bg)}code{font-family:"Fir
         <div class="step-number">4</div>
         <div class="step-content">
           <h3>Verification Token Table</h3>
-          <p class="explanation">Store the verification token in the database with an expiry. Hash it like a password — if the table is leaked, tokens can't be used.</p>
+          <p class="explanation">Verification tokens are stored in the database with an expiry time. The token itself is hashed before saving, just like a password. If the table is ever leaked, an attacker still cannot use the hashed values to verify accounts.</p>
           <div class="tabs">
             <div class="tab-bar"><button class="tab-btn active" onclick="switchTab('step4',0)">models.py — VerificationToken</button></div>
             <div class="tab-panel active">
@@ -189,7 +189,7 @@ pre{overflow-x:auto;padding:16px;background:var(--code-bg)}code{font-family:"Fir
         <div class="step-number">5</div>
         <div class="step-content">
           <h3>Send the Email</h3>
-          <p class="explanation">Two options: <code>smtplib</code> (built into Python, works with Gmail/SMTP) or a transactional email API like Resend. Resend is simpler for production — one <code>pip install</code> and an API key.</p>
+          <p class="explanation">There are two options for sending the verification email. You can use <code>smtplib</code>, which is built into Python and works with Gmail. You can also use a service like Resend, which only needs one <code>pip install</code> and an API key and is generally simpler for production use.</p>
           <div class="tabs">
             <div class="tab-bar">
               <button class="tab-btn active" onclick="switchTab('step5',0)">Resend API (recommended)</button>
@@ -240,7 +240,7 @@ resend.api_key = os.getenv(<span class="hl-string">"RESEND_API_KEY"</span>)
         <div class="step-number">6</div>
         <div class="step-content">
           <h3>GET /auth/verify</h3>
-          <p class="explanation">The user clicks the link in their email. This endpoint finds the matching token, marks the user as verified, and deletes the token so it can't be used again.</p>
+          <p class="explanation">When the user clicks the link in their email, this endpoint receives the token from the URL. It searches for a matching token in the database and checks that it has not expired. If a match is found, the user is marked as verified and the token is deleted so it cannot be used again.</p>
           <div class="tabs">
             <div class="tab-bar"><button class="tab-btn active" onclick="switchTab('step6',0)">main.py — /auth/verify</button></div>
             <div class="tab-panel active">
@@ -282,7 +282,7 @@ resend.api_key = os.getenv(<span class="hl-string">"RESEND_API_KEY"</span>)
         <div class="step-number">7</div>
         <div class="step-content">
           <h3>Block Unverified Logins</h3>
-          <p class="explanation">One extra check in the login route — after the password is verified, before issuing the token.</p>
+          <p class="explanation">Add one extra check to the login route after the password is verified and before the token is issued. If the user's email has not been confirmed yet, return a 403 with a message telling them to check their inbox. This ensures only verified accounts can log in.</p>
           <div class="tabs">
             <div class="tab-bar"><button class="tab-btn active" onclick="switchTab('step7',0)">main.py — updated login</button></div>
             <div class="tab-panel active">
@@ -313,7 +313,7 @@ resend.api_key = os.getenv(<span class="hl-string">"RESEND_API_KEY"</span>)
         <div class="step-number">8</div>
         <div class="step-content">
           <h3>Resend Verification</h3>
-          <p class="explanation">Users sometimes miss the email or let it expire. Provide an endpoint to generate a new token and resend — but rate-limit it or require a recent login to prevent abuse.</p>
+          <p class="explanation">Users sometimes miss the verification email or wait too long and let it expire. This endpoint lets them request a fresh link by entering their email address. A new token is generated and the old one is deleted. In production, add rate limiting to this endpoint to prevent it being used to spam someone's inbox.</p>
           <div class="tabs">
             <div class="tab-bar"><button class="tab-btn active" onclick="switchTab('step8',0)">POST /auth/resend-verification</button></div>
             <div class="tab-panel active">

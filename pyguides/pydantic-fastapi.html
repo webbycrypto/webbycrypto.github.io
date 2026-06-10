@@ -1,0 +1,616 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pydantic Data Validation - FastAPI Guide - pyoffline</title>
+<style>
+:root{--bg:#121212;--surface:#1e1e1e;--surface2:#2a2a2a;--sidebar-bg:#1a1a1a;--text:#e0e0e0;--text-muted:#aaa;--text-dim:#666;--border:#333;--code-bg:#1e1e1e;--code-text:#d4d4d4;--shadow:rgba(0,0,0,.4);--accent:#e92063;--hl-keyword:#569cd6;--hl-string:#ce9178;--hl-comment:#6a9955;--hl-number:#b5cea8;--hl-decorator:#dcdcaa;--hl-builtin:#4ec9b0;--hl-tag:#4ec9b0;--hl-attr:#9cdcfe;--hl-template:#c586c0}
+html.light{--bg:#f5f7fa;--surface:#ffffff;--surface2:#eef0f3;--sidebar-bg:#ffffff;--text:#1a1a1a;--text-muted:#555;--text-dim:#888;--border:#dde1e7;--code-bg:#f8f8f8;--code-text:#24292e;--shadow:rgba(0,0,0,.1);--hl-keyword:#0000ff;--hl-string:#a31515;--hl-comment:#008000;--hl-number:#098658;--hl-decorator:#795e26;--hl-builtin:#267f99;--hl-tag:#800000;--hl-attr:#e50000;--hl-template:#af00db}
+.hl-keyword{color:var(--hl-keyword)}.hl-string{color:var(--hl-string)}.hl-comment{color:#adb4a7;font-size:12px;font-style:italic}.hl-number{color:var(--hl-number)}.hl-decorator{color:var(--hl-decorator)}.hl-builtin{color:var(--hl-builtin)}.hl-tag{color:var(--hl-tag)}.hl-attr{color:var(--hl-attr)}.hl-template{color:var(--hl-template)}
+*{box-sizing:border-box;margin:0;padding:0}body{background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;transition:background .2s,color .2s}a{color:var(--accent)}.layout{display:flex;min-height:100vh}.sidebar{width:260px;min-width:260px;background:var(--sidebar-bg);border-right:1px solid var(--border);padding:24px 16px;position:sticky;top:0;height:100vh;overflow-y:auto}.sidebar h2{font-size:1.1rem;margin:16px 0 8px;color:var(--text)}.sidebar nav ol{padding-left:18px}.sidebar nav li{margin:6px 0}.sidebar nav a{color:var(--text-muted);text-decoration:none;font-size:0.85rem}.sidebar nav a:hover{color:var(--accent)}.back-link{color:var(--text-dim);text-decoration:none;font-size:0.85rem;display:block;margin-bottom:8px}.install-box{margin-top:24px;background:var(--bg);border:1px solid var(--border);padding:12px;border-radius:6px;font-size:0.8rem}.install-box code{display:block;word-break:break-all;color:var(--hl-comment);font-family:monospace;margin-top:4px}main{flex:1;padding:40px;max-width:860px}.guide-header{padding:20px 20px 20px 24px;background:var(--surface);border-radius:8px;margin-bottom:32px;box-shadow:0 1px 3px var(--shadow)}.guide-header h1{font-size:1.8rem;margin-bottom:8px}.guide-header p{color:var(--text-muted)}.step{display:flex;gap:16px;margin-bottom:40px}.step-number{width:32px;min-width:32px;height:32px;background:var(--accent);border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:bold;font-size:0.9rem;margin-top:4px;color:#fff}.step-content{flex:1;min-width:0}.step-content h3{font-size:1.1rem;margin-bottom:8px;color:var(--text)}.explanation{color:var(--text-muted);font-size:0.9rem;line-height:1.6;margin-bottom:14px}.info-box{background:var(--surface);border-left:3px solid var(--accent);border-radius:0 6px 6px 0;padding:12px 16px;margin-bottom:14px;font-size:0.88rem;color:var(--text-muted);line-height:1.6}.info-box strong{color:var(--text)}.crud-table{width:100%;border-collapse:collapse;margin-bottom:14px;font-size:0.85rem}.crud-table th{background:var(--surface2);color:var(--text-muted);text-align:left;padding:8px 12px;border:1px solid var(--border);font-weight:600}.crud-table td{padding:8px 12px;border:1px solid var(--border);color:var(--text)}.crud-table tr:nth-child(even) td{background:var(--surface)}.tabs{background:var(--surface);border-radius:6px;overflow:hidden;border:1px solid var(--border)}.tab-bar{display:flex;background:var(--surface2);overflow-x:auto;border-bottom:1px solid var(--border)}.tab-btn{padding:8px 16px;background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:0.8rem;white-space:nowrap;border-bottom:2px solid transparent;margin-bottom:-1px}.tab-btn.active{color:var(--text);border-bottom-color:var(--accent)}.tab-panel{display:none}.tab-panel.active{display:block}.code-header{display:flex;justify-content:space-between;align-items:center;padding:5px 12px;background:var(--surface2);border-bottom:1px solid var(--border)}.lang-label{font-size:0.72rem;color:var(--text-dim);text-transform:uppercase;letter-spacing:.04em}.copy-btn{background:none;border:1px solid var(--border);color:var(--text-muted);padding:2px 8px;cursor:pointer;border-radius:3px;font-size:0.72rem}.copy-btn:hover{color:var(--text);border-color:var(--text-muted)}pre{overflow-x:auto;padding:16px;background:var(--code-bg)}code{font-family:"Fira Code","Cascadia Code","Consolas",monospace;font-size:0.82rem;line-height:1.65;color:var(--code-text)}.theme-row{display:flex;align-items:center;gap:8px;margin-top:20px}.theme-label{font-size:0.78rem;color:var(--text-muted)}.toggle-switch{position:relative;display:inline-block;width:40px;height:22px}.toggle-switch input{opacity:0;width:0;height:0}.slider{position:absolute;cursor:pointer;inset:0;background:var(--surface2);border:1px solid var(--border);border-radius:22px;transition:background .2s}.slider:before{content:"";position:absolute;width:16px;height:16px;left:2px;top:2px;background:var(--text-muted);border-radius:50%;transition:transform .2s,background .2s}.toggle-switch input:checked+.slider{background:var(--accent);border-color:var(--accent)}.toggle-switch input:checked+.slider:before{transform:translateX(18px);background:#fff}.sidebar-toggle{display:none;position:fixed;top:12px;left:12px;z-index:300;background:var(--accent);color:#fff;border:none;padding:7px 14px;border-radius:6px;cursor:pointer;font-size:0.85rem;font-weight:600;box-shadow:0 2px 8px var(--shadow);align-items:center;gap:6px}.sidebar-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:190}.sidebar-overlay.open{display:block}@media(max-width:900px){.sidebar-toggle{display:flex}.layout{display:block}.sidebar{position:fixed;left:-280px;top:0;height:100vh;z-index:200;transition:left .25s ease;box-shadow:2px 0 16px var(--shadow);min-width:260px}.sidebar.open{left:0}main{padding:60px 20px 40px;max-width:100%}pre{overflow-x:auto;max-width:100%;white-space:pre-wrap;word-break:break-word}.tabs{max-width:100%}}.sidebar{transition:width .2s ease,min-width .2s ease,padding .2s ease}.sb-pin{display:flex;justify-content:flex-end;margin-bottom:8px}.sb-pin button{background:none;border:1px solid var(--border);color:var(--text-dim);cursor:pointer;border-radius:4px;padding:2px 7px;font-size:11px;line-height:1.6}.sb-pin button:hover{color:var(--accent);border-color:var(--accent)}.sb-reopen{display:none;position:fixed;left:0;top:50%;transform:translateY(-50%);background:var(--accent);color:#fff;border:none;border-radius:0 4px 4px 0;padding:10px 5px;cursor:pointer;z-index:300;font-size:11px;font-weight:600;writing-mode:vertical-rl;letter-spacing:.05em}@media(min-width:901px){body.sb-collapsed .sidebar{width:0;min-width:0;padding:0;overflow:hidden;border-right:none}body.sb-collapsed .sb-reopen{display:block}}@media(max-width:900px){.sb-pin{display:none}.sb-reopen{display:none!important}}
+</style>
+</head>
+<body>
+<button class="sidebar-toggle" id="sidebarToggle" onclick="toggleSidebar()">&#9776; Steps</button>
+<div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+<button class="sb-reopen" onclick="toggleSbDesktop()">Steps</button>
+<div class="layout">
+  <aside class="sidebar" id="guideSidebar">
+    <div class="sb-pin"><button onclick="toggleSbDesktop()">&#9664; Hide</button></div>
+    <a href="index.html" class="back-link">&#8592; All Guides</a>
+    <h2>Pydantic</h2>
+    <nav><ol>
+      <li><a href="#step1">What is Pydantic?</a></li>
+      <li><a href="#step2">Your First Model</a></li>
+      <li><a href="#step3">Optional Fields</a></li>
+      <li><a href="#step4">Field() — Constraints</a></li>
+      <li><a href="#step5">Nested Models</a></li>
+      <li><a href="#step6">Request vs Response Model</a></li>
+      <li><a href="#step7">@field_validator</a></li>
+      <li><a href="#step8">Validation Errors</a></li>
+      <li><a href="#step9">What's Next</a></li>
+    </ol></nav>
+    <div class="install-box">
+      <p><strong>Install</strong></p>
+      <code>pip install fastapi uvicorn</code>
+      <p style="margin-top:8px;color:#888;font-size:0.78rem">pydantic is included with fastapi</p>
+    </div>
+    <div class="theme-row">
+      <span class="theme-label">Dark</span>
+      <label class="toggle-switch"><input type="checkbox" id="themeToggle"><span class="slider"></span></label>
+      <span class="theme-label">Light</span>
+    </div>
+  </aside>
+  <main>
+    <header class="guide-header" style="border-left:5px solid #e92063">
+      <h1>Data Validation with Pydantic</h1>
+      <p>Define the shape of your data and let FastAPI reject bad inputs automatically. Covers BaseModel, required and optional fields, Field() constraints, nested models, separate request and response schemas, custom validators, and reading the 422 error response.</p>
+    </header>
+    <div class="steps">
+
+      <!-- STEP 1 -->
+      <div class="step" id="step1">
+        <div class="step-number">1</div>
+        <div class="step-content">
+          <h3>What is Pydantic?</h3>
+          <p class="explanation">When a FastAPI route receives data from a user, Pydantic checks that it is the right type and shape before your function ever runs. Without validation, a user sending a string where you expect a number causes a crash deep inside your code. Pydantic lets you define a model class that describes exactly what the data should look like, and FastAPI automatically rejects anything that does not match with a clear error message.</p>
+          <div class="tabs" id="step1tabs">
+            <div class="tab-bar">
+              <button class="tab-btn active" onclick="switchTab('step1tabs',0)">without validation</button>
+              <button class="tab-btn" onclick="switchTab('step1tabs',1)">with pydantic</button>
+            </div>
+            <div class="tab-panel active">
+              <div class="code-header"><span class="lang-label">python</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-keyword">from</span> fastapi <span class="hl-keyword">import</span> FastAPI, Request
+
+app = FastAPI()
+
+<span class="hl-decorator">@app.post</span>(<span class="hl-string">"/items"</span>)
+<span class="hl-keyword">async def</span> <span class="hl-builtin">create_item</span>(request: Request):
+    body = <span class="hl-keyword">await</span> request.json()  <span class="hl-comment"># raw dict — no validation</span>
+
+    name  = body[<span class="hl-string">"name"</span>]         <span class="hl-comment"># KeyError if caller forgets this field</span>
+    price = body[<span class="hl-string">"price"</span>]        <span class="hl-comment"># could be a string "abc" — crashes below</span>
+
+    total = price * <span class="hl-number">1.2</span>           <span class="hl-comment"># TypeError: can't multiply str by float</span>
+    <span class="hl-keyword">return</span> {<span class="hl-string">"name"</span>: name, <span class="hl-string">"total"</span>: total}
+
+<span class="hl-comment"># Result: 500 Internal Server Error — the bug is buried inside your function.
+# The caller has no idea which field was wrong or what format is expected.</span>
+</code></pre>
+            </div>
+            <div class="tab-panel">
+              <div class="code-header"><span class="lang-label">python</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-keyword">from</span> fastapi <span class="hl-keyword">import</span> FastAPI
+<span class="hl-keyword">from</span> pydantic <span class="hl-keyword">import</span> BaseModel
+
+app = FastAPI()
+
+<span class="hl-keyword">class</span> <span class="hl-builtin">Item</span>(BaseModel):
+    name: <span class="hl-builtin">str</span>
+    price: <span class="hl-builtin">float</span>
+
+<span class="hl-decorator">@app.post</span>(<span class="hl-string">"/items"</span>)
+<span class="hl-keyword">def</span> <span class="hl-builtin">create_item</span>(item: Item):
+    <span class="hl-comment"># FastAPI validates the body BEFORE calling this function.
+    # If "price" is "abc", FastAPI returns 422 automatically.
+    # Your function only runs when the data is already valid.</span>
+    total = item.price * <span class="hl-number">1.2</span>
+    <span class="hl-keyword">return</span> {<span class="hl-string">"name"</span>: item.name, <span class="hl-string">"total"</span>: total}
+
+<span class="hl-comment"># Bad input: {"name": "Widget", "price": "abc"}
+# FastAPI returns: 422 Unprocessable Entity — before your code runs.</span>
+</code></pre>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- STEP 2 -->
+      <div class="step" id="step2">
+        <div class="step-number">2</div>
+        <div class="step-content">
+          <h3>Your First Model</h3>
+          <p class="explanation">A Pydantic model is a class that inherits from BaseModel. Each class attribute is a field. The type annotation on each field tells Pydantic what to expect. FastAPI reads the JSON body of a POST request and fills in the model automatically.</p>
+          <div class="tabs" id="step2tabs">
+            <div class="tab-bar">
+              <button class="tab-btn active" onclick="switchTab('step2tabs',0)">the model</button>
+              <button class="tab-btn" onclick="switchTab('step2tabs',1)">using it in a route</button>
+            </div>
+            <div class="tab-panel active">
+              <div class="code-header"><span class="lang-label">python</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-keyword">from</span> pydantic <span class="hl-keyword">import</span> BaseModel
+
+<span class="hl-keyword">class</span> <span class="hl-builtin">Item</span>(BaseModel):
+    name: <span class="hl-builtin">str</span>       <span class="hl-comment"># must be a string — required</span>
+    price: <span class="hl-builtin">float</span>     <span class="hl-comment"># must be a number — required</span>
+    in_stock: <span class="hl-builtin">bool</span>   <span class="hl-comment"># must be true or false — required</span>
+
+<span class="hl-comment"># Pydantic will also coerce compatible types:
+# "3.5" (string) → 3.5 (float) if the string looks like a number.
+# 1 (int) → True (bool), 0 → False.</span>
+</code></pre>
+            </div>
+            <div class="tab-panel">
+              <div class="code-header"><span class="lang-label">python</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-keyword">from</span> fastapi <span class="hl-keyword">import</span> FastAPI
+<span class="hl-keyword">from</span> pydantic <span class="hl-keyword">import</span> BaseModel
+
+app = FastAPI()
+
+<span class="hl-keyword">class</span> <span class="hl-builtin">Item</span>(BaseModel):
+    name: <span class="hl-builtin">str</span>
+    price: <span class="hl-builtin">float</span>
+    in_stock: <span class="hl-builtin">bool</span>
+
+<span class="hl-decorator">@app.post</span>(<span class="hl-string">"/items"</span>)
+<span class="hl-keyword">def</span> <span class="hl-builtin">create_item</span>(item: Item):
+    <span class="hl-comment"># FastAPI sees "item: Item" and knows to read the JSON request body.
+    # It validates the body against the Item model automatically.
+    # By the time this line runs, item.name is a str, item.price is a float.</span>
+    <span class="hl-keyword">return</span> {
+        <span class="hl-string">"received"</span>: item.name,
+        <span class="hl-string">"price_with_tax"</span>: item.price * <span class="hl-number">1.2</span>,
+        <span class="hl-string">"available"</span>: item.in_stock,
+    }
+
+<span class="hl-comment"># POST body: {"name": "Notebook", "price": 4.99, "in_stock": true}
+# Response:  {"received": "Notebook", "price_with_tax": 5.988, "available": true}</span>
+</code></pre>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- STEP 3 -->
+      <div class="step" id="step3">
+        <div class="step-number">3</div>
+        <div class="step-content">
+          <h3>Optional Fields and Defaults</h3>
+          <p class="explanation">A field without a default is required. If the caller leaves it out, FastAPI returns a 422 error before your function runs. A field with a default is optional and uses that value when the caller does not provide it. Setting the default to None means the field is optional and has no value.</p>
+          <div class="tabs" id="step3tabs">
+            <div class="tab-bar">
+              <button class="tab-btn active" onclick="switchTab('step3tabs',0)">required vs optional</button>
+              <button class="tab-btn" onclick="switchTab('step3tabs',1)">422 response</button>
+            </div>
+            <div class="tab-panel active">
+              <div class="code-header"><span class="lang-label">python</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-keyword">from</span> pydantic <span class="hl-keyword">import</span> BaseModel
+<span class="hl-keyword">from</span> typing <span class="hl-keyword">import</span> Optional
+
+<span class="hl-keyword">class</span> <span class="hl-builtin">Product</span>(BaseModel):
+    name: <span class="hl-builtin">str</span>                         <span class="hl-comment"># required — caller must include this</span>
+    description: Optional[<span class="hl-builtin">str</span>] = <span class="hl-keyword">None</span>  <span class="hl-comment"># optional — defaults to None if omitted</span>
+    quantity: <span class="hl-builtin">int</span> = <span class="hl-number">1</span>                  <span class="hl-comment"># optional — defaults to 1 if omitted</span>
+
+<span class="hl-comment"># Minimum valid body:    {"name": "Pen"}
+#   → description = None, quantity = 1
+
+# Full body:             {"name": "Pen", "description": "Blue ink", "quantity": 10}
+#   → all three fields filled in
+
+# Missing required field: {}
+#   → 422 error, function never runs</span>
+</code></pre>
+            </div>
+            <div class="tab-panel">
+              <div class="code-header"><span class="lang-label">json</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-comment">// POST /products with body: {} — "name" is missing</span>
+<span class="hl-comment">// FastAPI returns HTTP 422 Unprocessable Entity:</span>
+
+{
+  <span class="hl-attr">"detail"</span>: [
+    {
+      <span class="hl-attr">"loc"</span>: [<span class="hl-string">"body"</span>, <span class="hl-string">"name"</span>],  <span class="hl-comment">// path to the failing field: body → name</span>
+      <span class="hl-attr">"msg"</span>: <span class="hl-string">"Field required"</span>,     <span class="hl-comment">// plain-English reason</span>
+      <span class="hl-attr">"type"</span>: <span class="hl-string">"missing"</span>           <span class="hl-comment">// machine-readable error code</span>
+    }
+  ]
+}
+
+<span class="hl-comment">// Your function was never called. The rejection happened in FastAPI's
+// request parsing layer before any of your code ran.</span>
+</code></pre>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- STEP 4 -->
+      <div class="step" id="step4">
+        <div class="step-number">4</div>
+        <div class="step-content">
+          <h3>Field() — Constraints and Descriptions</h3>
+          <p class="explanation">Assigning Field() to a field adds validation rules beyond just the type. You can set a minimum length, a maximum value, a human-readable description, and an example value. The description and example appear automatically in the /docs page so the frontend developer can see what to send without reading your code.</p>
+          <div class="tabs" id="step4tabs">
+            <div class="tab-bar">
+              <button class="tab-btn active" onclick="switchTab('step4tabs',0)">Field() examples</button>
+              <button class="tab-btn" onclick="switchTab('step4tabs',1)">/docs benefit</button>
+            </div>
+            <div class="tab-panel active">
+              <div class="code-header"><span class="lang-label">python</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-keyword">from</span> pydantic <span class="hl-keyword">import</span> BaseModel, Field
+
+<span class="hl-keyword">class</span> <span class="hl-builtin">Product</span>(BaseModel):
+    name: <span class="hl-builtin">str</span> = Field(
+        min_length=<span class="hl-number">2</span>,           <span class="hl-comment"># reject strings shorter than 2 characters</span>
+        max_length=<span class="hl-number">100</span>,         <span class="hl-comment"># reject strings longer than 100 characters</span>
+        description=<span class="hl-string">"Product display name"</span>,
+        examples=[<span class="hl-string">"Wireless Mouse"</span>],
+    )
+    price: <span class="hl-builtin">float</span> = Field(
+        ge=<span class="hl-number">0.01</span>,              <span class="hl-comment"># ge = greater than or equal — price must be at least 0.01</span>
+        le=<span class="hl-number">99999.99</span>,          <span class="hl-comment"># le = less than or equal — no astronomically large prices</span>
+        description=<span class="hl-string">"Price in GBP, excluding tax"</span>,
+        examples=[<span class="hl-number">29.99</span>],
+    )
+    quantity: <span class="hl-builtin">int</span> = Field(
+        default=<span class="hl-number">1</span>,             <span class="hl-comment"># optional field with a default value</span>
+        ge=<span class="hl-number">1</span>,                 <span class="hl-comment"># must order at least 1</span>
+        le=<span class="hl-number">500</span>,               <span class="hl-comment"># can't order more than 500 at once</span>
+        description=<span class="hl-string">"Units to order (1–500)"</span>,
+    )
+
+<span class="hl-comment"># {"name": "X", "price": 9.99}        → rejected: name too short (min_length=2)
+# {"name": "Pen", "price": -1.00}     → rejected: price below ge=0.01
+# {"name": "Pen", "price": 1.99}      → accepted: quantity defaults to 1</span>
+</code></pre>
+            </div>
+            <div class="tab-panel">
+              <div class="code-header"><span class="lang-label">text</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-comment">// What you see when you open http://localhost:8001/docs
+// and expand POST /products → Request body schema:</span>
+
+Product
+  name        string       <span class="hl-comment">← "Product display name"</span>
+              minLength: 2
+              maxLength: 100
+              Example: "Wireless Mouse"
+
+  price       number       <span class="hl-comment">← "Price in GBP, excluding tax"</span>
+              minimum: 0.01
+              maximum: 99999.99
+              Example: 29.99
+
+  quantity    integer      <span class="hl-comment">← "Units to order (1–500)"</span>
+              default: 1
+              minimum: 1
+              maximum: 500
+
+<span class="hl-comment">// All of this is generated automatically from Field().
+// The frontend developer never needs to read your Python source.</span>
+</code></pre>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- STEP 5 -->
+      <div class="step" id="step5">
+        <div class="step-number">5</div>
+        <div class="step-content">
+          <h3>Nested Models</h3>
+          <p class="explanation">A Pydantic model can contain another Pydantic model as a field. FastAPI validates the whole structure recursively — if any nested field fails, the whole request is rejected with a clear error pointing to the exact path that failed.</p>
+          <div class="tabs" id="step5tabs">
+            <div class="tab-bar">
+              <button class="tab-btn active" onclick="switchTab('step5tabs',0)">nested model</button>
+              <button class="tab-btn" onclick="switchTab('step5tabs',1)">JSON body</button>
+            </div>
+            <div class="tab-panel active">
+              <div class="code-header"><span class="lang-label">python</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-keyword">from</span> pydantic <span class="hl-keyword">import</span> BaseModel
+<span class="hl-keyword">from</span> typing <span class="hl-keyword">import</span> Optional
+
+<span class="hl-keyword">class</span> <span class="hl-builtin">Address</span>(BaseModel):
+    street: <span class="hl-builtin">str</span>              <span class="hl-comment"># e.g. "12 Oak Lane"</span>
+    city: <span class="hl-builtin">str</span>                <span class="hl-comment"># e.g. "Bristol"</span>
+    postcode: <span class="hl-builtin">str</span>            <span class="hl-comment"># e.g. "BS1 4AA"</span>
+
+<span class="hl-keyword">class</span> <span class="hl-builtin">User</span>(BaseModel):
+    name: <span class="hl-builtin">str</span>
+    email: <span class="hl-builtin">str</span>
+    address: Address          <span class="hl-comment"># nested model — Pydantic validates this recursively</span>
+
+<span class="hl-comment"># If "address.city" is missing, FastAPI returns:
+# {"detail": [{"loc": ["body", "address", "city"], "msg": "Field required", ...}]}
+# The loc path tells you exactly where inside the nested object the failure was.</span>
+
+<span class="hl-keyword">from</span> fastapi <span class="hl-keyword">import</span> FastAPI
+app = FastAPI()
+
+<span class="hl-decorator">@app.post</span>(<span class="hl-string">"/users"</span>)
+<span class="hl-keyword">def</span> <span class="hl-builtin">create_user</span>(user: User):
+    <span class="hl-comment"># user.address is a fully validated Address instance</span>
+    <span class="hl-keyword">return</span> {<span class="hl-string">"name"</span>: user.name, <span class="hl-string">"city"</span>: user.address.city}
+</code></pre>
+            </div>
+            <div class="tab-panel">
+              <div class="code-header"><span class="lang-label">json</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-comment">// POST /users — valid request body:</span>
+{
+  <span class="hl-attr">"name"</span>: <span class="hl-string">"Alice"</span>,
+  <span class="hl-attr">"email"</span>: <span class="hl-string">"alice@example.com"</span>,
+  <span class="hl-attr">"address"</span>: {           <span class="hl-comment">// nested object — matches the Address model</span>
+    <span class="hl-attr">"street"</span>: <span class="hl-string">"12 Oak Lane"</span>,
+    <span class="hl-attr">"city"</span>: <span class="hl-string">"Bristol"</span>,
+    <span class="hl-attr">"postcode"</span>: <span class="hl-string">"BS1 4AA"</span>
+  }
+}
+
+<span class="hl-comment">// Invalid — "address.city" missing:</span>
+{
+  <span class="hl-attr">"name"</span>: <span class="hl-string">"Alice"</span>,
+  <span class="hl-attr">"email"</span>: <span class="hl-string">"alice@example.com"</span>,
+  <span class="hl-attr">"address"</span>: {
+    <span class="hl-attr">"street"</span>: <span class="hl-string">"12 Oak Lane"</span>,
+    <span class="hl-attr">"postcode"</span>: <span class="hl-string">"BS1 4AA"</span>
+  }
+}
+
+<span class="hl-comment">// → 422 with loc: ["body", "address", "city"]</span>
+</code></pre>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- STEP 6 -->
+      <div class="step" id="step6">
+        <div class="step-number">6</div>
+        <div class="step-content">
+          <h3>Request Model vs Response Model</h3>
+          <p class="explanation">The model you use to receive data from the user is often different from the model you return. A signup form receives a password, but you should never return the password in a response. Use a separate model for output and set response_model= on the route decorator. FastAPI filters the response through that model automatically, so fields not in the output model are silently dropped.</p>
+          <div class="tabs" id="step6tabs">
+            <div class="tab-bar">
+              <button class="tab-btn active" onclick="switchTab('step6tabs',0)">two models</button>
+              <button class="tab-btn" onclick="switchTab('step6tabs',1)">what gets returned</button>
+            </div>
+            <div class="tab-panel active">
+              <div class="code-header"><span class="lang-label">python</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-keyword">from</span> fastapi <span class="hl-keyword">import</span> FastAPI
+<span class="hl-keyword">from</span> pydantic <span class="hl-keyword">import</span> BaseModel
+
+app = FastAPI()
+
+<span class="hl-comment"># --- Input model: what the caller sends ---</span>
+<span class="hl-keyword">class</span> <span class="hl-builtin">UserCreate</span>(BaseModel):
+    name: <span class="hl-builtin">str</span>
+    email: <span class="hl-builtin">str</span>
+    password: <span class="hl-builtin">str</span>    <span class="hl-comment"># received from the caller, never echoed back</span>
+
+<span class="hl-comment"># --- Output model: what the caller receives back ---</span>
+<span class="hl-keyword">class</span> <span class="hl-builtin">UserOut</span>(BaseModel):
+    id: <span class="hl-builtin">int</span>
+    name: <span class="hl-builtin">str</span>
+    email: <span class="hl-builtin">str</span>
+    <span class="hl-comment"># no "password" field — FastAPI will strip it from the response</span>
+
+<span class="hl-decorator">@app.post</span>(<span class="hl-string">"/users"</span>, response_model=UserOut)
+<span class="hl-comment"># ↑ FastAPI filters the return value through UserOut before sending it</span>
+<span class="hl-keyword">def</span> <span class="hl-builtin">create_user</span>(user: UserCreate):
+    <span class="hl-comment"># Pretend we saved to the DB and got back an ID.</span>
+    <span class="hl-comment"># Even though we return the password here, FastAPI drops it.</span>
+    <span class="hl-keyword">return</span> {
+        <span class="hl-string">"id"</span>: <span class="hl-number">42</span>,
+        <span class="hl-string">"name"</span>: user.name,
+        <span class="hl-string">"email"</span>: user.email,
+        <span class="hl-string">"password"</span>: user.password,  <span class="hl-comment"># silently dropped by response_model</span>
+    }
+</code></pre>
+            </div>
+            <div class="tab-panel">
+              <div class="code-header"><span class="lang-label">json</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-comment">// Request body sent by the caller:</span>
+{
+  <span class="hl-attr">"name"</span>: <span class="hl-string">"Alice"</span>,
+  <span class="hl-attr">"email"</span>: <span class="hl-string">"alice@example.com"</span>,
+  <span class="hl-attr">"password"</span>: <span class="hl-string">"s3cr3t!"</span>
+}
+
+<span class="hl-comment">// Response body returned to the caller:
+// "password" is completely absent — FastAPI filtered it out via response_model=UserOut</span>
+{
+  <span class="hl-attr">"id"</span>: <span class="hl-number">42</span>,
+  <span class="hl-attr">"name"</span>: <span class="hl-string">"Alice"</span>,
+  <span class="hl-attr">"email"</span>: <span class="hl-string">"alice@example.com"</span>
+}
+
+<span class="hl-comment">// The filtering happens inside FastAPI — you don't need to manually delete
+// the password from the dict you return. Anything not in UserOut is dropped.</span>
+</code></pre>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- STEP 7 -->
+      <div class="step" id="step7">
+        <div class="step-number">7</div>
+        <div class="step-content">
+          <h3>@field_validator</h3>
+          <p class="explanation">The @field_validator decorator lets you run a custom Python function after the type check passes. Use it when the built-in Field() constraints are not enough. Raising a ValueError inside the validator automatically returns a 422 error with your message.</p>
+          <div class="tabs" id="step7tabs">
+            <div class="tab-bar">
+              <button class="tab-btn active" onclick="switchTab('step7tabs',0)">validator examples</button>
+              <button class="tab-btn" onclick="switchTab('step7tabs',1)">raising an error</button>
+            </div>
+            <div class="tab-panel active">
+              <div class="code-header"><span class="lang-label">python</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-keyword">from</span> pydantic <span class="hl-keyword">import</span> BaseModel, field_validator
+
+<span class="hl-keyword">class</span> <span class="hl-builtin">ContactForm</span>(BaseModel):
+    name: <span class="hl-builtin">str</span>
+    email: <span class="hl-builtin">str</span>
+
+    <span class="hl-decorator">@field_validator</span>(<span class="hl-string">"name"</span>)
+    <span class="hl-decorator">@classmethod</span>
+    <span class="hl-keyword">def</span> <span class="hl-builtin">strip_whitespace</span>(cls, value: <span class="hl-builtin">str</span>) -&gt; <span class="hl-builtin">str</span>:
+        <span class="hl-comment"># Runs after the type check confirms "name" is a string.
+        # Strip leading/trailing spaces so "  Alice  " becomes "Alice".</span>
+        cleaned = value.strip()
+        <span class="hl-keyword">if not</span> cleaned:
+            <span class="hl-keyword">raise</span> <span class="hl-builtin">ValueError</span>(<span class="hl-string">"name cannot be blank"</span>)
+        <span class="hl-keyword">return</span> cleaned  <span class="hl-comment"># return the cleaned value — Pydantic stores this</span>
+
+    <span class="hl-decorator">@field_validator</span>(<span class="hl-string">"email"</span>)
+    <span class="hl-decorator">@classmethod</span>
+    <span class="hl-keyword">def</span> <span class="hl-builtin">check_email_format</span>(cls, value: <span class="hl-builtin">str</span>) -&gt; <span class="hl-builtin">str</span>:
+        <span class="hl-comment"># Basic check — a real app would use the email-validator package.</span>
+        <span class="hl-keyword">if</span> <span class="hl-string">"@"</span> <span class="hl-keyword">not in</span> value:
+            <span class="hl-keyword">raise</span> <span class="hl-builtin">ValueError</span>(<span class="hl-string">"must be a valid email address"</span>)
+        <span class="hl-keyword">return</span> value.lower()  <span class="hl-comment"># normalise to lowercase while we're here</span>
+
+<span class="hl-comment"># {"name": "  Alice  ", "email": "ALICE@EXAMPLE.COM"}
+# → name becomes "Alice", email becomes "alice@example.com"
+
+# {"name": "   ", "email": "alice@example.com"}
+# → 422: name cannot be blank</span>
+</code></pre>
+            </div>
+            <div class="tab-panel">
+              <div class="code-header"><span class="lang-label">python</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-comment"># When a validator raises ValueError, FastAPI catches it and returns 422.
+# The message you write becomes the "msg" in the error response.</span>
+
+<span class="hl-decorator">@field_validator</span>(<span class="hl-string">"email"</span>)
+<span class="hl-decorator">@classmethod</span>
+<span class="hl-keyword">def</span> <span class="hl-builtin">check_email_format</span>(cls, value: <span class="hl-builtin">str</span>) -&gt; <span class="hl-builtin">str</span>:
+    <span class="hl-keyword">if</span> <span class="hl-string">"@"</span> <span class="hl-keyword">not in</span> value:
+        <span class="hl-keyword">raise</span> <span class="hl-builtin">ValueError</span>(<span class="hl-string">"must be a valid email address"</span>)
+    <span class="hl-keyword">return</span> value
+
+<span class="hl-comment"># POST body: {"name": "Alice", "email": "not-an-email"}
+# FastAPI returns HTTP 422:</span>
+
+<span class="hl-comment">"""
+{
+  "detail": [
+    {
+      "loc": ["body", "email"],
+      "msg": "Value error, must be a valid email address",
+      "type": "value_error"
+    }
+  ]
+}
+"""</span>
+
+<span class="hl-comment"># Your function never ran. The validator stopped the request early.</span>
+</code></pre>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- STEP 8 -->
+      <div class="step" id="step8">
+        <div class="step-number">8</div>
+        <div class="step-content">
+          <h3>Validation Errors</h3>
+          <p class="explanation">When Pydantic rejects an input, FastAPI returns HTTP 422 with a JSON body describing every field that failed. The loc field is a list showing exactly which field caused the problem. The msg field gives a plain-English description of what went wrong. Knowing this structure helps you write frontend code that displays the right error message to the user.</p>
+          <div class="tabs" id="step8tabs">
+            <div class="tab-bar">
+              <button class="tab-btn active" onclick="switchTab('step8tabs',0)">error response</button>
+              <button class="tab-btn" onclick="switchTab('step8tabs',1)">handling in a frontend</button>
+            </div>
+            <div class="tab-panel active">
+              <div class="code-header"><span class="lang-label">json</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-comment">// POST /products with body: {"name": "X", "price": -5, "quantity": 0}
+// Three separate validation failures — FastAPI reports ALL of them at once:</span>
+
+{
+  <span class="hl-attr">"detail"</span>: [         <span class="hl-comment">// top-level key is always "detail"</span>
+    {
+      <span class="hl-attr">"loc"</span>: [<span class="hl-string">"body"</span>, <span class="hl-string">"name"</span>],   <span class="hl-comment">// ["body"] = came from request body, "name" = field name</span>
+      <span class="hl-attr">"msg"</span>: <span class="hl-string">"String should have at least 2 characters"</span>,  <span class="hl-comment">// human readable</span>
+      <span class="hl-attr">"type"</span>: <span class="hl-string">"string_too_short"</span>,                      <span class="hl-comment">// machine-readable code</span>
+      <span class="hl-attr">"input"</span>: <span class="hl-string">"X"</span>                                      <span class="hl-comment">// the value that was rejected</span>
+    },
+    {
+      <span class="hl-attr">"loc"</span>: [<span class="hl-string">"body"</span>, <span class="hl-string">"price"</span>],
+      <span class="hl-attr">"msg"</span>: <span class="hl-string">"Input should be greater than or equal to 0.01"</span>,
+      <span class="hl-attr">"type"</span>: <span class="hl-string">"greater_than_equal"</span>,
+      <span class="hl-attr">"input"</span>: <span class="hl-number">-5</span>
+    },
+    {
+      <span class="hl-attr">"loc"</span>: [<span class="hl-string">"body"</span>, <span class="hl-string">"quantity"</span>],
+      <span class="hl-attr">"msg"</span>: <span class="hl-string">"Input should be greater than or equal to 1"</span>,
+      <span class="hl-attr">"type"</span>: <span class="hl-string">"greater_than_equal"</span>,
+      <span class="hl-attr">"input"</span>: <span class="hl-number">0</span>
+    }
+  ]
+}
+</code></pre>
+            </div>
+            <div class="tab-panel">
+              <div class="code-header"><span class="lang-label">js</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-keyword">async function</span> <span class="hl-builtin">submitProduct</span>(data) {
+  <span class="hl-keyword">const</span> res = <span class="hl-keyword">await</span> fetch(<span class="hl-string">"/products"</span>, {
+    method: <span class="hl-string">"POST"</span>,
+    headers: { <span class="hl-string">"Content-Type"</span>: <span class="hl-string">"application/json"</span> },
+    body: JSON.stringify(data),
+  });
+
+  <span class="hl-keyword">if</span> (res.status === <span class="hl-number">422</span>) {
+    <span class="hl-comment">// Pydantic validation failed — read the error detail array</span>
+    <span class="hl-keyword">const</span> error = <span class="hl-keyword">await</span> res.json();
+
+    error.detail.forEach(<span class="hl-keyword">function</span>(err) {
+      <span class="hl-comment">// loc is an array like ["body", "name"] — take the last element</span>
+      <span class="hl-keyword">const</span> fieldName = err.loc[err.loc.length - <span class="hl-number">1</span>];
+      <span class="hl-keyword">const</span> message   = err.msg;
+
+      <span class="hl-comment">// Display the message next to the right input</span>
+      <span class="hl-keyword">const</span> el = document.getElementById(<span class="hl-string">"error-"</span> + fieldName);
+      <span class="hl-keyword">if</span> (el) el.textContent = message;
+    });
+
+    <span class="hl-keyword">return</span>;
+  }
+
+  <span class="hl-keyword">if</span> (res.ok) {
+    <span class="hl-keyword">const</span> result = <span class="hl-keyword">await</span> res.json();
+    console.log(<span class="hl-string">"Created:"</span>, result);
+  }
+}
+</code></pre>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- STEP 9 -->
+      <div class="step" id="step9">
+        <div class="step-number">9</div>
+        <div class="step-content">
+          <h3>What's Next</h3>
+          <p class="explanation">You now know how to validate data coming into your routes and shape the data going out. The next step is connecting Pydantic models to your database layer so your ORM models and your API schemas stay in sync.</p>
+          <div class="info-box">
+            <strong>Pydantic + SQLAlchemy</strong><br>
+            Use separate schema models (Pydantic) and ORM models (SQLAlchemy). Your Pydantic model describes what the API accepts and returns. Your SQLAlchemy model describes the database table. The database guide shows how to wire them together so a route can read a row from the DB and return it through a Pydantic response model in one step.
+          </div>
+          <div class="info-box">
+            <strong>model_config</strong><br>
+            Set <code>model_config = ConfigDict(from_attributes=True)</code> on a Pydantic model to build it directly from a SQLAlchemy ORM object. Without this setting, Pydantic only reads plain dicts. With it, you can write <code>UserOut.model_validate(db_user)</code> and Pydantic will pull the values from the ORM object's attributes automatically.
+          </div>
+          <div class="info-box">
+            <strong>API docs</strong><br>
+            Every <code>Field()</code> description and example you write appears automatically in the interactive <code>/docs</code> page that FastAPI generates. If you want to customise the page title, add a logo, or organise routes into named groups using tags, see the API Docs guide for the full walkthrough.
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </main>
+</div>
+<script>
+(function(){var s=localStorage.getItem("pyoffline-theme");if(s==="light")document.documentElement.classList.add("light");document.addEventListener("DOMContentLoaded",function(){var t=document.getElementById("themeToggle");if(!t)return;t.checked=(localStorage.getItem("pyoffline-theme")==="light");t.addEventListener("change",function(){if(this.checked){document.documentElement.classList.add("light");localStorage.setItem("pyoffline-theme","light");}else{document.documentElement.classList.remove("light");localStorage.setItem("pyoffline-theme","dark");}});});})();
+function switchTab(stepId,idx){var s=document.getElementById(stepId);var b=s.querySelectorAll(".tab-btn");var p=s.querySelectorAll(".tab-panel");b.forEach(function(x){x.classList.remove("active")});p.forEach(function(x){x.classList.remove("active")});b[idx].classList.add("active");p[idx].classList.add("active");}
+function copyCode(btn){var code=btn.closest(".tab-panel").querySelector("code").innerText;navigator.clipboard.writeText(code).then(function(){var o=btn.textContent;btn.textContent="Copied!";setTimeout(function(){btn.textContent=o;},1500);});}
+function toggleSidebar(){var s=document.getElementById("guideSidebar");var o=document.getElementById("sidebarOverlay");if(!s)return;s.classList.toggle("open");o.classList.toggle("open");}
+document.addEventListener("DOMContentLoaded",function(){var s=document.getElementById("guideSidebar");if(!s)return;s.querySelectorAll("nav a").forEach(function(a){a.addEventListener("click",function(){s.classList.remove("open");var o=document.getElementById("sidebarOverlay");if(o)o.classList.remove("open");});});});
+function toggleSbDesktop(){var c=document.body.classList.toggle("sb-collapsed");localStorage.setItem("sb-collapsed",c?"1":"0");}
+(function(){if(localStorage.getItem("sb-collapsed")==="1")document.body.classList.add("sb-collapsed");})();
+</script>
+</body>
+</html>

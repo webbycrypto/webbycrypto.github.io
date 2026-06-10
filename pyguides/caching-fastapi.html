@@ -1,0 +1,596 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Caching with Redis - FastAPI Guide - pyoffline</title>
+<style>
+:root{--bg:#121212;--surface:#1e1e1e;--surface2:#2a2a2a;--sidebar-bg:#1a1a1a;--text:#e0e0e0;--text-muted:#aaa;--text-dim:#666;--border:#333;--code-bg:#1e1e1e;--code-text:#d4d4d4;--shadow:rgba(0,0,0,.4);--accent:#dc382d;--hl-keyword:#569cd6;--hl-string:#ce9178;--hl-comment:#6a9955;--hl-number:#b5cea8;--hl-decorator:#dcdcaa;--hl-builtin:#4ec9b0;--hl-tag:#4ec9b0;--hl-attr:#9cdcfe;--hl-template:#c586c0}
+html.light{--bg:#f5f7fa;--surface:#ffffff;--surface2:#eef0f3;--sidebar-bg:#ffffff;--text:#1a1a1a;--text-muted:#555;--text-dim:#888;--border:#dde1e7;--code-bg:#f8f8f8;--code-text:#24292e;--shadow:rgba(0,0,0,.1);--hl-keyword:#0000ff;--hl-string:#a31515;--hl-comment:#008000;--hl-number:#098658;--hl-decorator:#795e26;--hl-builtin:#267f99;--hl-tag:#800000;--hl-attr:#e50000;--hl-template:#af00db}
+.hl-keyword{color:var(--hl-keyword)}.hl-string{color:var(--hl-string)}.hl-comment{color:#adb4a7;font-size:12px;font-style:italic}.hl-number{color:var(--hl-number)}.hl-decorator{color:var(--hl-decorator)}.hl-builtin{color:var(--hl-builtin)}.hl-tag{color:var(--hl-tag)}.hl-attr{color:var(--hl-attr)}.hl-template{color:var(--hl-template)}
+*{box-sizing:border-box;margin:0;padding:0}body{background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;transition:background .2s,color .2s}a{color:var(--accent)}.layout{display:flex;min-height:100vh}.sidebar{width:260px;min-width:260px;background:var(--sidebar-bg);border-right:1px solid var(--border);padding:24px 16px;position:sticky;top:0;height:100vh;overflow-y:auto}.sidebar h2{font-size:1.1rem;margin:16px 0 8px;color:var(--text)}.sidebar nav ol{padding-left:18px}.sidebar nav li{margin:6px 0}.sidebar nav a{color:var(--text-muted);text-decoration:none;font-size:0.85rem}.sidebar nav a:hover{color:var(--accent)}.back-link{color:var(--text-dim);text-decoration:none;font-size:0.85rem;display:block;margin-bottom:8px}.install-box{margin-top:24px;background:var(--bg);border:1px solid var(--border);padding:12px;border-radius:6px;font-size:0.8rem}.install-box code{display:block;word-break:break-all;color:var(--hl-comment);font-family:monospace;margin-top:4px}main{flex:1;padding:40px;max-width:860px}.guide-header{padding:20px 20px 20px 24px;background:var(--surface);border-radius:8px;margin-bottom:32px;box-shadow:0 1px 3px var(--shadow)}.guide-header h1{font-size:1.8rem;margin-bottom:8px}.guide-header p{color:var(--text-muted)}.step{display:flex;gap:16px;margin-bottom:40px}.step-number{width:32px;min-width:32px;height:32px;background:var(--accent);border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:bold;font-size:0.9rem;margin-top:4px;color:#fff}.step-content{flex:1;min-width:0}.step-content h3{font-size:1.1rem;margin-bottom:8px;color:var(--text)}.explanation{color:var(--text-muted);font-size:0.9rem;line-height:1.6;margin-bottom:14px}.info-box{background:var(--surface);border-left:3px solid var(--accent);border-radius:0 6px 6px 0;padding:12px 16px;margin-bottom:14px;font-size:0.88rem;color:var(--text-muted);line-height:1.6}.info-box strong{color:var(--text)}.crud-table{width:100%;border-collapse:collapse;margin-bottom:14px;font-size:0.85rem}.crud-table th{background:var(--surface2);color:var(--text-muted);text-align:left;padding:8px 12px;border:1px solid var(--border);font-weight:600}.crud-table td{padding:8px 12px;border:1px solid var(--border);color:var(--text)}.crud-table tr:nth-child(even) td{background:var(--surface)}.tabs{background:var(--surface);border-radius:6px;overflow:hidden;border:1px solid var(--border)}.tab-bar{display:flex;background:var(--surface2);overflow-x:auto;border-bottom:1px solid var(--border)}.tab-btn{padding:8px 16px;background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:0.8rem;white-space:nowrap;border-bottom:2px solid transparent;margin-bottom:-1px}.tab-btn.active{color:var(--text);border-bottom-color:var(--accent)}.tab-panel{display:none}.tab-panel.active{display:block}.code-header{display:flex;justify-content:space-between;align-items:center;padding:5px 12px;background:var(--surface2);border-bottom:1px solid var(--border)}.lang-label{font-size:0.72rem;color:var(--text-dim);text-transform:uppercase;letter-spacing:.04em}.copy-btn{background:none;border:1px solid var(--border);color:var(--text-muted);padding:2px 8px;cursor:pointer;border-radius:3px;font-size:0.72rem}.copy-btn:hover{color:var(--text);border-color:var(--text-muted)}pre{overflow-x:auto;padding:16px;background:var(--code-bg)}code{font-family:"Fira Code","Cascadia Code","Consolas",monospace;font-size:0.82rem;line-height:1.65;color:var(--code-text)}.theme-row{display:flex;align-items:center;gap:8px;margin-top:20px}.theme-label{font-size:0.78rem;color:var(--text-muted)}.toggle-switch{position:relative;display:inline-block;width:40px;height:22px}.toggle-switch input{opacity:0;width:0;height:0}.slider{position:absolute;cursor:pointer;inset:0;background:var(--surface2);border:1px solid var(--border);border-radius:22px;transition:background .2s}.slider:before{content:"";position:absolute;width:16px;height:16px;left:2px;top:2px;background:var(--text-muted);border-radius:50%;transition:transform .2s,background .2s}.toggle-switch input:checked+.slider{background:var(--accent);border-color:var(--accent)}.toggle-switch input:checked+.slider:before{transform:translateX(18px);background:#fff}.sidebar-toggle{display:none;position:fixed;top:12px;left:12px;z-index:300;background:var(--accent);color:#fff;border:none;padding:7px 14px;border-radius:6px;cursor:pointer;font-size:0.85rem;font-weight:600;box-shadow:0 2px 8px var(--shadow);align-items:center;gap:6px}.sidebar-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:190}.sidebar-overlay.open{display:block}@media(max-width:900px){.sidebar-toggle{display:flex}.layout{display:block}.sidebar{position:fixed;left:-280px;top:0;height:100vh;z-index:200;transition:left .25s ease;box-shadow:2px 0 16px var(--shadow);min-width:260px}.sidebar.open{left:0}main{padding:60px 20px 40px;max-width:100%}pre{overflow-x:auto;max-width:100%;white-space:pre-wrap;word-break:break-word}.tabs{max-width:100%}}.sidebar{transition:width .2s ease,min-width .2s ease,padding .2s ease}.sb-pin{display:flex;justify-content:flex-end;margin-bottom:8px}.sb-pin button{background:none;border:1px solid var(--border);color:var(--text-dim);cursor:pointer;border-radius:4px;padding:2px 7px;font-size:11px;line-height:1.6}.sb-pin button:hover{color:var(--accent);border-color:var(--accent)}.sb-reopen{display:none;position:fixed;left:0;top:50%;transform:translateY(-50%);background:var(--accent);color:#fff;border:none;border-radius:0 4px 4px 0;padding:10px 5px;cursor:pointer;z-index:300;font-size:11px;font-weight:600;writing-mode:vertical-rl;letter-spacing:.05em}@media(min-width:901px){body.sb-collapsed .sidebar{width:0;min-width:0;padding:0;overflow:hidden;border-right:none}body.sb-collapsed .sb-reopen{display:block}}@media(max-width:900px){.sb-pin{display:none}.sb-reopen{display:none!important}}
+</style>
+</head>
+<body>
+<button class="sidebar-toggle" id="sidebarToggle" onclick="toggleSidebar()">&#9776; Steps</button>
+<div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+<button class="sb-reopen" onclick="toggleSbDesktop()">Steps</button>
+<div class="layout">
+  <aside class="sidebar" id="guideSidebar">
+    <div class="sb-pin"><button onclick="toggleSbDesktop()">&#9664; Hide</button></div>
+    <a href="index.html" class="back-link">&#8592; All Guides</a>
+    <h2>Caching</h2>
+    <nav><ol>
+      <li><a href="#step1">What is Caching?</a></li>
+      <li><a href="#step2">In-Memory Cache</a></li>
+      <li><a href="#step3">Install Redis</a></li>
+      <li><a href="#step4">Connect to Redis</a></li>
+      <li><a href="#step5">Cache a DB Query</a></li>
+      <li><a href="#step6">TTL — Expiry Times</a></li>
+      <li><a href="#step7">Cache Invalidation</a></li>
+      <li><a href="#step8">Cache Decorator</a></li>
+      <li><a href="#step9">What's Next</a></li>
+    </ol></nav>
+    <div class="install-box">
+      <p><strong>Install</strong></p>
+      <code>pip install fastapi uvicorn redis python-dotenv</code>
+      <p style="margin-top:12px"><strong>Redis (Docker)</strong></p>
+      <code>docker run -d -p 6379:6379 redis:alpine</code>
+    </div>
+    <div class="theme-row">
+      <span class="theme-label">Dark</span>
+      <label class="toggle-switch"><input type="checkbox" id="themeToggle"><span class="slider"></span></label>
+      <span class="theme-label">Light</span>
+    </div>
+  </aside>
+  <main>
+    <header class="guide-header" style="border-left:5px solid #dc382d">
+      <h1>Caching with FastAPI and Redis</h1>
+      <p>Stop running the same database query a thousand times. Covers in-memory TTL caching, Redis setup, caching database results, expiry times, cache invalidation, and a reusable cache decorator.</p>
+    </header>
+    <div class="steps">
+
+      <!-- Step 1 -->
+      <div class="step" id="step1">
+        <div class="step-number">1</div>
+        <div class="step-content">
+          <h3>What is Caching?</h3>
+          <p class="explanation">Every time a user loads a page, your app queries the database, does calculations, or calls external services. If 1000 users load the same page at once, that is 1000 identical database queries. Caching stores the result of a slow operation so the next request gets it from memory instantly without hitting the database again. The tradeoff is that cached data can go out of date, so every cached value has a time limit called a TTL, after which it expires and the next request fetches fresh data.</p>
+          <div class="tabs" id="step1">
+            <div class="tab-bar">
+              <button class="tab-btn active" onclick="switchTab('step1',0)">without cache</button>
+              <button class="tab-btn" onclick="switchTab('step1',1)">with cache</button>
+            </div>
+            <div class="tab-panel active" id="step1_panel0">
+              <div class="code-header"><span class="lang-label">python</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-keyword">from</span> fastapi <span class="hl-keyword">import</span> FastAPI
+<span class="hl-keyword">from</span> database <span class="hl-keyword">import</span> get_products  <span class="hl-comment"># your db query function</span>
+
+app = FastAPI()
+
+<span class="hl-comment"># PROBLEM: every single request hits the database.</span>
+<span class="hl-comment"># 1000 users load /products at the same time = 1000 identical queries.</span>
+<span class="hl-comment"># The result is the same for all of them, so almost all that work is wasted.</span>
+
+<span class="hl-decorator">@app.get</span>(<span class="hl-string">"/products"</span>)
+<span class="hl-keyword">async def</span> <span class="hl-builtin">list_products</span>():
+    products = get_products()  <span class="hl-comment"># slow — hits the database every time</span>
+    <span class="hl-keyword">return</span> products</code></pre>
+            </div>
+            <div class="tab-panel" id="step1_panel1">
+              <div class="code-header"><span class="lang-label">python</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-keyword">from</span> fastapi <span class="hl-keyword">import</span> FastAPI
+<span class="hl-keyword">from</span> database <span class="hl-keyword">import</span> get_products
+<span class="hl-keyword">import</span> some_cache  <span class="hl-comment"># in-memory dict or Redis — details in next steps</span>
+
+app = FastAPI()
+
+<span class="hl-comment"># SOLUTION: check the cache first.</span>
+<span class="hl-comment"># Cache HIT  → return instantly, no database involved at all.</span>
+<span class="hl-comment"># Cache MISS → query the database, store the result, then return.</span>
+<span class="hl-comment"># 1000 users = 1 database query + 999 instant cache reads.</span>
+
+<span class="hl-decorator">@app.get</span>(<span class="hl-string">"/products"</span>)
+<span class="hl-keyword">async def</span> <span class="hl-builtin">list_products</span>():
+    cached = some_cache.get(<span class="hl-string">"products:all"</span>)
+    <span class="hl-keyword">if</span> cached:
+        <span class="hl-keyword">return</span> cached  <span class="hl-comment"># cache hit — returned in microseconds</span>
+
+    products = get_products()              <span class="hl-comment"># cache miss — query the db</span>
+    some_cache.set(<span class="hl-string">"products:all"</span>, products, ttl=<span class="hl-number">300</span>)  <span class="hl-comment"># store for 5 minutes</span>
+    <span class="hl-keyword">return</span> products</code></pre>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 2 -->
+      <div class="step" id="step2">
+        <div class="step-number">2</div>
+        <div class="step-content">
+          <h3>In-Memory Cache (No Redis)</h3>
+          <p class="explanation">The simplest cache is a Python dictionary with timestamps. It stores values with an expiry time and checks whether the value is still fresh before returning it. This approach works for a single-server app and needs no extra software to install. It has two downsides: the cache disappears when the server restarts, and it is not shared if you run multiple server processes.</p>
+          <div class="tabs" id="step2">
+            <div class="tab-bar">
+              <button class="tab-btn active" onclick="switchTab('step2',0)">cache functions</button>
+              <button class="tab-btn" onclick="switchTab('step2',1)">using it in a route</button>
+            </div>
+            <div class="tab-panel active" id="step2_panel0">
+              <div class="code-header"><span class="lang-label">python</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-keyword">import</span> time
+
+<span class="hl-comment"># A plain dict: { key: {"value": ..., "expires_at": timestamp} }</span>
+_cache: dict = {}
+
+<span class="hl-keyword">def</span> <span class="hl-builtin">cache_get</span>(key: str, ttl: int):
+    <span class="hl-string">"""Return cached value if it exists and has not expired, else None."""</span>
+    entry = _cache.get(key)
+    <span class="hl-keyword">if</span> entry <span class="hl-keyword">is</span> <span class="hl-keyword">None</span>:
+        <span class="hl-keyword">return</span> <span class="hl-keyword">None</span>                  <span class="hl-comment"># key not in cache at all</span>
+    <span class="hl-keyword">if</span> time.time() &gt; entry[<span class="hl-string">"expires_at"</span>]:
+        <span class="hl-keyword">del</span> _cache[key]              <span class="hl-comment"># value is stale — remove it</span>
+        <span class="hl-keyword">return</span> <span class="hl-keyword">None</span>
+    <span class="hl-keyword">return</span> entry[<span class="hl-string">"value"</span>]          <span class="hl-comment"># still fresh — return it</span>
+
+<span class="hl-keyword">def</span> <span class="hl-builtin">cache_set</span>(key: str, value, ttl: int):
+    <span class="hl-string">"""Store value in cache with an expiry time (ttl in seconds)."""</span>
+    _cache[key] = {
+        <span class="hl-string">"value"</span>: value,
+        <span class="hl-string">"expires_at"</span>: time.time() + ttl,  <span class="hl-comment"># absolute timestamp when it expires</span>
+    }</code></pre>
+            </div>
+            <div class="tab-panel" id="step2_panel1">
+              <div class="code-header"><span class="lang-label">python</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-keyword">from</span> fastapi <span class="hl-keyword">import</span> FastAPI
+<span class="hl-keyword">from</span> cache <span class="hl-keyword">import</span> cache_get, cache_set  <span class="hl-comment"># the functions from the other tab</span>
+
+app = FastAPI()
+
+<span class="hl-comment"># Fake database function — replace with your real SQLAlchemy / psycopg2 call</span>
+<span class="hl-keyword">def</span> <span class="hl-builtin">fetch_products_from_db</span>():
+    <span class="hl-keyword">return</span> [{<span class="hl-string">"id"</span>: <span class="hl-number">1</span>, <span class="hl-string">"name"</span>: <span class="hl-string">"Widget"</span>}, {<span class="hl-string">"id"</span>: <span class="hl-number">2</span>, <span class="hl-string">"name"</span>: <span class="hl-string">"Gadget"</span>}]
+
+CACHE_TTL = <span class="hl-number">300</span>  <span class="hl-comment"># 5 minutes</span>
+
+<span class="hl-decorator">@app.get</span>(<span class="hl-string">"/products"</span>)
+<span class="hl-keyword">async def</span> <span class="hl-builtin">list_products</span>():
+    cached = cache_get(<span class="hl-string">"products:all"</span>, CACHE_TTL)
+    <span class="hl-keyword">if</span> cached <span class="hl-keyword">is not</span> <span class="hl-keyword">None</span>:
+        <span class="hl-keyword">return</span> cached               <span class="hl-comment"># hit — no database involved</span>
+
+    products = fetch_products_from_db()   <span class="hl-comment"># miss — query the database</span>
+    cache_set(<span class="hl-string">"products:all"</span>, products, CACHE_TTL)  <span class="hl-comment"># store the result</span>
+    <span class="hl-keyword">return</span> products</code></pre>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 3 -->
+      <div class="step" id="step3">
+        <div class="step-number">3</div>
+        <div class="step-content">
+          <h3>Install Redis</h3>
+          <p class="explanation">Redis is an in-memory data store that is fast, shared across all server processes, and persists between restarts. It is the standard choice for caching in production. The easiest way to run it locally is with Docker. On Mac and Linux you can also install it directly.</p>
+          <div class="tabs" id="step3">
+            <div class="tab-bar">
+              <button class="tab-btn active" onclick="switchTab('step3',0)">install</button>
+              <button class="tab-btn" onclick="switchTab('step3',1)">.env</button>
+            </div>
+            <div class="tab-panel active" id="step3_panel0">
+              <div class="code-header"><span class="lang-label">bash</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-comment"># Option 1: Docker (works on Windows, Mac, Linux — recommended)</span>
+docker run -d -p 6379:6379 --name redis redis:alpine
+
+<span class="hl-comment"># Option 2: Homebrew (Mac only)</span>
+brew install redis
+brew services start redis
+
+<span class="hl-comment"># Option 3: apt (Ubuntu / Debian)</span>
+sudo apt update &amp;&amp; sudo apt install redis-server -y
+sudo systemctl start redis
+
+<span class="hl-comment"># Install the Python client</span>
+pip install redis
+
+<span class="hl-comment"># Verify Redis is running — should print PONG</span>
+redis-cli ping</code></pre>
+            </div>
+            <div class="tab-panel" id="step3_panel1">
+              <div class="code-header"><span class="lang-label">text</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-comment"># .env</span>
+
+<span class="hl-comment"># Format: redis://host:port/db-number</span>
+<span class="hl-comment"># Redis has 16 databases numbered 0-15. Use 0 for your main app.</span>
+<span class="hl-comment"># Use a different number (e.g. /1) if you need to isolate test data.</span>
+REDIS_URL=redis://localhost:6379/0
+
+<span class="hl-comment"># Production example (Redis with password on a remote server):</span>
+<span class="hl-comment"># REDIS_URL=redis://:yourpassword@your-redis-host:6379/0</span>
+
+<span class="hl-comment"># Redis Cloud / Upstash (managed Redis services):</span>
+<span class="hl-comment"># REDIS_URL=rediss://username:password@host:port/0  (note: rediss:// for TLS)</span></code></pre>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 4 -->
+      <div class="step" id="step4">
+        <div class="step-number">4</div>
+        <div class="step-content">
+          <h3>Connect to Redis in FastAPI</h3>
+          <p class="explanation">The redis Python library connects to Redis. Create a client once at module level so it is reused across all requests instead of creating a new connection every time. The from_url() method reads the connection string from your environment so you can switch between local and production Redis without changing code.</p>
+          <div class="tabs" id="step4">
+            <div class="tab-bar">
+              <button class="tab-btn active" onclick="switchTab('step4',0)">connection setup</button>
+              <button class="tab-btn" onclick="switchTab('step4',1)">startup check</button>
+            </div>
+            <div class="tab-panel active" id="step4_panel0">
+              <div class="code-header"><span class="lang-label">python</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-comment"># cache.py</span>
+<span class="hl-keyword">import</span> os
+<span class="hl-keyword">import</span> redis
+<span class="hl-keyword">from</span> dotenv <span class="hl-keyword">import</span> load_dotenv
+
+load_dotenv()
+
+<span class="hl-comment"># Create ONE client at module level — reused for the lifetime of the process.</span>
+<span class="hl-comment"># decode_responses=True means get() returns a str instead of bytes,</span>
+<span class="hl-comment"># so you can pass the result straight to json.loads() without decoding.</span>
+redis_client = redis.from_url(
+    os.getenv(<span class="hl-string">"REDIS_URL"</span>, <span class="hl-string">"redis://localhost:6379/0"</span>),
+    decode_responses=<span class="hl-keyword">True</span>,  <span class="hl-comment"># always set this — saves you a .decode("utf-8") everywhere</span>
+)
+
+<span class="hl-comment"># Import this client in your routes:</span>
+<span class="hl-comment"># from cache import redis_client</span></code></pre>
+            </div>
+            <div class="tab-panel" id="step4_panel1">
+              <div class="code-header"><span class="lang-label">python</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-comment"># main.py</span>
+<span class="hl-keyword">from</span> fastapi <span class="hl-keyword">import</span> FastAPI
+<span class="hl-keyword">from</span> cache <span class="hl-keyword">import</span> redis_client
+
+app = FastAPI()
+
+<span class="hl-comment"># Check the Redis connection when the server starts.</span>
+<span class="hl-comment"># If Redis is down, the app refuses to start instead of silently failing</span>
+<span class="hl-comment"># at runtime when the first request tries to use it.</span>
+<span class="hl-decorator">@app.on_event</span>(<span class="hl-string">"startup"</span>)
+<span class="hl-keyword">async def</span> <span class="hl-builtin">check_redis</span>():
+    <span class="hl-keyword">try</span>:
+        redis_client.ping()         <span class="hl-comment"># raises ConnectionError if Redis is not running</span>
+        <span class="hl-builtin">print</span>(<span class="hl-string">"Redis connection OK"</span>)
+    <span class="hl-keyword">except</span> Exception <span class="hl-keyword">as</span> e:
+        <span class="hl-comment"># Raise so uvicorn exits with a clear message — much better than</span>
+        <span class="hl-comment"># a confusing ConnectionError on the first request in production.</span>
+        <span class="hl-keyword">raise</span> <span class="hl-builtin">RuntimeError</span>(<span class="hl-string">f"Cannot connect to Redis: </span><span class="hl-template">{e}</span><span class="hl-string">"</span>)</code></pre>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 5 -->
+      <div class="step" id="step5">
+        <div class="step-number">5</div>
+        <div class="step-content">
+          <h3>Cache a Database Query</h3>
+          <p class="explanation">The pattern is always the same: check if the key exists in Redis, return it immediately if it does, query the database if it does not, store the result in Redis with a TTL, then return it. The key must be unique per query, so include the query parameters in the key name.</p>
+          <div class="tabs" id="step5">
+            <div class="tab-bar">
+              <button class="tab-btn active" onclick="switchTab('step5',0)">the pattern</button>
+              <button class="tab-btn" onclick="switchTab('step5',1)">helper function</button>
+            </div>
+            <div class="tab-panel active" id="step5_panel0">
+              <div class="code-header"><span class="lang-label">python</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-keyword">import</span> json
+<span class="hl-keyword">from</span> fastapi <span class="hl-keyword">import</span> FastAPI, HTTPException
+<span class="hl-keyword">from</span> cache <span class="hl-keyword">import</span> redis_client
+<span class="hl-keyword">from</span> database <span class="hl-keyword">import</span> get_user_by_id  <span class="hl-comment"># your real db function</span>
+
+app = FastAPI()
+
+<span class="hl-decorator">@app.get</span>(<span class="hl-string">"/users/{user_id}"</span>)
+<span class="hl-keyword">async def</span> <span class="hl-builtin">get_user</span>(user_id: int):
+    cache_key = <span class="hl-string">f"user:</span><span class="hl-template">{user_id}</span><span class="hl-string">"</span>  <span class="hl-comment"># key includes the id — different users = different keys</span>
+
+    <span class="hl-comment"># Step 1: check Redis for a cached copy</span>
+    cached = redis_client.get(cache_key)
+    <span class="hl-keyword">if</span> cached:
+        <span class="hl-keyword">return</span> json.loads(cached)   <span class="hl-comment"># cache hit — deserialise and return immediately</span>
+
+    <span class="hl-comment"># Step 2: cache miss — go to the database</span>
+    user = get_user_by_id(user_id)
+    <span class="hl-keyword">if</span> <span class="hl-keyword">not</span> user:
+        <span class="hl-keyword">raise</span> HTTPException(status_code=<span class="hl-number">404</span>, detail=<span class="hl-string">"User not found"</span>)
+
+    <span class="hl-comment"># Step 3: store in Redis.</span>
+    <span class="hl-comment"># setex(key, seconds, value) — sets the value AND an expiry in one call.</span>
+    <span class="hl-comment"># 300 seconds = 5 minutes. After that, Redis deletes the key automatically.</span>
+    redis_client.setex(cache_key, <span class="hl-number">300</span>, json.dumps(user))
+
+    <span class="hl-keyword">return</span> user  <span class="hl-comment"># Step 4: return the fresh data</span></code></pre>
+            </div>
+            <div class="tab-panel" id="step5_panel1">
+              <div class="code-header"><span class="lang-label">python</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-keyword">import</span> json
+<span class="hl-keyword">from</span> typing <span class="hl-keyword">import</span> Callable, Any
+<span class="hl-keyword">from</span> cache <span class="hl-keyword">import</span> redis_client
+
+<span class="hl-keyword">def</span> <span class="hl-builtin">get_or_cache</span>(key: str, ttl: int, fn: Callable[[], Any]) -&gt; Any:
+    <span class="hl-string">"""
+    Check Redis for key. If present, return it.
+    If missing, call fn() to get the value, cache it, and return it.
+
+    Usage:
+        data = get_or_cache("user:42", ttl=300, fn=lambda: fetch_user(42))
+    """</span>
+    cached = redis_client.get(key)
+    <span class="hl-keyword">if</span> cached:
+        <span class="hl-keyword">return</span> json.loads(cached)   <span class="hl-comment"># hit — return without calling fn at all</span>
+
+    value = fn()                    <span class="hl-comment"># miss — call the fallback (db query, API call, etc.)</span>
+    redis_client.setex(key, ttl, json.dumps(value))  <span class="hl-comment"># store with expiry</span>
+    <span class="hl-keyword">return</span> value
+
+<span class="hl-comment"># Using the helper in a route — much less boilerplate than the manual pattern</span>
+<span class="hl-decorator">@app.get</span>(<span class="hl-string">"/users/{user_id}"</span>)
+<span class="hl-keyword">async def</span> <span class="hl-builtin">get_user</span>(user_id: int):
+    <span class="hl-keyword">return</span> get_or_cache(
+        key=<span class="hl-string">f"user:</span><span class="hl-template">{user_id}</span><span class="hl-string">"</span>,
+        ttl=<span class="hl-number">300</span>,
+        fn=<span class="hl-keyword">lambda</span>: get_user_by_id(user_id),
+    )</code></pre>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 6 -->
+      <div class="step" id="step6">
+        <div class="step-number">6</div>
+        <div class="step-content">
+          <h3>TTL — Setting Expiry Times</h3>
+          <p class="explanation">The TTL is how many seconds a cached value stays valid. Set it too short and you do not get much benefit. Set it too long and users see stale data. The right value depends on how often the underlying data changes and how bad it would be to show old data.</p>
+          <div class="tabs" id="step6">
+            <div class="tab-bar">
+              <button class="tab-btn active" onclick="switchTab('step6',0)">setex examples</button>
+              <button class="tab-btn" onclick="switchTab('step6',1)">TTL reference</button>
+            </div>
+            <div class="tab-panel active" id="step6_panel0">
+              <div class="code-header"><span class="lang-label">python</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-keyword">import</span> json
+<span class="hl-keyword">from</span> cache <span class="hl-keyword">import</span> redis_client
+
+<span class="hl-comment"># setex(key, seconds, value) — the standard way to cache with an expiry.</span>
+<span class="hl-comment"># Redis deletes the key automatically when the TTL runs out.</span>
+
+<span class="hl-comment"># User profile — changes occasionally, short TTL is fine</span>
+redis_client.setex(<span class="hl-string">f"user:</span><span class="hl-template">{user_id}</span><span class="hl-string">"</span>, <span class="hl-number">300</span>, json.dumps(user_data))      <span class="hl-comment"># 5 minutes</span>
+
+<span class="hl-comment"># Product list — changes rarely, longer TTL reduces db load significantly</span>
+redis_client.setex(<span class="hl-string">"products:all"</span>, <span class="hl-number">600</span>, json.dumps(products))           <span class="hl-comment"># 10 minutes</span>
+
+<span class="hl-comment"># Homepage aggregated stats — expensive query, changes slowly</span>
+redis_client.setex(<span class="hl-string">"homepage:stats"</span>, <span class="hl-number">3600</span>, json.dumps(stats))          <span class="hl-comment"># 1 hour</span>
+
+<span class="hl-comment"># App configuration — basically never changes, cache for a full day</span>
+redis_client.setex(<span class="hl-string">"config:feature_flags"</span>, <span class="hl-number">86400</span>, json.dumps(config))   <span class="hl-comment"># 24 hours</span>
+
+<span class="hl-comment"># Check how long a key has left before expiry</span>
+ttl_remaining = redis_client.ttl(<span class="hl-string">f"user:</span><span class="hl-template">{user_id}</span><span class="hl-string">"</span>)
+<span class="hl-comment"># Returns seconds remaining, -1 if no expiry, -2 if key does not exist</span></code></pre>
+            </div>
+            <div class="tab-panel" id="step6_panel1">
+              <div class="code-header"><span class="lang-label">table</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-comment"># TTL reference — these are starting points, tune for your app</span></code></pre>
+              <div style="padding:16px">
+                <table class="crud-table">
+                  <thead>
+                    <tr>
+                      <th>Data type</th>
+                      <th>Recommended TTL</th>
+                      <th>Why</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr><td>User profile</td><td>300 s (5 min)</td><td>Changes occasionally on user action — short TTL keeps it fresh without hammering the db</td></tr>
+                    <tr><td>Product / item list</td><td>600 s (10 min)</td><td>Rarely changes mid-session; 10 minutes is a good balance between freshness and performance</td></tr>
+                    <tr><td>Search results</td><td>120 s (2 min)</td><td>Results can change as new items are added; short TTL avoids stale search pages</td></tr>
+                    <tr><td>Aggregated stats</td><td>3600 s (1 hr)</td><td>Expensive GROUP BY / COUNT queries; users expect slight delays in dashboards</td></tr>
+                    <tr><td>Public homepage data</td><td>3600 s (1 hr)</td><td>Shown to everyone — high traffic, low update frequency</td></tr>
+                    <tr><td>App configuration / feature flags</td><td>86400 s (24 hr)</td><td>Changes only on deploys; safe to cache for a full day</td></tr>
+                    <tr><td>Auth tokens / sessions</td><td>Match token expiry</td><td>Cache the decoded token payload to skip db lookups on every request</td></tr>
+                    <tr><td>Rate limit counters</td><td>Window size (e.g. 3600 s)</td><td>Redis TTL naturally resets the counter when the window expires</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 7 -->
+      <div class="step" id="step7">
+        <div class="step-number">7</div>
+        <div class="step-content">
+          <h3>Cache Invalidation</h3>
+          <p class="explanation">When data changes in the database, the cache still holds the old version. Invalidation means deleting the cached key so the next request fetches fresh data. The simplest rule is: in every route that writes to the database, delete the cache keys for the data you just changed.</p>
+          <div class="tabs" id="step7">
+            <div class="tab-bar">
+              <button class="tab-btn active" onclick="switchTab('step7',0)">delete on write</button>
+              <button class="tab-btn" onclick="switchTab('step7',1)">delete multiple keys</button>
+            </div>
+            <div class="tab-panel active" id="step7_panel0">
+              <div class="code-header"><span class="lang-label">python</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-keyword">from</span> fastapi <span class="hl-keyword">import</span> FastAPI, HTTPException
+<span class="hl-keyword">from</span> cache <span class="hl-keyword">import</span> redis_client
+<span class="hl-keyword">from</span> database <span class="hl-keyword">import</span> update_user_in_db, get_user_by_id
+<span class="hl-keyword">from</span> pydantic <span class="hl-keyword">import</span> BaseModel
+
+app = FastAPI()
+
+<span class="hl-keyword">class</span> <span class="hl-builtin">UserUpdate</span>(BaseModel):
+    name: str
+    email: str
+
+<span class="hl-decorator">@app.put</span>(<span class="hl-string">"/users/{user_id}"</span>)
+<span class="hl-keyword">async def</span> <span class="hl-builtin">update_user</span>(user_id: int, body: UserUpdate):
+    <span class="hl-comment"># Step 1: write the new data to the database first</span>
+    updated = update_user_in_db(user_id, body.dict())
+    <span class="hl-keyword">if</span> <span class="hl-keyword">not</span> updated:
+        <span class="hl-keyword">raise</span> HTTPException(status_code=<span class="hl-number">404</span>, detail=<span class="hl-string">"User not found"</span>)
+
+    <span class="hl-comment"># Step 2: delete the cached version so the next GET fetches fresh data.</span>
+    <span class="hl-comment"># redis_client.delete() is safe even if the key does not exist — no error.</span>
+    redis_client.delete(<span class="hl-string">f"user:</span><span class="hl-template">{user_id}</span><span class="hl-string">"</span>)
+
+    <span class="hl-keyword">return</span> {<span class="hl-string">"ok"</span>: <span class="hl-keyword">True</span>, <span class="hl-string">"user_id"</span>: user_id}</code></pre>
+            </div>
+            <div class="tab-panel" id="step7_panel1">
+              <div class="code-header"><span class="lang-label">python</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-keyword">from</span> cache <span class="hl-keyword">import</span> redis_client
+
+<span class="hl-comment"># Delete multiple specific keys in one call — more efficient than calling delete() in a loop</span>
+redis_client.delete(<span class="hl-string">f"user:</span><span class="hl-template">{user_id}</span><span class="hl-string">"</span>, <span class="hl-string">"users:all"</span>, <span class="hl-string">"homepage:stats"</span>)
+
+<span class="hl-comment"># ---- Pattern-based deletion ----</span>
+<span class="hl-comment"># redis_client.keys("user:*") scans the entire key space for matching keys.</span>
+<span class="hl-comment"># Fine for development or small datasets, but DO NOT use on large production</span>
+<span class="hl-comment"># databases — it blocks the Redis server while scanning and can cause timeouts.</span>
+<span class="hl-comment"># Use SCAN-based iteration or a dedicated key registry for production pattern deletes.</span>
+
+keys_to_delete = redis_client.keys(<span class="hl-string">"user:*"</span>)   <span class="hl-comment"># find all user keys</span>
+<span class="hl-keyword">if</span> keys_to_delete:
+    redis_client.delete(*keys_to_delete)           <span class="hl-comment"># unpack list and delete all at once</span>
+
+<span class="hl-comment"># Production-safe pattern scan using SCAN (non-blocking, cursor-based)</span>
+cursor = <span class="hl-number">0</span>
+<span class="hl-keyword">while</span> <span class="hl-keyword">True</span>:
+    cursor, keys = redis_client.scan(cursor, match=<span class="hl-string">"user:*"</span>, count=<span class="hl-number">100</span>)
+    <span class="hl-keyword">if</span> keys:
+        redis_client.delete(*keys)
+    <span class="hl-keyword">if</span> cursor == <span class="hl-number">0</span>:  <span class="hl-comment"># cursor returns to 0 when the full scan is complete</span>
+        <span class="hl-keyword">break</span></code></pre>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 8 -->
+      <div class="step" id="step8">
+        <div class="step-number">8</div>
+        <div class="step-content">
+          <h3>Cache Decorator</h3>
+          <p class="explanation">Repeating the check/store logic in every route gets tedious. A decorator wraps any route function and handles the cache automatically. You add one line above your function and the decorator does the rest.</p>
+          <div class="tabs" id="step8">
+            <div class="tab-bar">
+              <button class="tab-btn active" onclick="switchTab('step8',0)">the decorator</button>
+              <button class="tab-btn" onclick="switchTab('step8',1)">using the decorator</button>
+            </div>
+            <div class="tab-panel active" id="step8_panel0">
+              <div class="code-header"><span class="lang-label">python</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-comment"># cache.py</span>
+<span class="hl-keyword">import</span> json
+<span class="hl-keyword">import</span> functools
+<span class="hl-keyword">from</span> typing <span class="hl-keyword">import</span> Callable
+<span class="hl-keyword">from</span> cache <span class="hl-keyword">import</span> redis_client
+
+<span class="hl-keyword">def</span> <span class="hl-builtin">cached</span>(ttl: int = <span class="hl-number">300</span>):
+    <span class="hl-string">"""
+    Decorator factory — add @cached(ttl=N) above any async route function.
+    Builds a cache key from the function name + its arguments so different
+    callers (e.g. /users/1 vs /users/2) get separate cache entries.
+    """</span>
+    <span class="hl-keyword">def</span> <span class="hl-builtin">decorator</span>(fn: Callable):
+        <span class="hl-decorator">@functools.wraps</span>(fn)
+        <span class="hl-keyword">async def</span> <span class="hl-builtin">wrapper</span>(*args, **kwargs):
+            <span class="hl-comment"># Build a unique key from the function name and all its arguments</span>
+            key_parts = [fn.__name__] + [<span class="hl-builtin">str</span>(a) <span class="hl-keyword">for</span> a <span class="hl-keyword">in</span> args] + [
+                <span class="hl-string">f"</span><span class="hl-template">{k}</span><span class="hl-string">=</span><span class="hl-template">{v}</span><span class="hl-string">"</span> <span class="hl-keyword">for</span> k, v <span class="hl-keyword">in</span> sorted(kwargs.items())
+            ]
+            cache_key = <span class="hl-string">":"</span>.join(key_parts)  <span class="hl-comment"># e.g. "get_user:42" or "list_products:"</span>
+
+            <span class="hl-comment"># Check Redis — return immediately on a hit</span>
+            cached_value = redis_client.get(cache_key)
+            <span class="hl-keyword">if</span> cached_value:
+                <span class="hl-keyword">return</span> json.loads(cached_value)
+
+            <span class="hl-comment"># Cache miss — call the real route function</span>
+            result = <span class="hl-keyword">await</span> fn(*args, **kwargs)
+
+            <span class="hl-comment"># Store in Redis with the configured TTL</span>
+            redis_client.setex(cache_key, ttl, json.dumps(result))
+
+            <span class="hl-keyword">return</span> result
+        <span class="hl-keyword">return</span> wrapper
+    <span class="hl-keyword">return</span> decorator</code></pre>
+            </div>
+            <div class="tab-panel" id="step8_panel1">
+              <div class="code-header"><span class="lang-label">python</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-keyword">from</span> fastapi <span class="hl-keyword">import</span> FastAPI
+<span class="hl-keyword">from</span> cache <span class="hl-keyword">import</span> cached  <span class="hl-comment"># import the decorator</span>
+<span class="hl-keyword">from</span> database <span class="hl-keyword">import</span> get_user_by_id, get_all_products
+
+app = FastAPI()
+
+<span class="hl-comment"># One line replaces all the manual get/set/serialise boilerplate.</span>
+<span class="hl-comment"># The decorated function looks exactly like a normal route.</span>
+
+<span class="hl-decorator">@app.get</span>(<span class="hl-string">"/users/{user_id}"</span>)
+<span class="hl-decorator">@cached</span>(ttl=<span class="hl-number">300</span>)  <span class="hl-comment"># cache for 5 minutes — key will be "get_user:&lt;user_id&gt;"</span>
+<span class="hl-keyword">async def</span> <span class="hl-builtin">get_user</span>(user_id: int):
+    <span class="hl-keyword">return</span> get_user_by_id(user_id)  <span class="hl-comment"># only called on a cache miss</span>
+
+
+<span class="hl-decorator">@app.get</span>(<span class="hl-string">"/products"</span>)
+<span class="hl-decorator">@cached</span>(ttl=<span class="hl-number">600</span>)  <span class="hl-comment"># cache for 10 minutes — key will be "list_products:"</span>
+<span class="hl-keyword">async def</span> <span class="hl-builtin">list_products</span>():
+    <span class="hl-keyword">return</span> get_all_products()       <span class="hl-comment"># only called on a cache miss</span>
+
+<span class="hl-comment"># Compare to the manual version which needed ~8 lines per route.</span>
+<span class="hl-comment"># The decorator handles: key generation, get, json.loads, setex, json.dumps.</span></code></pre>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 9 -->
+      <div class="step" id="step9">
+        <div class="step-number">9</div>
+        <div class="step-content">
+          <h3>What's Next</h3>
+          <p class="explanation">You now have a full caching layer from simple in-memory dicts to Redis with TTL and invalidation. The cache decorator makes it easy to add to any route without repeating code.</p>
+
+          <div class="info-box">
+            <strong>Redis as a Celery broker</strong><br>
+            Redis also powers Celery task queues. If you want to offload slow work (sending emails, generating reports, processing uploads) to background workers, Redis serves as the message broker that connects your FastAPI app to your Celery workers. See the Background Tasks guide for how to run Celery alongside your FastAPI app.
+          </div>
+
+          <div class="info-box">
+            <strong>Cache warming</strong><br>
+            By default, the cache starts empty and fills up as users make requests. For high-traffic data you can pre-populate the cache at startup instead of waiting for the first request to warm it. Add a startup event handler that runs your most expensive queries and stores the results in Redis before the server accepts traffic.
+          </div>
+
+          <div class="info-box">
+            <strong>Rate limiting with Redis</strong><br>
+            Redis is also used to implement rate limiting with a sliding window counter. Each request increments a key like <code>ratelimit:&lt;ip&gt;</code> with a short TTL. When the counter exceeds your limit, you return a 429 response. The key expires automatically at the end of the window, resetting the counter without any cleanup code. The public-api-fastapi guide covers a simple version you can drop straight into your app.
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </main>
+</div>
+<script>
+(function(){var s=localStorage.getItem("pyoffline-theme");if(s==="light")document.documentElement.classList.add("light");document.addEventListener("DOMContentLoaded",function(){var t=document.getElementById("themeToggle");if(!t)return;t.checked=(localStorage.getItem("pyoffline-theme")==="light");t.addEventListener("change",function(){if(this.checked){document.documentElement.classList.add("light");localStorage.setItem("pyoffline-theme","light");}else{document.documentElement.classList.remove("light");localStorage.setItem("pyoffline-theme","dark");}});});})();
+function switchTab(stepId,idx){var s=document.getElementById(stepId);var b=s.querySelectorAll(".tab-btn");var p=s.querySelectorAll(".tab-panel");b.forEach(function(x){x.classList.remove("active")});p.forEach(function(x){x.classList.remove("active")});b[idx].classList.add("active");p[idx].classList.add("active");}
+function copyCode(btn){var code=btn.closest(".tab-panel").querySelector("code").innerText;navigator.clipboard.writeText(code).then(function(){var o=btn.textContent;btn.textContent="Copied!";setTimeout(function(){btn.textContent=o;},1500);});}
+function toggleSidebar(){var s=document.getElementById("guideSidebar");var o=document.getElementById("sidebarOverlay");if(!s)return;s.classList.toggle("open");o.classList.toggle("open");}
+document.addEventListener("DOMContentLoaded",function(){var s=document.getElementById("guideSidebar");if(!s)return;s.querySelectorAll("nav a").forEach(function(a){a.addEventListener("click",function(){s.classList.remove("open");var o=document.getElementById("sidebarOverlay");if(o)o.classList.remove("open");});});});
+function toggleSbDesktop(){var c=document.body.classList.toggle("sb-collapsed");localStorage.setItem("sb-collapsed",c?"1":"0");}
+(function(){if(localStorage.getItem("sb-collapsed")==="1")document.body.classList.add("sb-collapsed");})();
+</script>
+</body>
+</html>

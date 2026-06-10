@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Error Handling & Resilience - pyoffline</title>
+<style>
+:root { --bg:#121212; --surface:#1e1e1e; --surface2:#2a2a2a; --sidebar-bg:#1a1a1a; --text:#e0e0e0; --text-muted:#aaa; --text-dim:#666; --border:#333; --code-bg:#1e1e1e; --code-text:#d4d4d4; --shadow:rgba(0,0,0,.4); --accent:#f39c12; --hl-keyword:#569cd6; --hl-string:#ce9178; --hl-comment:#6a9955; --hl-number:#b5cea8; --hl-decorator:#dcdcaa; --hl-builtin:#4ec9b0; --hl-tag:#4ec9b0; --hl-attr:#9cdcfe; --hl-template:#c586c0; }
+html.light { --bg:#f5f7fa; --surface:#ffffff; --surface2:#eef0f3; --sidebar-bg:#ffffff; --text:#1a1a1a; --text-muted:#555; --text-dim:#888; --border:#dde1e7; --code-bg:#f8f8f8; --code-text:#24292e; --shadow:rgba(0,0,0,.1); --hl-keyword:#0000ff; --hl-string:#a31515; --hl-comment:#008000; --hl-number:#098658; --hl-decorator:#795e26; --hl-builtin:#267f99; --hl-tag:#800000; --hl-attr:#e50000; --hl-template:#af00db; }
+.hl-keyword { color:var(--hl-keyword); } .hl-string { color:var(--hl-string); } .hl-comment { color:#adb4a7; font-size:12px; font-style:italic; } .hl-number { color:var(--hl-number); } .hl-decorator { color:var(--hl-decorator); } .hl-builtin { color:var(--hl-builtin); } .hl-tag { color:var(--hl-tag); } .hl-attr { color:var(--hl-attr); } .hl-template { color:var(--hl-template); }
+* { box-sizing:border-box; margin:0; padding:0; } body { background:var(--bg); color:var(--text); font-family:-apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; transition:background .2s, color .2s; } a { color:var(--accent); }
+.layout { display:flex; min-height:100vh; } .sidebar { width:260px; min-width:260px; background:var(--sidebar-bg); border-right:1px solid var(--border); padding:24px 16px; position:sticky; top:0; height:100vh; overflow-y:auto; } .sidebar h2 { font-size:1.1rem; margin:16px 0 8px; color:var(--text); } .sidebar nav ol { padding-left:18px; } .sidebar nav li { margin:6px 0; } .sidebar nav a { color:var(--text-muted); text-decoration:none; font-size:0.85rem; } .sidebar nav a:hover { color:var(--accent); } .back-link { color:var(--text-dim); text-decoration:none; font-size:0.85rem; display:block; margin-bottom:8px; } .install-box { margin-top:24px; background:var(--bg); border:1px solid var(--border); padding:12px; border-radius:6px; font-size:0.8rem; } .install-box code { display:block; word-break:break-all; color:var(--hl-comment); font-family:monospace; margin-top:4px; }
+main { flex:1; padding:40px; max-width:860px; } .guide-header { padding:20px 20px 20px 24px; background:var(--surface); border-radius:8px; margin-bottom:32px; box-shadow:0 1px 3px var(--shadow); } .guide-header h1 { font-size:1.8rem; margin-bottom:8px; } .guide-header p { color:var(--text-muted); }
+.step { display:flex; gap:16px; margin-bottom:40px; } .step-number { width:32px; min-width:32px; height:32px; background:var(--accent); border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:bold; font-size:0.9rem; margin-top:4px; color:#fff; } .step-content { flex:1; min-width:0; } .step-content h3 { font-size:1.1rem; margin-bottom:8px; color:var(--text); } .explanation { color:var(--text-muted); font-size:0.9rem; line-height:1.6; margin-bottom:14px; } .info-box { background:var(--surface); border-left:3px solid var(--accent); border-radius:0 6px 6px 0; padding:12px 16px; margin-bottom:14px; font-size:0.88rem; color:var(--text-muted); line-height:1.6; } .info-box strong { color:var(--text); }
+.tabs { background:var(--surface); border-radius:6px; overflow:hidden; border:1px solid var(--border); } .tab-bar { display:flex; background:var(--surface2); overflow-x:auto; border-bottom:1px solid var(--border); } .tab-btn { padding:8px 16px; background:none; border:none; color:var(--text-muted); cursor:pointer; font-size:0.8rem; white-space:nowrap; border-bottom:2px solid transparent; margin-bottom:-1px; } .tab-btn.active { color:var(--text); border-bottom-color:var(--accent); } .tab-panel { display:none; } .tab-panel.active { display:block; } .code-header { display:flex; justify-content:space-between; align-items:center; padding:5px 12px; background:var(--surface2); border-bottom:1px solid var(--border); } .lang-label { font-size:0.72rem; color:var(--text-dim); text-transform:uppercase; letter-spacing:.04em; } .copy-btn { background:none; border:1px solid var(--border); color:var(--text-muted); padding:2px 8px; cursor:pointer; border-radius:3px; font-size:0.72rem; } .copy-btn:hover { color:var(--text); border-color:var(--text-muted); }
+pre { overflow-x:auto; padding:16px; background:var(--code-bg); } code { font-family:"Fira Code", "Cascadia Code", "Consolas", monospace; font-size:0.82rem; line-height:1.65; color:var(--code-text); } .theme-row { display:flex; align-items:center; gap:8px; margin-top:20px; } .theme-label { font-size:0.78rem; color:var(--text-muted); } .toggle-switch { position:relative; display:inline-block; width:40px; height:22px; } .toggle-switch input { opacity:0; width:0; height:0; } .slider { position:absolute; cursor:pointer; inset:0; background:var(--surface2); border:1px solid var(--border); border-radius:22px; transition:background .2s; } .slider:before { content:""; position:absolute; width:16px; height:16px; left:2px; top:2px; background:var(--text-muted); border-radius:50%; transition:transform .2s, background .2s; } .toggle-switch input:checked + .slider { background:var(--accent); border-color:var(--accent); } .toggle-switch input:checked + .slider:before { transform:translateX(18px); background:#fff; }
+.sidebar-toggle { display:none; position:fixed; top:12px; left:12px; z-index:300; background:var(--accent); color:#fff; border:none; padding:7px 14px; border-radius:6px; cursor:pointer; font-size:0.85rem; font-weight:600; box-shadow:0 2px 8px var(--shadow); align-items:center; gap:6px; } .sidebar-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,.45); z-index:190; } .sidebar-overlay.open { display:block; }
+@media (max-width: 900px) { .sidebar-toggle { display:flex; } .layout { display:block; } .sidebar { position:fixed; left:-280px; top:0; height:100vh; z-index:200; transition:left .25s ease; box-shadow:2px 0 16px var(--shadow); min-width:260px; } .sidebar.open { left:0; } main { padding:60px 20px 40px; max-width:100%; } pre { overflow-x:auto; max-width:100%; white-space:pre-wrap; word-break:break-word; } .tabs { max-width:100%; } }
+.sidebar { transition:width .2s ease, min-width .2s ease, padding .2s ease; } .sb-pin { display:flex; justify-content:flex-end; margin-bottom:8px; } .sb-pin button { background:none; border:1px solid var(--border); color:var(--text-dim); cursor:pointer; border-radius:4px; padding:2px 7px; font-size:11px; line-height:1.6; } .sb-pin button:hover { color:var(--accent); border-color:var(--accent); } .sb-reopen { display:none; position:fixed; left:0; top:50%; transform:translateY(-50%); background:var(--accent); color:#fff; border:none; border-radius:0 4px 4px 0; padding:10px 5px; cursor:pointer; z-index:300; font-size:11px; font-weight:600; writing-mode:vertical-rl; letter-spacing:.05em; }
+@media (min-width: 901px) { body.sb-collapsed .sidebar { width:0; min-width:0; padding:0; overflow:hidden; border-right:none; } body.sb-collapsed .sb-reopen { display:block; } }
+@media (max-width: 900px) { .sb-pin { display:none; } .sb-reopen { display:none !important; } }
+</style>
+</head>
+<body>
+<button class="sidebar-toggle" id="sidebarToggle" onclick="toggleSidebar()">&#9776; Steps</button>
+<div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+<button class="sb-reopen" onclick="toggleSbDesktop()">Steps</button>
+<div class="layout">
+  <aside class="sidebar" id="guideSidebar">
+    <div class="sb-pin"><button onclick="toggleSbDesktop()">&#9664; Hide</button></div>
+    <a href="index.html" class="back-link">← All Guides</a>
+    <h2>Lessons</h2>
+    <nav><ol>
+      <li><a href="#step1">HTTP Exceptions</a></li>
+      <li><a href="#step2">Custom Exceptions</a></li>
+      <li><a href="#step3">Exception Handlers</a></li>
+      <li><a href="#step4">Structured Error Responses</a></li>
+      <li><a href="#step5">Error Logging</a></li>
+      <li><a href="#step6">Retry Strategies</a></li>
+      <li><a href="#step7">Circuit Breaker Pattern</a></li>
+      <li><a href="#step8">Timeout Handling</a></li>
+      <li><a href="#step9">Graceful Degradation</a></li>
+      <li><a href="#step10">Testing Error Scenarios</a></li>
+    </ol></nav>
+    <div class="install-box">
+      <strong>Requirements:</strong>
+      <code>pip install fastapi tenacity</code>
+    </div>
+    <div class="theme-row">
+      <span class="theme-label">Dark</span>
+      <label class="toggle-switch">
+        <input type="checkbox" id="themeToggle">
+        <span class="slider"></span>
+      </label>
+      <span class="theme-label">Light</span>
+    </div>
+  </aside>
+  <main>
+    <header class="guide-header" style="border-left: 5px solid #f39c12">
+      <h1>Error Handling & Resilience</h1>
+      <p><strong>Requires completing <a href="crud-fastapi.html">CRUD + HTML</a> and <a href="pydantic-fastapi.html">Pydantic Models</a> first.</strong> Build reliable APIs that fail gracefully with custom exceptions, structured error responses, retries, and circuit breakers.</p>
+    </header>
+    <div class="steps">
+
+<div class="step" id="step1">
+  <div class="step-number">1</div>
+  <div class="step-content">
+    <h3>HTTP Exceptions</h3>
+    <p class="explanation">FastAPI provides HTTPException for standard HTTP errors. Raise it with a status code (400, 404, 500) and detail message. The framework converts it to a JSON error response automatically.</p>
+    <div class="tabs" data-step="step1">
+      <div class="tab-bar">
+        <button class="tab-btn active" onclick="switchTab('step1',0)">Examples</button>
+      </div>
+      <div class="tab-panel active" id="step1_panel0">
+        <div class="code-header">
+          <span class="lang-label">python</span>
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+        </div>
+        <pre><code><span class="hl-keyword">from</span> fastapi <span class="hl-keyword">import</span> FastAPI, HTTPException
+
+app = FastAPI()
+
+<span class="hl-decorator">@app.get</span>(<span class="hl-string">"/users/{user_id}"</span>)
+<span class="hl-keyword">def</span> <span class="hl-decorator">get_user</span>(user_id: <span class="hl-builtin">int</span>):
+    <span class="hl-keyword">if</span> user_id &lt; <span class="hl-number">1</span>:
+        <span class="hl-keyword">raise</span> HTTPException(status_code=<span class="hl-number">400</span>, detail=<span class="hl-string">"Invalid user ID"</span>)
+    <span class="hl-keyword">if</span> user_id &gt; <span class="hl-number">1000</span>:
+        <span class="hl-keyword">raise</span> HTTPException(status_code=<span class="hl-number">404</span>, detail=<span class="hl-string">"User not found"</span>)
+    <span class="hl-keyword">return</span> {<span class="hl-string">"id"</span>: user_id}</code></pre>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="step" id="step2">
+  <div class="step-number">2</div>
+  <div class="step-content">
+    <h3>Custom Exception Classes</h3>
+    <p class="explanation">Create custom exception classes for domain-specific errors. This makes code more readable and allows centralized error handling logic.</p>
+    <div class="tabs" data-step="step2">
+      <div class="tab-bar">
+        <button class="tab-btn active" onclick="switchTab('step2',0)">Custom class</button>
+      </div>
+      <div class="tab-panel active" id="step2_panel0">
+        <div class="code-header">
+          <span class="lang-label">python</span>
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+        </div>
+        <pre><code><span class="hl-keyword">class</span> <span class="hl-decorator">UserNotFoundError</span>(Exception):
+    <span class="hl-keyword">def</span> <span class="hl-decorator">__init__</span>(self, user_id: <span class="hl-builtin">int</span>):
+        self.user_id = user_id
+        self.message = <span class="hl-string">f"User {user_id} not found"</span>
+
+<span class="hl-decorator">@app.get</span>(<span class="hl-string">"/users/{user_id}"</span>)
+<span class="hl-keyword">def</span> <span class="hl-decorator">get_user</span>(user_id: <span class="hl-builtin">int</span>):
+    user = db.query(User).get(user_id)
+    <span class="hl-keyword">if</span> <span class="hl-keyword">not</span> user:
+        <span class="hl-keyword">raise</span> UserNotFoundError(user_id)
+    <span class="hl-keyword">return</span> user</code></pre>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="step" id="step3">
+  <div class="step-number">3</div>
+  <div class="step-content">
+    <h3>Exception Handlers</h3>
+    <p class="explanation">Use <code>@app.exception_handler</code> to convert custom exceptions into HTTP responses. This centralizes error formatting across your API.</p>
+    <div class="tabs" data-step="step3">
+      <div class="tab-bar">
+        <button class="tab-btn active" onclick="switchTab('step3',0)">Handler</button>
+      </div>
+      <div class="tab-panel active" id="step3_panel0">
+        <div class="code-header">
+          <span class="lang-label">python</span>
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+        </div>
+        <pre><code><span class="hl-decorator">@app.exception_handler</span>(UserNotFoundError)
+<span class="hl-keyword">async def</span> <span class="hl-decorator">user_not_found_handler</span>(request, exc):
+    <span class="hl-keyword">return</span> JSONResponse(
+        status_code=<span class="hl-number">404</span>,
+        content={<span class="hl-string">"error"</span>: exc.message, <span class="hl-string">"user_id"</span>: exc.user_id}
+    )
+
+<span class="hl-comment">// Now UserNotFoundError automatically returns 404 JSON</span></code></pre>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="step" id="step4">
+  <div class="step-number">4</div>
+  <div class="step-content">
+    <h3>Structured Error Responses</h3>
+    <p class="explanation">Return errors in a consistent format. Include error code, message, and details so clients can handle errors programmatically.</p>
+    <div class="tabs" data-step="step4">
+      <div class="tab-bar">
+        <button class="tab-btn active" onclick="switchTab('step4',0)">Error format</button>
+      </div>
+      <div class="tab-panel active" id="step4_panel0">
+        <div class="code-header">
+          <span class="lang-label">json</span>
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+        </div>
+        <pre><code>{
+  <span class="hl-string">"error"</span>: {
+    <span class="hl-string">"code"</span>: <span class="hl-string">"USER_NOT_FOUND"</span>,
+    <span class="hl-string">"message"</span>: <span class="hl-string">"User 123 not found"</span>,
+    <span class="hl-string">"status"</span>: <span class="hl-number">404</span>,
+    <span class="hl-string">"details"</span>: {
+      <span class="hl-string">"user_id"</span>: <span class="hl-number">123</span>
+    },
+    <span class="hl-string">"timestamp"</span>: <span class="hl-string">"2024-01-01T12:00:00Z"</span>
+  }
+}</code></pre>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="step" id="step5">
+  <div class="step-number">5</div>
+  <div class="step-content">
+    <h3>Error Logging</h3>
+    <p class="explanation">Log errors for debugging. Use Python's logging module to record what happened, when, and with what context. Never log sensitive data like passwords or tokens.</p>
+    <div class="tabs" data-step="step5">
+      <div class="tab-bar">
+        <button class="tab-btn active" onclick="switchTab('step5',0)">Logging</button>
+      </div>
+      <div class="tab-panel active" id="step5_panel0">
+        <div class="code-header">
+          <span class="lang-label">python</span>
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+        </div>
+        <pre><code><span class="hl-keyword">import</span> logging
+
+logger = logging.getLogger(__name__)
+
+<span class="hl-decorator">@app.get</span>(<span class="hl-string">"/data"</span>)
+<span class="hl-keyword">def</span> <span class="hl-decorator">get_data</span>():
+    <span class="hl-keyword">try</span>:
+        result = fetch_from_db()
+        <span class="hl-keyword">return</span> result
+    <span class="hl-keyword">except</span> DatabaseError <span class="hl-keyword">as</span> e:
+        logger.error(<span class="hl-string">f"Database error: {e}"</span>, exc_info=<span class="hl-keyword">True</span>)
+        <span class="hl-keyword">raise</span> HTTPException(status_code=<span class="hl-number">500</span>, detail=<span class="hl-string">"Server error"</span>)</code></pre>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="step" id="step6">
+  <div class="step-number">6</div>
+  <div class="step-content">
+    <h3>Retry Strategies</h3>
+    <p class="explanation">Some operations fail temporarily (network timeout, server busy). Retry with exponential backoff: wait 1s, then 2s, then 4s. Use the tenacity library to implement this.</p>
+    <div class="tabs" data-step="step6">
+      <div class="tab-bar">
+        <button class="tab-btn active" onclick="switchTab('step6',0)">Retry</button>
+      </div>
+      <div class="tab-panel active" id="step6_panel0">
+        <div class="code-header">
+          <span class="lang-label">python</span>
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+        </div>
+        <pre><code><span class="hl-keyword">from</span> tenacity <span class="hl-keyword">import</span> retry, stop_after_attempt, wait_exponential
+
+<span class="hl-decorator">@retry</span>(
+    stop=stop_after_attempt(<span class="hl-number">3</span>),  <span class="hl-comment">// max 3 attempts</span>
+    wait=wait_exponential(multiplier=<span class="hl-number">1</span>, min=<span class="hl-number">1</span>, max=<span class="hl-number">10</span>)  <span class="hl-comment">// exponential backoff</span>
+)
+<span class="hl-keyword">def</span> <span class="hl-decorator">fetch_external_api</span>():
+    response = httpx.get(<span class="hl-string">"https://api.example.com/data"</span>)
+    <span class="hl-keyword">return</span> response.json()
+
+<span class="hl-comment">// If first call fails, waits 1s then retries</span>
+<span class="hl-comment">// If second fails, waits 2s then retries</span>
+<span class="hl-comment">// If third fails, raises exception</span></code></pre>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="step" id="step7">
+  <div class="step-number">7</div>
+  <div class="step-content">
+    <h3>Circuit Breaker Pattern</h3>
+    <p class="explanation">If a service is repeatedly failing, stop trying for a while (circuit breaker is "open"). This prevents wasting time and resources, and lets the service recover.</p>
+    <div class="info-box">
+      <strong>States:</strong> CLOSED (working normally) → OPEN (too many failures, stop trying) → HALF_OPEN (try once, decide whether to close or open again)
+    </div>
+  </div>
+</div>
+
+<div class="step" id="step8">
+  <div class="step-number">8</div>
+  <div class="step-content">
+    <h3>Timeout Handling</h3>
+    <p class="explanation">Operations should have timeouts. If a request takes too long, assume it failed and return an error rather than waiting forever.</p>
+    <div class="tabs" data-step="step8">
+      <div class="tab-bar">
+        <button class="tab-btn active" onclick="switchTab('step8',0)">Timeout</button>
+      </div>
+      <div class="tab-panel active" id="step8_panel0">
+        <div class="code-header">
+          <span class="lang-label">python</span>
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+        </div>
+        <pre><code><span class="hl-decorator">@app.get</span>(<span class="hl-string">"/fast-data"</span>)
+<span class="hl-keyword">def</span> <span class="hl-decorator">get_data</span>():
+    <span class="hl-keyword">try</span>:
+        <span class="hl-comment">// 5-second timeout for external API</span>
+        response = httpx.get(<span class="hl-string">"https://slow-api.example.com"</span>, timeout=<span class="hl-number">5.0</span>)
+        <span class="hl-keyword">return</span> response.json()
+    <span class="hl-keyword">except</span> httpx.TimeoutException:
+        logger.warning(<span class="hl-string">"API timeout"</span>)
+        <span class="hl-keyword">raise</span> HTTPException(status_code=<span class="hl-number">504</span>, detail=<span class="hl-string">"Service timeout"</span>)</code></pre>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="step" id="step9">
+  <div class="step-number">9</div>
+  <div class="step-content">
+    <h3>Graceful Degradation</h3>
+    <p class="explanation">When a non-critical service fails, don't fail the whole request. Return partial data or use a fallback. For example, if analytics fail, still return the main content.</p>
+    <div class="tabs" data-step="step9">
+      <div class="tab-bar">
+        <button class="tab-btn active" onclick="switchTab('step9',0)">Fallback</button>
+      </div>
+      <div class="tab-panel active" id="step9_panel0">
+        <div class="code-header">
+          <span class="lang-label">python</span>
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+        </div>
+        <pre><code><span class="hl-decorator">@app.get</span>(<span class="hl-string">"/post/{post_id}"</span>)
+<span class="hl-keyword">def</span> <span class="hl-decorator">get_post</span>(post_id: <span class="hl-builtin">int</span>):
+    <span class="hl-comment">// Main data (required)</span>
+    post = db.query(Post).get(post_id)
+    <span class="hl-keyword">if</span> <span class="hl-keyword">not</span> post:
+        <span class="hl-keyword">raise</span> HTTPException(status_code=<span class="hl-number">404</span>)
+
+    <span class="hl-comment">// Related data (optional)</span>
+    <span class="hl-keyword">try</span>:
+        comments = db.query(Comment).filter(Comment.post_id == post_id).all()
+    <span class="hl-keyword">except</span> DatabaseError:
+        logger.warning(<span class="hl-string">"Failed to fetch comments"</span>)
+        comments = []  <span class="hl-comment">// fallback to empty list</span>
+
+    <span class="hl-keyword">return</span> {<span class="hl-string">"post"</span>: post, <span class="hl-string">"comments"</span>: comments}</code></pre>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="step" id="step10">
+  <div class="step-number">10</div>
+  <div class="step-content">
+    <h3>Testing Error Scenarios</h3>
+    <p class="explanation">Test that errors are handled correctly. Use pytest to mock failures and verify the response format, status code, and logging behavior.</p>
+    <div class="tabs" data-step="step10">
+      <div class="tab-bar">
+        <button class="tab-btn active" onclick="switchTab('step10',0)">Test</button>
+      </div>
+      <div class="tab-panel active" id="step10_panel0">
+        <div class="code-header">
+          <span class="lang-label">python</span>
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+        </div>
+        <pre><code><span class="hl-keyword">def</span> <span class="hl-decorator">test_user_not_found</span>(client):
+    response = client.get(<span class="hl-string">"/users/9999"</span>)
+    <span class="hl-keyword">assert</span> response.status_code == <span class="hl-number">404</span>
+    <span class="hl-keyword">assert</span> response.json()[<span class="hl-string">"error"</span>][<span class="hl-string">"code"</span>] == <span class="hl-string">"USER_NOT_FOUND"</span>
+
+<span class="hl-keyword">def</span> <span class="hl-decorator">test_retry_on_failure</span>(mocker):
+    mock_api = mocker.patch(<span class="hl-string">"httpx.get"</span>)
+    mock_api.side_effect = [TimeoutError(), TimeoutError(), {<span class="hl-string">"data"</span>: <span class="hl-string">"success"</span>}]
+
+    result = fetch_with_retry()
+    <span class="hl-keyword">assert</span> result == {<span class="hl-string">"data"</span>: <span class="hl-string">"success"</span>}
+    <span class="hl-keyword">assert</span> mock_api.call_count == <span class="hl-number">3</span>  <span class="hl-comment">// retried twice</span></code></pre>
+      </div>
+    </div>
+  </div>
+</div>
+
+    </div>
+  </main>
+</div>
+<script>
+(function() {
+  var saved = localStorage.getItem("pyoffline-theme");
+  if (saved === "light") { document.documentElement.classList.add("light"); }
+  document.addEventListener("DOMContentLoaded", function() {
+    var toggle = document.getElementById("themeToggle");
+    if (!toggle) return;
+    toggle.checked = (localStorage.getItem("pyoffline-theme") === "light");
+    toggle.addEventListener("change", function() {
+      if (this.checked) {
+        document.documentElement.classList.add("light");
+        localStorage.setItem("pyoffline-theme", "light");
+      } else {
+        document.documentElement.classList.remove("light");
+        localStorage.setItem("pyoffline-theme", "dark");
+      }
+    });
+  });
+})();
+function switchTab(stepId, idx) {
+  var step = document.getElementById(stepId);
+  var btns = step.querySelectorAll(".tab-btn");
+  var panels = step.querySelectorAll(".tab-panel");
+  btns.forEach(function(b) { b.classList.remove("active"); });
+  panels.forEach(function(p) { p.classList.remove("active"); });
+  btns[idx].classList.add("active");
+  panels[idx].classList.add("active");
+}
+function copyCode(btn) {
+  var code = btn.closest(".tab-panel").querySelector("code").innerText;
+  navigator.clipboard.writeText(code).then(function() {
+    var orig = btn.textContent;
+    btn.textContent = "Copied!";
+    setTimeout(function() { btn.textContent = orig; }, 1500);
+  });
+}
+function toggleSidebar() {
+  var sidebar = document.getElementById("guideSidebar");
+  var overlay = document.getElementById("sidebarOverlay");
+  if (!sidebar) return;
+  sidebar.classList.toggle("open");
+  overlay.classList.toggle("open");
+}
+document.addEventListener("DOMContentLoaded", function() {
+  var sidebar = document.getElementById("guideSidebar");
+  if (!sidebar) return;
+  sidebar.querySelectorAll("nav a").forEach(function(a) {
+    a.addEventListener("click", function() {
+      sidebar.classList.remove("open");
+      var overlay = document.getElementById("sidebarOverlay");
+      if (overlay) overlay.classList.remove("open");
+    });
+  });
+});
+function toggleSbDesktop() {
+  var c = document.body.classList.toggle('sb-collapsed');
+  localStorage.setItem('sb-collapsed', c ? '1' : '0');
+}
+(function() { if (localStorage.getItem('sb-collapsed') === '1') document.body.classList.add('sb-collapsed'); })();
+</script>
+</body>
+</html>

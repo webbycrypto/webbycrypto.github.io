@@ -85,7 +85,7 @@ pre{overflow-x:auto;padding:16px;background:var(--code-bg)}code{font-family:"Fir
         <div class="step-number">1</div>
         <div class="step-content">
           <h3>What HTTPS Is (and Why It Matters)</h3>
-          <p class="explanation">HTTPS encrypts traffic between the browser and your server. Without it, every password, JWT token, and piece of data travels in plaintext — readable by anyone on the same network. Browsers show a "Not Secure" warning for HTTP sites, and modern features (cookies with <code>Secure</code> flag, service workers, geolocation) require HTTPS.</p>
+          <p class="explanation">HTTPS encrypts the traffic between your user's browser and your server. Without it, passwords, tokens, and any other data travel as plain text that anyone on the same network can read. Browsers show a "Not Secure" warning on plain HTTP sites, and several browser features like secure cookies and geolocation only work over HTTPS.</p>
           <div class="info-box"><strong>Let's Encrypt:</strong> A free, automated certificate authority. Certbot is the official client that requests the certificate, proves you own the domain, and configures Nginx automatically. Certificates last 90 days and auto-renew. Completely free.</div>
         </div>
       </div>
@@ -94,7 +94,7 @@ pre{overflow-x:auto;padding:16px;background:var(--code-bg)}code{font-family:"Fir
         <div class="step-number">2</div>
         <div class="step-content">
           <h3>Point Your Domain at the Server</h3>
-          <p class="explanation">Before Certbot can issue a certificate, Let's Encrypt needs to verify you control the domain by making an HTTP request to it. That means the domain must already be pointing to your server's IP.</p>
+          <p class="explanation">Before issuing a certificate, Let's Encrypt needs to confirm that you actually control the domain. It does this by sending an HTTP request to it. Your domain must already be pointing to your server's IP address before you run Certbot, or the verification will fail.</p>
           <div class="tabs">
             <div class="tab-bar"><button class="tab-btn active" onclick="switchTab('step2',0)">DNS setup</button></div>
             <div class="tab-panel active">
@@ -142,7 +142,7 @@ Or: dig yourdomain.com +short</code></pre>
         <div class="step-number">4</div>
         <div class="step-content">
           <h3>Get a Certificate</h3>
-          <p class="explanation">One command. Certbot handles domain verification, certificate download, Nginx config update, and reloading Nginx.</p>
+          <p class="explanation">One command does everything. Certbot contacts Let's Encrypt, proves you own the domain, downloads the certificate files, and rewrites your Nginx config to enable HTTPS. It then reloads Nginx so the changes take effect immediately.</p>
           <div class="tabs">
             <div class="tab-bar">
               <button class="tab-btn active" onclick="switchTab('step4',0)">Run certbot</button>
@@ -199,7 +199,7 @@ server {
         <div class="step-number">5</div>
         <div class="step-content">
           <h3>Auto-Renewal</h3>
-          <p class="explanation">Let's Encrypt certificates expire after 90 days. Certbot installs a systemd timer (or cron job) that automatically renews them. Test the renewal process works.</p>
+          <p class="explanation">Let's Encrypt certificates expire after 90 days. Certbot automatically installs a background timer that renews your certificate before it expires, so you never have to do it manually. Run a dry-run test once after setup to confirm the renewal process is working correctly.</p>
           <div class="tabs">
             <div class="tab-bar"><button class="tab-btn active" onclick="switchTab('step5',0)">bash — check and test renewal</button></div>
             <div class="tab-panel active">

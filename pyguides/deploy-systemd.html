@@ -86,7 +86,7 @@ pre{overflow-x:auto;padding:16px;background:var(--code-bg)}code{font-family:"Fir
         <div class="step-number">1</div>
         <div class="step-content">
           <h3>Why systemd?</h3>
-          <p class="explanation">When you ran uvicorn manually in the VPS guide, it died when you closed the SSH session. systemd is Linux's process supervisor — it starts processes on boot, restarts them if they crash, and logs their output. Think of it as a permanent background runner for your app.</p>
+          <p class="explanation">When you ran uvicorn manually in the VPS guide, it stopped as soon as you closed the SSH session. systemd is the process supervisor built into most modern Linux systems. It starts your app when the server boots, restarts it if it crashes, and collects its logs. Think of it as a permanent background runner that keeps your app alive without you.</p>
           <div class="info-box"><strong>What you get:</strong> (1) App starts automatically when the server reboots. (2) App restarts within seconds if it crashes. (3) Logs accessible via <code>journalctl</code>. (4) Environment variables injected securely from a file on disk with restricted permissions.</div>
         </div>
       </div>
@@ -95,7 +95,7 @@ pre{overflow-x:auto;padding:16px;background:var(--code-bg)}code{font-family:"Fir
         <div class="step-number">2</div>
         <div class="step-content">
           <h3>Write the Service File</h3>
-          <p class="explanation">A service file tells systemd what to run, as which user, in which directory, and what to do if it fails.</p>
+          <p class="explanation">A service file is a plain text config file that tells systemd what to run. It also specifies which user to run it as, which directory to start in, and what to do if the process exits. You place it in <code>/etc/systemd/system/</code> and systemd picks it up from there.</p>
           <div class="tabs">
             <div class="tab-bar"><button class="tab-btn active" onclick="switchTab('step2',0)">/etc/systemd/system/myapp.service</button></div>
             <div class="tab-panel active">
@@ -135,7 +135,7 @@ WantedBy=multi-user.target  ; start at normal boot</code></pre>
         <div class="step-number">3</div>
         <div class="step-content">
           <h3>Production Environment Variables</h3>
-          <p class="explanation">Your <code>.env</code> file is in your project directory and should never be committed to git. On the server, use a separate file in <code>/etc/</code> with restricted permissions — only root can read it, but systemd runs as root so it can pass the variables to your app.</p>
+          <p class="explanation">Your <code>.env</code> file is in your project directory and should never be committed to git. On the server, keep secrets in a separate file inside <code>/etc/</code> with restricted permissions. Only root can read this file, and systemd runs as root so it can read the file and pass the variables into your app.</p>
           <div class="tabs">
             <div class="tab-bar"><button class="tab-btn active" onclick="switchTab('step3',0)">/etc/myapp.env</button></div>
             <div class="tab-panel active">
@@ -197,7 +197,7 @@ sudo systemctl status myapp
         <div class="step-number">5</div>
         <div class="step-content">
           <h3>Check Status + View Logs</h3>
-          <p class="explanation">All app output (print statements, uvicorn logs, Python tracebacks) goes to journald. <code>journalctl</code> reads it.</p>
+          <p class="explanation">All app output goes to journald, which is the logging system built into systemd. This includes print statements, uvicorn access logs, and Python tracebacks. You read those logs with the <code>journalctl</code> command.</p>
           <div class="tabs">
             <div class="tab-bar"><button class="tab-btn active" onclick="switchTab('step5',0)">bash — log commands</button></div>
             <div class="tab-panel active">
@@ -228,7 +228,7 @@ sudo systemctl restart myapp</code></pre>
         <div class="step-number">6</div>
         <div class="step-content">
           <h3>Restarting After a Deploy</h3>
-          <p class="explanation">When you pull new code, you need to restart the service so uvicorn loads the updated files. This is the manual deploy process — automated in the CI/CD guide.</p>
+          <p class="explanation">When you pull new code, uvicorn does not pick up the changes on its own. You need to restart the service so it loads the updated files. This is the manual deploy process. The next guide automates these steps using GitHub Actions.</p>
           <div class="tabs">
             <div class="tab-bar"><button class="tab-btn active" onclick="switchTab('step6',0)">Manual deploy script</button></div>
             <div class="tab-panel active">
@@ -263,7 +263,7 @@ sudo systemctl status myapp --no-pager</code></pre>
         <div class="step-number">7</div>
         <div class="step-content">
           <h3>Multiple Workers</h3>
-          <p class="explanation">By default uvicorn uses one worker process. For better performance on a multi-core server, use <code>--workers</code> to spawn multiple worker processes.</p>
+          <p class="explanation">By default, uvicorn runs as a single process and can only use one CPU core at a time. On a server with multiple cores, you can start several worker processes to handle more requests in parallel. Add <code>--workers</code> to your <code>ExecStart</code> line to do this.</p>
           <div class="tabs">
             <div class="tab-bar">
               <button class="tab-btn active" onclick="switchTab('step7',0)">uvicorn workers</button>

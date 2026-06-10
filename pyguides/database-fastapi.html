@@ -208,7 +208,7 @@ code { font-family: "Fira Code", "Cascadia Code", "Consolas", monospace; font-si
         <div class="step-number">1</div>
         <div class="step-content">
           <h3>Why a Real Database?</h3>
-          <p class="explanation">The first two approaches in this series each have a scaling limit. An in-memory Python dict resets every time the server restarts — you lose all your data. A JSON file on disk persists, but breaks if two users write at the same time (a race condition). A real database solves both problems: it persists automatically, handles concurrent writes safely, lets you query millions of rows efficiently, and evolves its schema as your app changes.</p>
+          <p class="explanation">The first two approaches in this series each have a scaling limit. An in-memory Python dict resets every time the server restarts, so you lose all your data. A JSON file on disk stays saved, but breaks if two users write to it at the same time, which is called a race condition. A real database solves both problems because it persists automatically, handles multiple writes safely, lets you query millions of rows efficiently, and can change its structure as your app grows.</p>
           <table class="concept-table">
             <tr><th>Storage</th><th>Persists on restart</th><th>Handles concurrency</th><th>Queryable</th><th>When to use</th></tr>
             <tr><td><code>db = {}</code></td><td>No</td><td>Yes (single thread)</td><td>Manual loops</td><td>Quick prototypes only</td></tr>
@@ -225,7 +225,7 @@ code { font-family: "Fira Code", "Cascadia Code", "Consolas", monospace; font-si
         <div class="step-number">2</div>
         <div class="step-content">
           <h3>SQLAlchemy in 30 Seconds</h3>
-          <p class="explanation">SQLAlchemy is a Python library with two layers. The <strong>Core</strong> layer is a thin wrapper around SQL — you write SQL-ish expressions. The <strong>ORM</strong> layer lets you define tables as Python classes and write queries in Python. This guide uses the ORM, which is what most FastAPI apps use in practice.</p>
+          <p class="explanation">SQLAlchemy is a Python library with two layers. The Core layer is a thin wrapper around SQL where you write SQL-style expressions directly. The ORM layer lets you define tables as Python classes and write queries in Python without writing raw SQL. This guide uses the ORM, which is what most FastAPI apps use in practice.</p>
           <div class="tabs">
             <div class="tab-bar">
               <button class="tab-btn active" onclick="switchTab('step2',0)">The three moving parts</button>
@@ -260,7 +260,7 @@ code { font-family: "Fira Code", "Cascadia Code", "Consolas", monospace; font-si
         <div class="step-number">3</div>
         <div class="step-content">
           <h3>Project Setup</h3>
-          <p class="explanation">Split the database code across three files so each has one job. This is the standard FastAPI + SQLAlchemy layout and is what you'll see in almost every real project.</p>
+          <p class="explanation">Split the database code across three files so each file has one clear job. This is the standard FastAPI and SQLAlchemy layout and is what you will see in almost every real project.</p>
           <div class="tabs">
             <div class="tab-bar">
               <button class="tab-btn active" onclick="switchTab('step3',0)">File tree</button>
@@ -289,7 +289,7 @@ Optionally add:
         <div class="step-number">4</div>
         <div class="step-content">
           <h3>database.py — Connecting to the DB</h3>
-          <p class="explanation">Three things happen in this file: the engine is created (the connection to the DB), the session factory is defined (how to open a session per request), and <code>get_db()</code> is written — a FastAPI dependency that automatically opens a session at the start of a request and closes it when the request finishes, even if an error occurs.</p>
+          <p class="explanation">Three things happen in this file. First, the engine is created, which is the connection to the database. Second, the session factory is defined, which controls how a session is opened for each request. Third, get_db() is written as a FastAPI dependency that automatically opens a session at the start of a request and closes it when the request finishes, even if an error occurs.</p>
           <div class="tabs">
             <div class="tab-bar">
               <button class="tab-btn active" onclick="switchTab('step4',0)">database.py</button>
@@ -354,7 +354,7 @@ DATABASE_URL=sqlite:///./jobs.db
         <div class="step-number">5</div>
         <div class="step-content">
           <h3>models.py — Two Tables</h3>
-          <p class="explanation">Each table is a Python class. Columns are class attributes using SQLAlchemy types. The <code>ForeignKey</code> links the two tables. The <code>relationship()</code> lets you navigate between them in Python — <code>application.company</code> returns the full Company object without writing a JOIN yourself.</p>
+          <p class="explanation">Each table is a Python class, and each column is a class attribute using a SQLAlchemy type. The ForeignKey links the two tables together at the database level. The relationship() function lets you navigate between them in Python, so application.company gives you the full Company object without having to write a JOIN query yourself.</p>
           <div class="tabs">
             <div class="tab-bar">
               <button class="tab-btn active" onclick="switchTab('step5',0)">models.py</button>
@@ -458,7 +458,7 @@ This pattern is identical to:
         <div class="step-number">6</div>
         <div class="step-content">
           <h3>Creating Tables</h3>
-          <p class="explanation">One line tells SQLAlchemy to look at all your models and create the corresponding tables in the database if they don't already exist. Put it in <code>main.py</code> so it runs on startup.</p>
+          <p class="explanation">One line tells SQLAlchemy to look at all your models and create the corresponding tables in the database if they do not already exist. Put it in main.py so it runs every time the server starts up.</p>
           <div class="tabs">
             <div class="tab-bar">
               <button class="tab-btn active" onclick="switchTab('step6',0)">main.py — startup</button>
@@ -490,7 +490,7 @@ Base.metadata.create_all(bind=engine)
         <div class="step-number">7</div>
         <div class="step-content">
           <h3>Adding a Company</h3>
-          <p class="explanation">The write cycle has three steps: <code>db.add()</code> stages the new object, <code>db.commit()</code> saves it to disk, and <code>db.refresh()</code> reloads the object from the database to get the auto-generated <code>id</code> back. Without <code>refresh()</code>, the <code>id</code> field is still <code>None</code>.</p>
+          <p class="explanation">The write cycle has three steps. First, db.add() stages the new object so SQLAlchemy knows about it. Second, db.commit() saves it to disk and the database assigns an auto-generated id. Third, db.refresh() reloads the object from the database so Python can see the new id. Without refresh(), the id field in Python is still None even after the commit.</p>
           <div class="tabs">
             <div class="tab-bar">
               <button class="tab-btn active" onclick="switchTab('step7',0)">main.py — POST /companies</button>
@@ -556,7 +556,7 @@ id (or any server-side default) immediately after an insert.</code></pre>
         <div class="step-number">8</div>
         <div class="step-content">
           <h3>Adding an Application</h3>
-          <p class="explanation">Before creating an Application, validate that the referenced Company exists. If someone passes a <code>company_id</code> that doesn't exist in the DB, raise a <code>404</code> instead of letting the database raise a foreign key error — a <code>404</code> is a much clearer message for the caller.</p>
+          <p class="explanation">Before creating an Application, check that the referenced Company actually exists. If someone passes a company_id that is not in the database, raise a 404 error instead of letting the database raise a foreign key error. A 404 is a much clearer message for the caller because it tells them exactly what was missing.</p>
           <div class="tabs">
             <div class="tab-bar">
               <button class="tab-btn active" onclick="switchTab('step8',0)">main.py — POST /applications</button>
@@ -613,7 +613,7 @@ id (or any server-side default) immediately after an insert.</code></pre>
         <div class="step-number">9</div>
         <div class="step-content">
           <h3>Reading with Filters</h3>
-          <p class="explanation">Filters are chained using <code>.filter()</code>. Multiple <code>.filter()</code> calls combine with AND. Optional filters — where the query param might not be provided — use a conditional to only apply the filter if the value was given.</p>
+          <p class="explanation">Filters are chained using .filter() and multiple calls combine with AND automatically. Optional filters use a simple if check so the filter is only applied when the caller actually provides a value. This lets callers filter by one field, multiple fields, or none at all using the same route.</p>
           <div class="tabs">
             <div class="tab-bar">
               <button class="tab-btn active" onclick="switchTab('step9',0)">main.py — GET /applications</button>
@@ -693,7 +693,7 @@ db.query(models.Application).filter(...).first()  <span class="hl-comment"># Non
         <div class="step-number">10</div>
         <div class="step-content">
           <h3>Joining Tables</h3>
-          <p class="explanation">Getting the company name alongside each application can be done two ways. The <strong>relationship</strong> approach uses the <code>application.company</code> attribute — clean but triggers an extra query per row (N+1 problem). The <strong>join</strong> approach fetches both tables in one query — slightly more code but more efficient for large lists.</p>
+          <p class="explanation">Getting the company name alongside each application can be done two ways. The relationship approach uses the application.company attribute and is simple to write, but it triggers an extra database query for each row, which is called the N+1 problem. The join approach fetches both tables in a single query and is slightly more code, but much more efficient for large lists.</p>
           <div class="tabs">
             <div class="tab-bar">
               <button class="tab-btn active" onclick="switchTab('step10',0)">Relationship (simple)</button>
@@ -754,7 +754,7 @@ db.query(models.Application).filter(...).first()  <span class="hl-comment"># Non
         <div class="step-number">11</div>
         <div class="step-content">
           <h3>Updating Status</h3>
-          <p class="explanation">Updates fetch the row first, change the field, and commit. The pattern is: find it, change it, save it. Never skip the fetch — you need the object in SQLAlchemy's session for changes to be tracked.</p>
+          <p class="explanation">Updates follow three steps: fetch the row, change the field, then commit. The pattern is always find it, change it, save it. Never skip the fetch, because SQLAlchemy can only track and save changes to objects that are already loaded into the current session.</p>
           <div class="tabs">
             <div class="tab-bar">
               <button class="tab-btn active" onclick="switchTab('step11',0)">main.py — PATCH /applications/{id}/status</button>
@@ -826,7 +826,7 @@ VALID_TRANSITIONS = {
         <div class="step-number">12</div>
         <div class="step-content">
           <h3>SQLite → PostgreSQL</h3>
-          <p class="explanation">The entire migration from SQLite to PostgreSQL is one line in your <code>.env</code> file. All your models, routes, queries, and filters work identically on both databases. This is the main value of using an ORM — you write against a standard interface, not against a specific database.</p>
+          <p class="explanation">The entire migration from SQLite to PostgreSQL is one line change in your .env file. All your models, routes, queries, and filters work identically on both databases. This is the main value of using an ORM: you write against a standard Python interface, not against a specific database engine.</p>
           <div class="tabs">
             <div class="tab-bar">
               <button class="tab-btn active" onclick="switchTab('step12',0)">The one-line change</button>
@@ -905,7 +905,7 @@ Your code doesn't change at all.</code></pre>
         <div class="step-number">13</div>
         <div class="step-content">
           <h3>What's Next</h3>
-          <p class="explanation">You've built the foundation that every real FastAPI project stands on — a typed schema, two related tables, filtered queries, and a status flow. These same patterns run CRMs, order management systems, project trackers, and booking apps. The only things that change are the model names and the business rules.</p>
+          <p class="explanation">You have built the foundation that every real FastAPI project stands on: a typed schema, two related tables, filtered queries, and a status flow. These same patterns run CRMs, order management systems, project trackers, and booking apps. The only things that change from project to project are the model names and the business rules.</p>
           <div class="info-box">
             <strong>Add an HTML frontend:</strong> Wire the CRUD routes to a Jinja2 template using the same patterns from the CRUD guide. Add a Kanban board view grouped by status: <code>db.query(Application).filter(Application.status == s).all()</code> for each column.
           </div>

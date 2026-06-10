@@ -1,0 +1,586 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Logging in FastAPI - pyoffline</title>
+<style>
+:root{--bg:#121212;--surface:#1e1e1e;--surface2:#2a2a2a;--sidebar-bg:#1a1a1a;--text:#e0e0e0;--text-muted:#aaa;--text-dim:#666;--border:#333;--code-bg:#1e1e1e;--code-text:#d4d4d4;--shadow:rgba(0,0,0,.4);--accent:#ff6f00;--hl-keyword:#569cd6;--hl-string:#ce9178;--hl-comment:#6a9955;--hl-number:#b5cea8;--hl-decorator:#dcdcaa;--hl-builtin:#4ec9b0;--hl-tag:#4ec9b0;--hl-attr:#9cdcfe;--hl-template:#c586c0}
+html.light{--bg:#f5f7fa;--surface:#ffffff;--surface2:#eef0f3;--sidebar-bg:#ffffff;--text:#1a1a1a;--text-muted:#555;--text-dim:#888;--border:#dde1e7;--code-bg:#f8f8f8;--code-text:#24292e;--shadow:rgba(0,0,0,.1);--hl-keyword:#0000ff;--hl-string:#a31515;--hl-comment:#008000;--hl-number:#098658;--hl-decorator:#795e26;--hl-builtin:#267f99;--hl-tag:#800000;--hl-attr:#e50000;--hl-template:#af00db}
+.hl-keyword{color:var(--hl-keyword)}.hl-string{color:var(--hl-string)}.hl-comment{color:#adb4a7;font-size:12px;font-style:italic}.hl-number{color:var(--hl-number)}.hl-decorator{color:var(--hl-decorator)}.hl-builtin{color:var(--hl-builtin)}.hl-tag{color:var(--hl-tag)}.hl-attr{color:var(--hl-attr)}.hl-template{color:var(--hl-template)}
+*{box-sizing:border-box;margin:0;padding:0}body{background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;transition:background .2s,color .2s}a{color:var(--accent)}.layout{display:flex;min-height:100vh}.sidebar{width:260px;min-width:260px;background:var(--sidebar-bg);border-right:1px solid var(--border);padding:24px 16px;position:sticky;top:0;height:100vh;overflow-y:auto}.sidebar h2{font-size:1.1rem;margin:16px 0 8px;color:var(--text)}.sidebar nav ol{padding-left:18px}.sidebar nav li{margin:6px 0}.sidebar nav a{color:var(--text-muted);text-decoration:none;font-size:0.85rem}.sidebar nav a:hover{color:var(--accent)}.back-link{color:var(--text-dim);text-decoration:none;font-size:0.85rem;display:block;margin-bottom:8px}.install-box{margin-top:24px;background:var(--bg);border:1px solid var(--border);padding:12px;border-radius:6px;font-size:0.8rem}.install-box code{display:block;word-break:break-all;color:var(--hl-comment);font-family:monospace;margin-top:4px}main{flex:1;padding:40px;max-width:860px}.guide-header{padding:20px 20px 20px 24px;background:var(--surface);border-radius:8px;margin-bottom:32px;box-shadow:0 1px 3px var(--shadow)}.guide-header h1{font-size:1.8rem;margin-bottom:8px}.guide-header p{color:var(--text-muted)}.step{display:flex;gap:16px;margin-bottom:40px}.step-number{width:32px;min-width:32px;height:32px;background:var(--accent);border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:bold;font-size:0.9rem;margin-top:4px;color:#fff}.step-content{flex:1;min-width:0}.step-content h3{font-size:1.1rem;margin-bottom:8px;color:var(--text)}.explanation{color:var(--text-muted);font-size:0.9rem;line-height:1.6;margin-bottom:14px}.info-box{background:var(--surface);border-left:3px solid var(--accent);border-radius:0 6px 6px 0;padding:12px 16px;margin-bottom:14px;font-size:0.88rem;color:var(--text-muted);line-height:1.6}.info-box strong{color:var(--text)}.crud-table{width:100%;border-collapse:collapse;margin-bottom:14px;font-size:0.85rem}.crud-table th{background:var(--surface2);color:var(--text-muted);text-align:left;padding:8px 12px;border:1px solid var(--border);font-weight:600}.crud-table td{padding:8px 12px;border:1px solid var(--border);color:var(--text)}.crud-table tr:nth-child(even) td{background:var(--surface)}.tabs{background:var(--surface);border-radius:6px;overflow:hidden;border:1px solid var(--border)}.tab-bar{display:flex;background:var(--surface2);overflow-x:auto;border-bottom:1px solid var(--border)}.tab-btn{padding:8px 16px;background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:0.8rem;white-space:nowrap;border-bottom:2px solid transparent;margin-bottom:-1px}.tab-btn.active{color:var(--text);border-bottom-color:var(--accent)}.tab-panel{display:none}.tab-panel.active{display:block}.code-header{display:flex;justify-content:space-between;align-items:center;padding:5px 12px;background:var(--surface2);border-bottom:1px solid var(--border)}.lang-label{font-size:0.72rem;color:var(--text-dim);text-transform:uppercase;letter-spacing:.04em}.copy-btn{background:none;border:1px solid var(--border);color:var(--text-muted);padding:2px 8px;cursor:pointer;border-radius:3px;font-size:0.72rem}.copy-btn:hover{color:var(--text);border-color:var(--text-muted)}pre{overflow-x:auto;padding:16px;background:var(--code-bg)}code{font-family:"Fira Code","Cascadia Code","Consolas",monospace;font-size:0.82rem;line-height:1.65;color:var(--code-text)}.theme-row{display:flex;align-items:center;gap:8px;margin-top:20px}.theme-label{font-size:0.78rem;color:var(--text-muted)}.toggle-switch{position:relative;display:inline-block;width:40px;height:22px}.toggle-switch input{opacity:0;width:0;height:0}.slider{position:absolute;cursor:pointer;inset:0;background:var(--surface2);border:1px solid var(--border);border-radius:22px;transition:background .2s}.slider:before{content:"";position:absolute;width:16px;height:16px;left:2px;top:2px;background:var(--text-muted);border-radius:50%;transition:transform .2s,background .2s}.toggle-switch input:checked+.slider{background:var(--accent);border-color:var(--accent)}.toggle-switch input:checked+.slider:before{transform:translateX(18px);background:#fff}.sidebar-toggle{display:none;position:fixed;top:12px;left:12px;z-index:300;background:var(--accent);color:#fff;border:none;padding:7px 14px;border-radius:6px;cursor:pointer;font-size:0.85rem;font-weight:600;box-shadow:0 2px 8px var(--shadow);align-items:center;gap:6px}.sidebar-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:190}.sidebar-overlay.open{display:block}@media(max-width:900px){.sidebar-toggle{display:flex}.layout{display:block}.sidebar{position:fixed;left:-280px;top:0;height:100vh;z-index:200;transition:left .25s ease;box-shadow:2px 0 16px var(--shadow);min-width:260px}.sidebar.open{left:0}main{padding:60px 20px 40px;max-width:100%}pre{overflow-x:auto;max-width:100%;white-space:pre-wrap;word-break:break-word}.tabs{max-width:100%}}.sidebar{transition:width .2s ease,min-width .2s ease,padding .2s ease}.sb-pin{display:flex;justify-content:flex-end;margin-bottom:8px}.sb-pin button{background:none;border:1px solid var(--border);color:var(--text-dim);cursor:pointer;border-radius:4px;padding:2px 7px;font-size:11px;line-height:1.6}.sb-pin button:hover{color:var(--accent);border-color:var(--accent)}.sb-reopen{display:none;position:fixed;left:0;top:50%;transform:translateY(-50%);background:var(--accent);color:#fff;border:none;border-radius:0 4px 4px 0;padding:10px 5px;cursor:pointer;z-index:300;font-size:11px;font-weight:600;writing-mode:vertical-rl;letter-spacing:.05em}@media(min-width:901px){body.sb-collapsed .sidebar{width:0;min-width:0;padding:0;overflow:hidden;border-right:none}body.sb-collapsed .sb-reopen{display:block}}@media(max-width:900px){.sb-pin{display:none}.sb-reopen{display:none!important}}
+</style>
+</head>
+<body>
+<button class="sidebar-toggle" id="sidebarToggle" onclick="toggleSidebar()">&#9776; Steps</button>
+<div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+<button class="sb-reopen" onclick="toggleSbDesktop()">Steps</button>
+<div class="layout">
+  <aside class="sidebar" id="guideSidebar">
+    <div class="sb-pin"><button onclick="toggleSbDesktop()">&#9664; Hide</button></div>
+    <a href="index.html" class="back-link">&#8592; All Guides</a>
+    <h2>Logging</h2>
+    <nav><ol>
+      <li><a href="#step1">Why Not print()?</a></li>
+      <li><a href="#step2">Basic Setup</a></li>
+      <li><a href="#step3">Log Levels</a></li>
+      <li><a href="#step4">Log Format</a></li>
+      <li><a href="#step5">JSON Logs</a></li>
+      <li><a href="#step6">Request ID Middleware</a></li>
+      <li><a href="#step7">Log to a File</a></li>
+      <li><a href="#step8">Reading Logs</a></li>
+      <li><a href="#step9">What's Next</a></li>
+    </ol></nav>
+    <div class="install-box">
+      <p><strong>Install</strong></p>
+      <code>pip install fastapi uvicorn python-json-logger</code>
+    </div>
+    <div class="theme-row">
+      <span class="theme-label">Dark</span>
+      <label class="toggle-switch"><input type="checkbox" id="themeToggle"><span class="slider"></span></label>
+      <span class="theme-label">Light</span>
+    </div>
+  </aside>
+  <main>
+    <header class="guide-header" style="border-left:5px solid #ff6f00">
+      <h1>Logging in FastAPI</h1>
+      <p>Print statements are not logs. Covers Python's built-in logging module, log levels, structured JSON logs, request ID middleware, writing to a file, and reading logs in production.</p>
+    </header>
+    <div class="steps">
+
+      <!-- STEP 1 -->
+      <div class="step" id="step1">
+        <div class="step-number">1</div>
+        <div class="step-content">
+          <h3>Why Not print()?</h3>
+          <p class="explanation">print() sends text to the terminal with no timestamp, no severity level, and no way to filter it. When your app runs in production you need to know when something happened, how serious it was, and which part of the app it came from. Python's built-in logging module gives you all of this for free without installing anything extra.</p>
+          <div class="tabs" id="step1tabs">
+            <div class="tab-bar">
+              <button class="tab-btn active" onclick="switchTab('step1tabs',0)">what print gives you</button>
+              <button class="tab-btn" onclick="switchTab('step1tabs',1)">what a log gives you</button>
+            </div>
+            <div class="tab-panel active" id="step1tabs_panel0">
+              <div class="code-header"><span class="lang-label">text</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-comment"># Raw terminal output from print() — no metadata at all</span>
+
+user 42 logged in
+fetching article https://example.com/article-1
+hash mismatch detected
+payment received
+user 42 logged in
+hash mismatch detected
+
+<span class="hl-comment"># You have no idea when any of these happened,</span>
+<span class="hl-comment"># how urgent they are, or which module produced them.</span>
+<span class="hl-comment"># In production with multiple workers you cannot</span>
+<span class="hl-comment"># even tell which request triggered which line.</span></code></pre>
+            </div>
+            <div class="tab-panel" id="step1tabs_panel1">
+              <div class="code-header"><span class="lang-label">text</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-comment"># Formatted log lines from Python's logging module</span>
+
+2024-03-15 09:12:04,231  INFO     app.routes.auth        user 42 logged in               pid=18432
+2024-03-15 09:12:04,519  INFO     app.services.watcher   fetching https://example.com/1  pid=18432
+2024-03-15 09:12:05,102  WARNING  app.services.watcher   hash mismatch detected          pid=18432
+2024-03-15 09:12:07,880  INFO     app.services.payments  payment received drop=1000000   pid=18433
+2024-03-15 09:12:09,004  INFO     app.routes.auth        user 42 logged in               pid=18434
+2024-03-15 09:12:09,441  ERROR    app.services.watcher   hash mismatch detected          pid=18434
+
+<span class="hl-comment"># Every line has: timestamp, level, module name, message, process ID.</span>
+<span class="hl-comment"># You can grep for WARNING, filter by module, or sort by time.</span></code></pre>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- STEP 2 -->
+      <div class="step" id="step2">
+        <div class="step-number">2</div>
+        <div class="step-content">
+          <h3>Basic Setup</h3>
+          <p class="explanation">You create a logger with a name using logging.getLogger(__name__). The __name__ variable automatically uses the module's file name, so each file's logs are labelled by where they came from. You call basicConfig() once at startup to set the minimum level and format string.</p>
+          <div class="tabs" id="step2tabs">
+            <div class="tab-bar">
+              <button class="tab-btn active" onclick="switchTab('step2tabs',0)">setup</button>
+              <button class="tab-btn" onclick="switchTab('step2tabs',1)">in a route</button>
+            </div>
+            <div class="tab-panel active" id="step2tabs_panel0">
+              <div class="code-header"><span class="lang-label">python</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-comment"># app/main.py  — call basicConfig() once at startup</span>
+<span class="hl-keyword">import</span> logging
+<span class="hl-keyword">from</span> fastapi <span class="hl-keyword">import</span> FastAPI
+
+logging.basicConfig(
+    level=logging.INFO,
+    format=<span class="hl-string">"%(asctime)s  %(levelname)-8s %(name)-30s %(message)s"</span>,
+)
+
+<span class="hl-comment"># Each module gets its own named logger via __name__.</span>
+<span class="hl-comment"># __name__ resolves to the module path, e.g. "app.main".</span>
+logger = logging.getLogger(__name__)
+
+app = FastAPI()
+
+<span class="hl-decorator">@app.on_event</span>(<span class="hl-string">"startup"</span>)
+<span class="hl-keyword">async def</span> <span class="hl-builtin">startup</span>():
+    logger.info(<span class="hl-string">"application started"</span>)</code></pre>
+            </div>
+            <div class="tab-panel" id="step2tabs_panel1">
+              <div class="code-header"><span class="lang-label">python</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-comment"># app/routes/articles.py</span>
+<span class="hl-keyword">import</span> logging
+<span class="hl-keyword">from</span> fastapi <span class="hl-keyword">import</span> APIRouter, Depends
+
+logger = logging.getLogger(__name__)  <span class="hl-comment"># "app.routes.articles"</span>
+
+router = APIRouter()
+
+<span class="hl-decorator">@router.post</span>(<span class="hl-string">"/articles/submit"</span>)
+<span class="hl-keyword">async def</span> <span class="hl-builtin">submit_article</span>(url: str, user_id: <span class="hl-builtin">int</span> = Depends(get_current_user_id)):
+    logger.info(<span class="hl-string">"article submitted url=%s user_id=%s"</span>, url, user_id)
+
+    <span class="hl-keyword">if</span> already_registered:
+        logger.warning(<span class="hl-string">"duplicate submission url=%s user_id=%s"</span>, url, user_id)
+
+    <span class="hl-keyword">try</span>:
+        result = <span class="hl-keyword">await</span> verify_and_anchor(url, user_id)
+        logger.info(<span class="hl-string">"article anchored tx=%s"</span>, result.tx_hash)
+        <span class="hl-keyword">return</span> result
+    <span class="hl-keyword">except</span> <span class="hl-builtin">Exception</span> <span class="hl-keyword">as</span> exc:
+        logger.error(<span class="hl-string">"anchor failed url=%s error=%s"</span>, url, exc)
+        <span class="hl-keyword">raise</span></code></pre>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- STEP 3 -->
+      <div class="step" id="step3">
+        <div class="step-number">3</div>
+        <div class="step-content">
+          <h3>Log Levels</h3>
+          <p class="explanation">Every log message has a severity level. The level you set as the minimum filters out everything below it. In production you usually want INFO or WARNING so debug messages do not flood your logs.</p>
+          <div class="tabs" id="step3tabs">
+            <div class="tab-bar">
+              <button class="tab-btn active" onclick="switchTab('step3tabs',0)">level reference</button>
+              <button class="tab-btn" onclick="switchTab('step3tabs',1)">changing the level</button>
+            </div>
+            <div class="tab-panel active" id="step3tabs_panel0">
+              <div class="code-header"><span class="lang-label">text</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-comment">┌───────────┬───────┬─────────────────────────────────────────────────────┐</span>
+<span class="hl-comment">│ Level     │ Value │ When to use it                                      │</span>
+<span class="hl-comment">├───────────┼───────┼─────────────────────────────────────────────────────┤</span>
+<span class="hl-comment">│ DEBUG     │  10   │ Detailed dev info: loop counts, variable dumps,     │</span>
+<span class="hl-comment">│           │       │ SQL queries. Disabled in production.                │</span>
+<span class="hl-comment">├───────────┼───────┼─────────────────────────────────────────────────────┤</span>
+<span class="hl-comment">│ INFO      │  20   │ Normal events: app started, user logged in,         │</span>
+<span class="hl-comment">│           │       │ request processed, payment received.                │</span>
+<span class="hl-comment">├───────────┼───────┼─────────────────────────────────────────────────────┤</span>
+<span class="hl-comment">│ WARNING   │  30   │ Something unexpected but app is still running:      │</span>
+<span class="hl-comment">│           │       │ rate limit hit, config value missing (using default)│</span>
+<span class="hl-comment">├───────────┼───────┼─────────────────────────────────────────────────────┤</span>
+<span class="hl-comment">│ ERROR     │  40   │ Something failed and needs attention: DB query       │</span>
+<span class="hl-comment">│           │       │ failed, external API returned 500, task crashed.    │</span>
+<span class="hl-comment">├───────────┼───────┼─────────────────────────────────────────────────────┤</span>
+<span class="hl-comment">│ CRITICAL  │  50   │ App may not recover: cannot connect to DB at all,   │</span>
+<span class="hl-comment">│           │       │ out of disk space, corrupted config on startup.     │</span>
+<span class="hl-comment">└───────────┴───────┴─────────────────────────────────────────────────────┘</span>
+
+Setting level=INFO means DEBUG messages are silenced.
+Setting level=WARNING means both DEBUG and INFO are silenced.</code></pre>
+            </div>
+            <div class="tab-panel" id="step3tabs_panel1">
+              <div class="code-header"><span class="lang-label">python</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-keyword">import</span> logging
+
+<span class="hl-comment"># Set the root logger level — affects all loggers unless overridden.</span>
+logging.basicConfig(level=logging.INFO)
+
+<span class="hl-comment"># Override the level for a specific named logger.</span>
+<span class="hl-comment"># This module will show DEBUG messages even if root is INFO.</span>
+logging.getLogger(<span class="hl-string">"app.services.watcher"</span>).setLevel(logging.DEBUG)
+
+<span class="hl-comment"># Silence a noisy third-party library.</span>
+<span class="hl-comment"># uvicorn.access logs every HTTP request — often too verbose.</span>
+logging.getLogger(<span class="hl-string">"uvicorn.access"</span>).setLevel(logging.WARNING)
+
+<span class="hl-comment"># Silence SQLAlchemy query echo without disabling your own logs.</span>
+logging.getLogger(<span class="hl-string">"sqlalchemy.engine"</span>).setLevel(logging.WARNING)
+
+<span class="hl-comment"># Read level from an environment variable so you can change it</span>
+<span class="hl-comment"># without redeploying. Defaults to INFO if not set.</span>
+<span class="hl-keyword">import</span> os
+log_level = getattr(logging, os.getenv(<span class="hl-string">"LOG_LEVEL"</span>, <span class="hl-string">"INFO"</span>).upper(), logging.INFO)
+logging.basicConfig(level=log_level)</code></pre>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- STEP 4 -->
+      <div class="step" id="step4">
+        <div class="step-number">4</div>
+        <div class="step-content">
+          <h3>Log Format</h3>
+          <p class="explanation">The format string controls what every log line looks like. Adding the process ID and thread name is useful when you run multiple workers. Adding the file name and line number makes it easy to jump straight to the code that logged the message.</p>
+          <div class="tabs" id="step4tabs">
+            <div class="tab-bar">
+              <button class="tab-btn active" onclick="switchTab('step4tabs',0)">format strings</button>
+              <button class="tab-btn" onclick="switchTab('step4tabs',1)">example output</button>
+            </div>
+            <div class="tab-panel active" id="step4tabs_panel0">
+              <div class="code-header"><span class="lang-label">python</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-keyword">import</span> logging
+
+<span class="hl-comment"># Format A — minimal: timestamp + level + message</span>
+<span class="hl-comment"># %(asctime)s   human-readable timestamp (2024-03-15 09:12:04,231)</span>
+<span class="hl-comment"># %(levelname)s severity label (DEBUG, INFO, WARNING, ERROR, CRITICAL)</span>
+<span class="hl-comment"># %(message)s   the string passed to logger.info() etc.</span>
+FORMAT_A = <span class="hl-string">"%(asctime)s  %(levelname)-8s  %(message)s"</span>
+
+<span class="hl-comment"># Format B — standard: adds logger name so you know which module logged it</span>
+<span class="hl-comment"># %(name)s      logger name, usually the module path e.g. app.routes.auth</span>
+FORMAT_B = <span class="hl-string">"%(asctime)s  %(levelname)-8s  %(name)-30s  %(message)s"</span>
+
+<span class="hl-comment"># Format C — verbose: adds file name, line number, and process ID</span>
+<span class="hl-comment"># %(filename)s  source file name (articles.py)</span>
+<span class="hl-comment"># %(lineno)d    line number inside that file</span>
+<span class="hl-comment"># %(process)d   OS process ID — essential when running multiple workers</span>
+FORMAT_C = (
+    <span class="hl-string">"%(asctime)s  %(levelname)-8s  %(name)-30s  "</span>
+    <span class="hl-string">"%(filename)s:%(lineno)d  pid=%(process)d  %(message)s"</span>
+)
+
+logging.basicConfig(level=logging.INFO, format=FORMAT_B)</code></pre>
+            </div>
+            <div class="tab-panel" id="step4tabs_panel1">
+              <div class="code-header"><span class="lang-label">text</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-comment"># The same log call — logger.info("user logged in user_id=42") —</span>
+<span class="hl-comment"># rendered with each format above.</span>
+
+<span class="hl-comment">## Format A (minimal)</span>
+2024-03-15 09:12:04,231  INFO      user logged in user_id=42
+
+<span class="hl-comment">## Format B (standard — recommended for most apps)</span>
+2024-03-15 09:12:04,231  INFO      app.routes.auth                user logged in user_id=42
+
+<span class="hl-comment">## Format C (verbose — useful when debugging production issues)</span>
+2024-03-15 09:12:04,231  INFO      app.routes.auth                auth.py:87  pid=18432  user logged in user_id=42
+
+<span class="hl-comment"># With Format C you can open auth.py line 87 immediately.</span>
+<span class="hl-comment"># The pid lets you correlate lines from the same worker process.</span></code></pre>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- STEP 5 -->
+      <div class="step" id="step5">
+        <div class="step-number">5</div>
+        <div class="step-content">
+          <h3>JSON Logs</h3>
+          <p class="explanation">Plain text logs are easy to read in a terminal but hard to search in a log aggregator like Datadog, Logtail, or CloudWatch. JSON logs put every field in a named key so the aggregator can filter, sort, and graph your logs without parsing strings.</p>
+          <div class="tabs" id="step5tabs">
+            <div class="tab-bar">
+              <button class="tab-btn active" onclick="switchTab('step5tabs',0)">json setup</button>
+              <button class="tab-btn" onclick="switchTab('step5tabs',1)">example output</button>
+            </div>
+            <div class="tab-panel active" id="step5tabs_panel0">
+              <div class="code-header"><span class="lang-label">python</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-comment"># pip install python-json-logger</span>
+<span class="hl-keyword">import</span> logging
+<span class="hl-keyword">from</span> pythonjsonlogger <span class="hl-keyword">import</span> jsonlogger
+
+<span class="hl-keyword">def</span> <span class="hl-builtin">setup_json_logging</span>():
+    logger = logging.getLogger()
+    logger.setLevel(logging.INFO)
+
+    handler = logging.StreamHandler()
+
+    <span class="hl-comment"># The format string lists the fields to include in every JSON object.</span>
+    <span class="hl-comment"># %(asctime)s   → "asctime": "2024-03-15 09:12:04,231"</span>
+    <span class="hl-comment"># %(name)s      → "name": "app.routes.auth"</span>
+    <span class="hl-comment"># %(levelname)s → "levelname": "INFO"</span>
+    <span class="hl-comment"># %(message)s   → "message": "user logged in user_id=42"</span>
+    formatter = jsonlogger.JsonFormatter(
+        <span class="hl-string">"%(asctime)s %(name)s %(levelname)s %(message)s"</span>
+    )
+    handler.setFormatter(formatter)
+    logger.addHandler(handler)
+
+setup_json_logging()
+
+<span class="hl-comment"># Extra keyword arguments become top-level JSON keys.</span>
+<span class="hl-comment"># This is much better than embedding values in the message string.</span>
+logger = logging.getLogger(__name__)
+logger.info(<span class="hl-string">"user logged in"</span>, extra={<span class="hl-string">"user_id"</span>: <span class="hl-number">42</span>, <span class="hl-string">"plan"</span>: <span class="hl-string">"pro"</span>})
+logger.warning(<span class="hl-string">"rate limit hit"</span>, extra={<span class="hl-string">"user_id"</span>: <span class="hl-number">42</span>, <span class="hl-string">"endpoint"</span>: <span class="hl-string">"/articles/submit"</span>})</code></pre>
+            </div>
+            <div class="tab-panel" id="step5tabs_panel1">
+              <div class="code-header"><span class="lang-label">text</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-comment"># Each call produces a single JSON object on one line.</span>
+<span class="hl-comment"># Formatted here for readability — actual output is one line.</span>
+
+{"asctime": "2024-03-15 09:12:04,231", "name": "app.routes.auth", "levelname": "INFO", "message": "user logged in", "user_id": 42, "plan": "pro"}
+
+{"asctime": "2024-03-15 09:12:05,880", "name": "app.routes.articles", "levelname": "WARNING", "message": "rate limit hit", "user_id": 42, "endpoint": "/articles/submit"}
+
+<span class="hl-comment"># In a log aggregator you can now:</span>
+<span class="hl-comment">#   filter WHERE levelname = "ERROR"</span>
+<span class="hl-comment">#   filter WHERE user_id = 42</span>
+<span class="hl-comment">#   count GROUP BY endpoint</span>
+<span class="hl-comment">#   alert WHEN ERROR count &gt; 10 in 5 minutes</span>
+<span class="hl-comment"># None of this requires regex — the fields are already named.</span></code></pre>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- STEP 6 -->
+      <div class="step" id="step6">
+        <div class="step-number">6</div>
+        <div class="step-content">
+          <h3>Request ID Middleware</h3>
+          <p class="explanation">When multiple requests are being handled at the same time, log lines from different requests get mixed together. A request ID is a unique value generated for each incoming request and added to every log line that request produces. This lets you filter all logs for a single request in one query.</p>
+          <div class="tabs" id="step6tabs">
+            <div class="tab-bar">
+              <button class="tab-btn active" onclick="switchTab('step6tabs',0)">middleware</button>
+              <button class="tab-btn" onclick="switchTab('step6tabs',1)">using the request ID in logs</button>
+            </div>
+            <div class="tab-panel active" id="step6tabs_panel0">
+              <div class="code-header"><span class="lang-label">python</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-comment"># app/middleware/request_id.py</span>
+<span class="hl-keyword">import</span> uuid
+<span class="hl-keyword">from</span> contextvars <span class="hl-keyword">import</span> ContextVar
+<span class="hl-keyword">from</span> starlette.middleware.base <span class="hl-keyword">import</span> BaseHTTPMiddleware
+<span class="hl-keyword">from</span> starlette.requests <span class="hl-keyword">import</span> Request
+
+<span class="hl-comment"># ContextVar is safe for async code — each coroutine gets its own value.</span>
+<span class="hl-comment"># Without ContextVar a plain global would be overwritten by concurrent requests.</span>
+request_id_var: ContextVar[str] = ContextVar(<span class="hl-string">"request_id"</span>, default=<span class="hl-string">"-"</span>)
+
+<span class="hl-keyword">class</span> <span class="hl-builtin">RequestIDMiddleware</span>(BaseHTTPMiddleware):
+    <span class="hl-keyword">async def</span> <span class="hl-builtin">dispatch</span>(self, request: Request, call_next):
+        <span class="hl-comment"># Honour an upstream request ID if already set (e.g. by a load balancer).</span>
+        req_id = request.headers.get(<span class="hl-string">"X-Request-ID"</span>) <span class="hl-keyword">or</span> str(uuid.uuid4())
+        token = request_id_var.set(req_id)
+        <span class="hl-keyword">try</span>:
+            response = <span class="hl-keyword">await</span> call_next(request)
+            <span class="hl-comment"># Echo the request ID back so callers can match it to their own logs.</span>
+            response.headers[<span class="hl-string">"X-Request-ID"</span>] = req_id
+            <span class="hl-keyword">return</span> response
+        <span class="hl-keyword">finally</span>:
+            request_id_var.reset(token)
+
+<span class="hl-comment"># app/main.py — register the middleware</span>
+<span class="hl-keyword">from</span> fastapi <span class="hl-keyword">import</span> FastAPI
+<span class="hl-keyword">from</span> app.middleware.request_id <span class="hl-keyword">import</span> RequestIDMiddleware
+
+app = FastAPI()
+app.add_middleware(RequestIDMiddleware)</code></pre>
+            </div>
+            <div class="tab-panel" id="step6tabs_panel1">
+              <div class="code-header"><span class="lang-label">python</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-comment"># app/middleware/request_id.py — add a log filter that injects the ID</span>
+<span class="hl-keyword">import</span> logging
+<span class="hl-keyword">from</span> app.middleware.request_id <span class="hl-keyword">import</span> request_id_var
+
+<span class="hl-keyword">class</span> <span class="hl-builtin">RequestIDFilter</span>(logging.Filter):
+    <span class="hl-string">"""Injects the current request_id into every log record."""</span>
+    <span class="hl-keyword">def</span> <span class="hl-builtin">filter</span>(self, record: logging.LogRecord) -&gt; bool:
+        record.request_id = request_id_var.get(<span class="hl-string">"-"</span>)
+        <span class="hl-keyword">return</span> True
+
+<span class="hl-comment"># app/main.py — attach the filter to the root logger</span>
+<span class="hl-keyword">import</span> logging
+<span class="hl-keyword">from</span> app.middleware.request_id <span class="hl-keyword">import</span> RequestIDFilter
+
+root_logger = logging.getLogger()
+root_logger.addFilter(RequestIDFilter())
+
+<span class="hl-comment"># Add %(request_id)s to your format string so it appears in every line.</span>
+logging.basicConfig(
+    level=logging.INFO,
+    format=<span class="hl-string">"%(asctime)s  %(levelname)-8s  %(name)-30s  req=%(request_id)s  %(message)s"</span>,
+)
+
+<span class="hl-comment"># Sample output:</span>
+<span class="hl-comment"># 2024-03-15 09:12:04,231  INFO      app.routes.auth   req=a3f1c2d9-...  user logged in user_id=42</span>
+<span class="hl-comment"># 2024-03-15 09:12:04,519  INFO      app.services      req=a3f1c2d9-...  fetching hash</span>
+<span class="hl-comment"># All lines for one request share the same req= value — easy to grep.</span></code></pre>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- STEP 7 -->
+      <div class="step" id="step7">
+        <div class="step-number">7</div>
+        <div class="step-content">
+          <h3>Log to a File</h3>
+          <p class="explanation">By default logs only go to the terminal. In production you usually want them written to a file too so they survive a terminal session ending. Python's RotatingFileHandler automatically starts a new log file when the current one reaches a size limit, keeping only the last N files to avoid filling the disk.</p>
+          <div class="tabs" id="step7tabs">
+            <div class="tab-bar">
+              <button class="tab-btn active" onclick="switchTab('step7tabs',0)">file handler</button>
+              <button class="tab-btn" onclick="switchTab('step7tabs',1)">log file location</button>
+            </div>
+            <div class="tab-panel active" id="step7tabs_panel0">
+              <div class="code-header"><span class="lang-label">python</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-keyword">import</span> logging
+<span class="hl-keyword">from</span> logging.handlers <span class="hl-keyword">import</span> RotatingFileHandler
+
+LOG_FORMAT = <span class="hl-string">"%(asctime)s  %(levelname)-8s  %(name)-30s  %(message)s"</span>
+
+<span class="hl-keyword">def</span> <span class="hl-builtin">setup_logging</span>():
+    root = logging.getLogger()
+    root.setLevel(logging.INFO)
+
+    formatter = logging.Formatter(LOG_FORMAT)
+
+    <span class="hl-comment"># Stream handler — logs go to stdout (terminal / systemd journal).</span>
+    stream_handler = logging.StreamHandler()
+    stream_handler.setFormatter(formatter)
+
+    <span class="hl-comment"># Rotating file handler — logs go to a file that rolls over at 5 MB.</span>
+    <span class="hl-comment"># maxBytes=5*1024*1024 → roll over when file reaches 5 MB</span>
+    <span class="hl-comment"># backupCount=3         → keep app.log, app.log.1, app.log.2, app.log.3</span>
+    <span class="hl-comment">#                         then delete the oldest</span>
+    file_handler = RotatingFileHandler(
+        <span class="hl-string">"/var/log/myapp/app.log"</span>,
+        maxBytes=<span class="hl-number">5</span> * <span class="hl-number">1024</span> * <span class="hl-number">1024</span>,
+        backupCount=<span class="hl-number">3</span>,
+    )
+    file_handler.setFormatter(formatter)
+
+    <span class="hl-comment"># Attach both — logs appear in the terminal AND the file.</span>
+    root.addHandler(stream_handler)
+    root.addHandler(file_handler)
+
+setup_logging()</code></pre>
+            </div>
+            <div class="tab-panel" id="step7tabs_panel1">
+              <div class="code-header"><span class="lang-label">text</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-comment"># Common log directory on Linux — create it and set permissions.</span>
+
+sudo mkdir -p /var/log/myapp
+sudo chown www-data:www-data /var/log/myapp   <span class="hl-comment"># or your app's user</span>
+
+<span class="hl-comment"># After some time the directory will contain up to 4 files:</span>
+
+/var/log/myapp/
+  app.log       ← current file, actively written
+  app.log.1     ← previous file (most recent rollover)
+  app.log.2     ← one older
+  app.log.3     ← oldest kept — next rollover deletes this
+
+<span class="hl-comment"># With backupCount=3 and maxBytes=5 MB,</span>
+<span class="hl-comment"># the maximum disk space used is 4 × 5 MB = 20 MB.</span>
+<span class="hl-comment"># Adjust both values based on your log volume.</span>
+
+<span class="hl-comment"># If you deploy with systemd you can also read logs via:</span>
+journalctl -u myapp.service -f</code></pre>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- STEP 8 -->
+      <div class="step" id="step8">
+        <div class="step-number">8</div>
+        <div class="step-content">
+          <h3>Reading Logs</h3>
+          <p class="explanation">Once logs are in a file you need to be able to search them. For JSON logs the jq command line tool is the fastest way to filter and extract fields. For plain text logs grep works fine.</p>
+          <div class="tabs" id="step8tabs">
+            <div class="tab-bar">
+              <button class="tab-btn active" onclick="switchTab('step8tabs',0)">json log queries</button>
+              <button class="tab-btn" onclick="switchTab('step8tabs',1)">plain text queries</button>
+            </div>
+            <div class="tab-panel active" id="step8tabs_panel0">
+              <div class="code-header"><span class="lang-label">bash</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-comment"># Print every log line (pretty-printed)</span>
+jq '.' /var/log/myapp/app.log
+
+<span class="hl-comment"># Print only the message field from every line</span>
+jq '.message' /var/log/myapp/app.log
+
+<span class="hl-comment"># Filter: show only ERROR and CRITICAL lines</span>
+jq 'select(.levelname == "ERROR" or .levelname == "CRITICAL")' /var/log/myapp/app.log
+
+<span class="hl-comment"># Filter: show all logs for a specific request ID</span>
+jq 'select(.request_id == "a3f1c2d9-84b1-4e2a-9f3d-0c1b2e3f4a5b")' /var/log/myapp/app.log
+
+<span class="hl-comment"># Filter: show all logs for user_id 42</span>
+jq 'select(.user_id == 42)' /var/log/myapp/app.log
+
+<span class="hl-comment"># Extract only timestamp and message from ERROR lines</span>
+jq 'select(.levelname == "ERROR") | {asctime, message}' /var/log/myapp/app.log
+
+<span class="hl-comment"># Count errors per endpoint in the last hour (pipe through sort)</span>
+jq -r 'select(.levelname == "ERROR") | .endpoint' /var/log/myapp/app.log \
+  | sort | uniq -c | sort -rn</code></pre>
+            </div>
+            <div class="tab-panel" id="step8tabs_panel1">
+              <div class="code-header"><span class="lang-label">bash</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code"><span class="hl-comment"># Find all ERROR lines</span>
+grep "ERROR" /var/log/myapp/app.log
+
+<span class="hl-comment"># Find lines containing a specific user ID</span>
+grep "user_id=42" /var/log/myapp/app.log
+
+<span class="hl-comment"># Find all lines from a specific module</span>
+grep "app.routes.auth" /var/log/myapp/app.log
+
+<span class="hl-comment"># Case-insensitive search for a keyword</span>
+grep -i "payment" /var/log/myapp/app.log
+
+<span class="hl-comment"># Show context: 2 lines before and after each match</span>
+grep -B 2 -A 2 "ERROR" /var/log/myapp/app.log
+
+<span class="hl-comment"># Show the last 50 lines of the log file</span>
+tail -n 50 /var/log/myapp/app.log
+
+<span class="hl-comment"># Follow the log live as new lines are written (Ctrl-C to stop)</span>
+tail -f /var/log/myapp/app.log
+
+<span class="hl-comment"># Follow live and highlight ERROR lines</span>
+tail -f /var/log/myapp/app.log | grep --color=always -E "ERROR|$"</code></pre>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- STEP 9 -->
+      <div class="step" id="step9">
+        <div class="step-number">9</div>
+        <div class="step-content">
+          <h3>What's Next</h3>
+          <p class="explanation">You now have structured logs with levels, JSON formatting, request IDs, file rotation, and the tools to search them.</p>
+          <div class="info-box">
+            <strong>Sentry</strong><br>
+            For tracking exceptions with full stack traces and alerting, use Sentry. It integrates with FastAPI in a few lines using <code>sentry_sdk.init()</code> and the <code>StarletteIntegration</code>. Sentry groups repeated errors together so you can see how often each unique crash occurs rather than reading thousands of identical log lines.
+          </div>
+          <div class="info-box">
+            <strong>Log aggregators</strong><br>
+            Services like Logtail, Datadog, and CloudWatch ingest your JSON log files and give you a searchable UI, dashboards, and alerting. You point them at your log file or pipe stdout to their agent. Because your logs are already JSON, no parsing configuration is needed — every field is immediately queryable.
+          </div>
+          <div class="info-box">
+            <strong>Audit logs</strong><br>
+            For compliance you sometimes need an audit log — a separate logger that records who did what and when. Keep it in its own file using a dedicated <code>FileHandler</code> on a logger named <code>"audit"</code>, separate from your application logs. Audit log entries should never be deleted by rotation — use a <code>TimedRotatingFileHandler</code> with a long retention period or ship them to immutable storage.
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </main>
+</div>
+<script>
+(function(){var s=localStorage.getItem("pyoffline-theme");if(s==="light")document.documentElement.classList.add("light");document.addEventListener("DOMContentLoaded",function(){var t=document.getElementById("themeToggle");if(!t)return;t.checked=(localStorage.getItem("pyoffline-theme")==="light");t.addEventListener("change",function(){if(this.checked){document.documentElement.classList.add("light");localStorage.setItem("pyoffline-theme","light");}else{document.documentElement.classList.remove("light");localStorage.setItem("pyoffline-theme","dark");}});});})();
+function switchTab(stepId,idx){var s=document.getElementById(stepId);var b=s.querySelectorAll(".tab-btn");var p=s.querySelectorAll(".tab-panel");b.forEach(function(x){x.classList.remove("active")});p.forEach(function(x){x.classList.remove("active")});b[idx].classList.add("active");p[idx].classList.add("active");}
+function copyCode(btn){var code=btn.closest(".tab-panel").querySelector("code").innerText;navigator.clipboard.writeText(code).then(function(){var o=btn.textContent;btn.textContent="Copied!";setTimeout(function(){btn.textContent=o;},1500);});}
+function toggleSidebar(){var s=document.getElementById("guideSidebar");var o=document.getElementById("sidebarOverlay");if(!s)return;s.classList.toggle("open");o.classList.toggle("open");}
+document.addEventListener("DOMContentLoaded",function(){var s=document.getElementById("guideSidebar");if(!s)return;s.querySelectorAll("nav a").forEach(function(a){a.addEventListener("click",function(){s.classList.remove("open");var o=document.getElementById("sidebarOverlay");if(o)o.classList.remove("open");});});});
+function toggleSbDesktop(){var c=document.body.classList.toggle("sb-collapsed");localStorage.setItem("sb-collapsed",c?"1":"0");}
+(function(){if(localStorage.getItem("sb-collapsed")==="1")document.body.classList.add("sb-collapsed");})();
+</script>
+</body>
+</html>

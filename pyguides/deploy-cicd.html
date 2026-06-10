@@ -85,7 +85,7 @@ pre{overflow-x:auto;padding:16px;background:var(--code-bg)}code{font-family:"Fir
         <div class="step-number">1</div>
         <div class="step-content">
           <h3>What CI/CD Is</h3>
-          <p class="explanation">CI (Continuous Integration) runs your tests automatically on every push. CD (Continuous Deployment) deploys your code automatically when tests pass. Together they mean: push to <code>main</code> → tests run → if green → live in production.</p>
+          <p class="explanation">CI stands for Continuous Integration. It means your tests run automatically every time you push code to GitHub. CD stands for Continuous Deployment, and it means your code gets deployed to the server automatically when those tests pass. Together the flow is simple: push to <code>main</code>, tests run, and if they pass, your new version goes live.</p>
           <div class="info-box"><strong>Why bother?</strong> Manual deploys are error-prone — you forget a step, push broken code, or deploy from the wrong branch. CI/CD makes deploys boring and reliable. Even on a solo project, it's worth the one-time setup.</div>
         </div>
       </div>
@@ -129,7 +129,7 @@ pre{overflow-x:auto;padding:16px;background:var(--code-bg)}code{font-family:"Fir
         <div class="step-number">3</div>
         <div class="step-content">
           <h3>Generate a Deploy SSH Key</h3>
-          <p class="explanation">Create a new SSH key pair specifically for GitHub to use. Never reuse your personal SSH key — if the GitHub secret is ever leaked, you revoke just this key without affecting your own access.</p>
+          <p class="explanation">You need to create a new SSH key pair specifically for GitHub to use. Never reuse your personal SSH key for this. If the key stored in GitHub is ever leaked, you can revoke just that one key without affecting your own server access.</p>
           <div class="tabs">
             <div class="tab-bar"><button class="tab-btn active" onclick="switchTab('step3',0)">bash — run on your local machine</button></div>
             <div class="tab-panel active">
@@ -160,7 +160,7 @@ echo "ssh-ed25519 AAAAC3... github-deploy" >> ~/.ssh/authorized_keys</code></pre
         <div class="step-number">4</div>
         <div class="step-content">
           <h3>GitHub Secrets</h3>
-          <p class="explanation">Secrets are encrypted variables that GitHub injects into your workflow. They're never visible in logs or to other users. You reference them as <code>${{ secrets.SECRET_NAME }}</code> in the workflow file.</p>
+          <p class="explanation">GitHub Secrets are encrypted variables you store in your repository settings. GitHub injects them into your workflow when it runs, and they are never visible in logs or to other users. You reference them in the workflow file using the syntax <code>${{ secrets.SECRET_NAME }}</code>.</p>
           <div class="tabs">
             <div class="tab-bar"><button class="tab-btn active" onclick="switchTab('step4',0)">Secrets to add</button></div>
             <div class="tab-panel active">
@@ -189,7 +189,7 @@ Value: the path to your app on the server
         <div class="step-number">5</div>
         <div class="step-content">
           <h3>Write the Workflow File</h3>
-          <p class="explanation">Create <code>.github/workflows/deploy.yml</code> in your project. GitHub Actions reads this file and runs it on every push to <code>main</code>.</p>
+          <p class="explanation">Create a file at <code>.github/workflows/deploy.yml</code> in your project. GitHub Actions finds this file automatically and runs it whenever you push to <code>main</code>. The file is written in YAML and describes a series of steps called a workflow.</p>
           <div class="tabs">
             <div class="tab-bar">
               <button class="tab-btn active" onclick="switchTab('step5',0)">deploy.yml (minimal)</button>
@@ -271,7 +271,7 @@ jobs:
         <div class="step-number">6</div>
         <div class="step-content">
           <h3>Allow sudo systemctl restart in the Deploy Script</h3>
-          <p class="explanation">By default, the <code>deploy</code> user needs a password to run <code>sudo</code>. Since GitHub Actions can't enter a password, grant passwordless sudo for just the one command needed.</p>
+          <p class="explanation">By default, any user running <code>sudo</code> on the server must enter a password. GitHub Actions cannot type a password interactively, so the deploy would fail at that step. You can fix this by granting the deploy user permission to run just that one specific command without a password.</p>
           <div class="tabs">
             <div class="tab-bar"><button class="tab-btn active" onclick="switchTab('step6',0)">bash — on the server</button></div>
             <div class="tab-panel active">
@@ -294,7 +294,7 @@ sudo visudo -f /etc/sudoers.d/deploy-restart
         <div class="step-number">7</div>
         <div class="step-content">
           <h3>Environment Variables in Actions</h3>
-          <p class="explanation">Your app's runtime secrets (DATABASE_URL, SECRET_KEY) live in <code>/etc/myapp.env</code> on the server — they don't go in GitHub Secrets. GitHub Secrets are only for things the CI process itself needs (SSH keys, server address). The deployed app reads its secrets from the server's env file as usual.</p>
+          <p class="explanation">Your app's runtime secrets, like <code>DATABASE_URL</code> and <code>SECRET_KEY</code>, live in <code>/etc/myapp.env</code> on the server. Those do not go in GitHub Secrets. GitHub Secrets are only for things the CI process itself needs, such as the SSH key and server address. Once your app is running, it reads its secrets from the server's env file as usual.</p>
           <div class="tabs">
             <div class="tab-bar"><button class="tab-btn active" onclick="switchTab('step7',0)">What goes where</button></div>
             <div class="tab-panel active">
@@ -323,7 +323,7 @@ The difference:
         <div class="step-number">8</div>
         <div class="step-content">
           <h3>What's Next</h3>
-          <p class="explanation">You now have a complete production pipeline: VPS → Nginx → HTTPS → systemd → auto-deploy. This is the foundation every professional FastAPI deployment is built on.</p>
+          <p class="explanation">You now have a complete production pipeline: a VPS, Nginx as a reverse proxy, HTTPS, systemd keeping your app alive, and automated deploys on every push. This is the foundation that most professional FastAPI deployments are built on.</p>
           <div class="info-box">
             <strong>Docker:</strong> Package your app and all its dependencies into a container image. Docker ensures the same code runs identically on every machine — no "works on my laptop" problems. A natural next step once you're comfortable with the manual deployment approach.
           </div>

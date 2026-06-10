@@ -1,0 +1,661 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Financial Portfolio Tracker - pyoffline</title>
+<style>
+:root{--bg:#121212;--surface:#1e1e1e;--surface2:#2a2a2a;--sidebar-bg:#1a1a1a;--text:#e0e0e0;--text-muted:#aaa;--text-dim:#666;--border:#333;--code-bg:#1e1e1e;--code-text:#d4d4d4;--shadow:rgba(0,0,0,.4);--accent:#00695c;--hl-keyword:#569cd6;--hl-string:#ce9178;--hl-comment:#6a9955;--hl-number:#b5cea8;--hl-decorator:#dcdcaa;--hl-builtin:#4ec9b0;--hl-tag:#4ec9b0;--hl-attr:#9cdcfe;--hl-template:#c586c0}
+html.light{--bg:#f5f7fa;--surface:#ffffff;--surface2:#eef0f3;--sidebar-bg:#ffffff;--text:#1a1a1a;--text-muted:#555;--text-dim:#888;--border:#dde1e7;--code-bg:#f8f8f8;--code-text:#24292e;--shadow:rgba(0,0,0,.1);--hl-keyword:#0000ff;--hl-string:#a31515;--hl-comment:#008000;--hl-number:#098658;--hl-decorator:#795e26;--hl-builtin:#267f99;--hl-tag:#800000;--hl-attr:#e50000;--hl-template:#af00db}
+.hl-keyword{color:var(--hl-keyword)}.hl-string{color:var(--hl-string)}.hl-comment{color:#adb4a7;font-size:12px;font-style:italic}.hl-number{color:var(--hl-number)}.hl-decorator{color:var(--hl-decorator)}.hl-builtin{color:var(--hl-builtin)}.hl-tag{color:var(--hl-tag)}.hl-attr{color:var(--hl-attr)}.hl-template{color:var(--hl-template)}
+*{box-sizing:border-box;margin:0;padding:0}body{background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;transition:background .2s,color .2s}a{color:var(--accent)}.layout{display:flex;min-height:100vh}.sidebar{width:260px;min-width:260px;background:var(--sidebar-bg);border-right:1px solid var(--border);padding:24px 16px;position:sticky;top:0;height:100vh;overflow-y:auto}.sidebar h2{font-size:1.1rem;margin:16px 0 8px;color:var(--text)}.sidebar nav ol{padding-left:18px}.sidebar nav li{margin:6px 0}.sidebar nav a{color:var(--text-muted);text-decoration:none;font-size:0.85rem}.sidebar nav a:hover{color:var(--accent)}.back-link{color:var(--text-dim);text-decoration:none;font-size:0.85rem;display:block;margin-bottom:8px}.install-box{margin-top:24px;background:var(--bg);border:1px solid var(--border);padding:12px;border-radius:6px;font-size:0.8rem}.install-box code{display:block;word-break:break-all;color:var(--hl-comment);font-family:monospace;margin-top:4px}main{flex:1;padding:40px;max-width:860px}.guide-header{padding:20px 20px 20px 24px;background:var(--surface);border-radius:8px;margin-bottom:32px;box-shadow:0 1px 3px var(--shadow)}.guide-header h1{font-size:1.8rem;margin-bottom:8px}.guide-header p{color:var(--text-muted)}.step{display:flex;gap:16px;margin-bottom:40px}.step-number{width:32px;min-width:32px;height:32px;background:var(--accent);border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:bold;font-size:0.9rem;margin-top:4px;color:#fff}.step-content{flex:1;min-width:0}.step-content h3{font-size:1.1rem;margin-bottom:8px;color:var(--text)}.explanation{color:var(--text-muted);font-size:0.9rem;line-height:1.6;margin-bottom:14px}.info-box{background:var(--surface);border-left:3px solid var(--accent);border-radius:0 6px 6px 0;padding:12px 16px;margin-bottom:14px;font-size:0.88rem;color:var(--text-muted);line-height:1.6}.info-box strong{color:var(--text)}.crud-table{width:100%;border-collapse:collapse;margin-bottom:14px;font-size:0.85rem}.crud-table th{background:var(--surface2);color:var(--text-muted);text-align:left;padding:8px 12px;border:1px solid var(--border);font-weight:600}.crud-table td{padding:8px 12px;border:1px solid var(--border);color:var(--text)}.crud-table tr:nth-child(even) td{background:var(--surface)}.tabs{background:var(--surface);border-radius:6px;overflow:hidden;border:1px solid var(--border)}.tab-bar{display:flex;background:var(--surface2);overflow-x:auto;border-bottom:1px solid var(--border)}.tab-btn{padding:8px 16px;background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:0.8rem;white-space:nowrap;border-bottom:2px solid transparent;margin-bottom:-1px}.tab-btn.active{color:var(--text);border-bottom-color:var(--accent)}.tab-panel{display:none}.tab-panel.active{display:block}.code-header{display:flex;justify-content:space-between;align-items:center;padding:5px 12px;background:var(--surface2);border-bottom:1px solid var(--border)}.lang-label{font-size:0.72rem;color:var(--text-dim);text-transform:uppercase;letter-spacing:.04em}.copy-btn{background:none;border:1px solid var(--border);color:var(--text-muted);padding:2px 8px;cursor:pointer;border-radius:3px;font-size:0.72rem}.copy-btn:hover{color:var(--text);border-color:var(--text-muted)}pre{overflow-x:auto;padding:16px;background:var(--code-bg)}code{font-family:"Fira Code","Cascadia Code","Consolas",monospace;font-size:0.82rem;line-height:1.65;color:var(--code-text)}.theme-row{display:flex;align-items:center;gap:8px;margin-top:20px}.theme-label{font-size:0.78rem;color:var(--text-muted)}.toggle-switch{position:relative;display:inline-block;width:40px;height:22px}.toggle-switch input{opacity:0;width:0;height:0}.slider{position:absolute;cursor:pointer;inset:0;background:var(--surface2);border:1px solid var(--border);border-radius:22px;transition:background .2s}.slider:before{content:"";position:absolute;width:16px;height:16px;left:2px;top:2px;background:var(--text-muted);border-radius:50%;transition:transform .2s,background .2s}.toggle-switch input:checked+.slider{background:var(--accent);border-color:var(--accent)}.toggle-switch input:checked+.slider:before{transform:translateX(18px);background:#fff}.sidebar-toggle{display:none;position:fixed;top:12px;left:12px;z-index:300;background:var(--accent);color:#fff;border:none;padding:7px 14px;border-radius:6px;cursor:pointer;font-size:0.85rem;font-weight:600;box-shadow:0 2px 8px var(--shadow);align-items:center;gap:6px}.sidebar-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:190}.sidebar-overlay.open{display:block}@media(max-width:900px){.sidebar-toggle{display:flex}.layout{display:block}.sidebar{position:fixed;left:-280px;top:0;height:100vh;z-index:200;transition:left .25s ease;box-shadow:2px 0 16px var(--shadow);min-width:260px}.sidebar.open{left:0}main{padding:60px 20px 40px;max-width:100%}pre{overflow-x:auto;max-width:100%;white-space:pre-wrap;word-break:break-word}.tabs{max-width:100%}}.sidebar{transition:width .2s ease,min-width .2s ease,padding .2s ease}.sb-pin{display:flex;justify-content:flex-end;margin-bottom:8px}.sb-pin button{background:none;border:1px solid var(--border);color:var(--text-dim);cursor:pointer;border-radius:4px;padding:2px 7px;font-size:11px;line-height:1.6}.sb-pin button:hover{color:var(--accent);border-color:var(--accent)}.sb-reopen{display:none;position:fixed;left:0;top:50%;transform:translateY(-50%);background:var(--accent);color:#fff;border:none;border-radius:0 4px 4px 0;padding:10px 5px;cursor:pointer;z-index:300;font-size:11px;font-weight:600;writing-mode:vertical-rl;letter-spacing:.05em}@media(min-width:901px){body.sb-collapsed .sidebar{width:0;min-width:0;padding:0;overflow:hidden;border-right:none}body.sb-collapsed .sb-reopen{display:block}}@media(max-width:900px){.sb-pin{display:none}.sb-reopen{display:none!important}}
+</style>
+</head>
+<body>
+<button class="sidebar-toggle" id="sidebarToggle" onclick="toggleSidebar()">&#9776; Steps</button>
+<div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+<button class="sb-reopen" onclick="toggleSbDesktop()">Steps</button>
+<div class="layout">
+  <aside class="sidebar" id="guideSidebar">
+    <div class="sb-pin"><button onclick="toggleSbDesktop()">&#9664; Hide</button></div>
+    <a href="index.html" class="back-link">&#8592; All Guides</a>
+    <h2>Portfolio Tracker</h2>
+    <nav><ol>
+      <li><a href="#step1">What We're Building</a></li>
+      <li><a href="#step2">Database Models</a></li>
+      <li><a href="#step3">Seed Holdings</a></li>
+      <li><a href="#step4">Fetch Crypto Prices</a></li>
+      <li><a href="#step5">Fetch Stock Prices</a></li>
+      <li><a href="#step6">Concurrent Fetching</a></li>
+      <li><a href="#step7">Portfolio Calculations</a></li>
+      <li><a href="#step8">Dashboard Endpoint</a></li>
+      <li><a href="#step9">Jinja Dashboard Template</a></li>
+      <li><a href="#step10">JSON Refresh Endpoint</a></li>
+      <li><a href="#step11">What's Next</a></li>
+    </ol></nav>
+    <div class="install-box">
+      <strong>Install</strong>
+      <code>pip install fastapi uvicorn jinja2 sqlalchemy httpx python-dotenv</code>
+      <p style="margin-top:8px;color:var(--text-muted);font-size:0.78rem">Free API keys: alphavantage.co (stocks), CoinGecko needs no key.</p>
+    </div>
+    <div class="theme-row">
+      <span class="theme-label">Dark</span>
+      <label class="toggle-switch"><input type="checkbox" id="themeToggle"><span class="slider"></span></label>
+      <span class="theme-label">Light</span>
+    </div>
+  </aside>
+  <main>
+    <header class="guide-header" style="border-left:5px solid #00695c">
+      <h1>Multi-Source Financial Portfolio Tracker</h1>
+      <p>Build a live portfolio dashboard that fetches stock prices from Alpha Vantage and crypto prices from CoinGecko concurrently, calculates net worth and P&amp;L, and displays them in a Jinja2 dashboard with a JSON price-refresh button.</p>
+    </header>
+    <div class="steps">
+
+      <!-- STEP 1 -->
+      <div class="step" id="step1">
+        <div class="step-number">1</div>
+        <div class="step-content">
+          <h3>What We're Building</h3>
+          <p class="explanation">This tracker stores your stock and crypto holdings in SQLite. When you load the dashboard, FastAPI fetches live prices from two free external APIs at the same time, calculates your current portfolio value and profit/loss, and renders the results in a Jinja2 HTML page. You also get a "Refresh prices" button that updates just the numbers without reloading the whole page.</p>
+          <div class="tabs" id="step1tabs">
+            <div class="tab-bar">
+              <button class="tab-btn active" onclick="switchTab('step1tabs',0)">architecture overview</button>
+              <button class="tab-btn" onclick="switchTab('step1tabs',1)">APIs used</button>
+            </div>
+            <div class="tab-panel active">
+              <div class="code-header"><span class="lang-label">text</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code>Browser &#8594; GET /dashboard
+           &#8595;
+FastAPI reads holdings from SQLite
+           &#8595;
+asyncio.gather() fetches BOTH at once:
+  &#9500;&#9472;&#9472; Alpha Vantage &#8594; stock prices (AAPL, MSFT)
+  &#9492;&#9472;&#9472; CoinGecko     &#8594; crypto prices (bitcoin, ethereum)
+           &#8595;
+Calculate: current_value = qty &#215; live_price
+           pnl = current_value &#8722; (qty &#215; avg_buy_price)
+           &#8595;
+Jinja2 renders dashboard.html &#8594; Browser</code></pre>
+            </div>
+            <div class="tab-panel">
+              <div style="padding:16px">
+                <table class="crud-table">
+                  <thead><tr><th>API</th><th>What it provides</th><th>Key required</th><th>Free tier limit</th></tr></thead>
+                  <tbody>
+                    <tr><td>CoinGecko</td><td>Crypto prices</td><td>No key needed</td><td>30 calls/min</td></tr>
+                    <tr><td>Alpha Vantage</td><td>Stock prices</td><td>Free key from alphavantage.co</td><td>25 calls/day on free tier</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- STEP 2 -->
+      <div class="step" id="step2">
+        <div class="step-number">2</div>
+        <div class="step-content">
+          <h3>Database Models</h3>
+          <p class="explanation">Three models cover the data you need. Holding stores what you own, how many, and what you paid. PriceCache stores the last fetched price with a timestamp so you do not hit the API on every single request.</p>
+          <div class="tabs" id="step2tabs">
+            <div class="tab-bar">
+              <button class="tab-btn active" onclick="switchTab('step2tabs',0)">models.py</button>
+              <button class="tab-btn" onclick="switchTab('step2tabs',1)">database.py</button>
+            </div>
+            <div class="tab-panel active">
+              <div class="code-header"><span class="lang-label">python</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-keyword">from</span> sqlalchemy <span class="hl-keyword">import</span> Column, Integer, String, Float, DateTime
+<span class="hl-keyword">from</span> sqlalchemy.ext.declarative <span class="hl-keyword">import</span> declarative_base
+<span class="hl-keyword">from</span> datetime <span class="hl-keyword">import</span> datetime
+
+Base = declarative_base()
+
+<span class="hl-keyword">class</span> <span class="hl-builtin">Holding</span>(Base):
+    __tablename__ = <span class="hl-string">"holdings"</span>
+
+    id            = Column(Integer, primary_key=<span class="hl-keyword">True</span>)
+    symbol        = Column(String)          <span class="hl-comment"># → "AAPL", "bitcoin"</span>
+    name          = Column(String)          <span class="hl-comment"># → "Apple Inc.", "Bitcoin"</span>
+    quantity      = Column(Float)           <span class="hl-comment"># → number of shares or coins</span>
+    avg_buy_price = Column(Float)           <span class="hl-comment"># → average cost per unit in USD</span>
+    asset_type    = Column(String)          <span class="hl-comment"># → "stock" or "crypto"</span>
+
+
+<span class="hl-keyword">class</span> <span class="hl-builtin">PriceCache</span>(Base):
+    __tablename__ = <span class="hl-string">"price_cache"</span>
+
+    id         = Column(Integer, primary_key=<span class="hl-keyword">True</span>)
+    symbol     = Column(String, unique=<span class="hl-keyword">True</span>)  <span class="hl-comment"># → one row per symbol</span>
+    price      = Column(Float)
+    fetched_at = Column(DateTime, default=datetime.utcnow)
+
+<span class="hl-comment"># A Portfolio model (with user_id FK) can be added later for multi-user support.</span>
+<span class="hl-comment"># For now a single shared portfolio is stored in the holdings table.</span></code></pre>
+            </div>
+            <div class="tab-panel">
+              <div class="code-header"><span class="lang-label">python</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-keyword">import</span> os
+<span class="hl-keyword">from</span> sqlalchemy <span class="hl-keyword">import</span> create_engine
+<span class="hl-keyword">from</span> sqlalchemy.orm <span class="hl-keyword">import</span> sessionmaker
+<span class="hl-keyword">from</span> dotenv <span class="hl-keyword">import</span> load_dotenv
+<span class="hl-keyword">from</span> .models <span class="hl-keyword">import</span> Base
+
+load_dotenv()
+
+<span class="hl-comment"># Defaults to SQLite for local dev; set DATABASE_URL in .env for PostgreSQL.</span>
+DATABASE_URL = os.getenv(<span class="hl-string">"DATABASE_URL"</span>, <span class="hl-string">"sqlite:///./portfolio.db"</span>)
+
+engine = create_engine(
+    DATABASE_URL,
+    connect_args={<span class="hl-string">"check_same_thread"</span>: <span class="hl-keyword">False</span>} <span class="hl-keyword">if</span> <span class="hl-string">"sqlite"</span> <span class="hl-keyword">in</span> DATABASE_URL <span class="hl-keyword">else</span> {},
+)
+SessionLocal = sessionmaker(autocommit=<span class="hl-keyword">False</span>, autoflush=<span class="hl-keyword">False</span>, bind=engine)
+
+<span class="hl-keyword">def</span> <span class="hl-builtin">get_db</span>():
+    db = SessionLocal()
+    <span class="hl-keyword">try</span>:
+        <span class="hl-keyword">yield</span> db
+    <span class="hl-keyword">finally</span>:
+        db.close()
+
+<span class="hl-keyword">def</span> <span class="hl-builtin">init_db</span>():
+    Base.metadata.create_all(bind=engine)  <span class="hl-comment"># → creates tables if they don't exist</span></code></pre>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- STEP 3 -->
+      <div class="step" id="step3">
+        <div class="step-number">3</div>
+        <div class="step-content">
+          <h3>Seed Holdings</h3>
+          <p class="explanation">The seed data creates a realistic sample portfolio so the dashboard shows real numbers right away. Holdings include two stocks and two crypto assets with typical quantities and approximate buy prices from 2023.</p>
+          <div class="tabs" id="step3tabs">
+            <div class="tab-bar">
+              <button class="tab-btn active" onclick="switchTab('step3tabs',0)">startup seed</button>
+            </div>
+            <div class="tab-panel active">
+              <div class="code-header"><span class="lang-label">python</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-keyword">from</span> fastapi <span class="hl-keyword">import</span> FastAPI
+<span class="hl-keyword">from</span> .database <span class="hl-keyword">import</span> init_db, SessionLocal
+<span class="hl-keyword">from</span> .models <span class="hl-keyword">import</span> Holding
+
+app = FastAPI()
+
+<span class="hl-decorator">@app.on_event</span>(<span class="hl-string">"startup"</span>)
+<span class="hl-keyword">def</span> <span class="hl-builtin">startup</span>():
+    init_db()                              <span class="hl-comment"># → create tables</span>
+    db = SessionLocal()
+    <span class="hl-keyword">try</span>:
+        <span class="hl-keyword">if</span> db.query(Holding).count() == <span class="hl-number">0</span>:  <span class="hl-comment"># → only seed once</span>
+            seed = [
+                Holding(symbol=<span class="hl-string">"AAPL"</span>,    name=<span class="hl-string">"Apple Inc."</span>,
+                        quantity=<span class="hl-number">10</span>,    avg_buy_price=<span class="hl-number">150.00</span>, asset_type=<span class="hl-string">"stock"</span>),
+                Holding(symbol=<span class="hl-string">"MSFT"</span>,    name=<span class="hl-string">"Microsoft Corp."</span>,
+                        quantity=<span class="hl-number">5</span>,     avg_buy_price=<span class="hl-number">280.00</span>, asset_type=<span class="hl-string">"stock"</span>),
+                Holding(symbol=<span class="hl-string">"bitcoin"</span>, name=<span class="hl-string">"Bitcoin"</span>,
+                        quantity=<span class="hl-number">0.15</span>,  avg_buy_price=<span class="hl-number">28000.00</span>, asset_type=<span class="hl-string">"crypto"</span>),
+                Holding(symbol=<span class="hl-string">"ethereum"</span>,name=<span class="hl-string">"Ethereum"</span>,
+                        quantity=<span class="hl-number">2.0</span>,   avg_buy_price=<span class="hl-number">1800.00</span>, asset_type=<span class="hl-string">"crypto"</span>),
+            ]
+            db.add_all(seed)
+            db.commit()
+    <span class="hl-keyword">finally</span>:
+        db.close()</code></pre>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- STEP 4 -->
+      <div class="step" id="step4">
+        <div class="step-number">4</div>
+        <div class="step-content">
+          <h3>Fetch Crypto Prices</h3>
+          <p class="explanation">CoinGecko's simple price endpoint returns current prices for multiple coins in a single request. You pass a comma-separated list of coin IDs and the currency. No API key is required, making it the easiest external API to start with.</p>
+          <div class="tabs" id="step4tabs">
+            <div class="tab-bar">
+              <button class="tab-btn active" onclick="switchTab('step4tabs',0)">fetch_crypto_prices</button>
+              <button class="tab-btn" onclick="switchTab('step4tabs',1)">example response</button>
+            </div>
+            <div class="tab-panel active">
+              <div class="code-header"><span class="lang-label">python</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-keyword">import</span> httpx
+
+<span class="hl-keyword">async def</span> <span class="hl-builtin">fetch_crypto_prices</span>(symbols: <span class="hl-builtin">list</span>[<span class="hl-builtin">str</span>]) -&gt; <span class="hl-builtin">dict</span>[<span class="hl-builtin">str</span>, <span class="hl-builtin">float</span>]:
+    <span class="hl-string">"""Returns {symbol: price} for each symbol. Returns {} on error."""</span>
+    ids = <span class="hl-string">","</span>.join(symbols)                              <span class="hl-comment"># → "bitcoin,ethereum"</span>
+    url = <span class="hl-string">"https://api.coingecko.com/api/v3/simple/price"</span>
+    params = {<span class="hl-string">"ids"</span>: ids, <span class="hl-string">"vs_currencies"</span>: <span class="hl-string">"usd"</span>}
+    <span class="hl-keyword">try</span>:
+        <span class="hl-keyword">async with</span> httpx.AsyncClient(timeout=<span class="hl-number">10</span>) <span class="hl-keyword">as</span> client:
+            resp = <span class="hl-keyword">await</span> client.get(url, params=params)
+            resp.raise_for_status()
+            data = resp.json()
+            <span class="hl-comment"># data["bitcoin"]["usd"] → float price</span>
+            <span class="hl-keyword">return</span> {sym: data[sym][<span class="hl-string">"usd"</span>] <span class="hl-keyword">for</span> sym <span class="hl-keyword">in</span> symbols <span class="hl-keyword">if</span> sym <span class="hl-keyword">in</span> data}
+    <span class="hl-keyword">except</span> Exception:
+        <span class="hl-keyword">return</span> {}  <span class="hl-comment"># → caller uses cached prices as fallback</span>
+
+<span class="hl-comment"># Symbol note: store the CoinGecko coin ID in Holding.symbol,</span>
+<span class="hl-comment"># not the ticker. "bitcoin" works; "BTC" does not.</span>
+<span class="hl-comment"># Full list: https://api.coingecko.com/api/v3/coins/list</span></code></pre>
+            </div>
+            <div class="tab-panel">
+              <div class="code-header"><span class="lang-label">json</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-comment">// Raw CoinGecko response:</span>
+{
+  <span class="hl-string">"bitcoin"</span>:  { <span class="hl-string">"usd"</span>: <span class="hl-number">43250.12</span> },
+  <span class="hl-string">"ethereum"</span>: { <span class="hl-string">"usd"</span>: <span class="hl-number">2280.55</span> }
+}
+
+<span class="hl-comment">// After fetch_crypto_prices() processes it:</span>
+{
+  <span class="hl-string">"bitcoin"</span>:  <span class="hl-number">43250.12</span>,   <span class="hl-comment">// → matches Holding.symbol</span>
+  <span class="hl-string">"ethereum"</span>: <span class="hl-number">2280.55</span>
+}</code></pre>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- STEP 5 -->
+      <div class="step" id="step5">
+        <div class="step-number">5</div>
+        <div class="step-content">
+          <h3>Fetch Stock Prices</h3>
+          <p class="explanation">Alpha Vantage's GLOBAL_QUOTE endpoint returns the latest price for a single stock symbol. The free tier allows 25 requests per day, so the PriceCache table stores the last fetched price. If the cached price is less than 15 minutes old, you return it instead of hitting the API again.</p>
+          <div class="tabs" id="step5tabs">
+            <div class="tab-bar">
+              <button class="tab-btn active" onclick="switchTab('step5tabs',0)">fetch_stock_price</button>
+              <button class="tab-btn" onclick="switchTab('step5tabs',1)">.env setup</button>
+            </div>
+            <div class="tab-panel active">
+              <div class="code-header"><span class="lang-label">python</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-keyword">import</span> os, httpx
+<span class="hl-keyword">from</span> datetime <span class="hl-keyword">import</span> datetime, timedelta
+<span class="hl-keyword">from</span> sqlalchemy.orm <span class="hl-keyword">import</span> Session
+<span class="hl-keyword">from</span> .models <span class="hl-keyword">import</span> PriceCache
+
+ALPHA_VANTAGE_KEY = os.getenv(<span class="hl-string">"ALPHA_VANTAGE_API_KEY"</span>, <span class="hl-string">""</span>)
+CACHE_TTL = timedelta(minutes=<span class="hl-number">15</span>)          <span class="hl-comment"># → reuse price if under 15 min old</span>
+
+<span class="hl-keyword">async def</span> <span class="hl-builtin">fetch_stock_price</span>(symbol: <span class="hl-builtin">str</span>, db: Session) -&gt; <span class="hl-builtin">float</span>:
+    <span class="hl-comment"># Step 1: check the cache</span>
+    cached = db.query(PriceCache).filter(PriceCache.symbol == symbol).first()
+    <span class="hl-keyword">if</span> cached <span class="hl-keyword">and</span> (datetime.utcnow() - cached.fetched_at) &lt; CACHE_TTL:
+        <span class="hl-keyword">return</span> cached.price         <span class="hl-comment"># → fresh enough, skip the API call</span>
+
+    <span class="hl-comment"># Step 2: fetch from Alpha Vantage</span>
+    url = <span class="hl-string">"https://www.alphavantage.co/query"</span>
+    params = {
+        <span class="hl-string">"function"</span>: <span class="hl-string">"GLOBAL_QUOTE"</span>,
+        <span class="hl-string">"symbol"</span>:   symbol,
+        <span class="hl-string">"apikey"</span>:   ALPHA_VANTAGE_KEY,
+    }
+    <span class="hl-keyword">async with</span> httpx.AsyncClient(timeout=<span class="hl-number">10</span>) <span class="hl-keyword">as</span> client:
+        resp = <span class="hl-keyword">await</span> client.get(url, params=params)
+        resp.raise_for_status()
+        data = resp.json()
+
+    price = <span class="hl-builtin">float</span>(data[<span class="hl-string">"Global Quote"</span>][<span class="hl-string">"05. price"</span>])  <span class="hl-comment"># → parse price string</span>
+
+    <span class="hl-comment"># Step 3: update or create the cache entry</span>
+    <span class="hl-keyword">if</span> cached:
+        cached.price      = price
+        cached.fetched_at = datetime.utcnow()
+    <span class="hl-keyword">else</span>:
+        db.add(PriceCache(symbol=symbol, price=price, fetched_at=datetime.utcnow()))
+    db.commit()
+
+    <span class="hl-keyword">return</span> price</code></pre>
+            </div>
+            <div class="tab-panel">
+              <div class="code-header"><span class="lang-label">text</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-comment"># .env</span>
+ALPHA_VANTAGE_API_KEY=your_free_key_here
+
+<span class="hl-comment"># Get a free key at https://alphavantage.co</span>
+<span class="hl-comment"># Sign-up takes under 1 minute and requires no credit card.</span>
+<span class="hl-comment"># The free tier allows 25 API calls per day and 5 per minute.</span>
+<span class="hl-comment"># The 15-minute cache in fetch_stock_price keeps you well within that limit.</span></code></pre>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- STEP 6 -->
+      <div class="step" id="step6">
+        <div class="step-number">6</div>
+        <div class="step-content">
+          <h3>Concurrent Fetching</h3>
+          <p class="explanation">Fetching prices one at a time would be slow. asyncio.gather() runs all the coroutines at the same time and waits for all of them to finish, reducing the total wait time to roughly the slowest single request. Each task is wrapped in a try/except so one API failure does not crash the whole dashboard.</p>
+          <div class="tabs" id="step6tabs">
+            <div class="tab-bar">
+              <button class="tab-btn active" onclick="switchTab('step6tabs',0)">gather all prices</button>
+              <button class="tab-btn" onclick="switchTab('step6tabs',1)">why gather is faster</button>
+            </div>
+            <div class="tab-panel active">
+              <div class="code-header"><span class="lang-label">python</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-keyword">import</span> asyncio
+<span class="hl-keyword">import</span> logging
+<span class="hl-keyword">from</span> .price_service <span class="hl-keyword">import</span> fetch_crypto_prices, fetch_stock_price
+
+logger = logging.getLogger(__name__)
+
+<span class="hl-keyword">async def</span> <span class="hl-builtin">fetch_all_prices</span>(holdings, db) -&gt; <span class="hl-builtin">dict</span>[<span class="hl-builtin">str</span>, <span class="hl-builtin">float</span>]:
+    <span class="hl-comment"># Separate holdings by asset type</span>
+    crypto_symbols = [h.symbol <span class="hl-keyword">for</span> h <span class="hl-keyword">in</span> holdings <span class="hl-keyword">if</span> h.asset_type == <span class="hl-string">"crypto"</span>]
+    stock_symbols  = [h.symbol <span class="hl-keyword">for</span> h <span class="hl-keyword">in</span> holdings <span class="hl-keyword">if</span> h.asset_type == <span class="hl-string">"stock"</span>]
+
+    <span class="hl-comment"># Build one coroutine per source (CoinGecko batches all crypto in one call)</span>
+    tasks = [fetch_crypto_prices(crypto_symbols)]
+    tasks += [fetch_stock_price(sym, db) <span class="hl-keyword">for</span> sym <span class="hl-keyword">in</span> stock_symbols]
+
+    results = <span class="hl-keyword">await</span> asyncio.gather(*tasks, return_exceptions=<span class="hl-keyword">True</span>)
+
+    prices = {}
+
+    <span class="hl-comment"># First result is from CoinGecko → a dict of {symbol: price}</span>
+    crypto_result = results[<span class="hl-number">0</span>]
+    <span class="hl-keyword">if</span> <span class="hl-keyword">isinstance</span>(crypto_result, <span class="hl-builtin">dict</span>):
+        prices.update(crypto_result)
+    <span class="hl-keyword">else</span>:
+        logger.warning(<span class="hl-string">"CoinGecko fetch failed: %s"</span>, crypto_result)
+
+    <span class="hl-comment"># Remaining results are individual stock prices</span>
+    <span class="hl-keyword">for</span> sym, result <span class="hl-keyword">in</span> <span class="hl-builtin">zip</span>(stock_symbols, results[<span class="hl-number">1</span>:]):
+        <span class="hl-keyword">if</span> <span class="hl-keyword">isinstance</span>(result, Exception):
+            logger.warning(<span class="hl-string">"Stock fetch failed for %s: %s"</span>, sym, result)
+            <span class="hl-comment"># Fallback: use the last cached price if available</span>
+            cached = db.query(PriceCache).filter(PriceCache.symbol == sym).first()
+            <span class="hl-keyword">if</span> cached:
+                prices[sym] = cached.price
+        <span class="hl-keyword">else</span>:
+            prices[sym] = result         <span class="hl-comment"># → float price</span>
+
+    <span class="hl-keyword">return</span> prices</code></pre>
+            </div>
+            <div class="tab-panel">
+              <div class="code-header"><span class="lang-label">text</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code>Sequential (slow):
+  fetch AAPL   → 0.4s
+  fetch MSFT   → 0.4s
+  fetch BTC    → 0.3s
+  fetch ETH    → 0.3s
+  Total:         1.4s
+
+asyncio.gather() (fast):
+  all 4 run at the same time
+  Total:         ~0.4s  (limited by the slowest)
+
+The speedup grows with the number of holdings.
+10 holdings in sequence could take 4+ seconds;
+with gather() it still finishes in about 0.5s.</code></pre>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- STEP 7 -->
+      <div class="step" id="step7">
+        <div class="step-number">7</div>
+        <div class="step-content">
+          <h3>Portfolio Calculations</h3>
+          <p class="explanation">Once you have live prices, calculating the portfolio metrics is straightforward arithmetic. For each holding you multiply the quantity by the current price to get the current value, then subtract the cost basis (quantity times average buy price) to get the profit or loss.</p>
+          <div class="tabs" id="step7tabs">
+            <div class="tab-bar">
+              <button class="tab-btn active" onclick="switchTab('step7tabs',0)">calculate_metrics</button>
+              <button class="tab-btn" onclick="switchTab('step7tabs',1)">totals</button>
+            </div>
+            <div class="tab-panel active">
+              <div class="code-header"><span class="lang-label">python</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-keyword">def</span> <span class="hl-builtin">calculate_metrics</span>(holdings, prices: <span class="hl-builtin">dict</span>) -&gt; <span class="hl-builtin">list</span>:
+    rows = []
+    <span class="hl-keyword">for</span> h <span class="hl-keyword">in</span> holdings:
+        live_price    = prices.get(h.symbol, <span class="hl-number">0</span>)
+        current_value = h.quantity * live_price            <span class="hl-comment"># → what it's worth now</span>
+        cost_basis    = h.quantity * h.avg_buy_price       <span class="hl-comment"># → what you paid</span>
+        pnl           = current_value - cost_basis         <span class="hl-comment"># → profit or loss in USD</span>
+        pnl_pct       = (pnl / cost_basis * <span class="hl-number">100</span>) <span class="hl-keyword">if</span> cost_basis <span class="hl-keyword">else</span> <span class="hl-number">0</span>
+
+        rows.append({
+            <span class="hl-string">"symbol"</span>:        h.symbol,
+            <span class="hl-string">"name"</span>:          h.name,
+            <span class="hl-string">"quantity"</span>:      h.quantity,
+            <span class="hl-string">"avg_buy"</span>:       h.avg_buy_price,
+            <span class="hl-string">"live_price"</span>:    live_price,
+            <span class="hl-string">"current_value"</span>: current_value,
+            <span class="hl-string">"pnl"</span>:           pnl,
+            <span class="hl-string">"pnl_pct"</span>:       pnl_pct,
+            <span class="hl-string">"asset_type"</span>:    h.asset_type,
+        })
+    <span class="hl-keyword">return</span> rows</code></pre>
+            </div>
+            <div class="tab-panel">
+              <div class="code-header"><span class="lang-label">python</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-comment"># After calculate_metrics() returns the rows list:</span>
+
+total_value = <span class="hl-builtin">sum</span>(r[<span class="hl-string">"current_value"</span>] <span class="hl-keyword">for</span> r <span class="hl-keyword">in</span> rows)
+total_cost  = <span class="hl-builtin">sum</span>(h.quantity * h.avg_buy_price <span class="hl-keyword">for</span> h <span class="hl-keyword">in</span> holdings)
+total_pnl   = total_value - total_cost
+total_pnl_pct = (total_pnl / total_cost * <span class="hl-number">100</span>) <span class="hl-keyword">if</span> total_cost <span class="hl-keyword">else</span> <span class="hl-number">0</span>
+
+<span class="hl-comment"># These four values go directly into the TemplateResponse context dict.</span>
+<span class="hl-comment"># total_pnl is positive when the portfolio is up, negative when it is down.</span></code></pre>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- STEP 8 -->
+      <div class="step" id="step8">
+        <div class="step-number">8</div>
+        <div class="step-content">
+          <h3>Dashboard Endpoint</h3>
+          <p class="explanation">The dashboard route ties everything together. It loads holdings from the database, fetches all live prices concurrently, runs the calculations, and passes the results to the Jinja2 template in one TemplateResponse.</p>
+          <div class="tabs" id="step8tabs">
+            <div class="tab-bar">
+              <button class="tab-btn active" onclick="switchTab('step8tabs',0)">route</button>
+            </div>
+            <div class="tab-panel active">
+              <div class="code-header"><span class="lang-label">python</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-keyword">from</span> fastapi <span class="hl-keyword">import</span> FastAPI, Depends, Request
+<span class="hl-keyword">from</span> fastapi.templating <span class="hl-keyword">import</span> Jinja2Templates
+<span class="hl-keyword">from</span> sqlalchemy.orm <span class="hl-keyword">import</span> Session
+<span class="hl-keyword">from</span> .database <span class="hl-keyword">import</span> get_db
+<span class="hl-keyword">from</span> .models <span class="hl-keyword">import</span> Holding
+<span class="hl-keyword">from</span> .price_service <span class="hl-keyword">import</span> fetch_all_prices
+<span class="hl-keyword">from</span> .calculations <span class="hl-keyword">import</span> calculate_metrics
+
+templates = Jinja2Templates(directory=<span class="hl-string">"templates"</span>)
+
+<span class="hl-decorator">@app.get</span>(<span class="hl-string">"/dashboard"</span>)
+<span class="hl-keyword">async def</span> <span class="hl-builtin">dashboard</span>(request: Request, db: Session = Depends(get_db)):
+    holdings = db.query(Holding).all()
+    prices   = <span class="hl-keyword">await</span> fetch_all_prices(holdings, db)   <span class="hl-comment"># → concurrent fetch</span>
+    rows     = calculate_metrics(holdings, prices)
+
+    total_value   = <span class="hl-builtin">sum</span>(r[<span class="hl-string">"current_value"</span>] <span class="hl-keyword">for</span> r <span class="hl-keyword">in</span> rows)
+    total_cost    = <span class="hl-builtin">sum</span>(h.quantity * h.avg_buy_price <span class="hl-keyword">for</span> h <span class="hl-keyword">in</span> holdings)
+    total_pnl     = total_value - total_cost
+    total_pnl_pct = (total_pnl / total_cost * <span class="hl-number">100</span>) <span class="hl-keyword">if</span> total_cost <span class="hl-keyword">else</span> <span class="hl-number">0</span>
+
+    <span class="hl-keyword">return</span> templates.TemplateResponse(<span class="hl-string">"dashboard.html"</span>, {
+        <span class="hl-string">"request"</span>:       request,   <span class="hl-comment"># → Jinja2 requires this key</span>
+        <span class="hl-string">"rows"</span>:          rows,
+        <span class="hl-string">"total_value"</span>:   total_value,
+        <span class="hl-string">"total_pnl"</span>:     total_pnl,
+        <span class="hl-string">"total_pnl_pct"</span>: total_pnl_pct,
+    })</code></pre>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- STEP 9 -->
+      <div class="step" id="step9">
+        <div class="step-number">9</div>
+        <div class="step-content">
+          <h3>Jinja Dashboard Template</h3>
+          <p class="explanation">The dashboard template shows a summary bar at the top with total portfolio value and overall P&amp;L, then a table with one row per holding. The P&amp;L column uses inline color styling — green for profit, red for loss. A Refresh button at the top calls the JSON endpoint from Step 10.</p>
+          <div class="tabs" id="step9tabs">
+            <div class="tab-bar">
+              <button class="tab-btn active" onclick="switchTab('step9tabs',0)">templates/dashboard.html</button>
+            </div>
+            <div class="tab-panel active">
+              <div class="code-header"><span class="lang-label">html</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-tag">&lt;!DOCTYPE html&gt;</span>
+<span class="hl-tag">&lt;html&gt;</span>
+<span class="hl-tag">&lt;head&gt;</span>
+  <span class="hl-tag">&lt;title&gt;</span>Portfolio Dashboard<span class="hl-tag">&lt;/title&gt;</span>
+  <span class="hl-tag">&lt;style&gt;</span>
+    body { font-family: sans-serif; padding: 20px; max-width: 900px; margin: 0 auto; }
+    table { width: 100%; border-collapse: collapse; margin-top: 16px; }
+    th, td { text-align: right; padding: 8px 12px; border-bottom: 1px solid #ddd; }
+    th:first-child, td:first-child { text-align: left; }
+    .gain { color: #2e7d32; }
+    .loss { color: #c62828; }
+    .summary { background: #f5f5f5; padding: 16px; border-radius: 6px; margin-bottom: 16px; }
+  <span class="hl-tag">&lt;/style&gt;</span>
+<span class="hl-tag">&lt;/head&gt;</span>
+<span class="hl-tag">&lt;body&gt;</span>
+  <span class="hl-tag">&lt;h1&gt;</span>Portfolio Dashboard<span class="hl-tag">&lt;/h1&gt;</span>
+  <span class="hl-tag">&lt;div</span> <span class="hl-attr">class</span>=<span class="hl-string">"summary"</span><span class="hl-tag">&gt;</span>
+    <span class="hl-tag">&lt;strong&gt;</span>Total Value:<span class="hl-tag">&lt;/strong&gt;</span> ${{ "%.2f"|format(total_value) }}&amp;nbsp;&amp;nbsp;
+    <span class="hl-tag">&lt;strong&gt;</span>Total P&amp;amp;L:<span class="hl-tag">&lt;/strong&gt;</span>
+    <span class="hl-tag">&lt;span</span> <span class="hl-attr">class</span>=<span class="hl-string">"{% if total_pnl &gt;= 0 %}gain{% else %}loss{% endif %}"</span><span class="hl-tag">&gt;</span>
+      ${{ "%.2f"|format(total_pnl) }} ({{ "%.1f"|format(total_pnl_pct) }}%)
+    <span class="hl-tag">&lt;/span&gt;</span>
+    &amp;nbsp;&amp;nbsp;
+    <span class="hl-tag">&lt;button</span> <span class="hl-attr">onclick</span>=<span class="hl-string">"refreshPrices()"</span><span class="hl-tag">&gt;</span>Refresh prices<span class="hl-tag">&lt;/button&gt;</span>
+  <span class="hl-tag">&lt;/div&gt;</span>
+  <span class="hl-tag">&lt;table&gt;</span>
+    <span class="hl-tag">&lt;tr&gt;&lt;th&gt;</span>Symbol<span class="hl-tag">&lt;/th&gt;&lt;th&gt;</span>Name<span class="hl-tag">&lt;/th&gt;&lt;th&gt;</span>Qty<span class="hl-tag">&lt;/th&gt;&lt;th&gt;</span>Avg Buy<span class="hl-tag">&lt;/th&gt;&lt;th&gt;</span>Live Price<span class="hl-tag">&lt;/th&gt;&lt;th&gt;</span>Value<span class="hl-tag">&lt;/th&gt;&lt;th&gt;</span>P&amp;amp;L<span class="hl-tag">&lt;/th&gt;&lt;/tr&gt;</span>
+    {% for row in rows %}
+    <span class="hl-tag">&lt;tr&gt;</span>
+      <span class="hl-tag">&lt;td&gt;</span>{{ row.symbol | upper }}<span class="hl-tag">&lt;/td&gt;</span>
+      <span class="hl-tag">&lt;td&gt;</span>{{ row.name }}<span class="hl-tag">&lt;/td&gt;</span>
+      <span class="hl-tag">&lt;td&gt;</span>{{ row.quantity }}<span class="hl-tag">&lt;/td&gt;</span>
+      <span class="hl-tag">&lt;td&gt;</span>${{ "%.2f"|format(row.avg_buy) }}<span class="hl-tag">&lt;/td&gt;</span>
+      <span class="hl-tag">&lt;td</span> <span class="hl-attr">id</span>=<span class="hl-string">"price-{{ row.symbol }}"</span><span class="hl-tag">&gt;</span>${{ "%.2f"|format(row.live_price) }}<span class="hl-tag">&lt;/td&gt;</span>
+      <span class="hl-tag">&lt;td</span> <span class="hl-attr">id</span>=<span class="hl-string">"value-{{ row.symbol }}"</span><span class="hl-tag">&gt;</span>${{ "%.2f"|format(row.current_value) }}<span class="hl-tag">&lt;/td&gt;</span>
+      <span class="hl-tag">&lt;td</span> <span class="hl-attr">id</span>=<span class="hl-string">"pnl-{{ row.symbol }}"</span> <span class="hl-attr">class</span>=<span class="hl-string">"{% if row.pnl &gt;= 0 %}gain{% else %}loss{% endif %}"</span><span class="hl-tag">&gt;</span>
+        ${{ "%.2f"|format(row.pnl) }} ({{ "%.1f"|format(row.pnl_pct) }}%)
+      <span class="hl-tag">&lt;/td&gt;</span>
+    <span class="hl-tag">&lt;/tr&gt;</span>
+    {% endfor %}
+  <span class="hl-tag">&lt;/table&gt;</span>
+  <span class="hl-tag">&lt;script&gt;</span>
+    async function refreshPrices() {
+      const resp = await fetch('/dashboard/prices');
+      const data = await resp.json();
+      for (const [symbol, info] of Object.entries(data)) {
+        const priceEl = document.getElementById('price-' + symbol);
+        const valueEl = document.getElementById('value-' + symbol);
+        const pnlEl   = document.getElementById('pnl-'   + symbol);
+        if (priceEl) priceEl.textContent = '$' + info.live_price.toFixed(2);
+        if (valueEl) valueEl.textContent = '$' + info.current_value.toFixed(2);
+        if (pnlEl) {
+          pnlEl.textContent = '$' + info.pnl.toFixed(2) + ' (' + info.pnl_pct.toFixed(1) + '%)';
+          pnlEl.className = info.pnl &gt;= 0 ? 'gain' : 'loss';
+        }
+      }
+    }
+  <span class="hl-tag">&lt;/script&gt;</span>
+<span class="hl-tag">&lt;/body&gt;</span>
+<span class="hl-tag">&lt;/html&gt;</span></code></pre>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- STEP 10 -->
+      <div class="step" id="step10">
+        <div class="step-number">10</div>
+        <div class="step-content">
+          <h3>JSON Refresh Endpoint</h3>
+          <p class="explanation">The Refresh button in the template calls this endpoint. It fetches fresh prices, recalculates the metrics, and returns a JSON object keyed by symbol. The JavaScript in the template reads each value and updates the correct table cell without reloading the page.</p>
+          <div class="tabs" id="step10tabs">
+            <div class="tab-bar">
+              <button class="tab-btn active" onclick="switchTab('step10tabs',0)">route</button>
+              <button class="tab-btn" onclick="switchTab('step10tabs',1)">example response</button>
+            </div>
+            <div class="tab-panel active">
+              <div class="code-header"><span class="lang-label">python</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-decorator">@app.get</span>(<span class="hl-string">"/dashboard/prices"</span>)
+<span class="hl-keyword">async def</span> <span class="hl-builtin">prices_json</span>(db: Session = Depends(get_db)):
+    holdings = db.query(Holding).all()
+    prices   = <span class="hl-keyword">await</span> fetch_all_prices(holdings, db)   <span class="hl-comment"># → concurrent fetch</span>
+    rows     = calculate_metrics(holdings, prices)
+
+    <span class="hl-comment"># Return a dict keyed by symbol so the JS can look up each cell by ID.</span>
+    <span class="hl-keyword">return</span> {
+        row[<span class="hl-string">"symbol"</span>]: {
+            <span class="hl-string">"live_price"</span>:    row[<span class="hl-string">"live_price"</span>],
+            <span class="hl-string">"current_value"</span>: row[<span class="hl-string">"current_value"</span>],
+            <span class="hl-string">"pnl"</span>:           row[<span class="hl-string">"pnl"</span>],
+            <span class="hl-string">"pnl_pct"</span>:       row[<span class="hl-string">"pnl_pct"</span>],
+        }
+        <span class="hl-keyword">for</span> row <span class="hl-keyword">in</span> rows
+    }</code></pre>
+            </div>
+            <div class="tab-panel">
+              <div class="code-header"><span class="lang-label">json</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-comment">// GET /dashboard/prices response:</span>
+{
+  <span class="hl-string">"AAPL"</span>: {
+    <span class="hl-string">"live_price"</span>:    <span class="hl-number">188.45</span>,
+    <span class="hl-string">"current_value"</span>: <span class="hl-number">1884.50</span>,    <span class="hl-comment">// → qty 10 × $188.45</span>
+    <span class="hl-string">"pnl"</span>:           <span class="hl-number">384.50</span>,     <span class="hl-comment">// → 1884.50 − (10 × 150.00)</span>
+    <span class="hl-string">"pnl_pct"</span>:       <span class="hl-number">25.63</span>
+  },
+  <span class="hl-string">"bitcoin"</span>: {
+    <span class="hl-string">"live_price"</span>:    <span class="hl-number">43250.12</span>,
+    <span class="hl-string">"current_value"</span>: <span class="hl-number">6487.52</span>,
+    <span class="hl-string">"pnl"</span>:           <span class="hl-number">2287.52</span>,
+    <span class="hl-string">"pnl_pct"</span>:       <span class="hl-number">54.46</span>
+  }
+}
+
+<span class="hl-comment">// The JS uses the key as the element ID suffix:</span>
+<span class="hl-comment">// "AAPL" → document.getElementById("price-AAPL")</span>
+<span class="hl-comment">// "bitcoin" → document.getElementById("price-bitcoin")</span></code></pre>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- STEP 11 -->
+      <div class="step" id="step11">
+        <div class="step-number">11</div>
+        <div class="step-content">
+          <h3>What's Next</h3>
+          <div class="info-box">
+            <strong>Rate limits and caching strategy.</strong> Alpha Vantage's free tier allows 25 requests per day, so the PriceCache table is essential. In production you would increase the cache TTL to 15 to 60 minutes and add a background job (see the Background Tasks guide) to refresh prices on a schedule rather than on every page load.
+          </div>
+          <div class="info-box">
+            <strong>Adding real authentication.</strong> Right now anyone can see the portfolio. The JWT and Refresh Token guides show how to add a login page and protect the dashboard route with a <code>Depends(get_current_user)</code> dependency.
+          </div>
+          <div class="info-box">
+            <strong>WebSocket live prices.</strong> For a real-time dashboard that updates automatically every few seconds without a button click, see the WebSockets guide. Replace the JSON endpoint with a WebSocket that pushes new prices from the server.
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </main>
+</div>
+<script>
+(function(){var s=localStorage.getItem("pyoffline-theme");if(s==="light")document.documentElement.classList.add("light");document.addEventListener("DOMContentLoaded",function(){var t=document.getElementById("themeToggle");if(!t)return;t.checked=(localStorage.getItem("pyoffline-theme")==="light");t.addEventListener("change",function(){if(this.checked){document.documentElement.classList.add("light");localStorage.setItem("pyoffline-theme","light");}else{document.documentElement.classList.remove("light");localStorage.setItem("pyoffline-theme","dark");}});});})();
+function switchTab(stepId,idx){var s=document.getElementById(stepId);var b=s.querySelectorAll(".tab-btn");var p=s.querySelectorAll(".tab-panel");b.forEach(function(x){x.classList.remove("active")});p.forEach(function(x){x.classList.remove("active")});b[idx].classList.add("active");p[idx].classList.add("active");}
+function copyCode(btn){var code=btn.closest(".tab-panel").querySelector("code").innerText;navigator.clipboard.writeText(code).then(function(){var o=btn.textContent;btn.textContent="Copied!";setTimeout(function(){btn.textContent=o;},1500);});}
+function toggleSidebar(){var s=document.getElementById("guideSidebar");var o=document.getElementById("sidebarOverlay");if(!s)return;s.classList.toggle("open");o.classList.toggle("open");}
+document.addEventListener("DOMContentLoaded",function(){var s=document.getElementById("guideSidebar");if(!s)return;s.querySelectorAll("nav a").forEach(function(a){a.addEventListener("click",function(){s.classList.remove("open");var o=document.getElementById("sidebarOverlay");if(o)o.classList.remove("open");});});});
+function toggleSbDesktop(){var c=document.body.classList.toggle("sb-collapsed");localStorage.setItem("sb-collapsed",c?"1":"0");}
+(function(){if(localStorage.getItem("sb-collapsed")==="1")document.body.classList.add("sb-collapsed");})();
+</script>
+</body>
+</html>

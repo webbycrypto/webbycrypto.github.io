@@ -1,0 +1,874 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>E-commerce Product Catalog - pyoffline</title>
+<style>
+:root{--bg:#121212;--surface:#1e1e1e;--surface2:#2a2a2a;--sidebar-bg:#1a1a1a;--text:#e0e0e0;--text-muted:#aaa;--text-dim:#666;--border:#333;--code-bg:#1e1e1e;--code-text:#d4d4d4;--shadow:rgba(0,0,0,.4);--accent:#388e3c;--hl-keyword:#569cd6;--hl-string:#ce9178;--hl-comment:#6a9955;--hl-number:#b5cea8;--hl-decorator:#dcdcaa;--hl-builtin:#4ec9b0;--hl-tag:#4ec9b0;--hl-attr:#9cdcfe;--hl-template:#c586c0}
+html.light{--bg:#f5f7fa;--surface:#ffffff;--surface2:#eef0f3;--sidebar-bg:#ffffff;--text:#1a1a1a;--text-muted:#555;--text-dim:#888;--border:#dde1e7;--code-bg:#f8f8f8;--code-text:#24292e;--shadow:rgba(0,0,0,.1);--hl-keyword:#0000ff;--hl-string:#a31515;--hl-comment:#008000;--hl-number:#098658;--hl-decorator:#795e26;--hl-builtin:#267f99;--hl-tag:#800000;--hl-attr:#e50000;--hl-template:#af00db}
+.hl-keyword{color:var(--hl-keyword)}.hl-string{color:var(--hl-string)}.hl-comment{color:#adb4a7;font-size:12px;font-style:italic}.hl-number{color:var(--hl-number)}.hl-decorator{color:var(--hl-decorator)}.hl-builtin{color:var(--hl-builtin)}.hl-tag{color:var(--hl-tag)}.hl-attr{color:var(--hl-attr)}.hl-template{color:var(--hl-template)}
+*{box-sizing:border-box;margin:0;padding:0}body{background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;transition:background .2s,color .2s}a{color:var(--accent)}.layout{display:flex;min-height:100vh}.sidebar{width:260px;min-width:260px;background:var(--sidebar-bg);border-right:1px solid var(--border);padding:24px 16px;position:sticky;top:0;height:100vh;overflow-y:auto}.sidebar h2{font-size:1.1rem;margin:16px 0 8px;color:var(--text)}.sidebar nav ol{padding-left:18px}.sidebar nav li{margin:6px 0}.sidebar nav a{color:var(--text-muted);text-decoration:none;font-size:0.85rem}.sidebar nav a:hover{color:var(--accent)}.back-link{color:var(--text-dim);text-decoration:none;font-size:0.85rem;display:block;margin-bottom:8px}.install-box{margin-top:24px;background:var(--bg);border:1px solid var(--border);padding:12px;border-radius:6px;font-size:0.8rem}.install-box code{display:block;word-break:break-all;color:var(--hl-comment);font-family:monospace;margin-top:4px}main{flex:1;padding:40px;max-width:860px}.guide-header{padding:20px 20px 20px 24px;background:var(--surface);border-radius:8px;margin-bottom:32px;box-shadow:0 1px 3px var(--shadow)}.guide-header h1{font-size:1.8rem;margin-bottom:8px}.guide-header p{color:var(--text-muted)}.step{display:flex;gap:16px;margin-bottom:40px}.step-number{width:32px;min-width:32px;height:32px;background:var(--accent);border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:bold;font-size:0.9rem;margin-top:4px;color:#fff}.step-content{flex:1;min-width:0}.step-content h3{font-size:1.1rem;margin-bottom:8px;color:var(--text)}.explanation{color:var(--text-muted);font-size:0.9rem;line-height:1.6;margin-bottom:14px}.info-box{background:var(--surface);border-left:3px solid var(--accent);border-radius:0 6px 6px 0;padding:12px 16px;margin-bottom:14px;font-size:0.88rem;color:var(--text-muted);line-height:1.6}.info-box strong{color:var(--text)}.crud-table{width:100%;border-collapse:collapse;margin-bottom:14px;font-size:0.85rem}.crud-table th{background:var(--surface2);color:var(--text-muted);text-align:left;padding:8px 12px;border:1px solid var(--border);font-weight:600}.crud-table td{padding:8px 12px;border:1px solid var(--border);color:var(--text)}.crud-table tr:nth-child(even) td{background:var(--surface)}.tabs{background:var(--surface);border-radius:6px;overflow:hidden;border:1px solid var(--border)}.tab-bar{display:flex;background:var(--surface2);overflow-x:auto;border-bottom:1px solid var(--border)}.tab-btn{padding:8px 16px;background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:0.8rem;white-space:nowrap;border-bottom:2px solid transparent;margin-bottom:-1px}.tab-btn.active{color:var(--text);border-bottom-color:var(--accent)}.tab-panel{display:none}.tab-panel.active{display:block}.code-header{display:flex;justify-content:space-between;align-items:center;padding:5px 12px;background:var(--surface2);border-bottom:1px solid var(--border)}.lang-label{font-size:0.72rem;color:var(--text-dim);text-transform:uppercase;letter-spacing:.04em}.copy-btn{background:none;border:1px solid var(--border);color:var(--text-muted);padding:2px 8px;cursor:pointer;border-radius:3px;font-size:0.72rem}.copy-btn:hover{color:var(--text);border-color:var(--text-muted)}pre{overflow-x:auto;padding:16px;background:var(--code-bg)}code{font-family:"Fira Code","Cascadia Code","Consolas",monospace;font-size:0.82rem;line-height:1.65;color:var(--code-text)}.theme-row{display:flex;align-items:center;gap:8px;margin-top:20px}.theme-label{font-size:0.78rem;color:var(--text-muted)}.toggle-switch{position:relative;display:inline-block;width:40px;height:22px}.toggle-switch input{opacity:0;width:0;height:0}.slider{position:absolute;cursor:pointer;inset:0;background:var(--surface2);border:1px solid var(--border);border-radius:22px;transition:background .2s}.slider:before{content:"";position:absolute;width:16px;height:16px;left:2px;top:2px;background:var(--text-muted);border-radius:50%;transition:transform .2s,background .2s}.toggle-switch input:checked+.slider{background:var(--accent);border-color:var(--accent)}.toggle-switch input:checked+.slider:before{transform:translateX(18px);background:#fff}.sidebar-toggle{display:none;position:fixed;top:12px;left:12px;z-index:300;background:var(--accent);color:#fff;border:none;padding:7px 14px;border-radius:6px;cursor:pointer;font-size:0.85rem;font-weight:600;box-shadow:0 2px 8px var(--shadow);align-items:center;gap:6px}.sidebar-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:190}.sidebar-overlay.open{display:block}@media(max-width:900px){.sidebar-toggle{display:flex}.layout{display:block}.sidebar{position:fixed;left:-280px;top:0;height:100vh;z-index:200;transition:left .25s ease;box-shadow:2px 0 16px var(--shadow);min-width:260px}.sidebar.open{left:0}main{padding:60px 20px 40px;max-width:100%}pre{overflow-x:auto;max-width:100%;white-space:pre-wrap;word-break:break-word}.tabs{max-width:100%}}.sidebar{transition:width .2s ease,min-width .2s ease,padding .2s ease}.sb-pin{display:flex;justify-content:flex-end;margin-bottom:8px}.sb-pin button{background:none;border:1px solid var(--border);color:var(--text-dim);cursor:pointer;border-radius:4px;padding:2px 7px;font-size:11px;line-height:1.6}.sb-pin button:hover{color:var(--accent);border-color:var(--accent)}.sb-reopen{display:none;position:fixed;left:0;top:50%;transform:translateY(-50%);background:var(--accent);color:#fff;border:none;border-radius:0 4px 4px 0;padding:10px 5px;cursor:pointer;z-index:300;font-size:11px;font-weight:600;writing-mode:vertical-rl;letter-spacing:.05em}@media(min-width:901px){body.sb-collapsed .sidebar{width:0;min-width:0;padding:0;overflow:hidden;border-right:none}body.sb-collapsed .sb-reopen{display:block}}@media(max-width:900px){.sb-pin{display:none}.sb-reopen{display:none!important}}
+</style>
+</head>
+<body>
+<button class="sidebar-toggle" id="sidebarToggle" onclick="toggleSidebar()">&#9776; Steps</button>
+<div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+<button class="sb-reopen" onclick="toggleSbDesktop()">Steps</button>
+<div class="layout">
+  <aside class="sidebar" id="guideSidebar">
+    <div class="sb-pin"><button onclick="toggleSbDesktop()">&#9664; Hide</button></div>
+    <a href="index.html" class="back-link">&#8592; All Guides</a>
+    <h2>E-commerce Catalog</h2>
+    <nav><ol>
+      <li><a href="#step1">What We're Building</a></li>
+      <li><a href="#step2">Models and Database</a></li>
+      <li><a href="#step3">Seed Data</a></li>
+      <li><a href="#step4">List + Filter Endpoint</a></li>
+      <li><a href="#step5">Pagination</a></li>
+      <li><a href="#step6">Product Detail Page</a></li>
+      <li><a href="#step7">Base Template</a></li>
+      <li><a href="#step8">Product List Template</a></li>
+      <li><a href="#step9">Filter Form</a></li>
+      <li><a href="#step10">Product Detail Template</a></li>
+      <li><a href="#step11">Inventory Update</a></li>
+      <li><a href="#step12">What's Next</a></li>
+    </ol></nav>
+    <div class="install-box">
+      <strong>Install</strong>
+      <code>pip install fastapi uvicorn jinja2 sqlalchemy python-multipart</code>
+    </div>
+    <div class="theme-row">
+      <span class="theme-label">Dark</span>
+      <label class="toggle-switch"><input type="checkbox" id="themeToggle"><span class="slider"></span></label>
+      <span class="theme-label">Light</span>
+    </div>
+  </aside>
+  <main>
+    <header class="guide-header" style="border-left:5px solid #388e3c">
+      <h1>E-commerce Product Catalog</h1>
+      <p>Build a real product catalog with categories, inventory tracking, query filtering, and paginated listings. Uses FastAPI, SQLAlchemy, SQLite, and Jinja2 templates.</p>
+    </header>
+    <div class="steps">
+
+      <!-- STEP 1 -->
+      <div class="step" id="step1">
+        <div class="step-number">1</div>
+        <div class="step-content">
+          <h3>What We're Building</h3>
+          <p class="explanation">This project is a product catalog — the backend of a small online store. It stores products in a SQLite database, lets visitors filter by category and price, and shows paginated results in a Jinja2 template. Every page route returns HTML, not JSON.</p>
+          <div class="tabs" id="step1tabs">
+            <div class="tab-bar">
+              <button class="tab-btn active" onclick="switchTab('step1tabs',0)">Endpoints</button>
+              <button class="tab-btn" onclick="switchTab('step1tabs',1)">Database Schema</button>
+            </div>
+            <div class="tab-panel active">
+              <div class="code-header"><span class="lang-label">text</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code>GET /                          → redirect to /products
+GET /products                  → product list with filters + pagination
+GET /products/{id}             → single product detail
+PATCH /products/{id}/stock     → update stock count (returns JSON)
+GET /admin/add                 → add product form
+POST /admin/add                → save new product, redirect to list</code></pre>
+            </div>
+            <div class="tab-panel">
+              <div class="code-header"><span class="lang-label">text</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code>Table: categories
+  id        INTEGER  PRIMARY KEY
+  name      TEXT     UNIQUE NOT NULL
+
+Table: products
+  id            INTEGER  PRIMARY KEY
+  name          TEXT     NOT NULL
+  description   TEXT
+  price         REAL     NOT NULL
+  stock_qty     INTEGER  DEFAULT 0    → 0 means out of stock
+  is_active     BOOLEAN  DEFAULT TRUE → FALSE hides from catalog
+  category_id   INTEGER  FOREIGN KEY REFERENCES categories(id)</code></pre>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- STEP 2 -->
+      <div class="step" id="step2">
+        <div class="step-number">2</div>
+        <div class="step-content">
+          <h3>Models and Database</h3>
+          <p class="explanation">SQLAlchemy maps Python classes to database tables. The relationship between Product and Category uses a foreign key — one category can have many products. The <code>back_populates</code> argument lets you navigate from a product to its category and vice versa.</p>
+          <div class="tabs" id="step2tabs">
+            <div class="tab-bar">
+              <button class="tab-btn active" onclick="switchTab('step2tabs',0)">models.py</button>
+              <button class="tab-btn" onclick="switchTab('step2tabs',1)">database.py</button>
+            </div>
+            <div class="tab-panel active">
+              <div class="code-header"><span class="lang-label">python</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-keyword">from</span> sqlalchemy <span class="hl-keyword">import</span> Column, Integer, String, Float, Boolean, ForeignKey, Text
+<span class="hl-keyword">from</span> sqlalchemy.orm <span class="hl-keyword">import</span> relationship
+<span class="hl-keyword">from</span> database <span class="hl-keyword">import</span> Base
+
+
+<span class="hl-keyword">class</span> <span class="hl-builtin">Category</span>(Base):
+    __tablename__ = <span class="hl-string">"categories"</span>
+
+    id   = Column(Integer, primary_key=<span class="hl-builtin">True</span>, index=<span class="hl-builtin">True</span>)
+    name = Column(String(<span class="hl-number">100</span>), unique=<span class="hl-builtin">True</span>, nullable=<span class="hl-builtin">False</span>)
+
+    <span class="hl-comment"># back-reference → lets category.products return all products in it</span>
+    products = relationship(<span class="hl-string">"Product"</span>, back_populates=<span class="hl-string">"category"</span>)
+
+
+<span class="hl-keyword">class</span> <span class="hl-builtin">Product</span>(Base):
+    __tablename__ = <span class="hl-string">"products"</span>
+
+    id          = Column(Integer, primary_key=<span class="hl-builtin">True</span>, index=<span class="hl-builtin">True</span>)
+    name        = Column(String(<span class="hl-number">200</span>), nullable=<span class="hl-builtin">False</span>)
+    description = Column(Text, default=<span class="hl-string">""</span>)
+    price       = Column(Float, nullable=<span class="hl-builtin">False</span>)
+    stock_qty   = Column(Integer, default=<span class="hl-number">0</span>)     <span class="hl-comment"># 0 = out of stock</span>
+    is_active   = Column(Boolean, default=<span class="hl-builtin">True</span>)   <span class="hl-comment"># False = hidden from catalog</span>
+    category_id = Column(Integer, ForeignKey(<span class="hl-string">"categories.id"</span>))
+
+    <span class="hl-comment"># forward reference → lets product.category return the Category row</span>
+    category = relationship(<span class="hl-string">"Category"</span>, back_populates=<span class="hl-string">"products"</span>)</code></pre>
+            </div>
+            <div class="tab-panel">
+              <div class="code-header"><span class="lang-label">python</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-keyword">from</span> sqlalchemy <span class="hl-keyword">import</span> create_engine
+<span class="hl-keyword">from</span> sqlalchemy.orm <span class="hl-keyword">import</span> declarative_base, sessionmaker
+
+DATABASE_URL = <span class="hl-string">"sqlite:///./catalog.db"</span>
+
+<span class="hl-comment"># check_same_thread=False required for SQLite with FastAPI</span>
+engine = create_engine(
+    DATABASE_URL, connect_args={<span class="hl-string">"check_same_thread"</span>: <span class="hl-builtin">False</span>}
+)
+
+SessionLocal = sessionmaker(autocommit=<span class="hl-builtin">False</span>, autoflush=<span class="hl-builtin">False</span>, bind=engine)
+Base = declarative_base()
+
+
+<span class="hl-keyword">def</span> <span class="hl-decorator">get_db</span>():
+    <span class="hl-comment"># yields a DB session, always closes it when the request finishes</span>
+    db = SessionLocal()
+    <span class="hl-keyword">try</span>:
+        <span class="hl-keyword">yield</span> db
+    <span class="hl-keyword">finally</span>:
+        db.close()
+
+
+<span class="hl-keyword">def</span> <span class="hl-decorator">init_db</span>():
+    <span class="hl-comment"># creates all tables defined on Base; safe to call every startup</span>
+    <span class="hl-keyword">import</span> models  <span class="hl-comment"># noqa: F401 — ensures models are registered on Base</span>
+    Base.metadata.create_all(bind=engine)</code></pre>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- STEP 3 -->
+      <div class="step" id="step3">
+        <div class="step-number">3</div>
+        <div class="step-content">
+          <h3>Seed Data</h3>
+          <p class="explanation">Seed data fills the database with realistic test records so you can see the app working right away. The startup event runs once when the server starts. Checking whether data already exists prevents inserting duplicates on every restart.</p>
+          <div class="tabs" id="step3tabs">
+            <div class="tab-bar">
+              <button class="tab-btn active" onclick="switchTab('step3tabs',0)">Startup Seed</button>
+            </div>
+            <div class="tab-panel active">
+              <div class="code-header"><span class="lang-label">python</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-keyword">from</span> fastapi <span class="hl-keyword">import</span> FastAPI
+<span class="hl-keyword">from</span> database <span class="hl-keyword">import</span> init_db, SessionLocal
+<span class="hl-keyword">from</span> models <span class="hl-keyword">import</span> Category, Product
+
+app = FastAPI()
+
+
+<span class="hl-decorator">@app.on_event</span>(<span class="hl-string">"startup"</span>)
+<span class="hl-keyword">def</span> <span class="hl-decorator">startup</span>():
+    init_db()
+    db = SessionLocal()
+    <span class="hl-keyword">try</span>:
+        <span class="hl-comment"># only seed when the table is completely empty</span>
+        <span class="hl-keyword">if</span> db.query(Category).count() == <span class="hl-number">0</span>:
+            categories = [<span class="hl-string">"Electronics"</span>, <span class="hl-string">"Clothing"</span>, <span class="hl-string">"Books"</span>]
+            cat_objs = {}
+            <span class="hl-keyword">for</span> name <span class="hl-keyword">in</span> categories:
+                c = Category(name=name)
+                db.add(c)
+                db.flush()          <span class="hl-comment"># flush → assigns c.id before commit</span>
+                cat_objs[name] = c
+
+            seed_products = [
+                <span class="hl-comment"># Electronics</span>
+                {<span class="hl-string">"name"</span>: <span class="hl-string">"Wireless Headphones"</span>, <span class="hl-string">"price"</span>: <span class="hl-number">79.99</span>,  <span class="hl-string">"stock_qty"</span>: <span class="hl-number">42</span>,  <span class="hl-string">"category"</span>: <span class="hl-string">"Electronics"</span>, <span class="hl-string">"description"</span>: <span class="hl-string">"Over-ear Bluetooth headphones with 30-hour battery life."</span>},
+                {<span class="hl-string">"name"</span>: <span class="hl-string">"USB-C Hub"</span>,           <span class="hl-string">"price"</span>: <span class="hl-number">34.50</span>,  <span class="hl-string">"stock_qty"</span>: <span class="hl-number">120</span>, <span class="hl-string">"category"</span>: <span class="hl-string">"Electronics"</span>, <span class="hl-string">"description"</span>: <span class="hl-string">"7-in-1 hub with HDMI, SD card reader, and 3 USB-A ports."</span>},
+                {<span class="hl-string">"name"</span>: <span class="hl-string">"Mechanical Keyboard"</span>,  <span class="hl-string">"price"</span>: <span class="hl-number">129.00</span>, <span class="hl-string">"stock_qty"</span>: <span class="hl-number">0</span>,   <span class="hl-string">"category"</span>: <span class="hl-string">"Electronics"</span>, <span class="hl-string">"description"</span>: <span class="hl-string">"TKL layout with Cherry MX Brown switches."</span>},
+                <span class="hl-comment"># Clothing</span>
+                {<span class="hl-string">"name"</span>: <span class="hl-string">"Cotton T-Shirt"</span>,       <span class="hl-string">"price"</span>: <span class="hl-number">19.99</span>,  <span class="hl-string">"stock_qty"</span>: <span class="hl-number">200</span>, <span class="hl-string">"category"</span>: <span class="hl-string">"Clothing"</span>,     <span class="hl-string">"description"</span>: <span class="hl-string">"100% organic cotton, available in 6 colours."</span>},
+                {<span class="hl-string">"name"</span>: <span class="hl-string">"Denim Jacket"</span>,         <span class="hl-string">"price"</span>: <span class="hl-number">89.95</span>,  <span class="hl-string">"stock_qty"</span>: <span class="hl-number">35</span>,  <span class="hl-string">"category"</span>: <span class="hl-string">"Clothing"</span>,     <span class="hl-string">"description"</span>: <span class="hl-string">"Classic slim-fit denim jacket with two chest pockets."</span>},
+                {<span class="hl-string">"name"</span>: <span class="hl-string">"Running Shorts"</span>,       <span class="hl-string">"price"</span>: <span class="hl-number">29.99</span>,  <span class="hl-string">"stock_qty"</span>: <span class="hl-number">88</span>,  <span class="hl-string">"category"</span>: <span class="hl-string">"Clothing"</span>,     <span class="hl-string">"description"</span>: <span class="hl-string">"Lightweight 5-inch inseam with built-in liner."</span>},
+                <span class="hl-comment"># Books</span>
+                {<span class="hl-string">"name"</span>: <span class="hl-string">"Python Crash Course"</span>,  <span class="hl-string">"price"</span>: <span class="hl-number">39.99</span>,  <span class="hl-string">"stock_qty"</span>: <span class="hl-number">60</span>,  <span class="hl-string">"category"</span>: <span class="hl-string">"Books"</span>,        <span class="hl-string">"description"</span>: <span class="hl-string">"Beginner-friendly intro to Python with hands-on projects."</span>},
+                {<span class="hl-string">"name"</span>: <span class="hl-string">"Clean Code"</span>,           <span class="hl-string">"price"</span>: <span class="hl-number">44.00</span>,  <span class="hl-string">"stock_qty"</span>: <span class="hl-number">22</span>,  <span class="hl-string">"category"</span>: <span class="hl-string">"Books"</span>,        <span class="hl-string">"description"</span>: <span class="hl-string">"Principles of writing readable and maintainable code."</span>},
+                {<span class="hl-string">"name"</span>: <span class="hl-string">"The Pragmatic Programmer"</span>, <span class="hl-string">"price"</span>: <span class="hl-number">49.99</span>, <span class="hl-string">"stock_qty"</span>: <span class="hl-number">15</span>, <span class="hl-string">"category"</span>: <span class="hl-string">"Books"</span>,        <span class="hl-string">"description"</span>: <span class="hl-string">"Career advice and practical techniques for software developers."</span>},
+            ]
+
+            <span class="hl-keyword">for</span> p <span class="hl-keyword">in</span> seed_products:
+                db.add(Product(
+                    name=p[<span class="hl-string">"name"</span>],
+                    description=p[<span class="hl-string">"description"</span>],
+                    price=p[<span class="hl-string">"price"</span>],
+                    stock_qty=p[<span class="hl-string">"stock_qty"</span>],
+                    category_id=cat_objs[p[<span class="hl-string">"category"</span>]].id,
+                ))
+            db.commit()
+    <span class="hl-keyword">finally</span>:
+        db.close()</code></pre>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- STEP 4 -->
+      <div class="step" id="step4">
+        <div class="step-number">4</div>
+        <div class="step-content">
+          <h3>List + Filter Endpoint</h3>
+          <p class="explanation">Query parameters in the URL control which products are returned. All filters are optional — if the user does not provide one, it is simply skipped. SQLAlchemy lets you chain <code>.filter()</code> calls so each parameter either adds a condition or does nothing.</p>
+          <div class="tabs" id="step4tabs">
+            <div class="tab-bar">
+              <button class="tab-btn active" onclick="switchTab('step4tabs',0)">Route</button>
+              <button class="tab-btn" onclick="switchTab('step4tabs',1)">How Filter Chaining Works</button>
+            </div>
+            <div class="tab-panel active">
+              <div class="code-header"><span class="lang-label">python</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-keyword">from</span> typing <span class="hl-keyword">import</span> Optional
+<span class="hl-keyword">from</span> fastapi <span class="hl-keyword">import</span> Depends, Request
+<span class="hl-keyword">from</span> fastapi.responses <span class="hl-keyword">import</span> HTMLResponse
+<span class="hl-keyword">from</span> fastapi.templating <span class="hl-keyword">import</span> Jinja2Templates
+<span class="hl-keyword">from</span> sqlalchemy.orm <span class="hl-keyword">import</span> Session
+<span class="hl-keyword">from</span> database <span class="hl-keyword">import</span> get_db
+<span class="hl-keyword">from</span> models <span class="hl-keyword">import</span> Product, Category
+
+templates = Jinja2Templates(directory=<span class="hl-string">"templates"</span>)
+
+
+<span class="hl-decorator">@app.get</span>(<span class="hl-string">"/products"</span>, response_class=HTMLResponse)
+<span class="hl-keyword">def</span> <span class="hl-decorator">list_products</span>(
+    request: Request,
+    category:  Optional[<span class="hl-builtin">str</span>]   = <span class="hl-builtin">None</span>,    <span class="hl-comment"># filter by category name</span>
+    min_price: Optional[<span class="hl-builtin">float</span>] = <span class="hl-builtin">None</span>,    <span class="hl-comment"># minimum price inclusive</span>
+    max_price: Optional[<span class="hl-builtin">float</span>] = <span class="hl-builtin">None</span>,    <span class="hl-comment"># maximum price inclusive</span>
+    in_stock:  Optional[<span class="hl-builtin">bool</span>]  = <span class="hl-builtin">None</span>,    <span class="hl-comment"># True → only show stock_qty > 0</span>
+    page:      <span class="hl-builtin">int</span>             = <span class="hl-number">1</span>,       <span class="hl-comment"># current page number (1-based)</span>
+    page_size: <span class="hl-builtin">int</span>             = <span class="hl-number">9</span>,       <span class="hl-comment"># rows per page</span>
+    db: Session = Depends(get_db),
+):
+    <span class="hl-comment"># start with all active products</span>
+    query = db.query(Product).filter(Product.is_active == <span class="hl-builtin">True</span>)
+
+    <span class="hl-keyword">if</span> category:
+        <span class="hl-comment"># join Category table to filter by name</span>
+        query = query.join(Category).filter(Category.name == category)
+
+    <span class="hl-keyword">if</span> min_price <span class="hl-keyword">is not</span> <span class="hl-builtin">None</span>:
+        <span class="hl-comment"># add AND price &gt;= min_price condition</span>
+        query = query.filter(Product.price &gt;= min_price)
+
+    <span class="hl-keyword">if</span> max_price <span class="hl-keyword">is not</span> <span class="hl-builtin">None</span>:
+        <span class="hl-comment"># add AND price &lt;= max_price condition</span>
+        query = query.filter(Product.price &lt;= max_price)
+
+    <span class="hl-keyword">if</span> in_stock:
+        <span class="hl-comment"># add AND stock_qty &gt; 0 condition</span>
+        query = query.filter(Product.stock_qty &gt; <span class="hl-number">0</span>)
+
+    <span class="hl-comment"># → see Step 5 for pagination</span></code></pre>
+            </div>
+            <div class="tab-panel">
+              <div class="code-header"><span class="lang-label">text</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code>URL: /products?category=Electronics&amp;min_price=50&amp;in_stock=true
+
+Each filter adds an AND condition to the SQL query:
+
+  WHERE is_active = True
+  AND   category.name = 'Electronics'
+  AND   price &gt;= 50
+  AND   stock_qty &gt; 0
+
+If you omit a query param, that condition is simply not added.
+For example /products returns all active products with no extra filtering.
+
+SQLAlchemy builds the SQL lazily — nothing runs until you call
+.count() or .all(). Each .filter() call just appends to the WHERE clause.</code></pre>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- STEP 5 -->
+      <div class="step" id="step5">
+        <div class="step-number">5</div>
+        <div class="step-content">
+          <h3>Pagination</h3>
+          <p class="explanation">Pagination splits results into pages. You calculate how many rows to skip based on the current page number, fetch only that slice, and pass the total page count to the template so it can render numbered navigation links.</p>
+          <div class="tabs" id="step5tabs">
+            <div class="tab-bar">
+              <button class="tab-btn active" onclick="switchTab('step5tabs',0)">Pagination Math + TemplateResponse</button>
+              <button class="tab-btn" onclick="switchTab('step5tabs',1)">Pagination Links in Jinja</button>
+            </div>
+            <div class="tab-panel active">
+              <div class="code-header"><span class="lang-label">python</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code>    <span class="hl-comment"># total number of rows matching all active filters</span>
+    total = query.count()
+
+    <span class="hl-comment"># ceiling division: e.g. 10 rows / 3 per page = 4 pages (not 3.33)</span>
+    total_pages = (total + page_size - <span class="hl-number">1</span>) // page_size
+
+    <span class="hl-comment"># rows to skip: page 1 skips 0, page 2 skips 9, page 3 skips 18, etc.</span>
+    offset = (page - <span class="hl-number">1</span>) * page_size
+
+    <span class="hl-comment"># fetch only the rows for the current page</span>
+    products = query.offset(offset).limit(page_size).all()
+
+    <span class="hl-comment"># all categories for the filter dropdown</span>
+    categories = db.query(Category).all()
+
+    <span class="hl-keyword">return</span> templates.TemplateResponse(<span class="hl-string">"products.html"</span>, {
+        <span class="hl-string">"request"</span>:          request,
+        <span class="hl-string">"products"</span>:         products,
+        <span class="hl-string">"categories"</span>:       categories,
+        <span class="hl-string">"page"</span>:             page,
+        <span class="hl-string">"total_pages"</span>:      total_pages,
+        <span class="hl-string">"total"</span>:            total,
+        <span class="hl-string">"current_category"</span>: category,    <span class="hl-comment"># preserves active filter in template</span>
+        <span class="hl-string">"current_min_price"</span>: min_price,
+        <span class="hl-string">"current_max_price"</span>: max_price,
+        <span class="hl-string">"current_in_stock"</span>:  in_stock,
+    })</code></pre>
+            </div>
+            <div class="tab-panel">
+              <div class="code-header"><span class="lang-label">html</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code>&lt;div style="display:flex;gap:12px;align-items:center;margin-top:16px;"&gt;
+
+  {% if page &gt; 1 %}
+    &lt;a href="/products?page={{ page - 1 }}
+      {%- if current_category %}&amp;amp;category={{ current_category }}{% endif %}
+      {%- if current_min_price %}&amp;amp;min_price={{ current_min_price }}{% endif %}
+      {%- if current_max_price %}&amp;amp;max_price={{ current_max_price }}{% endif %}
+      {%- if current_in_stock %}&amp;amp;in_stock=true{% endif %}"&gt;
+      &amp;larr; Previous
+    &lt;/a&gt;
+  {% endif %}
+
+  &lt;span&gt;Page {{ page }} of {{ total_pages }}&lt;/span&gt;
+
+  {% if page &lt; total_pages %}
+    &lt;a href="/products?page={{ page + 1 }}
+      {%- if current_category %}&amp;amp;category={{ current_category }}{% endif %}
+      {%- if current_min_price %}&amp;amp;min_price={{ current_min_price }}{% endif %}
+      {%- if current_max_price %}&amp;amp;max_price={{ current_max_price }}{% endif %}
+      {%- if current_in_stock %}&amp;amp;in_stock=true{% endif %}"&gt;
+      Next &amp;rarr;
+    &lt;/a&gt;
+  {% endif %}
+
+&lt;/div&gt;
+
+&lt;!-- Note: &amp;amp; is used instead of &amp; inside href attributes so the
+     HTML is valid. Browsers convert &amp;amp; back to & when building the URL. --&gt;</code></pre>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- STEP 6 -->
+      <div class="step" id="step6">
+        <div class="step-number">6</div>
+        <div class="step-content">
+          <h3>Product Detail Page</h3>
+          <p class="explanation">The detail page shows a single product by its ID. If the ID does not exist in the database, you raise an HTTPException with a 404 status code. You can also query related products from the same category so visitors have something to browse next.</p>
+          <div class="tabs" id="step6tabs">
+            <div class="tab-bar">
+              <button class="tab-btn active" onclick="switchTab('step6tabs',0)">Route</button>
+            </div>
+            <div class="tab-panel active">
+              <div class="code-header"><span class="lang-label">python</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-keyword">from</span> fastapi <span class="hl-keyword">import</span> HTTPException
+
+
+<span class="hl-decorator">@app.get</span>(<span class="hl-string">"/products/{product_id}"</span>, response_class=HTMLResponse)
+<span class="hl-keyword">def</span> <span class="hl-decorator">product_detail</span>(
+    request: Request,
+    product_id: <span class="hl-builtin">int</span>,
+    db: Session = Depends(get_db),
+):
+    <span class="hl-comment"># look up the product by primary key</span>
+    product = db.query(Product).filter(Product.id == product_id).first()
+
+    <span class="hl-keyword">if</span> <span class="hl-keyword">not</span> product:
+        <span class="hl-comment"># return 404 page if the product does not exist</span>
+        <span class="hl-keyword">raise</span> HTTPException(status_code=<span class="hl-number">404</span>, detail=<span class="hl-string">"Product not found"</span>)
+
+    <span class="hl-comment"># fetch up to 3 other active products in the same category</span>
+    related = (
+        db.query(Product)
+        .filter(
+            Product.category_id == product.category_id,
+            Product.id != product_id,       <span class="hl-comment"># exclude the current product</span>
+            Product.is_active == <span class="hl-builtin">True</span>,
+        )
+        .limit(<span class="hl-number">3</span>)
+        .all()
+    )
+
+    <span class="hl-keyword">return</span> templates.TemplateResponse(<span class="hl-string">"product_detail.html"</span>, {
+        <span class="hl-string">"request"</span>: request,
+        <span class="hl-string">"product"</span>: product,
+        <span class="hl-string">"related"</span>: related,
+    })</code></pre>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- STEP 7 -->
+      <div class="step" id="step7">
+        <div class="step-number">7</div>
+        <div class="step-content">
+          <h3>Base Template</h3>
+          <p class="explanation">The base template defines the HTML shell shared by every page. Child templates extend it and fill in the content block. Keep the base as simple as possible — a nav bar, a content block, and minimal inline styles.</p>
+          <div class="tabs" id="step7tabs">
+            <div class="tab-bar">
+              <button class="tab-btn active" onclick="switchTab('step7tabs',0)">templates/base.html</button>
+            </div>
+            <div class="tab-panel active">
+              <div class="code-header"><span class="lang-label">html</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code>&lt;!DOCTYPE html&gt;
+&lt;html lang="en"&gt;
+&lt;head&gt;
+  &lt;meta charset="UTF-8"&gt;
+  &lt;meta name="viewport" content="width=device-width, initial-scale=1"&gt;
+  &lt;title&gt;{% block title %}Catalog{% endblock %}&lt;/title&gt;
+  &lt;style&gt;
+    body {
+      font-family: sans-serif;
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 16px;
+      background: #fafafa;
+      color: #222;
+    }
+    nav {
+      background: #388e3c;
+      padding: 10px 16px;
+      border-radius: 6px;
+      margin-bottom: 24px;
+    }
+    nav a {
+      color: #fff;
+      text-decoration: none;
+      margin-right: 16px;
+      font-weight: 600;
+    }
+    nav a:hover { text-decoration: underline; }
+
+    /* stock badges */
+    .badge {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 0.8rem;
+      font-weight: 600;
+    }
+    .badge-green { background: #e8f5e9; color: #2e7d32; }
+    .badge-red   { background: #ffebee; color: #c62828; }
+
+    /* simple table */
+    table { width: 100%; border-collapse: collapse; margin-top: 16px; }
+    th    { background: #e8f5e9; text-align: left; padding: 8px 10px; border-bottom: 2px solid #c8e6c9; }
+    td    { padding: 8px 10px; border-bottom: 1px solid #e0e0e0; }
+    tr:hover td { background: #f1f8e9; }
+
+    a { color: #388e3c; }
+    .btn {
+      display: inline-block;
+      padding: 7px 16px;
+      background: #388e3c;
+      color: #fff;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 0.9rem;
+      text-decoration: none;
+    }
+    .btn:hover { background: #2e7d32; }
+  &lt;/style&gt;
+&lt;/head&gt;
+&lt;body&gt;
+  &lt;nav&gt;
+    &lt;a href="/products"&gt;All Products&lt;/a&gt;
+    &lt;a href="/admin/add"&gt;Add Product&lt;/a&gt;
+  &lt;/nav&gt;
+  {% block content %}{% endblock %}
+&lt;/body&gt;
+&lt;/html&gt;</code></pre>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- STEP 8 -->
+      <div class="step" id="step8">
+        <div class="step-number">8</div>
+        <div class="step-content">
+          <h3>Product List Template</h3>
+          <p class="explanation">The list template loops over the products and displays each one as a table row. The filter form at the top and the pagination links at the bottom are also part of this template.</p>
+          <div class="tabs" id="step8tabs">
+            <div class="tab-bar">
+              <button class="tab-btn active" onclick="switchTab('step8tabs',0)">templates/products.html</button>
+            </div>
+            <div class="tab-panel active">
+              <div class="code-header"><span class="lang-label">html</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code>{% extends "base.html" %}
+{% block title %}Products{% endblock %}
+
+{% block content %}
+
+&lt;!-- Filter form --&gt;
+&lt;form method="GET" action="/products" style="margin-bottom:20px;display:flex;flex-wrap:wrap;gap:10px;align-items:flex-end;"&gt;
+
+  &lt;div&gt;
+    &lt;label style="display:block;font-size:0.85rem;margin-bottom:4px;"&gt;Category&lt;/label&gt;
+    &lt;select name="category" style="padding:6px 10px;border:1px solid #ccc;border-radius:4px;"&gt;
+      &lt;option value=""&gt;All&lt;/option&gt;
+      {% for cat in categories %}
+        &lt;option value="{{ cat.name }}"
+          {% if current_category == cat.name %}selected{% endif %}&gt;
+          {{ cat.name }}
+        &lt;/option&gt;
+      {% endfor %}
+    &lt;/select&gt;
+  &lt;/div&gt;
+
+  &lt;div&gt;
+    &lt;label style="display:block;font-size:0.85rem;margin-bottom:4px;"&gt;Min price&lt;/label&gt;
+    &lt;input type="number" name="min_price" step="0.01" placeholder="0"
+      value="{{ current_min_price or '' }}"
+      style="width:90px;padding:6px 8px;border:1px solid #ccc;border-radius:4px;"&gt;
+  &lt;/div&gt;
+
+  &lt;div&gt;
+    &lt;label style="display:block;font-size:0.85rem;margin-bottom:4px;"&gt;Max price&lt;/label&gt;
+    &lt;input type="number" name="max_price" step="0.01" placeholder="any"
+      value="{{ current_max_price or '' }}"
+      style="width:90px;padding:6px 8px;border:1px solid #ccc;border-radius:4px;"&gt;
+  &lt;/div&gt;
+
+  &lt;div style="display:flex;align-items:center;gap:6px;"&gt;
+    &lt;input type="checkbox" name="in_stock" value="true" id="in_stock"
+      {% if current_in_stock %}checked{% endif %}&gt;
+    &lt;label for="in_stock" style="font-size:0.85rem;"&gt;In stock only&lt;/label&gt;
+  &lt;/div&gt;
+
+  &lt;button type="submit" class="btn"&gt;Filter&lt;/button&gt;
+  &lt;a href="/products" style="padding:7px 12px;color:#555;font-size:0.9rem;"&gt;Clear&lt;/a&gt;
+&lt;/form&gt;
+
+&lt;h2 style="margin-bottom:12px;"&gt;{{ total }} product{{ "s" if total != 1 else "" }} found&lt;/h2&gt;
+
+{% if products %}
+&lt;table&gt;
+  &lt;thead&gt;
+    &lt;tr&gt;
+      &lt;th&gt;Name&lt;/th&gt;
+      &lt;th&gt;Category&lt;/th&gt;
+      &lt;th&gt;Price&lt;/th&gt;
+      &lt;th&gt;Stock&lt;/th&gt;
+    &lt;/tr&gt;
+  &lt;/thead&gt;
+  &lt;tbody&gt;
+    {% for product in products %}
+    &lt;tr&gt;
+      &lt;td&gt;&lt;a href="/products/{{ product.id }}"&gt;{{ product.name }}&lt;/a&gt;&lt;/td&gt;
+      &lt;td&gt;{{ product.category.name }}&lt;/td&gt;
+      &lt;td&gt;${{ "%.2f"|format(product.price) }}&lt;/td&gt;
+      &lt;td&gt;
+        {% if product.stock_qty == 0 %}
+          &lt;span class="badge badge-red"&gt;Out of stock&lt;/span&gt;
+        {% else %}
+          &lt;span class="badge badge-green"&gt;{{ product.stock_qty }} left&lt;/span&gt;
+        {% endif %}
+      &lt;/td&gt;
+    &lt;/tr&gt;
+    {% endfor %}
+  &lt;/tbody&gt;
+&lt;/table&gt;
+{% else %}
+  &lt;p style="color:#888;margin-top:24px;"&gt;No products match your filters. &lt;a href="/products"&gt;Clear filters&lt;/a&gt;&lt;/p&gt;
+{% endif %}
+
+&lt;!-- Pagination --&gt;
+&lt;div style="display:flex;gap:12px;align-items:center;margin-top:20px;"&gt;
+  {% if page &gt; 1 %}
+    &lt;a href="/products?page={{ page - 1 }}
+      {%- if current_category %}&amp;amp;category={{ current_category }}{% endif %}
+      {%- if current_min_price %}&amp;amp;min_price={{ current_min_price }}{% endif %}
+      {%- if current_max_price %}&amp;amp;max_price={{ current_max_price }}{% endif %}
+      {%- if current_in_stock %}&amp;amp;in_stock=true{% endif %}"&gt;&amp;larr; Previous&lt;/a&gt;
+  {% endif %}
+  &lt;span style="color:#555;"&gt;Page {{ page }} of {{ total_pages }}&lt;/span&gt;
+  {% if page &lt; total_pages %}
+    &lt;a href="/products?page={{ page + 1 }}
+      {%- if current_category %}&amp;amp;category={{ current_category }}{% endif %}
+      {%- if current_min_price %}&amp;amp;min_price={{ current_min_price }}{% endif %}
+      {%- if current_max_price %}&amp;amp;max_price={{ current_max_price }}{% endif %}
+      {%- if current_in_stock %}&amp;amp;in_stock=true{% endif %}"&gt;Next &amp;rarr;&lt;/a&gt;
+  {% endif %}
+&lt;/div&gt;
+
+{% endblock %}</code></pre>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- STEP 9 -->
+      <div class="step" id="step9">
+        <div class="step-number">9</div>
+        <div class="step-content">
+          <h3>Filter Form</h3>
+          <p class="explanation">The filter form uses <code>method="GET"</code> so filter values appear in the URL. This means users can bookmark filtered pages and the browser back button works correctly. Pre-fill each input with the currently active value so selections are not lost on page load.</p>
+          <div class="tabs" id="step9tabs">
+            <div class="tab-bar">
+              <button class="tab-btn active" onclick="switchTab('step9tabs',0)">Filter Form Fragment</button>
+            </div>
+            <div class="tab-panel active">
+              <div class="code-header"><span class="lang-label">html</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code>&lt;!--
+  method="GET" puts filter values into the URL as query params.
+  This makes filtered pages bookmarkable and shareable.
+--&gt;
+&lt;form method="GET" action="/products"&gt;
+
+  &lt;!-- Category select: check each option against the active filter --&gt;
+  &lt;select name="category"&gt;
+    &lt;option value=""&gt;All categories&lt;/option&gt;
+    {% for cat in categories %}
+      &lt;option value="{{ cat.name }}"
+        {% if current_category == cat.name %}selected{% endif %}&gt;
+        {{ cat.name }}
+      &lt;/option&gt;
+    {% endfor %}
+  &lt;/select&gt;
+
+  &lt;!-- Price inputs: value="" when no filter is active --&gt;
+  &lt;input type="number" name="min_price" step="0.01" placeholder="Min price"
+    value="{{ current_min_price or '' }}"&gt;
+
+  &lt;input type="number" name="max_price" step="0.01" placeholder="Max price"
+    value="{{ current_max_price or '' }}"&gt;
+
+  &lt;!-- Checkbox: pre-check it when in_stock filter is active --&gt;
+  &lt;label&gt;
+    &lt;input type="checkbox" name="in_stock" value="true"
+      {% if current_in_stock %}checked{% endif %}&gt;
+    In stock only
+  &lt;/label&gt;
+
+  &lt;button type="submit"&gt;Filter&lt;/button&gt;
+
+  &lt;!--
+    Clear link goes to /products with no query params,
+    which removes all filters and returns to page 1.
+  --&gt;
+  &lt;a href="/products"&gt;Clear&lt;/a&gt;
+
+&lt;/form&gt;
+
+&lt;!--
+  Note: inside href attributes use &amp;amp; instead of &amp;
+  so the HTML is valid. The browser decodes &amp;amp; back to &amp;
+  before building the request URL.
+--&gt;</code></pre>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- STEP 10 -->
+      <div class="step" id="step10">
+        <div class="step-number">10</div>
+        <div class="step-content">
+          <h3>Product Detail Template</h3>
+          <p class="explanation">The detail template shows all the information about a single product plus a short list of related items at the bottom. It extends base.html and fills in the content block.</p>
+          <div class="tabs" id="step10tabs">
+            <div class="tab-bar">
+              <button class="tab-btn active" onclick="switchTab('step10tabs',0)">templates/product_detail.html</button>
+            </div>
+            <div class="tab-panel active">
+              <div class="code-header"><span class="lang-label">html</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code>{% extends "base.html" %}
+{% block title %}{{ product.name }}{% endblock %}
+
+{% block content %}
+
+&lt;a href="/products" style="font-size:0.9rem;"&gt;&amp;larr; Back to all products&lt;/a&gt;
+
+&lt;h1 style="margin:16px 0 8px;"&gt;{{ product.name }}&lt;/h1&gt;
+
+&lt;p style="font-size:1.5rem;font-weight:700;color:#388e3c;margin-bottom:10px;"&gt;
+  ${{ "%.2f"|format(product.price) }}
+&lt;/p&gt;
+
+&lt;!-- In-stock badge using inline colour --&gt;
+{% if product.stock_qty == 0 %}
+  &lt;span class="badge badge-red"&gt;Out of stock&lt;/span&gt;
+{% else %}
+  &lt;span class="badge badge-green"&gt;{{ product.stock_qty }} in stock&lt;/span&gt;
+{% endif %}
+
+&lt;p style="margin:16px 0;line-height:1.6;color:#444;"&gt;{{ product.description }}&lt;/p&gt;
+
+&lt;p style="font-size:0.9rem;color:#666;"&gt;
+  Category:
+  &lt;a href="/products?category={{ product.category.name }}"&gt;
+    {{ product.category.name }}
+  &lt;/a&gt;
+&lt;/p&gt;
+
+&lt;!-- Related products --&gt;
+{% if related %}
+&lt;hr style="margin:28px 0;border:none;border-top:1px solid #e0e0e0;"&gt;
+&lt;h2 style="margin-bottom:12px;"&gt;Related Products&lt;/h2&gt;
+&lt;div style="display:flex;gap:16px;flex-wrap:wrap;"&gt;
+  {% for item in related %}
+    &lt;div style="border:1px solid #e0e0e0;border-radius:6px;padding:14px;min-width:160px;background:#fff;"&gt;
+      &lt;p style="font-weight:600;margin-bottom:6px;"&gt;
+        &lt;a href="/products/{{ item.id }}"&gt;{{ item.name }}&lt;/a&gt;
+      &lt;/p&gt;
+      &lt;p style="color:#388e3c;font-weight:700;"&gt;${{ "%.2f"|format(item.price) }}&lt;/p&gt;
+    &lt;/div&gt;
+  {% endfor %}
+&lt;/div&gt;
+{% endif %}
+
+{% endblock %}</code></pre>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- STEP 11 -->
+      <div class="step" id="step11">
+        <div class="step-number">11</div>
+        <div class="step-content">
+          <h3>Inventory Update</h3>
+          <p class="explanation">Stock levels change as products are bought or restocked. This endpoint adjusts the stock count by a delta value — pass a positive number to add stock, a negative number to remove it. The route validates that the result cannot go below zero.</p>
+          <div class="tabs" id="step11tabs">
+            <div class="tab-bar">
+              <button class="tab-btn active" onclick="switchTab('step11tabs',0)">Route</button>
+              <button class="tab-btn" onclick="switchTab('step11tabs',1)">Testing with curl</button>
+            </div>
+            <div class="tab-panel active">
+              <div class="code-header"><span class="lang-label">python</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-keyword">from</span> pydantic <span class="hl-keyword">import</span> BaseModel
+<span class="hl-keyword">from</span> fastapi.responses <span class="hl-keyword">import</span> JSONResponse
+
+
+<span class="hl-keyword">class</span> <span class="hl-builtin">StockUpdate</span>(BaseModel):
+    delta: <span class="hl-builtin">int</span>   <span class="hl-comment"># positive → add stock, negative → remove stock</span>
+
+
+<span class="hl-decorator">@app.patch</span>(<span class="hl-string">"/products/{product_id}/stock"</span>)
+<span class="hl-keyword">def</span> <span class="hl-decorator">update_stock</span>(
+    product_id: <span class="hl-builtin">int</span>,
+    update: StockUpdate,
+    db: Session = Depends(get_db),
+):
+    product = db.query(Product).filter(Product.id == product_id).first()
+
+    <span class="hl-keyword">if</span> <span class="hl-keyword">not</span> product:
+        <span class="hl-keyword">raise</span> HTTPException(status_code=<span class="hl-number">404</span>, detail=<span class="hl-string">"Product not found"</span>)
+
+    <span class="hl-comment"># calculate the new quantity before applying the change</span>
+    new_qty = product.stock_qty + update.delta
+
+    <span class="hl-keyword">if</span> new_qty &lt; <span class="hl-number">0</span>:
+        <span class="hl-comment"># reject if the result would put stock into negative territory</span>
+        <span class="hl-keyword">raise</span> HTTPException(
+            status_code=<span class="hl-number">400</span>,
+            detail=<span class="hl-string">"Stock cannot go below zero"</span>,
+        )
+
+    product.stock_qty = new_qty
+    db.commit()
+    db.refresh(product)
+
+    <span class="hl-comment"># return JSON so this endpoint can be called from JavaScript or curl</span>
+    <span class="hl-keyword">return</span> {<span class="hl-string">"id"</span>: product.id, <span class="hl-string">"stock_qty"</span>: product.stock_qty}</code></pre>
+            </div>
+            <div class="tab-panel">
+              <div class="code-header"><span class="lang-label">bash</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code># Add 10 units to product ID 1
+curl -X PATCH http://localhost:8000/products/1/stock \
+  -H "Content-Type: application/json" \
+  -d '{"delta": 10}'
+# Response: {"id": 1, "stock_qty": 52}
+
+# Remove 3 units from product ID 1
+curl -X PATCH http://localhost:8000/products/1/stock \
+  -H "Content-Type: application/json" \
+  -d '{"delta": -3}'
+# Response: {"id": 1, "stock_qty": 49}
+
+# Attempt to remove more than available → returns 400
+curl -X PATCH http://localhost:8000/products/1/stock \
+  -H "Content-Type: application/json" \
+  -d '{"delta": -999}'
+# Response: {"detail": "Stock cannot go below zero"}</code></pre>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- STEP 12 -->
+      <div class="step" id="step12">
+        <div class="step-number">12</div>
+        <div class="step-content">
+          <h3>What's Next</h3>
+          <p class="explanation">The catalog is fully working at this point. Here are three natural next steps to extend it further.</p>
+
+          <div class="info-box">
+            <strong>Adding a cart</strong><br>
+            A session-based cart stores item IDs and quantities in the user's browser session. Add <code>POST /cart/add</code> writing to <code>request.session["cart"]</code> — a dict of <code>{product_id: quantity}</code>. See the Jinja2 Templates guide for session middleware setup with itsdangerous.
+          </div>
+
+          <div class="info-box">
+            <strong>Image uploads</strong><br>
+            Products need images. The File Uploads guide covers saving images to disk with UUID filenames and serving them back as static files. Add an <code>image_path</code> column to your Product model for the file path.
+          </div>
+
+          <div class="info-box">
+            <strong>Full-text search</strong><br>
+            SQLite has a built-in full-text search extension called FTS5. Create a virtual FTS5 table that mirrors your product names and descriptions, then query it with <code>MATCH</code> for fast keyword search without any external service.
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </main>
+</div>
+<script>
+(function(){var s=localStorage.getItem("pyoffline-theme");if(s==="light")document.documentElement.classList.add("light");document.addEventListener("DOMContentLoaded",function(){var t=document.getElementById("themeToggle");if(!t)return;t.checked=(localStorage.getItem("pyoffline-theme")==="light");t.addEventListener("change",function(){if(this.checked){document.documentElement.classList.add("light");localStorage.setItem("pyoffline-theme","light");}else{document.documentElement.classList.remove("light");localStorage.setItem("pyoffline-theme","dark");}});});})();
+function switchTab(stepId,idx){var s=document.getElementById(stepId);var b=s.querySelectorAll(".tab-btn");var p=s.querySelectorAll(".tab-panel");b.forEach(function(x){x.classList.remove("active")});p.forEach(function(x){x.classList.remove("active")});b[idx].classList.add("active");p[idx].classList.add("active");}
+function copyCode(btn){var code=btn.closest(".tab-panel").querySelector("code").innerText;navigator.clipboard.writeText(code).then(function(){var o=btn.textContent;btn.textContent="Copied!";setTimeout(function(){btn.textContent=o;},1500);});}
+function toggleSidebar(){var s=document.getElementById("guideSidebar");var o=document.getElementById("sidebarOverlay");if(!s)return;s.classList.toggle("open");o.classList.toggle("open");}
+document.addEventListener("DOMContentLoaded",function(){var s=document.getElementById("guideSidebar");if(!s)return;s.querySelectorAll("nav a").forEach(function(a){a.addEventListener("click",function(){s.classList.remove("open");var o=document.getElementById("sidebarOverlay");if(o)o.classList.remove("open");});});});
+function toggleSbDesktop(){var c=document.body.classList.toggle("sb-collapsed");localStorage.setItem("sb-collapsed",c?"1":"0");}
+(function(){if(localStorage.getItem("sb-collapsed")==="1")document.body.classList.add("sb-collapsed");})();
+</script>
+</body>
+</html>

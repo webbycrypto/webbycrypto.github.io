@@ -161,6 +161,23 @@ code { font-family: "Fira Code", "Cascadia Code", "Consolas", monospace; font-si
   .hero { padding: 48px 40px 28px; text-align: center; }
   .hero h1 { font-size: 2.2rem; margin-bottom: 8px; }
   .hero p { color: var(--text-muted); font-size: 1rem; margin-bottom: 20px; }
+
+  /* Path selector */
+  .path-selector { display: flex; justify-content: center; gap: 8px; padding: 20px 40px 16px; flex-wrap: wrap; }
+  .path-btn { padding: 8px 16px; background: var(--surface); border: 1px solid var(--border); color: var(--text-muted); border-radius: 6px; cursor: pointer; font-size: 0.9rem; transition: all .15s; }
+  .path-btn:hover { border-color: #555; color: var(--text); }
+  .path-btn.active { background: #555; color: #fff; border-color: #555; }
+  .card.hidden { display: none; }
+
+  /* Progress tracking */
+  .path-stats { text-align: center; padding: 12px 40px 0; font-size: 0.9rem; color: var(--text-muted); }
+  .progress-bar { position: absolute; top: 0; left: 0; height: 3px; background: #4caf50; width: 0%; transition: width .2s; border-radius: 8px 0 0 0; }
+  .card { position: relative; }
+  .card.completed { opacity: 0.75; }
+  .card.completed .progress-bar { width: 100%; }
+  .complete-btn { position: absolute; top: 12px; right: 12px; background: none; border: none; cursor: pointer; font-size: 1.2rem; padding: 4px 8px; color: var(--text-muted); transition: all .15s; z-index: 10; }
+  .complete-btn:hover { color: #4caf50; transform: scale(1.15); }
+  .card.completed .complete-btn { color: #4caf50; }
 </style>
 </head>
 <body>
@@ -176,7 +193,353 @@ code { font-family: "Fira Code", "Cascadia Code", "Consolas", monospace; font-si
     <span class="theme-label">Light</span>
   </div>
 </div>
+<div class="path-stats" id="pathStats"></div>
+<div class="path-selector">
+  <button class="path-btn active" data-path="all" onclick="filterByPath('all')">Show All</button>
+  <button class="path-btn" data-path="javascript" onclick="filterByPath('javascript')">Full-Stack JavaScript</button>
+  <button class="path-btn" data-path="api-builder" onclick="filterByPath('api-builder')">API Builder</button>
+  <button class="path-btn" data-path="django" onclick="filterByPath('django')">Django Developer</button>
+</div>
 <div class="grid">
+
+<!-- FastAPI Learning Series -->
+
+<div style="grid-column: 1 / -1; margin-top: 16px; padding-bottom: 4px; border-bottom: 1px solid var(--border);">
+  <h2 style="font-size: 1rem; color: var(--text-muted); font-weight: 600; letter-spacing: .04em; text-transform: uppercase;">FastAPI Essentials</h2>
+  <p style="font-size: 0.85rem; color: var(--text-dim); margin-top: 4px;">Foundation courses everyone starts with — CRUD patterns, data validation, API documentation, templating, and databases.</p>
+</div>
+
+<a href="crud-fastapi.html" class="card" data-path="javascript api-builder django" data-course-id="crud-fastapi" style="border-top: 4px solid #009688">
+  <div class="progress-bar"></div>
+  <button class="complete-btn" onclick="toggleCourseCompletion('crud-fastapi', event)" title="Mark as complete">☐</button>
+  <h2 style="color:#009688">CRUD + HTML Frontend</h2>
+  <p>Learn Create, Read, Update, Delete with FastAPI — in-memory storage, REST naming conventions, type hints, routers, CORS, environment variables, and a working no-JavaScript HTML frontend with Jinja2.</p>
+  <span class="badge">16 steps</span>
+</a>
+<a href="pydantic-fastapi.html" class="card" data-path="javascript api-builder django" data-course-id="pydantic-fastapi" style="border-top: 4px solid #e92063">
+  <div class="progress-bar"></div>
+  <button class="complete-btn" onclick="toggleCourseCompletion('pydantic-fastapi', event)" title="Mark as complete">☐</button>
+  <h2 style="color:#e92063">Pydantic Models</h2>
+  <p>Stop relying on raw dicts — define request and response shapes with Pydantic BaseModel, add Field() constraints, write validators, separate input from output models, and read clean 422 error responses.</p>
+  <span class="badge">9 steps</span>
+</a>
+<a href="api-docs-fastapi.html" class="card" data-path="javascript api-builder django" data-course-id="api-docs-fastapi" style="border-top: 4px solid #00acc1">
+  <div class="progress-bar"></div>
+  <button class="complete-btn" onclick="toggleCourseCompletion('api-docs-fastapi', event)" title="Mark as complete">☐</button>
+  <h2 style="color:#00acc1">API Documentation</h2>
+  <p>FastAPI generates interactive docs automatically. Covers Swagger UI, ReDoc, customising route descriptions, response schemas, tags, versioning, and disabling docs in production.</p>
+  <span class="badge">10 steps</span>
+</a>
+<a href="jinja-fastapi.html" class="card" data-course-id="jinja-fastapi" data-path="javascript api-builder django" style="border-top: 4px solid #e67e22">
+  <div class="progress-bar"></div>
+  <button class="complete-btn" onclick="toggleCourseCompletion('jinja-fastapi', event)" title="Mark as complete">?</button>
+  <h2 style="color:#e67e22">Jinja2 Templates</h2>
+  <p>Render HTML pages on the server instead of returning JSON. Covers setup, variables, filters, control flow, template inheritance, forms, passing database results, URL building, and flash messages.</p>
+  <span class="badge">11 steps</span>
+</a>
+<a href="database-fastapi.html" class="card" data-course-id="database-fastapi" data-path="javascript api-builder django" style="border-top: 4px solid #ff9800">
+  <div class="progress-bar"></div>
+  <button class="complete-btn" onclick="toggleCourseCompletion('database-fastapi', event)" title="Mark as complete">?</button>
+  <h2 style="color:#ff9800">SQLite + PostgreSQL</h2>
+  <p>Move beyond dicts and JSON files — define two related tables with SQLAlchemy ORM, wire a foreign key, filter and join queries, enforce a status flow, and swap SQLite for PostgreSQL with one line.</p>
+  <span class="badge">13 steps</span>
+</a>
+
+
+<div style="grid-column: 1 / -1; margin-top: 16px; padding-bottom: 4px; border-bottom: 1px solid var(--border);">
+  <h2 style="font-size: 1rem; color: var(--text-muted); font-weight: 600; letter-spacing: .04em; text-transform: uppercase;">Authentication & Security</h2>
+  <p style="font-size: 0.85rem; color: var(--text-dim); margin-top: 4px;">Four guides covering core authentication — hashing passwords, JWT tokens, refresh rotation, and email verification.</p>
+</div>
+
+<a href="auth-passwords.html" class="card" data-course-id="auth-passwords" data-path="javascript api-builder django" style="border-top: 4px solid #f44336">
+  <div class="progress-bar"></div>
+  <button class="complete-btn" onclick="toggleCourseCompletion('auth-passwords', event)" title="Mark as complete">?</button>
+  <h2 style="color:#f44336">Hashing Passwords</h2>
+  <p>Why plaintext passwords are catastrophic, what bcrypt does to protect them, and how to build a register + login flow that does it correctly with passlib.</p>
+  <span class="badge">8 steps</span>
+</a>
+<a href="auth-jwt.html" class="card" data-course-id="auth-jwt" data-path="javascript api-builder django" style="border-top: 4px solid #f44336">
+  <div class="progress-bar"></div>
+  <button class="complete-btn" onclick="toggleCourseCompletion('auth-jwt', event)" title="Mark as complete">?</button>
+  <h2 style="color:#f44336">JWT Access Tokens</h2>
+  <p>Create and decode signed tokens with python-jose, protect routes with <code>Depends(get_current_user)</code>, and test the full auth flow using FastAPI's built-in /docs Authorize button.</p>
+  <span class="badge">9 steps</span>
+</a>
+<a href="auth-refresh.html" class="card" data-course-id="auth-refresh" data-path="javascript api-builder django" style="border-top: 4px solid #f44336">
+  <div class="progress-bar"></div>
+  <button class="complete-btn" onclick="toggleCourseCompletion('auth-refresh', event)" title="Mark as complete">?</button>
+  <h2 style="color:#f44336">Refresh Token Rotation</h2>
+  <p>Short-lived access tokens + long-lived refresh tokens — the two-token pattern that keeps users logged in without security compromises. Covers rotation, revocation, and theft detection.</p>
+  <span class="badge">8 steps</span>
+</a>
+<a href="auth-email.html" class="card" data-course-id="auth-email" data-path="javascript api-builder django" style="border-top: 4px solid #f44336">
+  <div class="progress-bar"></div>
+  <button class="complete-btn" onclick="toggleCourseCompletion('auth-email', event)" title="Mark as complete">?</button>
+  <h2 style="color:#f44336">Email Verification</h2>
+  <p>Require users to confirm their email before logging in. Covers token generation, sending via Resend or smtplib, the verify endpoint, blocking unverified logins, and resend.</p>
+  <span class="badge">8 steps</span>
+</a>
+
+<div style="grid-column: 1 / -1; margin-top: 16px; padding-bottom: 4px; border-bottom: 1px solid var(--border);">
+  <h2 style="font-size: 1rem; color: var(--text-muted); font-weight: 600; letter-spacing: .04em; text-transform: uppercase;">Advanced Backend Features</h2>
+  <p style="font-size: 0.85rem; color: var(--text-dim); margin-top: 4px;">Eight guides for production-ready APIs — async patterns, error handling, file uploads, testing, logging, background jobs, caching, and real-time communication.</p>
+</div>
+
+<a href="async-fastapi.html" class="card" data-course-id="async-fastapi" data-path="javascript api-builder" style="border-top: 4px solid #6c5ce7">
+  <div class="progress-bar"></div>
+  <button class="complete-btn" onclick="toggleCourseCompletion('async-fastapi', event)" title="Mark as complete">?</button>
+  <h2 style="color:#6c5ce7">Async Patterns in FastAPI</h2>
+  <p>Master asyncio, concurrent requests with gather(), async database queries, and async endpoints. Build high-performance APIs that handle thousands of concurrent connections without blocking.</p>
+  <span class="badge">10 lessons</span>
+</a>
+<a href="error-handling-fastapi.html" class="card" data-course-id="error-handling-fastapi" data-path="javascript api-builder" style="border-top: 4px solid #f39c12">
+  <div class="progress-bar"></div>
+  <button class="complete-btn" onclick="toggleCourseCompletion('error-handling-fastapi', event)" title="Mark as complete">?</button>
+  <h2 style="color:#f39c12">Error Handling & Resilience</h2>
+  <p>Build reliable APIs with custom exceptions, structured error responses, retry strategies, circuit breakers, and graceful degradation. Learn logging, timeouts, and testing error scenarios.</p>
+  <span class="badge">10 lessons</span>
+</a>
+<a href="file-uploads.html" class="card" data-course-id="file-uploads" data-path="javascript api-builder" style="border-top: 4px solid #00bcd4">
+  <div class="progress-bar"></div>
+  <button class="complete-btn" onclick="toggleCourseCompletion('file-uploads', event)" title="Mark as complete">?</button>
+  <h2 style="color:#00bcd4">File Uploads</h2>
+  <p>Accept files from browsers and API clients — single and multiple uploads, saving to disk with UUID filenames, type and size validation, serving files back, and uploading to S3-compatible cloud storage.</p>
+  <span class="badge">8 steps</span>
+</a>
+<a href="testing-fastapi.html" class="card" data-course-id="testing-fastapi" data-path="javascript api-builder" style="border-top: 4px solid #7cb342">
+  <div class="progress-bar"></div>
+  <button class="complete-btn" onclick="toggleCourseCompletion('testing-fastapi', event)" title="Mark as complete">?</button>
+  <h2 style="color:#7cb342">Testing FastAPI</h2>
+  <p>Write tests that actually catch bugs — GET and POST route tests with TestClient, auth header testing, fixtures and conftest.py, mocking dependencies to avoid real databases and email, and coverage reports.</p>
+  <span class="badge">9 steps</span>
+</a>
+<a href="logging-fastapi.html" class="card" data-course-id="logging-fastapi" data-path="javascript api-builder" style="border-top: 4px solid #ff6f00">
+  <div class="progress-bar"></div>
+  <button class="complete-btn" onclick="toggleCourseCompletion('logging-fastapi', event)" title="Mark as complete">?</button>
+  <h2 style="color:#ff6f00">Logging</h2>
+  <p>Print statements are not logs. Covers Python's built-in logging module, log levels, structured JSON logs, request ID middleware, writing to a file, and reading logs in production.</p>
+  <span class="badge">9 steps</span>
+</a>
+<a href="background-tasks.html" class="card" data-course-id="background-tasks" data-path="javascript api-builder" style="border-top: 4px solid #ff5722">
+  <div class="progress-bar"></div>
+  <button class="complete-btn" onclick="toggleCourseCompletion('background-tasks', event)" title="Mark as complete">?</button>
+  <h2 style="color:#ff5722">Background Tasks</h2>
+  <p>Run slow work after sending the response — from FastAPI's built-in BackgroundTasks for quick fire-and-forget jobs to Celery + Redis for production queues with retries, scheduling, and a monitoring dashboard.</p>
+  <span class="badge">10 steps</span>
+</a>
+<a href="caching-fastapi.html" class="card" data-course-id="caching-fastapi" data-path="javascript api-builder" style="border-top: 4px solid #dc382d">
+  <div class="progress-bar"></div>
+  <button class="complete-btn" onclick="toggleCourseCompletion('caching-fastapi', event)" title="Mark as complete">?</button>
+  <h2 style="color:#dc382d">Caching with Redis</h2>
+  <p>Stop running the same database query a thousand times. Covers in-memory TTL caching, Redis setup, caching database results, expiry times, cache invalidation, and a reusable cache decorator.</p>
+  <span class="badge">9 steps</span>
+</a>
+<a href="websockets.html" class="card" data-course-id="websockets" data-path="javascript api-builder" style="border-top: 4px solid #7c4dff">
+  <div class="progress-bar"></div>
+  <button class="complete-btn" onclick="toggleCourseCompletion('websockets', event)" title="Mark as complete">?</button>
+  <h2 style="color:#7c4dff">WebSockets</h2>
+  <p>Build real-time features without polling — live chat, dashboards, and notifications using FastAPI's native WebSocket support. Covers connection management, broadcasting, rooms, disconnect handling, and a working HTML frontend.</p>
+  <span class="badge">8 steps</span>
+</a>
+
+<div style="grid-column: 1 / -1; margin-top: 16px; padding-bottom: 4px; border-bottom: 1px solid var(--border);">
+  <h2 style="font-size: 1rem; color: var(--text-muted); font-weight: 600; letter-spacing: .04em; text-transform: uppercase;">Real-World Integration</h2>
+  <p style="font-size: 0.85rem; color: var(--text-dim); margin-top: 4px;">Four guides on integrating external services, securing APIs, and adding multi-tenant capabilities.</p>
+</div>
+
+<a href="api-security-fastapi.html" class="card" data-course-id="api-security-fastapi" data-path="api-builder" style="border-top: 4px solid #e74c3c">
+  <div class="progress-bar"></div>
+  <button class="complete-btn" onclick="toggleCourseCompletion('api-security-fastapi', event)" title="Mark as complete">?</button>
+  <h2 style="color:#e74c3c">API Security Best Practices</h2>
+  <p>Protect your API from attacks — CORS and CSRF prevention, SQL injection protection, rate limiting, input validation, API key security, security headers, and a pre-deployment checklist.</p>
+  <span class="badge">10 lessons</span>
+</a>
+<a href="public-api-fastapi.html" class="card" data-course-id="public-api-fastapi" data-path="api-builder" style="border-top: 4px solid #2196f3">
+  <div class="progress-bar"></div>
+  <button class="complete-btn" onclick="toggleCourseCompletion('public-api-fastapi', event)" title="Mark as complete">?</button>
+  <h2 style="color:#2196f3">Public API Integration</h2>
+  <p>Call any external API with httpx — three real examples: PokéAPI (no auth), OpenWeatherMap (API key), and NewsAPI (key + query params). Covers error handling, in-memory caching, and a mini no-JS dashboard.</p>
+  <span class="badge">10 steps</span>
+</a>
+<a href="crm-fastapi.html" class="card" data-course-id="crm-fastapi" data-path="api-builder" style="border-top: 4px solid #9c27b0">
+  <div class="progress-bar"></div>
+  <button class="complete-btn" onclick="toggleCourseCompletion('crm-fastapi', event)" title="Mark as complete">?</button>
+  <h2 style="color:#9c27b0">CRM Integration</h2>
+  <p>Learn the universal patterns behind CRM APIs using HubSpot as the example — API key vs OAuth2, reading and writing contacts, deduplication, webhook handling, and Unified.to for multi-CRM support.</p>
+  <span class="badge">12 steps</span>
+</a>
+<a href="auth-roles.html" class="card" data-course-id="auth-roles" data-path="api-builder" style="border-top: 4px solid #f44336">
+  <div class="progress-bar"></div>
+  <button class="complete-btn" onclick="toggleCourseCompletion('auth-roles', event)" title="Mark as complete">?</button>
+  <h2 style="color:#f44336">Role-Based Access</h2>
+  <p>Add admin and user roles to your User model, build a reusable <code>require_role()</code> dependency factory, and combine role checks with resource ownership for fine-grained control.</p>
+  <span class="badge">8 steps</span>
+</a>
+
+<div style="grid-column: 1 / -1; margin-top: 16px; padding-bottom: 4px; border-bottom: 1px solid var(--border);">
+  <h2 style="font-size: 1rem; color: var(--text-muted); font-weight: 600; letter-spacing: .04em; text-transform: uppercase;">Server-Side UI Alternatives</h2>
+  <p style="font-size: 0.85rem; color: var(--text-dim); margin-top: 4px;">Build dynamic UIs without JavaScript, or use Django for full-stack development.</p>
+</div>
+
+<a href="htmx-fastapi.html" class="card" data-course-id="htmx-fastapi" data-path="api-builder" style="border-top: 4px solid #e44d26">
+  <div class="progress-bar"></div>
+  <button class="complete-btn" onclick="toggleCourseCompletion('htmx-fastapi', event)" title="Mark as complete">?</button>
+  <h2 style="color:#e44d26">HTMX + FastAPI</h2>
+  <p>Build dynamic, interactive UIs without writing JavaScript — hx-get, hx-post, hx-target, hx-trigger, live search, forms without page reload, loading indicators, and real-time updates with HTMX WebSocket extension.</p>
+  <span class="badge">10 steps</span>
+</a>
+<a href="drf.html" class="card" data-course-id="drf" data-path="django" style="border-top: 4px solid #00897b">
+  <div class="progress-bar"></div>
+  <button class="complete-btn" onclick="toggleCourseCompletion('drf', event)" title="Mark as complete">?</button>
+  <h2 style="color:#00897b">Django REST Framework</h2>
+  <p>Build a JSON API with Django — serializers, APIView, ViewSets with auto-generated routes, token authentication, object-level permissions, the browsable API, and connecting a JavaScript frontend with CORS.</p>
+  <span class="badge">9 steps</span>
+</a>
+
+<div style="grid-column: 1 / -1; margin-top: 16px; padding-bottom: 4px; border-bottom: 1px solid var(--border);">
+  <h2 style="font-size: 1rem; color: var(--text-muted); font-weight: 600; letter-spacing: .04em; text-transform: uppercase;">DevOps & Deployment</h2>
+  <p style="font-size: 0.85rem; color: var(--text-dim); margin-top: 4px;">Seven guides taking a FastAPI app from a local server to production — version control, containerization, VPS setup, reverse proxy, HTTPS, process management, and CI/CD.</p>
+</div>
+
+<a href="docker-fastapi.html" class="card" data-course-id="docker-fastapi" data-path="javascript api-builder django" style="border-top: 4px solid #2496ed">
+  <div class="progress-bar"></div>
+  <button class="complete-btn" onclick="toggleCourseCompletion('docker-fastapi', event)" title="Mark as complete">?</button>
+  <h2 style="color:#2496ed">Docker</h2>
+  <p>Package your FastAPI app into a container that runs identically everywhere. Covers Dockerfile, .dockerignore, build and run commands, environment variables, docker compose with PostgreSQL, and deploying to Docker Hub.</p>
+  <span class="badge">9 steps</span>
+</a>
+<a href="git-workflow.html" class="card" data-course-id="git-workflow" data-path="javascript api-builder django" style="border-top: 4px solid #f05032">
+  <div class="progress-bar"></div>
+  <button class="complete-btn" onclick="toggleCourseCompletion('git-workflow', event)" title="Mark as complete">?</button>
+  <h2 style="color:#f05032">Git Workflow</h2>
+  <p>Version control from the ground up. Covers init, staging, commits, branching, merging, resolving conflicts, GitHub push/pull, and a clean feature-branch workflow used in real teams.</p>
+  <span class="badge">9 steps</span>
+</a>
+<a href="deploy-vps.html" class="card" data-course-id="deploy-vps" data-path="javascript api-builder django" style="border-top: 4px solid #607d8b">
+  <div class="progress-bar"></div>
+  <button class="complete-btn" onclick="toggleCourseCompletion('deploy-vps', event)" title="Mark as complete">?</button>
+  <h2 style="color:#607d8b">VPS Setup + SSH</h2>
+  <p>Rent a Linux server, log in with SSH, create a non-root user, configure the firewall, install Python, upload your app, and run uvicorn for the first time on a real server.</p>
+  <span class="badge">9 steps</span>
+</a>
+<a href="deploy-nginx.html" class="card" data-course-id="deploy-nginx" data-path="javascript api-builder django" style="border-top: 4px solid #607d8b">
+  <div class="progress-bar"></div>
+  <button class="complete-btn" onclick="toggleCourseCompletion('deploy-nginx', event)" title="Mark as complete">?</button>
+  <h2 style="color:#607d8b">Nginx Reverse Proxy</h2>
+  <p>Put Nginx in front of uvicorn so your app runs on port 80 instead of :8000. Covers site config, proxy_pass, static file serving, enabling the site, and fixing 502/403 errors.</p>
+  <span class="badge">7 steps</span>
+</a>
+<a href="deploy-ssl.html" class="card" data-course-id="deploy-ssl" data-path="javascript api-builder django" style="border-top: 4px solid #607d8b">
+  <div class="progress-bar"></div>
+  <button class="complete-btn" onclick="toggleCourseCompletion('deploy-ssl', event)" title="Mark as complete">?</button>
+  <h2 style="color:#607d8b">HTTPS with Certbot</h2>
+  <p>Get a free TLS certificate from Let's Encrypt, have Certbot automatically configure Nginx for HTTPS, and set up auto-renewal so the cert never expires.</p>
+  <span class="badge">6 steps</span>
+</a>
+<a href="deploy-systemd.html" class="card" data-course-id="deploy-systemd" data-path="javascript api-builder django" style="border-top: 4px solid #607d8b">
+  <div class="progress-bar"></div>
+  <button class="complete-btn" onclick="toggleCourseCompletion('deploy-systemd', event)" title="Mark as complete">?</button>
+  <h2 style="color:#607d8b">systemd + Env Vars</h2>
+  <p>Keep uvicorn alive as a permanent background service that auto-starts on boot and restarts on crash. Manage production secrets securely with a permission-restricted env file.</p>
+  <span class="badge">7 steps</span>
+</a>
+<a href="deploy-cicd.html" class="card" data-course-id="deploy-cicd" data-path="javascript api-builder django" style="border-top: 4px solid #607d8b">
+  <div class="progress-bar"></div>
+  <button class="complete-btn" onclick="toggleCourseCompletion('deploy-cicd', event)" title="Mark as complete">?</button>
+  <h2 style="color:#607d8b">GitHub Actions CI/CD</h2>
+  <p>Push to GitHub → tests run → if green → deploy to your server automatically. Covers the deploy SSH key, GitHub Secrets, the workflow YAML file, and running migrations in CI.</p>
+  <span class="badge">8 steps</span>
+</a>
+
+<!-- JS Fundatmentals -->
+
+<div style="grid-column: 1 / -1; margin-top: 16px; padding-bottom: 4px; border-bottom: 1px solid var(--border);">
+  <h2 style="font-size: 1rem; color: var(--text-muted); font-weight: 600; letter-spacing: .04em; text-transform: uppercase;">JavaScript & FastAPI Integration</h2>
+  <p style="font-size: 0.85rem; color: var(--text-dim); margin-top: 4px;">Three guides teaching JavaScript from zero knowledge through API patterns to a capstone project. <strong>Requires completing the FastAPI Learning Series first.</strong></p>
+</div>
+
+<a href="javascript-fastapi-foundations.html" class="card" data-course-id="javascript-fastapi-foundations" data-path="javascript" style="border-top: 4px solid #ffd700">
+  <div class="progress-bar"></div>
+  <button class="complete-btn" onclick="toggleCourseCompletion('javascript-fastapi-foundations', event)" title="Mark as complete">?</button>
+  <h2 style="color:#ffd700">JavaScript Foundations</h2>
+  <p>Learn JavaScript fundamentals including variables, functions, event handling, async/await, and fetch() API. Understand HTTP requests, JSON, status codes, and how to connect a form to a FastAPI backend.</p>
+  <span class="badge">10 lessons</span>
+</a>
+
+<a href="javascript-api-patterns.html" class="card" data-course-id="javascript-api-patterns" data-path="javascript" style="border-top: 4px solid #ff6b6b">
+  <div class="progress-bar"></div>
+  <button class="complete-btn" onclick="toggleCourseCompletion('javascript-api-patterns', event)" title="Mark as complete">?</button>
+  <h2 style="color:#ff6b6b">API Interaction Patterns</h2>
+  <p>Master real-world API patterns — request bodies, query parameters, validation errors, JWT login, Authorization headers, file uploads, pagination, polling, and WebSocket connections for real-time updates.</p>
+  <span class="badge">12 lessons</span>
+</a>
+
+<a href="javascript-admin-panel.html" class="card" data-course-id="javascript-admin-panel" data-path="javascript" style="border-top: 4px solid #4ecdc4">
+  <div class="progress-bar"></div>
+  <button class="complete-btn" onclick="toggleCourseCompletion('javascript-admin-panel', event)" title="Mark as complete">?</button>
+  <h2 style="color:#4ecdc4">Admin Panel Project</h2>
+  <p>Build a product catalog admin panel with JWT authentication, search, create/update/delete products, file uploads for thumbnails, and polling for real-time updates. Complete FastAPI backend and vanilla JavaScript frontend.</p>
+  <span class="badge">10 parts</span>
+</a>
+
+<div style="grid-column: 1 / -1; margin-top: 16px; padding-bottom: 4px; border-bottom: 1px solid var(--border);">
+  <h2 style="font-size: 1rem; color: var(--text-muted); font-weight: 600; letter-spacing: .04em; text-transform: uppercase;">End-to-End Projects</h2>
+  <p style="font-size: 0.85rem; color: var(--text-dim); margin-top: 4px;">Five projects that apply everything in the curriculum, ordered by complexity — from e-commerce to async-heavy dashboards to multi-tenant SaaS and AI-powered systems.</p>
+</div>
+
+<a href="ecommerce-catalog.html" class="card" data-course-id="ecommerce-catalog" data-path="javascript api-builder" style="border-top: 4px solid #388e3c">
+  <div class="progress-bar"></div>
+  <button class="complete-btn" onclick="toggleCourseCompletion('ecommerce-catalog', event)" title="Mark as complete">?</button>
+  <h2 style="color:#388e3c">E-commerce Product Catalog</h2>
+  <p>Build a real product catalog with categories, inventory tracking, query filtering, and paginated listings. Uses FastAPI, SQLAlchemy, SQLite, and Jinja2 templates — no JavaScript frontend required.</p>
+  <span class="badge">12 steps</span>
+</a>
+<a href="lead-enrichment.html" class="card" data-course-id="lead-enrichment" data-path="javascript api-builder" style="border-top: 4px solid #0277BD">
+  <div class="progress-bar"></div>
+  <button class="complete-btn" onclick="toggleCourseCompletion('lead-enrichment', event)" title="Mark as complete">?</button>
+  <h2 style="color:#0277BD">B2B Lead Enrichment API</h2>
+  <p>Receive a webhook, immediately return 202 Accepted, then enrich the lead with external APIs and structured LLM output in the background. Covers BackgroundTasks, httpx, tenacity retries, API key middleware, and pytest mocking.</p>
+  <span class="badge">10 steps</span>
+</a>
+<a href="portfolio-tracker.html" class="card" data-course-id="portfolio-tracker" data-path="javascript api-builder" style="border-top: 4px solid #00695c">
+  <div class="progress-bar"></div>
+  <button class="complete-btn" onclick="toggleCourseCompletion('portfolio-tracker', event)" title="Mark as complete">?</button>
+  <h2 style="color:#00695c">Financial Portfolio Tracker</h2>
+  <p>Fetch live stock prices from Alpha Vantage and crypto prices from CoinGecko concurrently with asyncio.gather, calculate net worth and P&amp;L, and render a Jinja2 dashboard with a JSON price-refresh button.</p>
+  <span class="badge">11 steps</span>
+</a>
+<a href="saas-backend.html" class="card" data-course-id="saas-backend" data-path="api-builder" style="border-top: 4px solid #3949ab">
+  <div class="progress-bar"></div>
+  <button class="complete-btn" onclick="toggleCourseCompletion('saas-backend', event)" title="Mark as complete">?</button>
+  <h2 style="color:#3949ab">B2B SaaS Backend</h2>
+  <p>Build the backend of a multi-tenant SaaS product. Covers organization management, role-based access control with a dependency factory, subscription plans, feature gating, a Jinja2 dashboard, and an audit log.</p>
+  <span class="badge">12 steps</span>
+</a>
+<a href="rag-knowledge-base.html" class="card" data-course-id="rag-knowledge-base" data-path="api-builder" style="border-top: 4px solid #5E35B1">
+  <div class="progress-bar"></div>
+  <button class="complete-btn" onclick="toggleCourseCompletion('rag-knowledge-base', event)" title="Mark as complete">?</button>
+  <h2 style="color:#5E35B1">Company Knowledge Base RAG API</h2>
+  <p>Upload internal documents and chat with them intelligently. Covers the full RAG pipeline: text chunking, OpenAI embeddings, pgvector cosine similarity search, LLM context injection, and StreamingResponse token-by-token output.</p>
+  <span class="badge">10 steps</span>
+</a>
+<a href="task-ai-fastapi.html" class="card" data-path="javascript api-builder" data-course-id="task-ai-fastapi" style="border-top: 4px solid #009688">
+  <div class="progress-bar"></div>
+  <button class="complete-btn" onclick="toggleCourseCompletion('task-ai-fastapi', event)" title="Mark as complete">☐</button>
+  <h2 style="color:#009688">Task App + AI Chat</h2>
+  <p>Extend CRUD into a real app — persist notes to a JSON file so data survives restarts, build a two-column UI with a task list and AI chat panel, and wire up OpenAI or Claude with no JavaScript.</p>
+  <span class="badge">14 steps</span>
+</a>
+
+
+<!-- Templates -->
+
+<details class="accordion">
+  <summary style="cursor: pointer; font-size: 18px; font-weight: bold;">
+    General Templates
+  </summary>
+
+  <div style="margin-top: 15px; display: grid; gap: 12px;">
+
 <a href="fastapi.html" class="card" style="border-top: 4px solid #009688">
   <h2 style="color:#009688">FastAPI</h2>
   <p>Build a REST API with JWT authentication, SQLite database, and interactive HTML pages that talk to your API.</p>
@@ -218,152 +581,11 @@ code { font-family: "Fira Code", "Cascadia Code", "Consolas", monospace; font-si
   <span class="badge">8 steps</span>
 </a>
 
-<div style="grid-column: 1 / -1; margin-top: 16px; padding-bottom: 4px; border-bottom: 1px solid var(--border);">
-  <h2 style="font-size: 1rem; color: var(--text-muted); font-weight: 600; letter-spacing: .04em; text-transform: uppercase;">FastAPI Learning Series</h2>
-  <p style="font-size: 0.85rem; color: var(--text-dim); margin-top: 4px;">Five connected guides — start with CRUD, add a UI and AI chat, call external APIs, integrate a CRM, and wire up a real database.</p>
 </div>
+</details>
 
-<a href="crud-fastapi.html" class="card" style="border-top: 4px solid #009688">
-  <h2 style="color:#009688">CRUD + HTML Frontend</h2>
-  <p>Learn Create, Read, Update, Delete with FastAPI — in-memory storage, REST naming conventions, type hints, routers, CORS, environment variables, and a working no-JavaScript HTML frontend with Jinja2.</p>
-  <span class="badge">16 steps</span>
-</a>
-<a href="task-ai-fastapi.html" class="card" style="border-top: 4px solid #009688">
-  <h2 style="color:#009688">Task App + AI Chat</h2>
-  <p>Extend CRUD into a real app — persist notes to a JSON file so data survives restarts, build a two-column UI with a task list and AI chat panel, and wire up OpenAI or Claude with no JavaScript.</p>
-  <span class="badge">14 steps</span>
-</a>
-<a href="crm-fastapi.html" class="card" style="border-top: 4px solid #9c27b0">
-  <h2 style="color:#9c27b0">CRM Integration</h2>
-  <p>Learn the universal patterns behind CRM APIs using HubSpot as the example — API key vs OAuth2, reading and writing contacts, deduplication, webhook handling, and Unified.to for multi-CRM support.</p>
-  <span class="badge">12 steps</span>
-</a>
-<a href="public-api-fastapi.html" class="card" style="border-top: 4px solid #2196f3">
-  <h2 style="color:#2196f3">Public API Integration</h2>
-  <p>Call any external API with httpx — three real examples: PokéAPI (no auth), OpenWeatherMap (API key), and NewsAPI (key + query params). Covers error handling, in-memory caching, and a mini no-JS dashboard.</p>
-  <span class="badge">10 steps</span>
-</a>
-<a href="database-fastapi.html" class="card" style="border-top: 4px solid #ff9800">
-  <h2 style="color:#ff9800">SQLite + PostgreSQL</h2>
-  <p>Move beyond dicts and JSON files — define two related tables with SQLAlchemy ORM, wire a foreign key, filter and join queries, enforce a status flow, and swap SQLite for PostgreSQL with one line.</p>
-  <span class="badge">13 steps</span>
-</a>
 
-<div style="grid-column: 1 / -1; margin-top: 16px; padding-bottom: 4px; border-bottom: 1px solid var(--border);">
-  <h2 style="font-size: 1rem; color: var(--text-muted); font-weight: 600; letter-spacing: .04em; text-transform: uppercase;">Auth + Security</h2>
-  <p style="font-size: 0.85rem; color: var(--text-dim); margin-top: 4px;">Five guides covering the full authentication stack — from hashing passwords to JWT tokens, refresh rotation, email verification, and role-based access control.</p>
-</div>
 
-<a href="auth-passwords.html" class="card" style="border-top: 4px solid #f44336">
-  <h2 style="color:#f44336">Hashing Passwords</h2>
-  <p>Why plaintext passwords are catastrophic, what bcrypt does to protect them, and how to build a register + login flow that does it correctly with passlib.</p>
-  <span class="badge">8 steps</span>
-</a>
-<a href="auth-jwt.html" class="card" style="border-top: 4px solid #f44336">
-  <h2 style="color:#f44336">JWT Access Tokens</h2>
-  <p>Create and decode signed tokens with python-jose, protect routes with <code>Depends(get_current_user)</code>, and test the full auth flow using FastAPI's built-in /docs Authorize button.</p>
-  <span class="badge">9 steps</span>
-</a>
-<a href="auth-refresh.html" class="card" style="border-top: 4px solid #f44336">
-  <h2 style="color:#f44336">Refresh Token Rotation</h2>
-  <p>Short-lived access tokens + long-lived refresh tokens — the two-token pattern that keeps users logged in without security compromises. Covers rotation, revocation, and theft detection.</p>
-  <span class="badge">8 steps</span>
-</a>
-<a href="auth-email.html" class="card" style="border-top: 4px solid #f44336">
-  <h2 style="color:#f44336">Email Verification</h2>
-  <p>Require users to confirm their email before logging in. Covers token generation, sending via Resend or smtplib, the verify endpoint, blocking unverified logins, and resend.</p>
-  <span class="badge">8 steps</span>
-</a>
-<a href="auth-roles.html" class="card" style="border-top: 4px solid #f44336">
-  <h2 style="color:#f44336">Role-Based Access</h2>
-  <p>Add admin and user roles to your User model, build a reusable <code>require_role()</code> dependency factory, and combine role checks with resource ownership for fine-grained control.</p>
-  <span class="badge">8 steps</span>
-</a>
-
-<div style="grid-column: 1 / -1; margin-top: 16px; padding-bottom: 4px; border-bottom: 1px solid var(--border);">
-  <h2 style="font-size: 1rem; color: var(--text-muted); font-weight: 600; letter-spacing: .04em; text-transform: uppercase;">Real-World Patterns</h2>
-  <p style="font-size: 0.85rem; color: var(--text-dim); margin-top: 4px;">Six guides covering the things every real app needs — dynamic UIs without JavaScript, background jobs, live communication, file handling, automated tests, and building a JSON API with Django REST Framework.</p>
-</div>
-
-<a href="htmx-fastapi.html" class="card" style="border-top: 4px solid #e44d26">
-  <h2 style="color:#e44d26">HTMX + FastAPI</h2>
-  <p>Build dynamic, interactive UIs without writing JavaScript — hx-get, hx-post, hx-target, hx-trigger, live search, forms without page reload, loading indicators, and real-time updates with HTMX WebSocket extension.</p>
-  <span class="badge">10 steps</span>
-</a>
-
-<a href="background-tasks.html" class="card" style="border-top: 4px solid #ff5722">
-  <h2 style="color:#ff5722">Background Tasks</h2>
-  <p>Run slow work after sending the response — from FastAPI's built-in BackgroundTasks for quick fire-and-forget jobs to Celery + Redis for production queues with retries, scheduling, and a monitoring dashboard.</p>
-  <span class="badge">10 steps</span>
-</a>
-<a href="websockets.html" class="card" style="border-top: 4px solid #7c4dff">
-  <h2 style="color:#7c4dff">WebSockets</h2>
-  <p>Build real-time features without polling — live chat, dashboards, and notifications using FastAPI's native WebSocket support. Covers connection management, broadcasting, rooms, disconnect handling, and a working HTML frontend.</p>
-  <span class="badge">8 steps</span>
-</a>
-<a href="file-uploads.html" class="card" style="border-top: 4px solid #00bcd4">
-  <h2 style="color:#00bcd4">File Uploads</h2>
-  <p>Accept files from browsers and API clients — single and multiple uploads, saving to disk with UUID filenames, type and size validation, serving files back, and uploading to S3-compatible cloud storage.</p>
-  <span class="badge">8 steps</span>
-</a>
-<a href="testing-fastapi.html" class="card" style="border-top: 4px solid #7cb342">
-  <h2 style="color:#7cb342">Testing FastAPI</h2>
-  <p>Write tests that actually catch bugs — GET and POST route tests with TestClient, auth header testing, fixtures and conftest.py, mocking dependencies to avoid real databases and email, and coverage reports.</p>
-  <span class="badge">9 steps</span>
-</a>
-<a href="drf.html" class="card" style="border-top: 4px solid #00897b">
-  <h2 style="color:#00897b">Django REST Framework</h2>
-  <p>Build a JSON API with Django — serializers, APIView, ViewSets with auto-generated routes, token authentication, object-level permissions, the browsable API, and connecting a JavaScript frontend with CORS.</p>
-  <span class="badge">9 steps</span>
-</a>
-
-<div style="grid-column: 1 / -1; margin-top: 16px; padding-bottom: 4px; border-bottom: 1px solid var(--border);">
-  <h2 style="font-size: 1rem; color: var(--text-muted); font-weight: 600; letter-spacing: .04em; text-transform: uppercase;">Deployment + DevOps</h2>
-  <p style="font-size: 0.85rem; color: var(--text-dim); margin-top: 4px;">Five guides taking a FastAPI app from a local server to a production VPS with HTTPS, systemd process management, and automated CI/CD deploys on push to GitHub.</p>
-</div>
-
-<a href="deploy-vps.html" class="card" style="border-top: 4px solid #607d8b">
-  <h2 style="color:#607d8b">VPS Setup + SSH</h2>
-  <p>Rent a Linux server, log in with SSH, create a non-root user, configure the firewall, install Python, upload your app, and run uvicorn for the first time on a real server.</p>
-  <span class="badge">9 steps</span>
-</a>
-<a href="deploy-nginx.html" class="card" style="border-top: 4px solid #607d8b">
-  <h2 style="color:#607d8b">Nginx Reverse Proxy</h2>
-  <p>Put Nginx in front of uvicorn so your app runs on port 80 instead of :8000. Covers site config, proxy_pass, static file serving, enabling the site, and fixing 502/403 errors.</p>
-  <span class="badge">7 steps</span>
-</a>
-<a href="deploy-ssl.html" class="card" style="border-top: 4px solid #607d8b">
-  <h2 style="color:#607d8b">HTTPS with Certbot</h2>
-  <p>Get a free TLS certificate from Let's Encrypt, have Certbot automatically configure Nginx for HTTPS, and set up auto-renewal so the cert never expires.</p>
-  <span class="badge">6 steps</span>
-</a>
-<a href="deploy-systemd.html" class="card" style="border-top: 4px solid #607d8b">
-  <h2 style="color:#607d8b">systemd + Env Vars</h2>
-  <p>Keep uvicorn alive as a permanent background service that auto-starts on boot and restarts on crash. Manage production secrets securely with a permission-restricted env file.</p>
-  <span class="badge">7 steps</span>
-</a>
-<a href="deploy-cicd.html" class="card" style="border-top: 4px solid #607d8b">
-  <h2 style="color:#607d8b">GitHub Actions CI/CD</h2>
-  <p>Push to GitHub → tests run → if green → deploy to your server automatically. Covers the deploy SSH key, GitHub Secrets, the workflow YAML file, and running migrations in CI.</p>
-  <span class="badge">8 steps</span>
-</a>
-
-<div style="grid-column: 1 / -1; margin-top: 16px; padding-bottom: 4px; border-bottom: 1px solid var(--border);">
-  <h2 style="font-size: 1rem; color: var(--text-muted); font-weight: 600; letter-spacing: .04em; text-transform: uppercase;">Capstone Projects</h2>
-  <p style="font-size: 0.85rem; color: var(--text-dim); margin-top: 4px;">Two enterprise-grade projects that apply everything in the curriculum. Build a fully async B2B lead enrichment pipeline and a document-powered AI knowledge base with streaming responses — both with API key auth, retry logic, and tests.</p>
-</div>
-
-<a href="lead-enrichment.html" class="card" style="border-top: 4px solid #0277BD">
-  <h2 style="color:#0277BD">B2B Lead Enrichment API</h2>
-  <p>Receive a webhook, immediately return 202 Accepted, then enrich the lead with external APIs and structured LLM output in the background. Covers BackgroundTasks, httpx, tenacity retries, API key middleware, and pytest mocking.</p>
-  <span class="badge">10 steps</span>
-</a>
-
-<a href="rag-knowledge-base.html" class="card" style="border-top: 4px solid #5E35B1">
-  <h2 style="color:#5E35B1">Company Knowledge Base RAG API</h2>
-  <p>Upload internal documents and chat with them intelligently. Covers the full RAG pipeline: text chunking, OpenAI embeddings, pgvector cosine similarity search, LLM context injection, and StreamingResponse token-by-token output.</p>
-  <span class="badge">10 steps</span>
-</a>
 
 </div>
 <script>
@@ -433,6 +655,142 @@ document.addEventListener("DOMContentLoaded", function() {
     });
   });
 });
+
+// Path selector filtering
+function filterByPath(pathName) {
+  // Get all cards and dividers
+  var cards = document.querySelectorAll(".card");
+  var pathBtns = document.querySelectorAll(".path-btn");
+
+  // Update active button state
+  pathBtns.forEach(function(btn) {
+    btn.classList.remove("active");
+  });
+  document.querySelector('[data-path="' + pathName + '"]').classList.add("active");
+
+  // Show/hide cards based on path
+  cards.forEach(function(card) {
+    if (pathName === "all") {
+      card.classList.remove("hidden");
+    } else {
+      var cardPaths = card.getAttribute("data-path");
+      if (cardPaths && cardPaths.includes(pathName)) {
+        card.classList.remove("hidden");
+      } else {
+        card.classList.add("hidden");
+      }
+    }
+  });
+
+  // Save preference to localStorage
+  localStorage.setItem("pyoffline-path", pathName);
+
+  // Update progress stats for the selected path
+  updatePathStats(pathName);
+}
+
+// Restore saved path preference on page load and initialize progress
+document.addEventListener("DOMContentLoaded", function() {
+  var savedPath = localStorage.getItem("pyoffline-path") || "all";
+  filterByPath(savedPath);
+  initProgress();
+});
+
+// Course completion tracking
+function toggleCourseCompletion(courseId, event) {
+  event.preventDefault();
+  event.stopPropagation();
+
+  var key = "course_completed_" + courseId;
+  var isCompleted = localStorage.getItem(key) === "true";
+  localStorage.setItem(key, String(!isCompleted));
+
+  renderProgress();
+}
+
+// Check if a course is completed
+function isCourseCompleted(courseId) {
+  return localStorage.getItem("course_completed_" + courseId) === "true";
+}
+
+// Get current active path
+function getCurrentPath() {
+  var activeBtn = document.querySelector(".path-btn.active");
+  return activeBtn ? activeBtn.getAttribute("data-path") : "all";
+}
+
+// Calculate completion percentage for current path
+function getPathCompletionStats(pathName) {
+  var cards = document.querySelectorAll(".card[data-course-id]");
+  var total = 0;
+  var completed = 0;
+
+  cards.forEach(function(card) {
+    var cardPaths = card.getAttribute("data-path");
+    if (!cardPaths) return;
+
+    // Check if card is in this path
+    if (pathName === "all" || cardPaths.includes(pathName)) {
+      total++;
+      var courseId = card.getAttribute("data-course-id");
+      if (isCourseCompleted(courseId)) {
+        completed++;
+      }
+    }
+  });
+
+  return { completed: completed, total: total };
+}
+
+// Render progress on all cards
+function renderProgress() {
+  var cards = document.querySelectorAll(".card[data-course-id]");
+  var currentPath = getCurrentPath();
+
+  cards.forEach(function(card) {
+    var courseId = card.getAttribute("data-course-id");
+    var isCompleted = isCourseCompleted(courseId);
+    var btn = card.querySelector(".complete-btn");
+    var bar = card.querySelector(".progress-bar");
+
+    if (isCompleted) {
+      card.classList.add("completed");
+      if (btn) btn.textContent = "☑";
+      if (bar) bar.style.width = "100%";
+    } else {
+      card.classList.remove("completed");
+      if (btn) btn.textContent = "☐";
+      if (bar) bar.style.width = "0%";
+    }
+  });
+
+  updatePathStats(currentPath);
+}
+
+// Update path stats display
+function updatePathStats(pathName) {
+  var stats = getPathCompletionStats(pathName);
+  var statsEl = document.getElementById("pathStats");
+
+  if (statsEl) {
+    if (stats.total === 0) {
+      statsEl.textContent = "";
+    } else {
+      var percent = Math.round((stats.completed / stats.total) * 100);
+      var label = pathName === "all" ? "Total" : "Path";
+      statsEl.textContent = label + ": " + stats.completed + "/" + stats.total + " courses completed (" + percent + "%)";
+    }
+  }
+}
+
+// Initialize progress on page load
+function initProgress() {
+  renderProgress();
+}
 </script>
 </body>
 </html>
+
+
+
+

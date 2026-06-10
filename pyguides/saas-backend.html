@@ -1,0 +1,1162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>B2B SaaS Backend - pyoffline</title>
+<style>
+:root{--bg:#121212;--surface:#1e1e1e;--surface2:#2a2a2a;--sidebar-bg:#1a1a1a;--text:#e0e0e0;--text-muted:#aaa;--text-dim:#666;--border:#333;--code-bg:#1e1e1e;--code-text:#d4d4d4;--shadow:rgba(0,0,0,.4);--accent:#3949ab;--hl-keyword:#569cd6;--hl-string:#ce9178;--hl-comment:#6a9955;--hl-number:#b5cea8;--hl-decorator:#dcdcaa;--hl-builtin:#4ec9b0;--hl-tag:#4ec9b0;--hl-attr:#9cdcfe;--hl-template:#c586c0}
+html.light{--bg:#f5f7fa;--surface:#ffffff;--surface2:#eef0f3;--sidebar-bg:#ffffff;--text:#1a1a1a;--text-muted:#555;--text-dim:#888;--border:#dde1e7;--code-bg:#f8f8f8;--code-text:#24292e;--shadow:rgba(0,0,0,.1);--hl-keyword:#0000ff;--hl-string:#a31515;--hl-comment:#008000;--hl-number:#098658;--hl-decorator:#795e26;--hl-builtin:#267f99;--hl-tag:#800000;--hl-attr:#e50000;--hl-template:#af00db}
+.hl-keyword{color:var(--hl-keyword)}.hl-string{color:var(--hl-string)}.hl-comment{color:#adb4a7;font-size:12px;font-style:italic}.hl-number{color:var(--hl-number)}.hl-decorator{color:var(--hl-decorator)}.hl-builtin{color:var(--hl-builtin)}.hl-tag{color:var(--hl-tag)}.hl-attr{color:var(--hl-attr)}.hl-template{color:var(--hl-template)}
+*{box-sizing:border-box;margin:0;padding:0}body{background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;transition:background .2s,color .2s}a{color:var(--accent)}.layout{display:flex;min-height:100vh}.sidebar{width:260px;min-width:260px;background:var(--sidebar-bg);border-right:1px solid var(--border);padding:24px 16px;position:sticky;top:0;height:100vh;overflow-y:auto}.sidebar h2{font-size:1.1rem;margin:16px 0 8px;color:var(--text)}.sidebar nav ol{padding-left:18px}.sidebar nav li{margin:6px 0}.sidebar nav a{color:var(--text-muted);text-decoration:none;font-size:0.85rem}.sidebar nav a:hover{color:var(--accent)}.back-link{color:var(--text-dim);text-decoration:none;font-size:0.85rem;display:block;margin-bottom:8px}.install-box{margin-top:24px;background:var(--bg);border:1px solid var(--border);padding:12px;border-radius:6px;font-size:0.8rem}.install-box code{display:block;word-break:break-all;color:var(--hl-comment);font-family:monospace;margin-top:4px}main{flex:1;padding:40px;max-width:860px}.guide-header{padding:20px 20px 20px 24px;background:var(--surface);border-radius:8px;margin-bottom:32px;box-shadow:0 1px 3px var(--shadow)}.guide-header h1{font-size:1.8rem;margin-bottom:8px}.guide-header p{color:var(--text-muted)}.step{display:flex;gap:16px;margin-bottom:40px}.step-number{width:32px;min-width:32px;height:32px;background:var(--accent);border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:bold;font-size:0.9rem;margin-top:4px;color:#fff}.step-content{flex:1;min-width:0}.step-content h3{font-size:1.1rem;margin-bottom:8px;color:var(--text)}.explanation{color:var(--text-muted);font-size:0.9rem;line-height:1.6;margin-bottom:14px}.info-box{background:var(--surface);border-left:3px solid var(--accent);border-radius:0 6px 6px 0;padding:12px 16px;margin-bottom:14px;font-size:0.88rem;color:var(--text-muted);line-height:1.6}.info-box strong{color:var(--text)}.crud-table{width:100%;border-collapse:collapse;margin-bottom:14px;font-size:0.85rem}.crud-table th{background:var(--surface2);color:var(--text-muted);text-align:left;padding:8px 12px;border:1px solid var(--border);font-weight:600}.crud-table td{padding:8px 12px;border:1px solid var(--border);color:var(--text)}.crud-table tr:nth-child(even) td{background:var(--surface)}.tabs{background:var(--surface);border-radius:6px;overflow:hidden;border:1px solid var(--border)}.tab-bar{display:flex;background:var(--surface2);overflow-x:auto;border-bottom:1px solid var(--border)}.tab-btn{padding:8px 16px;background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:0.8rem;white-space:nowrap;border-bottom:2px solid transparent;margin-bottom:-1px}.tab-btn.active{color:var(--text);border-bottom-color:var(--accent)}.tab-panel{display:none}.tab-panel.active{display:block}.code-header{display:flex;justify-content:space-between;align-items:center;padding:5px 12px;background:var(--surface2);border-bottom:1px solid var(--border)}.lang-label{font-size:0.72rem;color:var(--text-dim);text-transform:uppercase;letter-spacing:.04em}.copy-btn{background:none;border:1px solid var(--border);color:var(--text-muted);padding:2px 8px;cursor:pointer;border-radius:3px;font-size:0.72rem}.copy-btn:hover{color:var(--text);border-color:var(--text-muted)}pre{overflow-x:auto;padding:16px;background:var(--code-bg)}code{font-family:"Fira Code","Cascadia Code","Consolas",monospace;font-size:0.82rem;line-height:1.65;color:var(--code-text)}.theme-row{display:flex;align-items:center;gap:8px;margin-top:20px}.theme-label{font-size:0.78rem;color:var(--text-muted)}.toggle-switch{position:relative;display:inline-block;width:40px;height:22px}.toggle-switch input{opacity:0;width:0;height:0}.slider{position:absolute;cursor:pointer;inset:0;background:var(--surface2);border:1px solid var(--border);border-radius:22px;transition:background .2s}.slider:before{content:"";position:absolute;width:16px;height:16px;left:2px;top:2px;background:var(--text-muted);border-radius:50%;transition:transform .2s,background .2s}.toggle-switch input:checked+.slider{background:var(--accent);border-color:var(--accent)}.toggle-switch input:checked+.slider:before{transform:translateX(18px);background:#fff}.sidebar-toggle{display:none;position:fixed;top:12px;left:12px;z-index:300;background:var(--accent);color:#fff;border:none;padding:7px 14px;border-radius:6px;cursor:pointer;font-size:0.85rem;font-weight:600;box-shadow:0 2px 8px var(--shadow);align-items:center;gap:6px}.sidebar-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:190}.sidebar-overlay.open{display:block}@media(max-width:900px){.sidebar-toggle{display:flex}.layout{display:block}.sidebar{position:fixed;left:-280px;top:0;height:100vh;z-index:200;transition:left .25s ease;box-shadow:2px 0 16px var(--shadow);min-width:260px}.sidebar.open{left:0}main{padding:60px 20px 40px;max-width:100%}pre{overflow-x:auto;max-width:100%;white-space:pre-wrap;word-break:break-word}.tabs{max-width:100%}}.sidebar{transition:width .2s ease,min-width .2s ease,padding .2s ease}.sb-pin{display:flex;justify-content:flex-end;margin-bottom:8px}.sb-pin button{background:none;border:1px solid var(--border);color:var(--text-dim);cursor:pointer;border-radius:4px;padding:2px 7px;font-size:11px;line-height:1.6}.sb-pin button:hover{color:var(--accent);border-color:var(--accent)}.sb-reopen{display:none;position:fixed;left:0;top:50%;transform:translateY(-50%);background:var(--accent);color:#fff;border:none;border-radius:0 4px 4px 0;padding:10px 5px;cursor:pointer;z-index:300;font-size:11px;font-weight:600;writing-mode:vertical-rl;letter-spacing:.05em}@media(min-width:901px){body.sb-collapsed .sidebar{width:0;min-width:0;padding:0;overflow:hidden;border-right:none}body.sb-collapsed .sb-reopen{display:block}}@media(max-width:900px){.sb-pin{display:none}.sb-reopen{display:none!important}}
+</style>
+</head>
+<body>
+<button class="sidebar-toggle" id="sidebarToggle" onclick="toggleSidebar()">&#9776; Steps</button>
+<div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+<button class="sb-reopen" onclick="toggleSbDesktop()">Steps</button>
+<div class="layout">
+  <aside class="sidebar" id="guideSidebar">
+    <div class="sb-pin"><button onclick="toggleSbDesktop()">&#9664; Hide</button></div>
+    <a href="index.html" class="back-link">&#8592; All Guides</a>
+    <h2>B2B SaaS Backend</h2>
+    <nav><ol>
+      <li><a href="#step1">What We're Building</a></li>
+      <li><a href="#step2">Database Models</a></li>
+      <li><a href="#step3">Organization Management</a></li>
+      <li><a href="#step4">RBAC Roles</a></li>
+      <li><a href="#step5">Role Enforcement</a></li>
+      <li><a href="#step6">Subscription Plans</a></li>
+      <li><a href="#step7">Feature Gating</a></li>
+      <li><a href="#step8">Jinja Dashboard</a></li>
+      <li><a href="#step9">Member Management UI</a></li>
+      <li><a href="#step10">Billing Page</a></li>
+      <li><a href="#step11">Audit Log</a></li>
+      <li><a href="#step12">What's Next</a></li>
+    </ol></nav>
+    <div class="install-box">
+      <strong>Install</strong>
+      <code>pip install fastapi uvicorn jinja2 sqlalchemy python-jose[cryptography] passlib[bcrypt] python-multipart</code>
+    </div>
+    <div class="theme-row">
+      <span class="theme-label">Dark</span>
+      <label class="toggle-switch"><input type="checkbox" id="themeToggle"><span class="slider"></span></label>
+      <span class="theme-label">Light</span>
+    </div>
+  </aside>
+  <main>
+    <header class="guide-header" style="border-left:5px solid #3949ab">
+      <h1>B2B SaaS Backend</h1>
+      <p>Build the backend of a multi-tenant SaaS product. Covers organization management, role-based access control, subscription plans, feature gating, a Jinja2 dashboard, and an audit log.</p>
+    </header>
+    <div class="steps">
+
+      <!-- STEP 1 -->
+      <div class="step" id="step1">
+        <div class="step-number">1</div>
+        <div class="step-content">
+          <h3>What We're Building</h3>
+          <p class="explanation">A B2B SaaS app serves companies, not individual users. Each company is an "Organization." Users belong to an organization and have a role that controls what they can do. The organization pays for a subscription plan that determines which features are available to everyone in it.</p>
+          <div class="tabs" id="s1">
+            <div class="tab-bar">
+              <button class="tab-btn active" onclick="switchTab('s1',0)">architecture</button>
+              <button class="tab-btn" onclick="switchTab('s1',1)">endpoint overview</button>
+            </div>
+            <div class="tab-panel active">
+              <div class="code-header"><span class="lang-label">text</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code>Organization
+  └── Users (each with a role: owner / admin / member)
+  └── Subscription (plan: starter / pro / enterprise)
+
+Roles control who can do what (RBAC)
+Subscription plan controls which features exist (feature gating)
+
+Request flow:
+  HTTP request
+    → authenticate user (get user from session/token)
+    → check role (require_role dependency)
+    → check plan feature (check_feature dependency)
+    → run route handler
+    → log audit event
+    → return response</code></pre>
+            </div>
+            <div class="tab-panel">
+              <div class="code-header"><span class="lang-label">text</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code>POST   /orgs                                        create a new organization
+GET    /orgs/{org_id}                               get org details
+GET    /orgs/{org_id}/members                       list members
+POST   /orgs/{org_id}/invite                        add a user to the org
+DELETE /orgs/{org_id}/members/{user_id}             remove a member (admin only)
+PATCH  /orgs/{org_id}/members/{user_id}/role        change role (owner only)
+GET    /orgs/{org_id}/dashboard                     Jinja dashboard page
+GET    /orgs/{org_id}/billing                       billing page
+PATCH  /orgs/{org_id}/plan                          change plan (owner only)
+GET    /orgs/{org_id}/audit                         audit log page</code></pre>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- STEP 2 -->
+      <div class="step" id="step2">
+        <div class="step-number">2</div>
+        <div class="step-content">
+          <h3>Database Models</h3>
+          <p class="explanation">Four models work together: Organization stores the company. User belongs to an org and has a role. Subscription tracks the org's current plan. AuditEvent records important actions for the audit log.</p>
+          <div class="tabs" id="s2">
+            <div class="tab-bar">
+              <button class="tab-btn active" onclick="switchTab('s2',0)">models.py</button>
+              <button class="tab-btn" onclick="switchTab('s2',1)">plan limits reference</button>
+            </div>
+            <div class="tab-panel active">
+              <div class="code-header"><span class="lang-label">python</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-keyword">from</span> sqlalchemy <span class="hl-keyword">import</span> Column, Integer, String, Boolean, DateTime, ForeignKey, Text
+<span class="hl-keyword">from</span> sqlalchemy.orm <span class="hl-keyword">import</span> relationship
+<span class="hl-keyword">from</span> sqlalchemy.ext.declarative <span class="hl-keyword">import</span> declarative_base
+<span class="hl-keyword">from</span> datetime <span class="hl-keyword">import</span> datetime
+
+Base = declarative_base()
+
+
+<span class="hl-keyword">class</span> <span class="hl-builtin">Organization</span>(Base):
+    __tablename__ = <span class="hl-string">"organizations"</span>
+
+    id      = Column(Integer, primary_key=<span class="hl-builtin">True</span>)
+    name    = Column(String(<span class="hl-number">200</span>), nullable=<span class="hl-builtin">False</span>)
+    created_at = Column(DateTime, default=datetime.utcnow)
+
+    <span class="hl-comment"># relationships</span>
+    users        = relationship(<span class="hl-string">"User"</span>, back_populates=<span class="hl-string">"org"</span>)
+    subscription = relationship(<span class="hl-string">"Subscription"</span>, back_populates=<span class="hl-string">"org"</span>, uselist=<span class="hl-builtin">False</span>)
+    audit_events = relationship(<span class="hl-string">"AuditEvent"</span>, back_populates=<span class="hl-string">"org"</span>)
+
+
+<span class="hl-keyword">class</span> <span class="hl-builtin">User</span>(Base):
+    __tablename__ = <span class="hl-string">"users"</span>
+
+    id       = Column(Integer, primary_key=<span class="hl-builtin">True</span>)
+    org_id   = Column(Integer, ForeignKey(<span class="hl-string">"organizations.id"</span>), nullable=<span class="hl-builtin">False</span>)
+    email    = Column(String(<span class="hl-number">200</span>), unique=<span class="hl-builtin">True</span>, nullable=<span class="hl-builtin">False</span>)
+    password_hash = Column(String(<span class="hl-number">200</span>), nullable=<span class="hl-builtin">False</span>)
+    <span class="hl-comment"># role → "owner" | "admin" | "member"</span>
+    role     = Column(String(<span class="hl-number">20</span>), nullable=<span class="hl-builtin">False</span>, default=<span class="hl-string">"member"</span>)
+    created_at = Column(DateTime, default=datetime.utcnow)
+
+    org = relationship(<span class="hl-string">"Organization"</span>, back_populates=<span class="hl-string">"users"</span>)
+
+
+<span class="hl-keyword">class</span> <span class="hl-builtin">Subscription</span>(Base):
+    __tablename__ = <span class="hl-string">"subscriptions"</span>
+
+    id        = Column(Integer, primary_key=<span class="hl-builtin">True</span>)
+    org_id    = Column(Integer, ForeignKey(<span class="hl-string">"organizations.id"</span>), nullable=<span class="hl-builtin">False</span>)
+    <span class="hl-comment"># plan → "starter" | "pro" | "enterprise"</span>
+    plan      = Column(String(<span class="hl-number">20</span>), nullable=<span class="hl-builtin">False</span>, default=<span class="hl-string">"starter"</span>)
+    <span class="hl-comment"># status → "active" | "cancelled"</span>
+    status    = Column(String(<span class="hl-number">20</span>), nullable=<span class="hl-builtin">False</span>, default=<span class="hl-string">"active"</span>)
+    <span class="hl-comment"># max_users → 5 for starter, 0 means unlimited (pro/enterprise)</span>
+    max_users = Column(Integer, nullable=<span class="hl-builtin">False</span>, default=<span class="hl-number">5</span>)
+    created_at = Column(DateTime, default=datetime.utcnow)
+
+    org = relationship(<span class="hl-string">"Organization"</span>, back_populates=<span class="hl-string">"subscription"</span>)
+
+
+<span class="hl-keyword">class</span> <span class="hl-builtin">AuditEvent</span>(Base):
+    __tablename__ = <span class="hl-string">"audit_events"</span>
+
+    id         = Column(Integer, primary_key=<span class="hl-builtin">True</span>)
+    org_id     = Column(Integer, ForeignKey(<span class="hl-string">"organizations.id"</span>), nullable=<span class="hl-builtin">False</span>)
+    user_id    = Column(Integer, ForeignKey(<span class="hl-string">"users.id"</span>), nullable=<span class="hl-builtin">True</span>)  <span class="hl-comment"># nullable for system events</span>
+    action     = Column(String(<span class="hl-number">100</span>), nullable=<span class="hl-builtin">False</span>)   <span class="hl-comment"># e.g. "invite_member"</span>
+    detail     = Column(Text, nullable=<span class="hl-builtin">True</span>)            <span class="hl-comment"># human-readable description</span>
+    created_at = Column(DateTime, default=datetime.utcnow)
+
+    org  = relationship(<span class="hl-string">"Organization"</span>, back_populates=<span class="hl-string">"audit_events"</span>)
+    user = relationship(<span class="hl-string">"User"</span>)</code></pre>
+            </div>
+            <div class="tab-panel">
+              <div class="code-header"><span class="lang-label">table</span></div>
+              <table class="crud-table">
+                <thead><tr><th>Plan</th><th>Max Users</th><th>Features</th></tr></thead>
+                <tbody>
+                  <tr><td>starter</td><td>5</td><td>Basic features only</td></tr>
+                  <tr><td>pro</td><td>Unlimited</td><td>Basic features + advanced reports</td></tr>
+                  <tr><td>enterprise</td><td>Unlimited</td><td>Basic features + advanced reports + SSO + audit export</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- STEP 3 -->
+      <div class="step" id="step3">
+        <div class="step-number">3</div>
+        <div class="step-content">
+          <h3>Organization Management</h3>
+          <p class="explanation">Creating an organization also creates the first user with the owner role. Only members of an organization can see its data. The org_id in every route makes sure you are always operating on the right organization.</p>
+          <div class="tabs" id="s3">
+            <div class="tab-bar">
+              <button class="tab-btn active" onclick="switchTab('s3',0)">create org + first user</button>
+              <button class="tab-btn" onclick="switchTab('s3',1)">list members + invite</button>
+            </div>
+            <div class="tab-panel active">
+              <div class="code-header"><span class="lang-label">python</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-keyword">from</span> fastapi <span class="hl-keyword">import</span> FastAPI, Depends, HTTPException
+<span class="hl-keyword">from</span> pydantic <span class="hl-keyword">import</span> BaseModel
+<span class="hl-keyword">from</span> passlib.context <span class="hl-keyword">import</span> CryptContext
+<span class="hl-keyword">from</span> sqlalchemy.orm <span class="hl-keyword">import</span> Session
+
+app = FastAPI()
+pwd_ctx = CryptContext(schemes=[<span class="hl-string">"bcrypt"</span>], deprecated=<span class="hl-string">"auto"</span>)
+
+
+<span class="hl-keyword">class</span> <span class="hl-builtin">CreateOrgRequest</span>(BaseModel):
+    name:           str
+    owner_email:    str
+    owner_password: str
+
+
+<span class="hl-decorator">@app.post</span>(<span class="hl-string">"/orgs"</span>)
+<span class="hl-keyword">def</span> create_org(body: CreateOrgRequest, db: Session = Depends(get_db)):
+    <span class="hl-comment"># 1. create the organization</span>
+    org = Organization(name=body.name)
+    db.add(org)
+    db.flush()  <span class="hl-comment"># get org.id before committing</span>
+
+    <span class="hl-comment"># 2. create the owner user</span>
+    owner = User(
+        org_id        = org.id,
+        email         = body.owner_email,
+        password_hash = pwd_ctx.hash(body.owner_password),
+        role          = <span class="hl-string">"owner"</span>,
+    )
+    db.add(owner)
+
+    <span class="hl-comment"># 3. create a starter subscription for the org</span>
+    sub = Subscription(
+        org_id    = org.id,
+        plan      = <span class="hl-string">"starter"</span>,
+        status    = <span class="hl-string">"active"</span>,
+        max_users = <span class="hl-number">5</span>,   <span class="hl-comment"># starter → 5 seats</span>
+    )
+    db.add(sub)
+    db.commit()
+
+    <span class="hl-keyword">return</span> {<span class="hl-string">"org_id"</span>: org.id, <span class="hl-string">"message"</span>: <span class="hl-string">"Organization created"</span>}</code></pre>
+            </div>
+            <div class="tab-panel">
+              <div class="code-header"><span class="lang-label">python</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-decorator">@app.get</span>(<span class="hl-string">"/orgs/{org_id}/members"</span>)
+<span class="hl-keyword">def</span> list_members(org_id: int, db: Session = Depends(get_db)):
+    members = db.query(User).filter(User.org_id == org_id).all()
+    <span class="hl-keyword">return</span> [
+        {<span class="hl-string">"id"</span>: u.id, <span class="hl-string">"email"</span>: u.email, <span class="hl-string">"role"</span>: u.role}
+        <span class="hl-keyword">for</span> u <span class="hl-keyword">in</span> members
+    ]
+
+
+<span class="hl-keyword">class</span> <span class="hl-builtin">InviteRequest</span>(BaseModel):
+    email:    str
+    password: str
+    role:     str = <span class="hl-string">"member"</span>  <span class="hl-comment"># default new members to "member"</span>
+
+
+<span class="hl-decorator">@app.post</span>(<span class="hl-string">"/orgs/{org_id}/invite"</span>)
+<span class="hl-keyword">def</span> invite_member(
+    org_id: int,
+    body:   InviteRequest,
+    db:     Session = Depends(get_db),
+):
+    sub = db.query(Subscription).filter(Subscription.org_id == org_id).first()
+    <span class="hl-keyword">if not</span> sub:
+        <span class="hl-keyword">raise</span> HTTPException(status_code=<span class="hl-number">404</span>, detail=<span class="hl-string">"Subscription not found"</span>)
+
+    <span class="hl-comment"># check seat limit — max_users == 0 means unlimited</span>
+    <span class="hl-keyword">if</span> sub.max_users &gt; <span class="hl-number">0</span>:
+        current_count = db.query(User).filter(User.org_id == org_id).count()
+        <span class="hl-keyword">if</span> current_count &gt;= sub.max_users:
+            <span class="hl-keyword">raise</span> HTTPException(
+                status_code=<span class="hl-number">403</span>,
+                detail=<span class="hl-string">f"Seat limit reached ({sub.max_users} users on {sub.plan} plan)"</span>,
+            )
+
+    new_user = User(
+        org_id        = org_id,
+        email         = body.email,
+        password_hash = pwd_ctx.hash(body.password),
+        role          = body.role,
+    )
+    db.add(new_user)
+    db.commit()
+    <span class="hl-keyword">return</span> {<span class="hl-string">"user_id"</span>: new_user.id, <span class="hl-string">"message"</span>: <span class="hl-string">"Member invited"</span>}</code></pre>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- STEP 4 -->
+      <div class="step" id="step4">
+        <div class="step-number">4</div>
+        <div class="step-content">
+          <h3>RBAC Roles</h3>
+          <p class="explanation">Role-Based Access Control (RBAC) means every action is only allowed for certain roles. Instead of checking roles inside every route, you write a dependency factory called <code>require_role()</code>. You pass it a list of allowed roles and it returns a FastAPI dependency that checks the current user's role automatically.</p>
+          <div class="tabs" id="s4">
+            <div class="tab-bar">
+              <button class="tab-btn active" onclick="switchTab('s4',0)">require_role dependency</button>
+              <button class="tab-btn" onclick="switchTab('s4',1)">get_current_user stub</button>
+            </div>
+            <div class="tab-panel active">
+              <div class="code-header"><span class="lang-label">python</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-keyword">from</span> fastapi <span class="hl-keyword">import</span> Depends, HTTPException
+
+
+<span class="hl-keyword">def</span> require_role(*allowed_roles: str):
+    <span class="hl-string">"""Returns a dependency that checks the current user's role."""</span>
+    <span class="hl-keyword">def</span> dependency(current_user: User = Depends(get_current_user)):
+        <span class="hl-keyword">if</span> current_user.role <span class="hl-keyword">not in</span> allowed_roles:
+            <span class="hl-keyword">raise</span> HTTPException(
+                status_code=<span class="hl-number">403</span>,
+                detail=<span class="hl-string">f"This action requires one of: {', '.join(allowed_roles)}"</span>,
+            )
+        <span class="hl-keyword">return</span> current_user
+    <span class="hl-keyword">return</span> dependency
+
+
+<span class="hl-comment"># Usage examples:
+# owner only:             Depends(require_role("owner"))
+# owner or admin:         Depends(require_role("owner", "admin"))
+# any member:             Depends(require_role("owner", "admin", "member"))</span></code></pre>
+            </div>
+            <div class="tab-panel">
+              <div class="code-header"><span class="lang-label">python</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-keyword">from</span> fastapi <span class="hl-keyword">import</span> Request, HTTPException
+<span class="hl-keyword">from</span> sqlalchemy.orm <span class="hl-keyword">import</span> Session
+
+<span class="hl-comment"># Simplified version: reads user_id from a session cookie.
+# In production, decode a JWT from the Authorization header instead.
+# See the JWT guide for the full implementation.</span>
+
+<span class="hl-keyword">def</span> get_current_user(request: Request, db: Session = Depends(get_db)) -&gt; User:
+    user_id = request.session.get(<span class="hl-string">"user_id"</span>)
+    <span class="hl-keyword">if not</span> user_id:
+        <span class="hl-keyword">raise</span> HTTPException(status_code=<span class="hl-number">401</span>, detail=<span class="hl-string">"Not authenticated"</span>)
+
+    user = db.query(User).filter(User.id == user_id).first()
+    <span class="hl-keyword">if not</span> user:
+        <span class="hl-keyword">raise</span> HTTPException(status_code=<span class="hl-number">401</span>, detail=<span class="hl-string">"User not found"</span>)
+
+    <span class="hl-keyword">return</span> user
+
+
+<span class="hl-comment"># To enable sessions, add SessionMiddleware to your app:
+# from starlette.middleware.sessions import SessionMiddleware
+# app.add_middleware(SessionMiddleware, secret_key="your-secret-key")</span></code></pre>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- STEP 5 -->
+      <div class="step" id="step5">
+        <div class="step-number">5</div>
+        <div class="step-content">
+          <h3>Role Enforcement Examples</h3>
+          <p class="explanation">You attach <code>require_role()</code> to a route with <code>Depends()</code>, the same way you attach any other dependency. The route only runs if the role check passes. Different routes need different role levels.</p>
+          <div class="tabs" id="s5">
+            <div class="tab-bar">
+              <button class="tab-btn active" onclick="switchTab('s5',0)">protecting routes</button>
+              <button class="tab-btn" onclick="switchTab('s5',1)">role reference</button>
+            </div>
+            <div class="tab-panel active">
+              <div class="code-header"><span class="lang-label">python</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-comment"># Only the org owner can delete the org</span>
+<span class="hl-decorator">@app.delete</span>(<span class="hl-string">"/orgs/{org_id}"</span>)
+<span class="hl-keyword">async def</span> delete_org(
+    org_id: int,
+    db:     Session = Depends(get_db),
+    _:      User    = Depends(require_role(<span class="hl-string">"owner"</span>)),  <span class="hl-comment"># _ = we don't use the return value</span>
+):
+    org = db.query(Organization).filter(Organization.id == org_id).first()
+    <span class="hl-keyword">if not</span> org:
+        <span class="hl-keyword">raise</span> HTTPException(status_code=<span class="hl-number">404</span>, detail=<span class="hl-string">"Org not found"</span>)
+    db.delete(org)
+    db.commit()
+    <span class="hl-keyword">return</span> {<span class="hl-string">"message"</span>: <span class="hl-string">"Organization deleted"</span>}
+
+
+<span class="hl-comment"># Owner or admin can invite members</span>
+<span class="hl-decorator">@app.post</span>(<span class="hl-string">"/orgs/{org_id}/invite"</span>)
+<span class="hl-keyword">async def</span> invite_member(
+    org_id: int,
+    body:   InviteRequest,
+    db:     Session = Depends(get_db),
+    _:      User    = Depends(require_role(<span class="hl-string">"owner"</span>, <span class="hl-string">"admin"</span>)),
+):
+    ...
+
+
+<span class="hl-comment"># Any member can view the dashboard</span>
+<span class="hl-decorator">@app.get</span>(<span class="hl-string">"/orgs/{org_id}/dashboard"</span>)
+<span class="hl-keyword">async def</span> dashboard(
+    org_id:       int,
+    request:      Request,
+    db:           Session = Depends(get_db),
+    current_user: User    = Depends(require_role(<span class="hl-string">"owner"</span>, <span class="hl-string">"admin"</span>, <span class="hl-string">"member"</span>)),
+):
+    ...</code></pre>
+            </div>
+            <div class="tab-panel">
+              <div class="code-header"><span class="lang-label">table</span></div>
+              <table class="crud-table">
+                <thead><tr><th>Action</th><th>Required Role</th></tr></thead>
+                <tbody>
+                  <tr><td>Delete org</td><td>owner</td></tr>
+                  <tr><td>Change plan</td><td>owner</td></tr>
+                  <tr><td>Invite member</td><td>owner, admin</td></tr>
+                  <tr><td>Change member role</td><td>owner</td></tr>
+                  <tr><td>Remove member</td><td>owner, admin</td></tr>
+                  <tr><td>View dashboard</td><td>owner, admin, member</td></tr>
+                  <tr><td>View billing</td><td>owner</td></tr>
+                  <tr><td>View audit log</td><td>owner, admin</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- STEP 6 -->
+      <div class="step" id="step6">
+        <div class="step-number">6</div>
+        <div class="step-content">
+          <h3>Subscription Plans</h3>
+          <p class="explanation">The subscription is stored in the database and linked to the organization. When the org upgrades or downgrades, you update the subscription record. The plan name controls which features are available.</p>
+          <div class="tabs" id="s6">
+            <div class="tab-bar">
+              <button class="tab-btn active" onclick="switchTab('s6',0)">plan features dict</button>
+              <button class="tab-btn" onclick="switchTab('s6',1)">change plan endpoint</button>
+            </div>
+            <div class="tab-panel active">
+              <div class="code-header"><span class="lang-label">python</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-comment"># Single source of truth for what each plan includes.
+# Always read from this dict — never hardcode limits in routes.</span>
+
+PLAN_FEATURES = {
+    <span class="hl-string">"starter"</span>: {
+        <span class="hl-string">"max_users"</span>:        <span class="hl-number">5</span>,
+        <span class="hl-string">"advanced_reports"</span>: <span class="hl-builtin">False</span>,
+        <span class="hl-string">"audit_export"</span>:    <span class="hl-builtin">False</span>,
+        <span class="hl-string">"sso"</span>:             <span class="hl-builtin">False</span>,
+    },
+    <span class="hl-string">"pro"</span>: {
+        <span class="hl-string">"max_users"</span>:        <span class="hl-number">0</span>,    <span class="hl-comment"># 0 = unlimited</span>
+        <span class="hl-string">"advanced_reports"</span>: <span class="hl-builtin">True</span>,
+        <span class="hl-string">"audit_export"</span>:    <span class="hl-builtin">False</span>,
+        <span class="hl-string">"sso"</span>:             <span class="hl-builtin">False</span>,
+    },
+    <span class="hl-string">"enterprise"</span>: {
+        <span class="hl-string">"max_users"</span>:        <span class="hl-number">0</span>,
+        <span class="hl-string">"advanced_reports"</span>: <span class="hl-builtin">True</span>,
+        <span class="hl-string">"audit_export"</span>:    <span class="hl-builtin">True</span>,
+        <span class="hl-string">"sso"</span>:             <span class="hl-builtin">True</span>,
+    },
+}
+
+VALID_PLANS = <span class="hl-builtin">list</span>(PLAN_FEATURES.keys())  <span class="hl-comment"># ["starter", "pro", "enterprise"]</span></code></pre>
+            </div>
+            <div class="tab-panel">
+              <div class="code-header"><span class="lang-label">python</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-keyword">class</span> <span class="hl-builtin">ChangePlanRequest</span>(BaseModel):
+    new_plan: str
+
+
+<span class="hl-decorator">@app.patch</span>(<span class="hl-string">"/orgs/{org_id}/plan"</span>)
+<span class="hl-keyword">def</span> change_plan(
+    org_id:       int,
+    body:         ChangePlanRequest,
+    db:           Session = Depends(get_db),
+    current_user: User    = Depends(require_role(<span class="hl-string">"owner"</span>)),
+):
+    <span class="hl-comment"># validate the requested plan name</span>
+    <span class="hl-keyword">if</span> body.new_plan <span class="hl-keyword">not in</span> VALID_PLANS:
+        <span class="hl-keyword">raise</span> HTTPException(
+            status_code=<span class="hl-number">400</span>,
+            detail=<span class="hl-string">f"Invalid plan. Choose from: {', '.join(VALID_PLANS)}"</span>,
+        )
+
+    sub = db.query(Subscription).filter(Subscription.org_id == org_id).first()
+    <span class="hl-keyword">if not</span> sub:
+        <span class="hl-keyword">raise</span> HTTPException(status_code=<span class="hl-number">404</span>, detail=<span class="hl-string">"Subscription not found"</span>)
+
+    old_plan = sub.plan
+    sub.plan      = body.new_plan
+    sub.max_users = PLAN_FEATURES[body.new_plan][<span class="hl-string">"max_users"</span>]
+    db.commit()
+
+    <span class="hl-comment"># log the change in the audit log</span>
+    log_event(
+        db,
+        org_id  = org_id,
+        user_id = current_user.id,
+        action  = <span class="hl-string">"plan_changed"</span>,
+        detail  = <span class="hl-string">f"Plan changed from {old_plan} to {body.new_plan}"</span>,
+    )
+
+    <span class="hl-keyword">return</span> {<span class="hl-string">"message"</span>: <span class="hl-string">f"Plan updated to {body.new_plan}"</span>}</code></pre>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- STEP 7 -->
+      <div class="step" id="step7">
+        <div class="step-number">7</div>
+        <div class="step-content">
+          <h3>Feature Gating</h3>
+          <p class="explanation">Feature gating means certain routes or UI sections are only available on certain plans. The <code>check_feature()</code> dependency reads the org's current plan, looks up the feature in PLAN_FEATURES, and raises a 403 with a clear upgrade message if the feature is not included.</p>
+          <div class="tabs" id="s7">
+            <div class="tab-bar">
+              <button class="tab-btn active" onclick="switchTab('s7',0)">check_feature dependency</button>
+              <button class="tab-btn" onclick="switchTab('s7',1)">feature gating in templates</button>
+            </div>
+            <div class="tab-panel active">
+              <div class="code-header"><span class="lang-label">python</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-keyword">def</span> check_feature(feature_name: str):
+    <span class="hl-string">"""Returns a dependency that blocks access if the org's plan lacks the feature."""</span>
+    <span class="hl-keyword">def</span> dependency(org_id: int, db: Session = Depends(get_db)):
+        sub = db.query(Subscription).filter(Subscription.org_id == org_id).first()
+        <span class="hl-keyword">if not</span> sub:
+            <span class="hl-keyword">raise</span> HTTPException(status_code=<span class="hl-number">404</span>, detail=<span class="hl-string">"Subscription not found"</span>)
+
+        features = PLAN_FEATURES.get(sub.plan, {})
+        <span class="hl-keyword">if not</span> features.get(feature_name):
+            <span class="hl-keyword">raise</span> HTTPException(
+                status_code=<span class="hl-number">403</span>,
+                detail=<span class="hl-string">f"'{feature_name}' is not available on the {sub.plan} plan. Upgrade to access it."</span>,
+            )
+    <span class="hl-keyword">return</span> dependency
+
+
+<span class="hl-comment"># Usage: combine with require_role for full protection</span>
+<span class="hl-decorator">@app.get</span>(<span class="hl-string">"/orgs/{org_id}/reports/advanced"</span>)
+<span class="hl-keyword">async def</span> advanced_reports(
+    org_id:       int,
+    _:            None = Depends(check_feature(<span class="hl-string">"advanced_reports"</span>)),
+    current_user: User = Depends(require_role(<span class="hl-string">"owner"</span>, <span class="hl-string">"admin"</span>, <span class="hl-string">"member"</span>)),
+    db:           Session = Depends(get_db),
+):
+    <span class="hl-keyword">return</span> {<span class="hl-string">"message"</span>: <span class="hl-string">"Advanced report data here"</span>}
+
+
+<span class="hl-decorator">@app.get</span>(<span class="hl-string">"/orgs/{org_id}/audit/export"</span>)
+<span class="hl-keyword">async def</span> export_audit(
+    org_id:       int,
+    _:            None = Depends(check_feature(<span class="hl-string">"audit_export"</span>)),
+    current_user: User = Depends(require_role(<span class="hl-string">"owner"</span>, <span class="hl-string">"admin"</span>)),
+    db:           Session = Depends(get_db),
+):
+    ...</code></pre>
+            </div>
+            <div class="tab-panel">
+              <div class="code-header"><span class="lang-label">html</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-comment">&lt;!-- features is PLAN_FEATURES[org.subscription.plan], passed from the route --&gt;</span>
+
+<span class="hl-template">{% if features.advanced_reports %}</span>
+  <span class="hl-tag">&lt;a</span> <span class="hl-attr">href</span>=<span class="hl-string">"/orgs/{{ org.id }}/reports/advanced"</span><span class="hl-tag">&gt;</span>Advanced Reports<span class="hl-tag">&lt;/a&gt;</span>
+<span class="hl-template">{% else %}</span>
+  <span class="hl-tag">&lt;span</span> <span class="hl-attr">style</span>=<span class="hl-string">"color:#999;"</span><span class="hl-tag">&gt;</span>Advanced Reports (Pro plan required)<span class="hl-tag">&lt;/span&gt;</span>
+<span class="hl-template">{% endif %}</span>
+
+<span class="hl-template">{% if features.sso %}</span>
+  <span class="hl-tag">&lt;a</span> <span class="hl-attr">href</span>=<span class="hl-string">"/orgs/{{ org.id }}/settings/sso"</span><span class="hl-tag">&gt;</span>SSO Settings<span class="hl-tag">&lt;/a&gt;</span>
+<span class="hl-template">{% else %}</span>
+  <span class="hl-tag">&lt;span</span> <span class="hl-attr">style</span>=<span class="hl-string">"color:#999;"</span><span class="hl-tag">&gt;</span>SSO (Enterprise plan required)<span class="hl-tag">&lt;/span&gt;</span>
+<span class="hl-template">{% endif %}</span>
+
+<span class="hl-template">{% if features.audit_export %}</span>
+  <span class="hl-tag">&lt;a</span> <span class="hl-attr">href</span>=<span class="hl-string">"/orgs/{{ org.id }}/audit/export"</span><span class="hl-tag">&gt;</span>Export Audit Log (CSV)<span class="hl-tag">&lt;/a&gt;</span>
+<span class="hl-template">{% endif %}</span></code></pre>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- STEP 8 -->
+      <div class="step" id="step8">
+        <div class="step-number">8</div>
+        <div class="step-content">
+          <h3>Jinja Dashboard</h3>
+          <p class="explanation">The dashboard is the main page an org member sees after logging in. It shows who is in the org, what plan they are on, and how many seats are used. Pass everything the template needs from the route. The template itself should only do display logic.</p>
+          <div class="tabs" id="s8">
+            <div class="tab-bar">
+              <button class="tab-btn active" onclick="switchTab('s8',0)">dashboard route</button>
+              <button class="tab-btn" onclick="switchTab('s8',1)">templates/dashboard.html</button>
+            </div>
+            <div class="tab-panel active">
+              <div class="code-header"><span class="lang-label">python</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-keyword">from</span> fastapi <span class="hl-keyword">import</span> Request
+<span class="hl-keyword">from</span> fastapi.responses <span class="hl-keyword">import</span> HTMLResponse
+<span class="hl-keyword">from</span> fastapi.templating <span class="hl-keyword">import</span> Jinja2Templates
+
+templates = Jinja2Templates(directory=<span class="hl-string">"templates"</span>)
+
+
+<span class="hl-decorator">@app.get</span>(<span class="hl-string">"/orgs/{org_id}/dashboard"</span>, response_class=HTMLResponse)
+<span class="hl-keyword">def</span> dashboard(
+    org_id:       int,
+    request:      Request,
+    db:           Session = Depends(get_db),
+    current_user: User    = Depends(require_role(<span class="hl-string">"owner"</span>, <span class="hl-string">"admin"</span>, <span class="hl-string">"member"</span>)),
+):
+    org = db.query(Organization).filter(Organization.id == org_id).first()
+    <span class="hl-keyword">if not</span> org:
+        <span class="hl-keyword">raise</span> HTTPException(status_code=<span class="hl-number">404</span>, detail=<span class="hl-string">"Org not found"</span>)
+
+    members = db.query(User).filter(User.org_id == org_id).all()
+    sub     = db.query(Subscription).filter(Subscription.org_id == org_id).first()
+    features = PLAN_FEATURES.get(sub.plan, {})
+
+    <span class="hl-comment"># last 5 audit events for the activity feed</span>
+    recent_events = (
+        db.query(AuditEvent)
+        .filter(AuditEvent.org_id == org_id)
+        .order_by(AuditEvent.created_at.desc())
+        .limit(<span class="hl-number">5</span>)
+        .all()
+    )
+
+    <span class="hl-keyword">return</span> templates.TemplateResponse(<span class="hl-string">"dashboard.html"</span>, {
+        <span class="hl-string">"request"</span>:       request,
+        <span class="hl-string">"org"</span>:           org,
+        <span class="hl-string">"members"</span>:       members,
+        <span class="hl-string">"member_count"</span>:  <span class="hl-builtin">len</span>(members),
+        <span class="hl-string">"sub"</span>:           sub,
+        <span class="hl-string">"features"</span>:      features,
+        <span class="hl-string">"current_user"</span>:  current_user,
+        <span class="hl-string">"recent_events"</span>: recent_events,
+    })</code></pre>
+            </div>
+            <div class="tab-panel">
+              <div class="code-header"><span class="lang-label">html</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-comment">&lt;!-- templates/dashboard.html --&gt;</span>
+<span class="hl-tag">&lt;!DOCTYPE html&gt;</span>
+<span class="hl-tag">&lt;html</span> <span class="hl-attr">lang</span>=<span class="hl-string">"en"</span><span class="hl-tag">&gt;</span>
+<span class="hl-tag">&lt;head&gt;</span>
+  <span class="hl-tag">&lt;meta</span> <span class="hl-attr">charset</span>=<span class="hl-string">"UTF-8"</span><span class="hl-tag">&gt;</span>
+  <span class="hl-tag">&lt;title&gt;</span>Dashboard - <span class="hl-template">{{ org.name }}</span><span class="hl-tag">&lt;/title&gt;</span>
+  <span class="hl-tag">&lt;style&gt;</span>
+    body { font-family: sans-serif; max-width: 800px; margin: 40px auto; padding: 0 20px; }
+    h1   { font-size: 1.5rem; }
+    .badge { display: inline-block; padding: 2px 10px; border-radius: 12px;
+             background: #e8eaf6; color: #3949ab; font-size: 0.8rem; font-weight: 600; }
+    table { width: 100%; border-collapse: collapse; margin-top: 12px; }
+    th, td { text-align: left; padding: 8px 12px; border-bottom: 1px solid #eee; }
+    th { background: #f5f5f5; }
+    .nav-links { margin: 20px 0; display: flex; gap: 16px; }
+    .nav-links a { color: #3949ab; }
+  </span><span class="hl-tag">&lt;/style&gt;</span>
+<span class="hl-tag">&lt;/head&gt;</span>
+<span class="hl-tag">&lt;body&gt;</span>
+
+<span class="hl-tag">&lt;h1&gt;</span><span class="hl-template">{{ org.name }}</span><span class="hl-tag">&lt;/h1&gt;</span>
+<span class="hl-tag">&lt;span</span> <span class="hl-attr">class</span>=<span class="hl-string">"badge"</span><span class="hl-tag">&gt;</span><span class="hl-template">{{ sub.plan | capitalize }}</span> plan<span class="hl-tag">&lt;/span&gt;</span>
+
+<span class="hl-tag">&lt;p</span> <span class="hl-attr">style</span>=<span class="hl-string">"margin-top:10px;color:#555;"</span><span class="hl-tag">&gt;</span>
+  <span class="hl-template">{% if features.max_users == 0 %}</span>
+    Members: <span class="hl-template">{{ member_count }}</span> (unlimited seats)
+  <span class="hl-template">{% else %}</span>
+    Members: <span class="hl-template">{{ member_count }}</span> of <span class="hl-template">{{ features.max_users }}</span> seats used
+  <span class="hl-template">{% endif %}</span>
+<span class="hl-tag">&lt;/p&gt;</span>
+
+<span class="hl-tag">&lt;div</span> <span class="hl-attr">class</span>=<span class="hl-string">"nav-links"</span><span class="hl-tag">&gt;</span>
+  <span class="hl-template">{% if current_user.role == "owner" %}</span>
+    <span class="hl-tag">&lt;a</span> <span class="hl-attr">href</span>=<span class="hl-string">"/orgs/{{ org.id }}/billing"</span><span class="hl-tag">&gt;</span>Billing<span class="hl-tag">&lt;/a&gt;</span>
+  <span class="hl-template">{% endif %}</span>
+  <span class="hl-template">{% if current_user.role in ["owner","admin"] %}</span>
+    <span class="hl-tag">&lt;a</span> <span class="hl-attr">href</span>=<span class="hl-string">"/orgs/{{ org.id }}/audit"</span><span class="hl-tag">&gt;</span>Audit Log<span class="hl-tag">&lt;/a&gt;</span>
+    <span class="hl-tag">&lt;a</span> <span class="hl-attr">href</span>=<span class="hl-string">"/orgs/{{ org.id }}/members"</span><span class="hl-tag">&gt;</span>Manage Members<span class="hl-tag">&lt;/a&gt;</span>
+  <span class="hl-template">{% endif %}</span>
+<span class="hl-tag">&lt;/div&gt;</span>
+
+<span class="hl-tag">&lt;h2</span> <span class="hl-attr">style</span>=<span class="hl-string">"font-size:1rem;margin-top:24px;"</span><span class="hl-tag">&gt;</span>Members<span class="hl-tag">&lt;/h2&gt;</span>
+<span class="hl-tag">&lt;table&gt;</span>
+  <span class="hl-tag">&lt;thead&gt;&lt;tr&gt;&lt;th&gt;</span>Name / Email<span class="hl-tag">&lt;/th&gt;&lt;th&gt;</span>Role<span class="hl-tag">&lt;/th&gt;&lt;/tr&gt;&lt;/thead&gt;</span>
+  <span class="hl-tag">&lt;tbody&gt;</span>
+    <span class="hl-template">{% for m in members %}</span>
+    <span class="hl-tag">&lt;tr&gt;</span>
+      <span class="hl-tag">&lt;td&gt;</span><span class="hl-template">{{ m.email }}</span><span class="hl-tag">&lt;/td&gt;</span>
+      <span class="hl-tag">&lt;td&gt;</span><span class="hl-template">{{ m.role }}</span><span class="hl-tag">&lt;/td&gt;</span>
+    <span class="hl-tag">&lt;/tr&gt;</span>
+    <span class="hl-template">{% endfor %}</span>
+  <span class="hl-tag">&lt;/tbody&gt;</span>
+<span class="hl-tag">&lt;/table&gt;</span>
+
+<span class="hl-tag">&lt;h2</span> <span class="hl-attr">style</span>=<span class="hl-string">"font-size:1rem;margin-top:24px;"</span><span class="hl-tag">&gt;</span>Recent Activity<span class="hl-tag">&lt;/h2&gt;</span>
+<span class="hl-tag">&lt;ul</span> <span class="hl-attr">style</span>=<span class="hl-string">"color:#555;font-size:0.9rem;"</span><span class="hl-tag">&gt;</span>
+  <span class="hl-template">{% for e in recent_events %}</span>
+  <span class="hl-tag">&lt;li&gt;</span><span class="hl-template">{{ e.created_at.strftime('%Y-%m-%d %H:%M') }}</span> - <span class="hl-template">{{ e.action }}</span>: <span class="hl-template">{{ e.detail }}</span><span class="hl-tag">&lt;/li&gt;</span>
+  <span class="hl-template">{% else %}</span>
+  <span class="hl-tag">&lt;li&gt;</span>No activity yet.<span class="hl-tag">&lt;/li&gt;</span>
+  <span class="hl-template">{% endfor %}</span>
+<span class="hl-tag">&lt;/ul&gt;</span>
+
+<span class="hl-tag">&lt;/body&gt;&lt;/html&gt;</span></code></pre>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- STEP 9 -->
+      <div class="step" id="step9">
+        <div class="step-number">9</div>
+        <div class="step-content">
+          <h3>Member Management UI</h3>
+          <p class="explanation">Admins and owners need a page to add and remove members without using the API directly. A simple form with a POST action handles both. After each action, redirect back to the same page with a flash message.</p>
+          <div class="tabs" id="s9">
+            <div class="tab-bar">
+              <button class="tab-btn active" onclick="switchTab('s9',0)">invite form + route</button>
+              <button class="tab-btn" onclick="switchTab('s9',1)">remove + change role</button>
+              <button class="tab-btn" onclick="switchTab('s9',2)">template fragment</button>
+            </div>
+            <div class="tab-panel active">
+              <div class="code-header"><span class="lang-label">python</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-keyword">from</span> fastapi <span class="hl-keyword">import</span> Form
+<span class="hl-keyword">from</span> fastapi.responses <span class="hl-keyword">import</span> RedirectResponse
+
+
+<span class="hl-decorator">@app.get</span>(<span class="hl-string">"/orgs/{org_id}/members"</span>, response_class=HTMLResponse)
+<span class="hl-keyword">def</span> members_page(
+    org_id:       int,
+    request:      Request,
+    db:           Session = Depends(get_db),
+    current_user: User    = Depends(require_role(<span class="hl-string">"owner"</span>, <span class="hl-string">"admin"</span>)),
+):
+    members = db.query(User).filter(User.org_id == org_id).all()
+    sub     = db.query(Subscription).filter(Subscription.org_id == org_id).first()
+    flash   = request.session.pop(<span class="hl-string">"flash"</span>, <span class="hl-builtin">None</span>)
+    <span class="hl-keyword">return</span> templates.TemplateResponse(<span class="hl-string">"members.html"</span>, {
+        <span class="hl-string">"request"</span>: request, <span class="hl-string">"org_id"</span>: org_id,
+        <span class="hl-string">"members"</span>: members, <span class="hl-string">"sub"</span>: sub, <span class="hl-string">"flash"</span>: flash,
+        <span class="hl-string">"current_user"</span>: current_user,
+    })
+
+
+<span class="hl-decorator">@app.post</span>(<span class="hl-string">"/orgs/{org_id}/invite"</span>)
+<span class="hl-keyword">def</span> invite_form(
+    org_id:       int,
+    request:      Request,
+    email:        str = Form(...),
+    password:     str = Form(...),
+    db:           Session = Depends(get_db),
+    current_user: User    = Depends(require_role(<span class="hl-string">"owner"</span>, <span class="hl-string">"admin"</span>)),
+):
+    sub = db.query(Subscription).filter(Subscription.org_id == org_id).first()
+
+    <span class="hl-comment"># check seat limit before adding</span>
+    <span class="hl-keyword">if</span> sub.max_users &gt; <span class="hl-number">0</span>:
+        count = db.query(User).filter(User.org_id == org_id).count()
+        <span class="hl-keyword">if</span> count &gt;= sub.max_users:
+            request.session[<span class="hl-string">"flash"</span>] = <span class="hl-string">f"Seat limit reached ({sub.max_users} seats on {sub.plan} plan)"</span>
+            <span class="hl-keyword">return</span> RedirectResponse(<span class="hl-string">f"/orgs/{org_id}/members"</span>, status_code=<span class="hl-number">303</span>)
+
+    new_user = User(
+        org_id        = org_id,
+        email         = email,
+        password_hash = pwd_ctx.hash(password),
+        role          = <span class="hl-string">"member"</span>,
+    )
+    db.add(new_user)
+    log_event(db, org_id, current_user.id, <span class="hl-string">"invite_member"</span>, <span class="hl-string">f"Invited {email}"</span>)
+    db.commit()
+
+    request.session[<span class="hl-string">"flash"</span>] = <span class="hl-string">f"{email} has been added to the organization"</span>
+    <span class="hl-keyword">return</span> RedirectResponse(<span class="hl-string">f"/orgs/{org_id}/members"</span>, status_code=<span class="hl-number">303</span>)</code></pre>
+            </div>
+            <div class="tab-panel">
+              <div class="code-header"><span class="lang-label">python</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-decorator">@app.post</span>(<span class="hl-string">"/orgs/{org_id}/members/{user_id}/remove"</span>)
+<span class="hl-keyword">def</span> remove_member(
+    org_id:       int,
+    user_id:      int,
+    request:      Request,
+    db:           Session = Depends(get_db),
+    current_user: User    = Depends(require_role(<span class="hl-string">"owner"</span>, <span class="hl-string">"admin"</span>)),
+):
+    target = db.query(User).filter(
+        User.id == user_id, User.org_id == org_id
+    ).first()
+    <span class="hl-keyword">if not</span> target:
+        <span class="hl-keyword">raise</span> HTTPException(status_code=<span class="hl-number">404</span>, detail=<span class="hl-string">"Member not found"</span>)
+    <span class="hl-keyword">if</span> target.role == <span class="hl-string">"owner"</span>:
+        <span class="hl-keyword">raise</span> HTTPException(status_code=<span class="hl-number">403</span>, detail=<span class="hl-string">"Cannot remove the org owner"</span>)
+
+    log_event(db, org_id, current_user.id, <span class="hl-string">"remove_member"</span>, <span class="hl-string">f"Removed {target.email}"</span>)
+    db.delete(target)
+    db.commit()
+
+    request.session[<span class="hl-string">"flash"</span>] = <span class="hl-string">f"{target.email} has been removed"</span>
+    <span class="hl-keyword">return</span> RedirectResponse(<span class="hl-string">f"/orgs/{org_id}/members"</span>, status_code=<span class="hl-number">303</span>)
+
+
+<span class="hl-decorator">@app.post</span>(<span class="hl-string">"/orgs/{org_id}/members/{user_id}/role"</span>)
+<span class="hl-keyword">def</span> change_member_role(
+    org_id:       int,
+    user_id:      int,
+    request:      Request,
+    new_role:     str = Form(...),
+    db:           Session = Depends(get_db),
+    current_user: User    = Depends(require_role(<span class="hl-string">"owner"</span>)),  <span class="hl-comment"># owner only</span>
+):
+    <span class="hl-keyword">if</span> new_role <span class="hl-keyword">not in</span> (<span class="hl-string">"owner"</span>, <span class="hl-string">"admin"</span>, <span class="hl-string">"member"</span>):
+        <span class="hl-keyword">raise</span> HTTPException(status_code=<span class="hl-number">400</span>, detail=<span class="hl-string">"Invalid role"</span>)
+
+    target = db.query(User).filter(
+        User.id == user_id, User.org_id == org_id
+    ).first()
+    <span class="hl-keyword">if not</span> target:
+        <span class="hl-keyword">raise</span> HTTPException(status_code=<span class="hl-number">404</span>, detail=<span class="hl-string">"Member not found"</span>)
+
+    old_role   = target.role
+    target.role = new_role
+    log_event(db, org_id, current_user.id, <span class="hl-string">"role_changed"</span>,
+              <span class="hl-string">f"{target.email} role: {old_role} → {new_role}"</span>)
+    db.commit()
+
+    request.session[<span class="hl-string">"flash"</span>] = <span class="hl-string">f"{target.email} is now {new_role}"</span>
+    <span class="hl-keyword">return</span> RedirectResponse(<span class="hl-string">f"/orgs/{org_id}/members"</span>, status_code=<span class="hl-number">303</span>)</code></pre>
+            </div>
+            <div class="tab-panel">
+              <div class="code-header"><span class="lang-label">html</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-comment">&lt;!-- Invite form --&gt;</span>
+<span class="hl-tag">&lt;form</span> <span class="hl-attr">method</span>=<span class="hl-string">"post"</span> <span class="hl-attr">action</span>=<span class="hl-string">"/orgs/{{ org_id }}/invite"</span><span class="hl-tag">&gt;</span>
+  <span class="hl-tag">&lt;input</span> <span class="hl-attr">type</span>=<span class="hl-string">"email"</span> <span class="hl-attr">name</span>=<span class="hl-string">"email"</span> <span class="hl-attr">placeholder</span>=<span class="hl-string">"Email address"</span> <span class="hl-attr">required</span><span class="hl-tag">&gt;</span>
+  <span class="hl-tag">&lt;input</span> <span class="hl-attr">type</span>=<span class="hl-string">"password"</span> <span class="hl-attr">name</span>=<span class="hl-string">"password"</span> <span class="hl-attr">placeholder</span>=<span class="hl-string">"Temporary password"</span> <span class="hl-attr">required</span><span class="hl-tag">&gt;</span>
+  <span class="hl-tag">&lt;button</span> <span class="hl-attr">type</span>=<span class="hl-string">"submit"</span><span class="hl-tag">&gt;</span>Invite Member<span class="hl-tag">&lt;/button&gt;</span>
+<span class="hl-tag">&lt;/form&gt;</span>
+
+<span class="hl-comment">&lt;!-- Per-member remove + role change (in the members table loop) --&gt;</span>
+<span class="hl-template">{% for m in members %}</span>
+<span class="hl-tag">&lt;tr&gt;</span>
+  <span class="hl-tag">&lt;td&gt;</span><span class="hl-template">{{ m.email }}</span><span class="hl-tag">&lt;/td&gt;</span>
+  <span class="hl-tag">&lt;td&gt;</span>
+    <span class="hl-template">{% if current_user.role == "owner" and m.id != current_user.id %}</span>
+      <span class="hl-tag">&lt;form</span> <span class="hl-attr">method</span>=<span class="hl-string">"post"</span> <span class="hl-attr">action</span>=<span class="hl-string">"/orgs/{{ org_id }}/members/{{ m.id }}/role"</span> <span class="hl-attr">style</span>=<span class="hl-string">"display:inline"</span><span class="hl-tag">&gt;</span>
+        <span class="hl-tag">&lt;select</span> <span class="hl-attr">name</span>=<span class="hl-string">"new_role"</span> <span class="hl-attr">onchange</span>=<span class="hl-string">"this.form.submit()"</span><span class="hl-tag">&gt;</span>
+          <span class="hl-tag">&lt;option</span> <span class="hl-template">{% if m.role == "owner" %}selected{% endif %}</span><span class="hl-tag">&gt;</span>owner<span class="hl-tag">&lt;/option&gt;</span>
+          <span class="hl-tag">&lt;option</span> <span class="hl-template">{% if m.role == "admin" %}selected{% endif %}</span><span class="hl-tag">&gt;</span>admin<span class="hl-tag">&lt;/option&gt;</span>
+          <span class="hl-tag">&lt;option</span> <span class="hl-template">{% if m.role == "member" %}selected{% endif %}</span><span class="hl-tag">&gt;</span>member<span class="hl-tag">&lt;/option&gt;</span>
+        <span class="hl-tag">&lt;/select&gt;</span>
+      <span class="hl-tag">&lt;/form&gt;</span>
+    <span class="hl-template">{% else %}</span>
+      <span class="hl-template">{{ m.role }}</span>
+    <span class="hl-template">{% endif %}</span>
+  <span class="hl-tag">&lt;/td&gt;</span>
+  <span class="hl-tag">&lt;td&gt;</span>
+    <span class="hl-template">{% if m.role != "owner" and m.id != current_user.id %}</span>
+      <span class="hl-tag">&lt;form</span> <span class="hl-attr">method</span>=<span class="hl-string">"post"</span> <span class="hl-attr">action</span>=<span class="hl-string">"/orgs/{{ org_id }}/members/{{ m.id }}/remove"</span><span class="hl-tag">&gt;</span>
+        <span class="hl-tag">&lt;button</span> <span class="hl-attr">type</span>=<span class="hl-string">"submit"</span><span class="hl-tag">&gt;</span>Remove<span class="hl-tag">&lt;/button&gt;</span>
+      <span class="hl-tag">&lt;/form&gt;</span>
+    <span class="hl-template">{% endif %}</span>
+  <span class="hl-tag">&lt;/td&gt;</span>
+<span class="hl-tag">&lt;/tr&gt;</span>
+<span class="hl-template">{% endfor %}</span></code></pre>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- STEP 10 -->
+      <div class="step" id="step10">
+        <div class="step-number">10</div>
+        <div class="step-content">
+          <h3>Billing Page</h3>
+          <p class="explanation">The billing page shows the org's current plan, usage stats, and upgrade/downgrade options. Actual payment processing is out of scope here. The upgrade button calls your internal plan-change endpoint. In a real app you would integrate Stripe before that step.</p>
+          <div class="tabs" id="s10">
+            <div class="tab-bar">
+              <button class="tab-btn active" onclick="switchTab('s10',0)">billing route</button>
+              <button class="tab-btn" onclick="switchTab('s10',1)">templates/billing.html</button>
+            </div>
+            <div class="tab-panel active">
+              <div class="code-header"><span class="lang-label">python</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-decorator">@app.get</span>(<span class="hl-string">"/orgs/{org_id}/billing"</span>, response_class=HTMLResponse)
+<span class="hl-keyword">def</span> billing_page(
+    org_id:       int,
+    request:      Request,
+    db:           Session = Depends(get_db),
+    current_user: User    = Depends(require_role(<span class="hl-string">"owner"</span>)),  <span class="hl-comment"># owner only</span>
+):
+    org = db.query(Organization).filter(Organization.id == org_id).first()
+    sub = db.query(Subscription).filter(Subscription.org_id == org_id).first()
+
+    member_count    = db.query(User).filter(User.org_id == org_id).count()
+    current_features = PLAN_FEATURES.get(sub.plan, {})
+
+    <span class="hl-keyword">return</span> templates.TemplateResponse(<span class="hl-string">"billing.html"</span>, {
+        <span class="hl-string">"request"</span>:          request,
+        <span class="hl-string">"org"</span>:              org,
+        <span class="hl-string">"sub"</span>:              sub,
+        <span class="hl-string">"member_count"</span>:     member_count,
+        <span class="hl-string">"current_features"</span>: current_features,
+        <span class="hl-string">"all_plans"</span>:        PLAN_FEATURES,   <span class="hl-comment"># pass the whole dict for the comparison table</span>
+        <span class="hl-string">"current_user"</span>:     current_user,
+    })</code></pre>
+            </div>
+            <div class="tab-panel">
+              <div class="code-header"><span class="lang-label">html</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-comment">&lt;!-- templates/billing.html --&gt;</span>
+<span class="hl-tag">&lt;!DOCTYPE html&gt;</span>
+<span class="hl-tag">&lt;html</span> <span class="hl-attr">lang</span>=<span class="hl-string">"en"</span><span class="hl-tag">&gt;</span>
+<span class="hl-tag">&lt;head&gt;</span>
+  <span class="hl-tag">&lt;meta</span> <span class="hl-attr">charset</span>=<span class="hl-string">"UTF-8"</span><span class="hl-tag">&gt;</span>
+  <span class="hl-tag">&lt;title&gt;</span>Billing - <span class="hl-template">{{ org.name }}</span><span class="hl-tag">&lt;/title&gt;</span>
+  <span class="hl-tag">&lt;style&gt;</span>
+    body { font-family: sans-serif; max-width: 860px; margin: 40px auto; padding: 0 20px; }
+    table { width: 100%; border-collapse: collapse; margin-top: 16px; }
+    th, td { padding: 10px 14px; border: 1px solid #ddd; text-align: center; }
+    th { background: #f5f5f5; }
+    .current-plan { background: #e8eaf6; font-weight: 600; }
+    .check { color: #388e3c; font-weight: bold; }
+    .cross { color: #aaa; }
+    .btn { display: inline-block; padding: 6px 16px; border-radius: 4px;
+           border: none; cursor: pointer; font-size: 0.85rem; }
+    .btn-upgrade { background: #3949ab; color: #fff; }
+    .btn-current { background: #eee; color: #555; cursor: default; }
+  <span class="hl-tag">&lt;/style&gt;</span>
+<span class="hl-tag">&lt;/head&gt;</span>
+<span class="hl-tag">&lt;body&gt;</span>
+
+<span class="hl-tag">&lt;h1&gt;</span>Billing<span class="hl-tag">&lt;/h1&gt;</span>
+<span class="hl-tag">&lt;p&gt;</span>Current plan: <span class="hl-tag">&lt;strong&gt;</span><span class="hl-template">{{ sub.plan | capitalize }}</span><span class="hl-tag">&lt;/strong&gt;</span> &bull;
+   Members: <span class="hl-template">{{ member_count }}</span>
+   <span class="hl-template">{% if current_features.max_users &gt; 0 %}</span>
+     / <span class="hl-template">{{ current_features.max_users }}</span> seats
+   <span class="hl-template">{% else %}</span>
+     (unlimited seats)
+   <span class="hl-template">{% endif %}</span>
+<span class="hl-tag">&lt;/p&gt;</span>
+
+<span class="hl-tag">&lt;table&gt;</span>
+  <span class="hl-tag">&lt;thead&gt;</span>
+    <span class="hl-tag">&lt;tr&gt;</span>
+      <span class="hl-tag">&lt;th&gt;</span>Feature<span class="hl-tag">&lt;/th&gt;</span>
+      <span class="hl-template">{% for plan_name in all_plans %}</span>
+      <span class="hl-tag">&lt;th</span> <span class="hl-template">{% if plan_name == sub.plan %}class="current-plan"{% endif %}</span><span class="hl-tag">&gt;</span>
+        <span class="hl-template">{{ plan_name | capitalize }}</span>
+      <span class="hl-tag">&lt;/th&gt;</span>
+      <span class="hl-template">{% endfor %}</span>
+    <span class="hl-tag">&lt;/tr&gt;</span>
+  <span class="hl-tag">&lt;/thead&gt;</span>
+  <span class="hl-tag">&lt;tbody&gt;</span>
+    <span class="hl-tag">&lt;tr&gt;</span>
+      <span class="hl-tag">&lt;td&gt;</span>Max users<span class="hl-tag">&lt;/td&gt;</span>
+      <span class="hl-template">{% for plan_name, f in all_plans.items() %}</span>
+      <span class="hl-tag">&lt;td</span> <span class="hl-template">{% if plan_name == sub.plan %}class="current-plan"{% endif %}</span><span class="hl-tag">&gt;</span>
+        <span class="hl-template">{% if f.max_users == 0 %}Unlimited{% else %}{{ f.max_users }}{% endif %}</span>
+      <span class="hl-tag">&lt;/td&gt;</span>
+      <span class="hl-template">{% endfor %}</span>
+    <span class="hl-tag">&lt;/tr&gt;</span>
+    <span class="hl-tag">&lt;tr&gt;</span>
+      <span class="hl-tag">&lt;td&gt;</span>Advanced reports<span class="hl-tag">&lt;/td&gt;</span>
+      <span class="hl-template">{% for plan_name, f in all_plans.items() %}</span>
+      <span class="hl-tag">&lt;td</span> <span class="hl-template">{% if plan_name == sub.plan %}class="current-plan"{% endif %}</span><span class="hl-tag">&gt;</span>
+        <span class="hl-template">{% if f.advanced_reports %}</span><span class="hl-tag">&lt;span</span> <span class="hl-attr">class</span>=<span class="hl-string">"check"</span><span class="hl-tag">&gt;</span>&#10003;<span class="hl-tag">&lt;/span&gt;</span><span class="hl-template">{% else %}</span><span class="hl-tag">&lt;span</span> <span class="hl-attr">class</span>=<span class="hl-string">"cross"</span><span class="hl-tag">&gt;</span>&#10007;<span class="hl-tag">&lt;/span&gt;</span><span class="hl-template">{% endif %}</span>
+      <span class="hl-tag">&lt;/td&gt;</span>
+      <span class="hl-template">{% endfor %}</span>
+    <span class="hl-tag">&lt;/tr&gt;</span>
+    <span class="hl-tag">&lt;tr&gt;</span>
+      <span class="hl-tag">&lt;td&gt;</span>SSO<span class="hl-tag">&lt;/td&gt;</span>
+      <span class="hl-template">{% for plan_name, f in all_plans.items() %}</span>
+      <span class="hl-tag">&lt;td</span> <span class="hl-template">{% if plan_name == sub.plan %}class="current-plan"{% endif %}</span><span class="hl-tag">&gt;</span>
+        <span class="hl-template">{% if f.sso %}</span><span class="hl-tag">&lt;span</span> <span class="hl-attr">class</span>=<span class="hl-string">"check"</span><span class="hl-tag">&gt;</span>&#10003;<span class="hl-tag">&lt;/span&gt;</span><span class="hl-template">{% else %}</span><span class="hl-tag">&lt;span</span> <span class="hl-attr">class</span>=<span class="hl-string">"cross"</span><span class="hl-tag">&gt;</span>&#10007;<span class="hl-tag">&lt;/span&gt;</span><span class="hl-template">{% endif %}</span>
+      <span class="hl-tag">&lt;/td&gt;</span>
+      <span class="hl-template">{% endfor %}</span>
+    <span class="hl-tag">&lt;/tr&gt;</span>
+    <span class="hl-tag">&lt;tr&gt;</span>
+      <span class="hl-tag">&lt;td&gt;</span>Audit export<span class="hl-tag">&lt;/td&gt;</span>
+      <span class="hl-template">{% for plan_name, f in all_plans.items() %}</span>
+      <span class="hl-tag">&lt;td</span> <span class="hl-template">{% if plan_name == sub.plan %}class="current-plan"{% endif %}</span><span class="hl-tag">&gt;</span>
+        <span class="hl-template">{% if f.audit_export %}</span><span class="hl-tag">&lt;span</span> <span class="hl-attr">class</span>=<span class="hl-string">"check"</span><span class="hl-tag">&gt;</span>&#10003;<span class="hl-tag">&lt;/span&gt;</span><span class="hl-template">{% else %}</span><span class="hl-tag">&lt;span</span> <span class="hl-attr">class</span>=<span class="hl-string">"cross"</span><span class="hl-tag">&gt;</span>&#10007;<span class="hl-tag">&lt;/span&gt;</span><span class="hl-template">{% endif %}</span>
+      <span class="hl-tag">&lt;/td&gt;</span>
+      <span class="hl-template">{% endfor %}</span>
+    <span class="hl-tag">&lt;/tr&gt;</span>
+    <span class="hl-tag">&lt;tr&gt;</span>
+      <span class="hl-tag">&lt;td&gt;</span>Action<span class="hl-tag">&lt;/td&gt;</span>
+      <span class="hl-template">{% for plan_name in all_plans %}</span>
+      <span class="hl-tag">&lt;td</span> <span class="hl-template">{% if plan_name == sub.plan %}class="current-plan"{% endif %}</span><span class="hl-tag">&gt;</span>
+        <span class="hl-template">{% if plan_name == sub.plan %}</span>
+          <span class="hl-tag">&lt;button</span> <span class="hl-attr">class</span>=<span class="hl-string">"btn btn-current"</span> <span class="hl-attr">disabled</span><span class="hl-tag">&gt;</span>Current plan<span class="hl-tag">&lt;/button&gt;</span>
+        <span class="hl-template">{% else %}</span>
+          <span class="hl-tag">&lt;form</span> <span class="hl-attr">method</span>=<span class="hl-string">"post"</span> <span class="hl-attr">action</span>=<span class="hl-string">"/orgs/{{ org.id }}/plan"</span><span class="hl-tag">&gt;</span>
+            <span class="hl-tag">&lt;input</span> <span class="hl-attr">type</span>=<span class="hl-string">"hidden"</span> <span class="hl-attr">name</span>=<span class="hl-string">"new_plan"</span> <span class="hl-attr">value</span>=<span class="hl-string">"{{ plan_name }}"</span><span class="hl-tag">&gt;</span>
+            <span class="hl-tag">&lt;button</span> <span class="hl-attr">type</span>=<span class="hl-string">"submit"</span> <span class="hl-attr">class</span>=<span class="hl-string">"btn btn-upgrade"</span><span class="hl-tag">&gt;</span>Switch to <span class="hl-template">{{ plan_name | capitalize }}</span><span class="hl-tag">&lt;/button&gt;</span>
+          <span class="hl-tag">&lt;/form&gt;</span>
+        <span class="hl-template">{% endif %}</span>
+      <span class="hl-tag">&lt;/td&gt;</span>
+      <span class="hl-template">{% endfor %}</span>
+    <span class="hl-tag">&lt;/tr&gt;</span>
+  <span class="hl-tag">&lt;/tbody&gt;</span>
+<span class="hl-tag">&lt;/table&gt;</span>
+
+<span class="hl-tag">&lt;/body&gt;&lt;/html&gt;</span></code></pre>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- STEP 11 -->
+      <div class="step" id="step11">
+        <div class="step-number">11</div>
+        <div class="step-content">
+          <h3>Audit Log</h3>
+          <p class="explanation">An audit log records who did what and when, at the org level. This is useful for compliance and debugging. You write to the audit log from your route handlers whenever a significant action happens. The log is append-only. Never update or delete audit events.</p>
+          <div class="tabs" id="s11">
+            <div class="tab-bar">
+              <button class="tab-btn active" onclick="switchTab('s11',0)">log_event helper + route</button>
+              <button class="tab-btn" onclick="switchTab('s11',1)">templates/audit.html</button>
+            </div>
+            <div class="tab-panel active">
+              <div class="code-header"><span class="lang-label">python</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-keyword">from</span> datetime <span class="hl-keyword">import</span> datetime
+
+
+<span class="hl-comment"># log_event: call this from any route handler to write an audit record.
+# Never update or delete existing audit events — only insert.</span>
+<span class="hl-keyword">def</span> log_event(
+    db:      Session,
+    org_id:  int,
+    user_id: int,
+    action:  str,
+    detail:  str = <span class="hl-string">""</span>,
+) -&gt; <span class="hl-builtin">None</span>:
+    event = AuditEvent(
+        org_id     = org_id,
+        user_id    = user_id,
+        action     = action,
+        detail     = detail,
+        created_at = datetime.utcnow(),
+    )
+    db.add(event)
+    db.commit()
+
+
+<span class="hl-comment"># Where to call log_event in your routes:
+#
+#   invite_member  → log_event(db, org_id, current_user.id, "invite_member", f"Invited {email}")
+#   remove_member  → log_event(db, org_id, current_user.id, "remove_member", f"Removed {email}")
+#   change_role    → log_event(db, org_id, current_user.id, "role_changed",  f"{email}: {old} → {new}")
+#   change_plan    → log_event(db, org_id, current_user.id, "plan_changed",  f"{old} → {new}")
+#   delete_org     → log_event(db, org_id, current_user.id, "org_deleted",   org.name)</span>
+
+
+<span class="hl-decorator">@app.get</span>(<span class="hl-string">"/orgs/{org_id}/audit"</span>, response_class=HTMLResponse)
+<span class="hl-keyword">def</span> audit_page(
+    org_id:       int,
+    request:      Request,
+    db:           Session = Depends(get_db),
+    current_user: User    = Depends(require_role(<span class="hl-string">"owner"</span>, <span class="hl-string">"admin"</span>)),
+):
+    <span class="hl-comment"># last 100 events, newest first</span>
+    events = (
+        db.query(AuditEvent)
+        .filter(AuditEvent.org_id == org_id)
+        .order_by(AuditEvent.created_at.desc())
+        .limit(<span class="hl-number">100</span>)
+        .all()
+    )
+    <span class="hl-keyword">return</span> templates.TemplateResponse(<span class="hl-string">"audit.html"</span>, {
+        <span class="hl-string">"request"</span>: request,
+        <span class="hl-string">"org_id"</span>:  org_id,
+        <span class="hl-string">"events"</span>:  events,
+    })</code></pre>
+            </div>
+            <div class="tab-panel">
+              <div class="code-header"><span class="lang-label">html</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code><span class="hl-comment">&lt;!-- templates/audit.html --&gt;</span>
+<span class="hl-tag">&lt;!DOCTYPE html&gt;</span>
+<span class="hl-tag">&lt;html</span> <span class="hl-attr">lang</span>=<span class="hl-string">"en"</span><span class="hl-tag">&gt;</span>
+<span class="hl-tag">&lt;head&gt;</span>
+  <span class="hl-tag">&lt;meta</span> <span class="hl-attr">charset</span>=<span class="hl-string">"UTF-8"</span><span class="hl-tag">&gt;</span>
+  <span class="hl-tag">&lt;title&gt;</span>Audit Log<span class="hl-tag">&lt;/title&gt;</span>
+  <span class="hl-tag">&lt;style&gt;</span>
+    body { font-family: sans-serif; max-width: 900px; margin: 40px auto; padding: 0 20px; }
+    h1   { font-size: 1.4rem; margin-bottom: 16px; }
+    table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+    th, td { text-align: left; padding: 8px 12px; border-bottom: 1px solid #eee; }
+    th { background: #f5f5f5; font-weight: 600; }
+    tr:hover td { background: #fafafa; }
+    .ts { color: #888; font-size: 0.82rem; white-space: nowrap; }
+    a { color: #3949ab; }
+  <span class="hl-tag">&lt;/style&gt;</span>
+<span class="hl-tag">&lt;/head&gt;</span>
+<span class="hl-tag">&lt;body&gt;</span>
+
+<span class="hl-tag">&lt;h1&gt;</span>Audit Log<span class="hl-tag">&lt;/h1&gt;</span>
+<span class="hl-tag">&lt;p</span> <span class="hl-attr">style</span>=<span class="hl-string">"margin-bottom:16px;"</span><span class="hl-tag">&gt;</span>
+  <span class="hl-tag">&lt;a</span> <span class="hl-attr">href</span>=<span class="hl-string">"/orgs/{{ org_id }}/dashboard"</span><span class="hl-tag">&gt;</span>&larr; Back to dashboard<span class="hl-tag">&lt;/a&gt;</span>
+<span class="hl-tag">&lt;/p&gt;</span>
+
+<span class="hl-tag">&lt;table&gt;</span>
+  <span class="hl-tag">&lt;thead&gt;</span>
+    <span class="hl-tag">&lt;tr&gt;</span>
+      <span class="hl-tag">&lt;th&gt;</span>Time<span class="hl-tag">&lt;/th&gt;</span>
+      <span class="hl-tag">&lt;th&gt;</span>User ID<span class="hl-tag">&lt;/th&gt;</span>
+      <span class="hl-tag">&lt;th&gt;</span>Action<span class="hl-tag">&lt;/th&gt;</span>
+      <span class="hl-tag">&lt;th&gt;</span>Detail<span class="hl-tag">&lt;/th&gt;</span>
+    <span class="hl-tag">&lt;/tr&gt;</span>
+  <span class="hl-tag">&lt;/thead&gt;</span>
+  <span class="hl-tag">&lt;tbody&gt;</span>
+    <span class="hl-template">{% for event in events %}</span>
+    <span class="hl-tag">&lt;tr&gt;</span>
+      <span class="hl-tag">&lt;td</span> <span class="hl-attr">class</span>=<span class="hl-string">"ts"</span><span class="hl-tag">&gt;</span><span class="hl-template">{{ event.created_at.strftime('%Y-%m-%d %H:%M') }}</span><span class="hl-tag">&lt;/td&gt;</span>
+      <span class="hl-tag">&lt;td&gt;</span><span class="hl-template">{{ event.user_id or "system" }}</span><span class="hl-tag">&lt;/td&gt;</span>
+      <span class="hl-tag">&lt;td&gt;&lt;code&gt;</span><span class="hl-template">{{ event.action }}</span><span class="hl-tag">&lt;/code&gt;&lt;/td&gt;</span>
+      <span class="hl-tag">&lt;td&gt;</span><span class="hl-template">{{ event.detail or "" }}</span><span class="hl-tag">&lt;/td&gt;</span>
+    <span class="hl-tag">&lt;/tr&gt;</span>
+    <span class="hl-template">{% else %}</span>
+    <span class="hl-tag">&lt;tr&gt;&lt;td</span> <span class="hl-attr">colspan</span>=<span class="hl-string">"4"</span> <span class="hl-attr">style</span>=<span class="hl-string">"color:#888;text-align:center;padding:20px;"</span><span class="hl-tag">&gt;</span>No audit events yet.<span class="hl-tag">&lt;/td&gt;&lt;/tr&gt;</span>
+    <span class="hl-template">{% endfor %}</span>
+  <span class="hl-tag">&lt;/tbody&gt;</span>
+<span class="hl-tag">&lt;/table&gt;</span>
+
+<span class="hl-tag">&lt;/body&gt;&lt;/html&gt;</span></code></pre>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- STEP 12 -->
+      <div class="step" id="step12">
+        <div class="step-number">12</div>
+        <div class="step-content">
+          <h3>What's Next</h3>
+          <div class="info-box">
+            <strong>Real billing with Stripe</strong><br>
+            In production, the plan upgrade button creates a Stripe Checkout Session and redirects the user to Stripe's payment page. After payment, Stripe sends a webhook to your server to confirm the plan change. The Stripe Python SDK handles all of this. You would gate the plan update inside the webhook handler rather than a direct form POST.
+          </div>
+          <div class="info-box">
+            <strong>JWT authentication</strong><br>
+            This guide used a simplified session-based auth for clarity. For a production SaaS app you want JWT access tokens and refresh token rotation so the frontend can be a separate app. The payload carries <code>user_id</code> and <code>org_id</code> so you can remove the session middleware entirely. See the JWT and Refresh Token guides for the full implementation.
+          </div>
+          <div class="info-box">
+            <strong>Per-org API keys</strong><br>
+            Many B2B apps let organizations generate API keys for programmatic access. Add an <code>OrgAPIKey</code> table with columns <code>org_id</code>, <code>key_hash</code> (bcrypt or SHA-256), <code>label</code>, and <code>created_at</code>. Create a <code>get_current_org_from_api_key</code> dependency that reads the <code>X-API-Key</code> header, hashes it, and looks it up in the table. Apply this dependency to any routes that need machine-to-machine access.
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </main>
+</div>
+<script>
+(function(){var s=localStorage.getItem("pyoffline-theme");if(s==="light")document.documentElement.classList.add("light");document.addEventListener("DOMContentLoaded",function(){var t=document.getElementById("themeToggle");if(!t)return;t.checked=(localStorage.getItem("pyoffline-theme")==="light");t.addEventListener("change",function(){if(this.checked){document.documentElement.classList.add("light");localStorage.setItem("pyoffline-theme","light");}else{document.documentElement.classList.remove("light");localStorage.setItem("pyoffline-theme","dark");}});});})();
+function switchTab(stepId,idx){var s=document.getElementById(stepId);var b=s.querySelectorAll(".tab-btn");var p=s.querySelectorAll(".tab-panel");b.forEach(function(x){x.classList.remove("active")});p.forEach(function(x){x.classList.remove("active")});b[idx].classList.add("active");p[idx].classList.add("active");}
+function copyCode(btn){var code=btn.closest(".tab-panel").querySelector("code").innerText;navigator.clipboard.writeText(code).then(function(){var o=btn.textContent;btn.textContent="Copied!";setTimeout(function(){btn.textContent=o;},1500);});}
+function toggleSidebar(){var s=document.getElementById("guideSidebar");var o=document.getElementById("sidebarOverlay");if(!s)return;s.classList.toggle("open");o.classList.toggle("open");}
+document.addEventListener("DOMContentLoaded",function(){var s=document.getElementById("guideSidebar");if(!s)return;s.querySelectorAll("nav a").forEach(function(a){a.addEventListener("click",function(){s.classList.remove("open");var o=document.getElementById("sidebarOverlay");if(o)o.classList.remove("open");});});});
+function toggleSbDesktop(){var c=document.body.classList.toggle("sb-collapsed");localStorage.setItem("sb-collapsed",c?"1":"0");}
+(function(){if(localStorage.getItem("sb-collapsed")==="1")document.body.classList.add("sb-collapsed");})();
+</script>
+</body>
+</html>

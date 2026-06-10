@@ -209,7 +209,7 @@ code { font-family: "Fira Code", "Cascadia Code", "Consolas", monospace; font-si
         <div class="step-number">1</div>
         <div class="step-content">
           <h3>What We're Building</h3>
-          <p class="explanation">This guide extends the FastAPI CRUD pattern into a real mini-app with two parts running side by side on one page: a <strong>note list</strong> on the left where you add, complete, and delete notes, and an <strong>AI chat panel</strong> on the right where you can type a question or click "Summarise my notes" to get an AI-generated summary. Everything runs through FastAPI with Jinja2 templates — no JavaScript frameworks, no React, no fetch() calls from the browser.</p>
+          <p class="explanation">This guide extends the FastAPI CRUD pattern into a real mini-app with two panels running side by side on one page. The left panel is a <strong>note list</strong> where you add, complete, and delete notes. The right panel is an <strong>AI chat panel</strong> where you can type a question or click "Summarise my notes" to get an AI-generated summary. Everything runs through FastAPI with Jinja2 templates. There are no JavaScript frameworks, no React, and no fetch calls from the browser.</p>
           <div class="info-box"><strong>What this teaches you:</strong> Persisting data between restarts with a JSON file, building multi-section HTML UIs with Jinja2, calling an AI API from a FastAPI route with httpx, and managing a conversation without JavaScript.</div>
         </div>
       </div>
@@ -219,7 +219,7 @@ code { font-family: "Fira Code", "Cascadia Code", "Consolas", monospace; font-si
         <div class="step-number">2</div>
         <div class="step-content">
           <h3>File Structure</h3>
-          <p class="explanation">Keep it simple — one Python file, one template, one CSS file, one data file, and a <code>.env</code> for your API key.</p>
+          <p class="explanation">Keep it simple. The project uses one Python file, one template, one CSS file, one data file, and a <code>.env</code> file for your API key. That is everything you need to get the app running.</p>
           <div class="tabs">
             <div class="tab-bar">
               <button class="tab-btn active" onclick="switchTab('step2',0)">File tree</button>
@@ -245,7 +245,7 @@ code { font-family: "Fira Code", "Cascadia Code", "Consolas", monospace; font-si
         <div class="step-number">3</div>
         <div class="step-content">
           <h3>Persisting Notes (JSON File)</h3>
-          <p class="explanation">Two helper functions replace the in-memory <code>db = {}</code> dict. <code>load_notes()</code> reads the JSON file from disk every time a route needs the data. <code>save_notes()</code> writes the whole list back after any change. This is the simplest possible persistence without a database.</p>
+          <p class="explanation">Two helper functions replace the in-memory <code>db = {}</code> dict from earlier guides. <code>load_notes()</code> reads the JSON file from disk whenever a route needs the data. <code>save_notes()</code> writes the whole list back after any change. This is the simplest way to save data without setting up a database.</p>
           <div class="tabs">
             <div class="tab-bar">
               <button class="tab-btn active" onclick="switchTab('step3',0)">main.py — helpers</button>
@@ -283,7 +283,7 @@ DATA_FILE = Path(<span class="hl-string">"notes.json"</span>)
         <div class="step-number">4</div>
         <div class="step-content">
           <h3>Notes CRUD Routes</h3>
-          <p class="explanation">Four routes handle everything. Each one loads the notes from the JSON file, makes a change, saves the file back, and redirects to <code>GET /</code> so the page refreshes with the latest data. This is the same Post-Redirect-Get pattern from the CRUD guide — it prevents the browser resubmitting the form if you hit refresh.</p>
+          <p class="explanation">Four routes handle all the note operations. Each one loads the notes from the JSON file, makes a change, saves the file back, and redirects to <code>GET /</code> so the page refreshes with the latest data. This is the Post-Redirect-Get pattern from the CRUD guide. It prevents the browser from resubmitting the form if you hit the refresh key.</p>
           <div class="tabs">
             <div class="tab-bar">
               <button class="tab-btn active" onclick="switchTab('step4',0)">main.py — routes</button>
@@ -347,7 +347,7 @@ templates = Jinja2Templates(directory=<span class="hl-string">"templates"</span>
         <div class="step-number">5</div>
         <div class="step-content">
           <h3>The HTML Template</h3>
-          <p class="explanation">The page is split into two columns: notes on the left, AI chat on the right. Both are standard HTML forms — no JavaScript. The left column loops through notes from Python; the right column shows the chat history and a text input.</p>
+          <p class="explanation">The page is split into two columns: notes on the left and AI chat on the right. Both sides use standard HTML forms with no JavaScript. The left column loops through notes passed in from Python. The right column shows the chat history and a text input for sending new messages.</p>
           <div class="tabs">
             <div class="tab-bar">
               <button class="tab-btn active" onclick="switchTab('step5',0)">templates/index.html — structure</button>
@@ -413,7 +413,7 @@ templates = Jinja2Templates(directory=<span class="hl-string">"templates"</span>
         <div class="step-number">6</div>
         <div class="step-content">
           <h3>Jinja2 Recap</h3>
-          <p class="explanation">Two Jinja2 patterns make the notes list dynamic. The <code>{% if note.done %}</code> block adds a CSS class to a card so you can style completed notes differently. The button label also changes between "Done" and "Undo" based on the same flag.</p>
+          <p class="explanation">Two Jinja2 patterns make the notes list dynamic. The <code>{% if note.done %}</code> block adds a CSS class to a card so completed notes can be styled differently. The button label also switches between "Done" and "Undo" based on the same flag.</p>
           <div class="tabs">
             <div class="tab-bar">
               <button class="tab-btn active" onclick="switchTab('step6',0)">Jinja2 cheatsheet</button>
@@ -453,7 +453,7 @@ templates = Jinja2Templates(directory=<span class="hl-string">"templates"</span>
         <div class="step-number">7</div>
         <div class="step-content">
           <h3>CSS for the App</h3>
-          <p class="explanation">The two-column layout uses CSS Grid. The <code>.done</code> class strikes through the note text. Chat bubbles use different background colours to distinguish user messages from AI replies.</p>
+          <p class="explanation">The two-column layout uses CSS Grid to place the notes panel and chat panel side by side. The <code>.done</code> class adds a strikethrough to completed note text. Chat bubbles use different background colours to distinguish user messages from AI replies.</p>
           <div class="tabs">
             <div class="tab-bar">
               <button class="tab-btn active" onclick="switchTab('step7',0)">static/style.css</button>
@@ -530,7 +530,7 @@ header h1 { font-size: 1.5rem; }
         <div class="step-number">8</div>
         <div class="step-content">
           <h3>What is an AI API?</h3>
-          <p class="explanation">An AI API is just a URL you POST text to and get text back. You send a JSON payload with a model name and a list of messages. The model returns its reply as JSON. That's it. The "AI" is entirely on their servers — you're just making an HTTP request the same way you'd call a weather API or a CRM.</p>
+          <p class="explanation">An AI API is a URL you POST text to and get text back. You send a JSON payload with a model name and a list of messages. The model returns its reply as JSON. That is all there is to it. The AI runs entirely on their servers. From your code, you are just making an HTTP request the same way you would call a weather API or any other service.</p>
           <div class="tabs">
             <div class="tab-bar">
               <button class="tab-btn active" onclick="switchTab('step8',0)">The request shape (OpenAI)</button>
@@ -573,7 +573,7 @@ anthropic-version: 2023-06-01
         <div class="step-number">9</div>
         <div class="step-content">
           <h3>Setting Up .env</h3>
-          <p class="explanation">A <code>.env</code> file stores secrets outside your code. <code>python-dotenv</code> reads it into environment variables so Python can access them with <code>os.getenv()</code>. Add <code>.env</code> to your <code>.gitignore</code> so it never gets committed.</p>
+          <p class="explanation">A <code>.env</code> file stores secrets like API keys outside your source code. The <code>python-dotenv</code> library reads the file and loads its values into environment variables so Python can access them with <code>os.getenv()</code>. Add <code>.env</code> to your <code>.gitignore</code> so it never gets committed to version control.</p>
           <div class="tabs">
             <div class="tab-bar">
               <button class="tab-btn active" onclick="switchTab('step9',0)">.env file</button>
@@ -613,7 +613,7 @@ notes.json</code></pre>
         <div class="step-number">10</div>
         <div class="step-content">
           <h3>The /chat Route</h3>
-          <p class="explanation">The chat route receives the user's message from the form, builds a list of messages including any previous conversation history, calls the AI API, and redirects back to <code>GET /</code> with the reply and history passed as query parameters — a no-JS way to carry state between page loads.</p>
+          <p class="explanation">The chat route receives the user's message from the form and builds a list of messages that includes any previous conversation history. It calls the AI API, then redirects back to <code>GET /</code> with the reply and history passed as query parameters. This is how the app carries conversation state between page loads without using JavaScript.</p>
           <div class="tabs">
             <div class="tab-bar">
               <button class="tab-btn active" onclick="switchTab('step10',0)">main.py — /chat route</button>
@@ -658,7 +658,7 @@ notes.json</code></pre>
         <div class="step-number">11</div>
         <div class="step-content">
           <h3>Calling OpenAI (or Claude)</h3>
-          <p class="explanation">The <code>call_ai()</code> function makes the HTTP request to whichever AI API you're using. Both providers accept the same messages list format — only the URL, headers, and how you extract the reply text differ slightly.</p>
+          <p class="explanation">The <code>call_ai()</code> function makes the HTTP request to whichever AI API you are using. Both OpenAI and Claude accept the same messages list format. The only differences are the URL, the request headers, and where in the JSON response you find the reply text.</p>
           <div class="tabs">
             <div class="tab-bar">
               <button class="tab-btn active" onclick="switchTab('step11',0)">OpenAI</button>
@@ -717,7 +717,7 @@ notes.json</code></pre>
         <div class="step-number">12</div>
         <div class="step-content">
           <h3>The Chat UI</h3>
-          <p class="explanation">The right-column chat panel shows conversation history as styled bubbles, then a text input. The conversation history is passed back to Python as a hidden field containing a JSON string — no JavaScript needed to maintain state between page loads.</p>
+          <p class="explanation">The right-column chat panel shows the conversation history as styled bubbles and a text input at the bottom. The conversation history is passed back to Python as a hidden form field containing a JSON string. No JavaScript is needed to keep track of what was said between page loads.</p>
           <div class="tabs">
             <div class="tab-bar">
               <button class="tab-btn active" onclick="switchTab('step12',0)">templates/index.html — chat section</button>
@@ -759,7 +759,7 @@ notes.json</code></pre>
         <div class="step-number">13</div>
         <div class="step-content">
           <h3>Connecting Notes to AI</h3>
-          <p class="explanation">The "Summarise my notes" button is a separate form that pre-builds the message before submitting. It posts to <code>/chat</code> with a message that lists all the current note texts. The AI receives them as context and replies with a summary or priority suggestions.</p>
+          <p class="explanation">The "Summarise my notes" button is a separate form that builds the message automatically before submitting. It posts to <code>/summarise</code> with a message that lists all the current note texts. The AI receives them as context and replies with a summary or priority suggestions based on what it sees.</p>
           <div class="tabs">
             <div class="tab-bar">
               <button class="tab-btn active" onclick="switchTab('step13',0)">HTML — summarise button</button>
@@ -811,7 +811,7 @@ notes.json</code></pre>
         <div class="step-number">14</div>
         <div class="step-content">
           <h3>What's Next</h3>
-          <p class="explanation">You've built a persistent task app with a real AI integration — without a database or JavaScript. Here are the natural next steps to level it up:</p>
+          <p class="explanation">You have built a persistent task app with a real AI integration, without a database or JavaScript. Here are the natural next steps to take it further.</p>
           <div class="info-box">
             <strong>Swap JSON for a real database:</strong> Replace <code>load_notes()</code> / <code>save_notes()</code> with SQLAlchemy + SQLite. The routes don't change — only the two helper functions. See the SQLAlchemy docs: <code>pip install sqlalchemy</code>.
           </div>
