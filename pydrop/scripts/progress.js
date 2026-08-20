@@ -1,5 +1,5 @@
 /**
- * progress.js -- XP, streaks, badges, and LocalStorage persistence
+ * progress.js -- completion tracking, streaks, badges, and LocalStorage persistence
  */
 
 const Progress = (function () {
@@ -7,11 +7,9 @@ const Progress = (function () {
   const STORAGE_KEY = 'pylearn_progress';
 
   const DEFAULT_STATE = {
-    xp: 0,
     completedChallenges: [],
     hintsUsed: [],
     solutionsRevealed: [],
-    unlockedLevels: [1],
     badges: [],
     streak: 0,
     lastActiveDate: null,
@@ -19,17 +17,12 @@ const Progress = (function () {
     theme: 'dark'
   };
 
-  const LEVEL_UNLOCK_THRESHOLD = 10;
-
   const BADGE_DEFS = [
     { slug: 'first-step',  label: 'First Step',   icon: '🎯', desc: 'Complete your first challenge.' },
     { slug: 'on-a-roll',   label: 'On a Roll',    icon: '🔥', desc: '5 challenges without using a hint.' },
     { slug: 'dedicated',   label: 'Dedicated',    icon: '📅', desc: 'Maintain a 7-day streak.' },
     { slug: 'pythonista',  label: 'Pythonista',   icon: '🐍', desc: 'Complete all Level 1 challenges.' },
-    { slug: 'flask-dev',   label: 'Flask Dev',    icon: '🌶️', desc: 'Complete 5 Flask challenges.' },
-    { slug: 'fastapi-dev', label: 'FastAPI Dev',  icon: '⚡', desc: 'Complete 5 FastAPI challenges.' },
-    { slug: 'django-dev',  label: 'Django Dev',   icon: '🎸', desc: 'Complete 5 Django challenges.' },
-    { slug: 'master',      label: 'Master',       icon: '🏆', desc: 'Complete all 100 challenges.' }
+    { slug: 'master',      label: 'Master',       icon: '🏆', desc: 'Complete every challenge.' }
   ];
 
   let state = null;
@@ -59,7 +52,7 @@ const Progress = (function () {
 
   // Clear all progress and reload
   function clearAll() {
-    if (!confirm('This will permanently erase all your XP, completions, badges, and streak. Are you sure?')) return;
+    if (!confirm('This will permanently erase all your completions, badges, and streak. Are you sure?')) return;
     localStorage.removeItem(STORAGE_KEY);
     state = Object.assign({}, DEFAULT_STATE);
     save();
@@ -87,29 +80,16 @@ const Progress = (function () {
     return Math.round((msB - msA) / 86400000);
   }
 
-  function _xpForDifficulty(difficulty) {
-    if (difficulty === 'hard') return 30;
-    if (difficulty === 'medium') return 20;
-    return 10;
-  }
-
   /**
-   * Record a challenge completion and award XP.
-   * Returns { xpGained, newBadges[], levelUnlocked }
+   * Record a challenge completion.
+   * Returns { newBadges[] }
    */
   function completeChallenge(challengeId, difficulty, usedHint) {
     const alreadyDone = state.completedChallenges.includes(challengeId);
-    let xpGained = 0;
     const newBadges = [];
-    let levelUnlocked = null;
 
     if (!alreadyDone) {
       state.completedChallenges.push(challengeId);
-
-      let xp = _xpForDifficulty(difficulty);
-      if (!usedHint) xp += 5;
-      xpGained = xp;
-      state.xp += xp;
     }
 
     // Update streak
@@ -119,8 +99,6 @@ const Progress = (function () {
         const diff = _dayDiff(state.lastActiveDate, today);
         if (diff === 1) {
           state.streak += 1;
-          state.xp += 10; // streak bonus
-          xpGained += 10;
         } else if (diff > 1) {
           state.streak = 1;
         }
@@ -128,21 +106,6 @@ const Progress = (function () {
         state.streak = 1;
       }
       state.lastActiveDate = today;
-    }
-
-    // Check level unlocks
-    const challenges = window.ALL_CHALLENGES || [];
-    for (let lvl = 2; lvl <= 5; lvl++) {
-      if (!state.unlockedLevels.includes(lvl)) {
-        const prevLvlChallenges = challenges.filter(function (c) { return c.level === lvl - 1; });
-        const completed = prevLvlChallenges.filter(function (c) {
-          return state.completedChallenges.includes(c.id);
-        });
-        if (completed.length >= LEVEL_UNLOCK_THRESHOLD) {
-          state.unlockedLevels.push(lvl);
-          levelUnlocked = lvl;
-        }
-      }
     }
 
     // Check badges
@@ -155,7 +118,7 @@ const Progress = (function () {
     });
 
     save();
-    return { xpGained, newBadges, levelUnlocked };
+    return { newBadges };
   }
 
   function _checkBadges(challengeId, difficulty, usedHint) {
@@ -174,24 +137,6 @@ const Progress = (function () {
     if (lvl1.length > 0 && lvl1.every(function (c) { return done.includes(c.id); })) {
       earned.push('pythonista');
     }
-
-    // Flask Dev
-    const flaskDone = challenges.filter(function (c) {
-      return c.topic === 'Flask' && done.includes(c.id);
-    });
-    if (flaskDone.length >= 5) earned.push('flask-dev');
-
-    // FastAPI Dev
-    const fastApiDone = challenges.filter(function (c) {
-      return c.topic === 'FastAPI' && done.includes(c.id);
-    });
-    if (fastApiDone.length >= 5) earned.push('fastapi-dev');
-
-    // Django Dev
-    const djangoDone = challenges.filter(function (c) {
-      return c.topic === 'Django' && done.includes(c.id);
-    });
-    if (djangoDone.length >= 5) earned.push('django-dev');
 
     // On a Roll -- 5 consecutive without hints (approximate: 5 recent without any hint used)
     const recentFive = done.slice(-5);
@@ -278,8 +223,7 @@ const Progress = (function () {
       return {
         level: lvl,
         total: inLevel.length,
-        completed: doneInLevel.length,
-        unlocked: state.unlockedLevels.includes(lvl)
+        completed: doneInLevel.length
       };
     });
   }
@@ -297,10 +241,6 @@ const Progress = (function () {
     return BADGE_DEFS;
   }
 
-  function isLevelUnlocked(lvl) {
-    return state.unlockedLevels.includes(lvl);
-  }
-
   function isChallengeCompleted(id) {
     return state.completedChallenges.includes(id);
   }
@@ -315,7 +255,7 @@ const Progress = (function () {
     setCurrentChallenge, saveEditorCode, loadEditorCode, setTheme,
     exportProgress, importProgress,
     getLevelProgress, getTotalProgress, getAllBadgeDefs,
-    isLevelUnlocked, isChallengeCompleted, wasHintUsed
+    isChallengeCompleted, wasHintUsed
   };
 
 })();

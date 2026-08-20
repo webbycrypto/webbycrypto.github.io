@@ -6,6 +6,52 @@
 
 const Validator = (function () {
 
+  // Blank out '#' comments (but not '#' inside strings) so a check can't be
+  // satisfied by commented-out code. Preserves line breaks and string content.
+  function _stripComments(code) {
+    let result = '';
+    let i = 0;
+    const len = code.length;
+    let quote = null; // null | "'" | '"' | "'''" | '"""'
+
+    while (i < len) {
+      if (quote) {
+        if (code.startsWith(quote, i)) {
+          result += quote;
+          i += quote.length;
+          quote = null;
+          continue;
+        }
+        if (quote.length === 1 && code[i] === '\\') {
+          result += code[i] + (code[i + 1] || '');
+          i += 2;
+          continue;
+        }
+        result += code[i];
+        i++;
+        continue;
+      }
+
+      if (code[i] === '"' && code[i + 1] === '"' && code[i + 2] === '"') {
+        quote = '"""'; result += '"""'; i += 3; continue;
+      }
+      if (code[i] === "'" && code[i + 1] === "'" && code[i + 2] === "'") {
+        quote = "'''"; result += "'''"; i += 3; continue;
+      }
+      if (code[i] === '"' || code[i] === "'") {
+        quote = code[i]; result += code[i]; i++; continue;
+      }
+      if (code[i] === '#') {
+        while (i < len && code[i] !== '\n') i++;
+        continue;
+      }
+      result += code[i];
+      i++;
+    }
+
+    return result;
+  }
+
   // Run a single check against code
   function runCheck(code, check) {
     const trimmed = code.trim();
@@ -22,11 +68,12 @@ const Validator = (function () {
         break;
 
       case 'hasValidDef':
-        // Like hasDef but requires the colon, rejecting `def foo()` without `:`
+        // Like hasDef but requires the colon, rejecting `def foo()` without `:`.
+        // Allows an optional `-> ReturnType` between the parens and the colon.
         if (check.name) {
-          passed = new RegExp('def\\s+' + escRe(check.name) + '\\s*\\([^)]*\\)\\s*:').test(trimmed);
+          passed = new RegExp('def\\s+' + escRe(check.name) + '\\s*\\([^)]*\\)\\s*(->\\s*[^:]+)?:').test(trimmed);
         } else {
-          passed = /def\s+\w+\s*\([^)]*\)\s*:/.test(trimmed);
+          passed = /def\s+\w+\s*\([^)]*\)\s*(->\s*[^:]+)?:/.test(trimmed);
         }
         break;
 
@@ -92,30 +139,6 @@ const Validator = (function () {
         passed = /@dataclass/.test(trimmed);
         break;
 
-      case 'hasPydanticModel':
-        passed = /class\s+\w+\s*\(\s*BaseModel\s*\)/.test(trimmed);
-        break;
-
-      case 'hasFlaskApp':
-        passed = /Flask\s*\(\s*__name__\s*\)/.test(trimmed);
-        break;
-
-      case 'hasFlaskRoute':
-        passed = /@(?:app|bp|\w+_bp)\.route\s*\(/.test(trimmed);
-        break;
-
-      case 'hasFastAPIApp':
-        passed = /FastAPI\s*\(\s*\)/.test(trimmed);
-        break;
-
-      case 'hasFastAPIRoute':
-        passed = /@app\.(?:get|post|put|delete|patch)\s*\(/.test(trimmed);
-        break;
-
-      case 'hasDjangoModel':
-        passed = /class\s+\w+\s*\(\s*models\.Model\s*\)/.test(trimmed);
-        break;
-
       case 'codeContains':
         passed = trimmed.includes(check.value);
         break;
@@ -154,8 +177,9 @@ const Validator = (function () {
       };
     }
 
+    const stripped = _stripComments(code);
     const results = checks.map(function (check) {
-      return runCheck(code, check);
+      return runCheck(stripped, check);
     });
 
     const passed = results.every(function (r) { return r.passed; });

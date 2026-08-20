@@ -14,7 +14,7 @@ const UI = (function () {
     2: 'Functions & Logic',
     3: 'Intermediate Python',
     4: 'Modern Python for Web',
-    5: 'Flask, FastAPI & Django'
+    5: 'Blockchain Fundamentals'
   };
 
   function init() {
@@ -37,44 +37,41 @@ const UI = (function () {
     // Progress widget
     const tp = Progress.getTotalProgress();
     html += '<div class="progress-widget">' +
-      '<div class="xp-row"><span class="xp-label">XP</span><span class="xp-value">' + state.xp + '</span>' +
-      '<span class="streak-badge" title="Day streak">🔥 ' + (state.streak || 0) + '</span></div>' +
+      '<div class="xp-row"><span class="streak-badge" title="Day streak">🔥 ' + (state.streak || 0) + '</span></div>' +
       '<div class="xp-bar-track"><div class="xp-bar-fill" style="width:' + tp.percent + '%"></div></div>' +
       '<div class="xp-meta">' + tp.completed + ' / ' + tp.total + ' challenges</div>' +
       '</div>';
 
     // Level trees
     for (let lvl = 1; lvl <= 5; lvl++) {
-      const unlocked = Progress.isLevelUnlocked(lvl);
       const levelChallenges = challenges.filter(function (c) { return c.level === lvl; });
       const completedCount = levelChallenges.filter(function (c) {
         return Progress.isChallengeCompleted(c.id);
       }).length;
 
-      html += '<div class="level-group' + (unlocked ? '' : ' locked') + '">' +
+      html += '<div class="level-group">' +
         '<div class="level-header" data-level="' + lvl + '">' +
-        '<span class="level-icon">' + (unlocked ? '' : '🔒') + '</span>' +
         '<span class="level-name">Level ' + lvl + ' -- ' + LEVEL_NAMES[lvl] + '</span>' +
         '<span class="level-count">' + completedCount + '/' + levelChallenges.length + '</span>' +
         '</div>';
 
-      if (unlocked) {
-        html += '<div class="challenge-list">';
-        levelChallenges.forEach(function (c) {
-          const done = Progress.isChallengeCompleted(c.id);
-          const active = c.id === currentId;
-          const diffClass = 'diff-' + c.difficulty;
-          html += '<div class="challenge-item' +
-            (active ? ' active' : '') +
-            (done ? ' done' : '') +
-            '" data-id="' + c.id + '">' +
-            '<span class="ch-status">' + (done ? '✓' : '●') + '</span>' +
-            '<span class="ch-title">' + escHtml(c.title) + '</span>' +
-            '<span class="ch-diff ' + diffClass + '">' + c.difficulty + '</span>' +
-            '</div>';
-        });
-        html += '</div>';
-      }
+      html += '<div class="challenge-list">';
+      levelChallenges.forEach(function (c) {
+        const done = Progress.isChallengeCompleted(c.id);
+        const active = c.id === currentId;
+        const diffClass = 'diff-' + c.difficulty;
+        html += '<div class="challenge-item' +
+          (active ? ' active' : '') +
+          (done ? ' done' : '') +
+          '" data-id="' + c.id + '">' +
+          '<span class="ch-status">' + (done ? '✓' : '●') + '</span>' +
+          '<span class="ch-title">' + escHtml(c.title) +
+          (c.kind === 'project' ? ' <span class="ch-project-badge" title="Guided project">📘</span>' : '') +
+          '</span>' +
+          '<span class="ch-diff ' + diffClass + '">' + c.difficulty + '</span>' +
+          '</div>';
+      });
+      html += '</div>';
 
       html += '</div>';
     }
@@ -110,10 +107,11 @@ const UI = (function () {
       '<div class="challenge-meta">' +
       '<span class="topic-chip">' + escHtml(challenge.topic) + '</span>' +
       '<span class="diff-chip diff-' + challenge.difficulty + '">' + diffLabel + '</span>' +
-      '<span class="xp-chip">+' + challenge.xp + ' XP</span>' +
+      (challenge.kind === 'project' ? '<span class="project-chip">📘 Guided Project</span>' : '') +
       (done ? '<span class="done-chip">✓ Completed</span>' : '') +
       '</div>' +
       '<h1 class="challenge-title">' + escHtml(challenge.title) + '</h1>' +
+      (challenge.source ? '<p class="project-source">Adapted from ' + escHtml(challenge.source) + '</p>' : '') +
       '</div>' +
       '<div class="instructions">' + challenge.instructions + '</div>';
 
@@ -126,6 +124,17 @@ const UI = (function () {
     document.getElementById('explanation-panel').style.display = 'none';
     document.getElementById('hint-text').innerHTML = '';
     document.getElementById('hint-area').style.display = 'none';
+  }
+
+  // Updates just the header's "Completed" chip and the Run button's done
+  // state in place, without wiping the feedback/explanation panels that
+  // were just shown -- renderChallenge() would clear those.
+  function markChallengeDone(challenge) {
+    const meta = document.querySelector('.challenge-meta');
+    if (meta && !meta.querySelector('.done-chip')) {
+      meta.insertAdjacentHTML('beforeend', '<span class="done-chip">✓ Completed</span>');
+    }
+    document.getElementById('btn-run').classList.add('done');
   }
 
   function showFeedback(result, challenge) {
@@ -146,33 +155,74 @@ const UI = (function () {
     }
   }
 
-  function showXPGain(xpGained, newBadges, levelUnlocked) {
-    if (xpGained > 0) {
-      showToast('+' + xpGained + ' XP', 'xp');
+  // -----------------------------------------------------------------------
+  // Python execution feedback (pyTests)
+  // -----------------------------------------------------------------------
+
+  function showPyTestFeedback(results, challenge) {
+    const allPassed = results.every(function (r) { return r.passed; });
+    if (allPassed) {
+      showFeedback({ passed: true }, challenge);
+      return;
     }
-    if (newBadges && newBadges.length > 0) {
-      newBadges.forEach(function (badge) {
-        if (badge) {
-          setTimeout(function () {
-            showModal(
-              badge.icon + ' Badge Unlocked!',
-              '<div class="badge-unlock"><div class="badge-icon">' + badge.icon + '</div>' +
-              '<div class="badge-label">' + badge.label + '</div>' +
-              '<div class="badge-desc">' + badge.desc + '</div></div>'
-            );
-          }, 600);
-        }
-      });
+
+    const failed = results.filter(function (r) { return !r.passed; });
+    const intro = failed.length === results.length
+      ? "Your code ran, but the result isn't quite right yet:"
+      : 'Good progress! ' + (results.length - failed.length) + ' of ' + results.length + ' checks passed. Still off:';
+    const lines = failed.map(function (r) { return '  - ' + r.message; }).join('\n');
+
+    const panel = document.getElementById('feedback-panel');
+    panel.className = 'feedback-panel error';
+    panel.innerHTML = '<div class="fb-icon">✗</div><div class="fb-text">' +
+      escHtml(intro + '\n' + lines).replace(/\n/g, '<br>') + '</div>';
+  }
+
+  function showRuntimeError(traceback) {
+    const panel = document.getElementById('feedback-panel');
+    panel.className = 'feedback-panel error';
+    panel.innerHTML = '<div class="fb-icon">⚠</div><div class="fb-text">' +
+      'Your code raised an error when it ran:<br><pre class="fb-traceback">' +
+      escHtml(traceback) + '</pre></div>';
+  }
+
+  function showTimeout() {
+    const panel = document.getElementById('feedback-panel');
+    panel.className = 'feedback-panel error';
+    panel.innerHTML = '<div class="fb-icon">⏱</div><div class="fb-text">' +
+      'Your code took too long to run (possible infinite loop). It was stopped after 5 seconds.</div>';
+  }
+
+  let _runtimeLoadingShown = false;
+
+  function setLoadingRuntime(isLoading) {
+    if (isLoading && !_runtimeLoadingShown) {
+      _runtimeLoadingShown = true;
+      showToast('Loading the Python runtime (first run only)…', 'info');
     }
-    if (levelUnlocked) {
-      setTimeout(function () {
-        showModal(
-          '🔓 Level ' + levelUnlocked + ' Unlocked!',
-          '<div class="level-unlock"><p>You have unlocked <strong>Level ' + levelUnlocked +
-          ' -- ' + LEVEL_NAMES[levelUnlocked] + '</strong>!</p></div>'
-        );
-      }, 1200);
-    }
+  }
+
+  function setRunning(isRunning) {
+    const btn = document.getElementById('btn-run');
+    if (!btn) return;
+    btn.disabled = isRunning;
+    btn.classList.toggle('running', isRunning);
+  }
+
+  function showBadges(newBadges) {
+    if (!newBadges || !newBadges.length) return;
+    newBadges.forEach(function (badge) {
+      if (badge) {
+        setTimeout(function () {
+          showModal(
+            badge.icon + ' Badge Unlocked!',
+            '<div class="badge-unlock"><div class="badge-icon">' + badge.icon + '</div>' +
+            '<div class="badge-label">' + badge.label + '</div>' +
+            '<div class="badge-desc">' + badge.desc + '</div></div>'
+          );
+        }, 600);
+      }
+    });
   }
 
   // -----------------------------------------------------------------------
@@ -218,9 +268,7 @@ const UI = (function () {
   // -----------------------------------------------------------------------
 
   function getAdjacentChallengeId(currentId, direction) {
-    const all = (window.ALL_CHALLENGES || []).filter(function (c) {
-      return Progress.isLevelUnlocked(c.level);
-    });
+    const all = window.ALL_CHALLENGES || [];
     const idx = all.findIndex(function (c) { return c.id === currentId; });
     if (idx === -1) return null;
     const next = all[idx + direction];
@@ -228,16 +276,12 @@ const UI = (function () {
   }
 
   function getRandomChallengeId() {
-    const all = (window.ALL_CHALLENGES || []).filter(function (c) {
-      return Progress.isLevelUnlocked(c.level);
-    });
+    const all = window.ALL_CHALLENGES || [];
     return all[Math.floor(Math.random() * all.length)].id;
   }
 
   function getDailyChallenge() {
-    const all = (window.ALL_CHALLENGES || []).filter(function (c) {
-      return Progress.isLevelUnlocked(c.level);
-    });
+    const all = window.ALL_CHALLENGES || [];
     const dayIndex = Math.floor(Date.now() / 86400000) % all.length;
     return all[dayIndex].id;
   }
@@ -271,7 +315,6 @@ const UI = (function () {
 
     let content = '<div class="dashboard">' +
       '<div class="dash-stats">' +
-      '<div class="stat-card"><div class="stat-val">' + state.xp + '</div><div class="stat-label">Total XP</div></div>' +
       '<div class="stat-card"><div class="stat-val">' + tp.completed + '</div><div class="stat-label">Completed</div></div>' +
       '<div class="stat-card"><div class="stat-val">' + tp.percent + '%</div><div class="stat-label">Progress</div></div>' +
       '<div class="stat-card"><div class="stat-val">🔥 ' + state.streak + '</div><div class="stat-label">Day Streak</div></div>' +
@@ -378,10 +421,12 @@ const UI = (function () {
   }
 
   return {
-    init, renderSidebar, renderChallenge, showFeedback, showXPGain,
+    init, renderSidebar, renderChallenge, markChallengeDone, showFeedback, showBadges,
     showHint, filterSidebar,
     getAdjacentChallengeId, getRandomChallengeId, getDailyChallenge,
-    toggleTheme, openDashboard, showModal, closeModal, showToast
+    toggleTheme, openDashboard, showModal, closeModal, showToast,
+    showPyTestFeedback, showRuntimeError, showTimeout,
+    setLoadingRuntime, setRunning
   };
 
 })();

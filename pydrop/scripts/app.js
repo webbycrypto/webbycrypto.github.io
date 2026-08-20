@@ -37,6 +37,11 @@ const App = (function () {
     _wireKeyboardShortcuts();
     _wireSearchFilter();
 
+    // Warm up the Python runtime in the background so the first Run isn't
+    // slower than it has to be; only matters for challenges with pyTests.
+    PyRunner.onLoadingStateChange(UI.setLoadingRuntime);
+    PyRunner.warm();
+
     // Navigate to saved challenge or first
     const state = Progress.getState();
     const startId = state.currentChallenge || 1;
@@ -46,10 +51,6 @@ const App = (function () {
   function navigateTo(id) {
     const challenge = (window.ALL_CHALLENGES || []).find(function (c) { return c.id === id; });
     if (!challenge) return;
-    if (!Progress.isLevelUnlocked(challenge.level)) {
-      UI.showToast('Complete ' + (10 - _completedInLevel(challenge.level - 1)) + ' more Level ' + (challenge.level - 1) + ' challenges to unlock this level.', 'info');
-      return;
-    }
 
     _currentChallenge = challenge;
     _hintIndex = 0;
@@ -67,28 +68,63 @@ const App = (function () {
     }, 50);
   }
 
-  function _completedInLevel(level) {
-    const challenges = (window.ALL_CHALLENGES || []).filter(function (c) { return c.level === level; });
-    return challenges.filter(function (c) { return Progress.isChallengeCompleted(c.id); }).length;
-  }
+  let _running = false;
 
   function _run() {
-    if (!_currentChallenge) return;
+    if (!_currentChallenge || _running) return;
+    const challenge = _currentChallenge;
     const code = Editor.getValue();
-    const result = Validator.validate(code, _currentChallenge.validation.checks);
+    const result = Validator.validate(code, challenge.validation.checks);
 
-    UI.showFeedback(result, _currentChallenge);
-
-    if (result.passed) {
-      const usedHint = Progress.wasHintUsed(_currentChallenge.id);
-      const outcome = Progress.completeChallenge(
-        _currentChallenge.id,
-        _currentChallenge.difficulty,
-        usedHint
-      );
-      UI.renderSidebar(_currentChallenge.id);
-      UI.showXPGain(outcome.xpGained, outcome.newBadges, outcome.levelUnlocked);
+    if (!result.passed) {
+      UI.showFeedback(result, challenge);
+      return;
     }
+
+    const pyTests = challenge.validation.pyTests;
+    if (!pyTests || !pyTests.length) {
+      // No execution-based tests defined for this challenge (e.g. Level 5) --
+      // the structural checks are the whole gate, same as before Pyodide.
+      UI.showFeedback(result, challenge);
+      _completeChallenge(challenge);
+      return;
+    }
+
+    _running = true;
+    UI.setRunning(true);
+
+    PyRunner.execute(code, pyTests, {
+      argv: challenge.validation.argv,
+      stdin: challenge.validation.stdin,
+      packages: challenge.validation.packages
+    }).then(function (outcome) {
+      _running = false;
+      UI.setRunning(false);
+
+      if (outcome.type === 'result') {
+        UI.showPyTestFeedback(outcome.results, challenge);
+        const allPassed = outcome.results.every(function (r) { return r.passed; });
+        if (allPassed) _completeChallenge(challenge);
+      } else if (outcome.type === 'runtime-error') {
+        UI.showRuntimeError(outcome.traceback);
+      } else if (outcome.type === 'timed-out') {
+        UI.showTimeout();
+      } else {
+        UI.showRuntimeError(outcome.message || 'The Python runtime failed to load.');
+      }
+    });
+  }
+
+  function _completeChallenge(challenge) {
+    const usedHint = Progress.wasHintUsed(challenge.id);
+    const outcome = Progress.completeChallenge(
+      challenge.id,
+      challenge.difficulty,
+      usedHint
+    );
+    UI.renderSidebar(challenge.id);
+    UI.markChallengeDone(challenge);
+    UI.showBadges(outcome.newBadges);
   }
 
   function _reset() {

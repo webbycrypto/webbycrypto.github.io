@@ -18,7 +18,7 @@
 }
 
 /* -------------------------------------------------------------------------
-   Progress widget (XP, streak, bar)
+   Progress widget (streak, completion bar)
 ------------------------------------------------------------------------- */
 .progress-widget {
   padding: 10px 14px 12px;
@@ -30,20 +30,6 @@
   align-items: baseline;
   gap: 6px;
   margin-bottom: 5px;
-}
-
-.xp-label {
-  font-size: 10px;
-  text-transform: uppercase;
-  letter-spacing: .6px;
-  color: var(--text-faint);
-}
-
-.xp-value {
-  font-size: 20px;
-  font-weight: 700;
-  color: var(--accent);
-  flex: 1;
 }
 
 .streak-badge {
@@ -93,12 +79,6 @@
 
 .level-header:hover { background: var(--bg-surface0); }
 
-.level-icon {
-  font-size: 13px;
-  width: 16px;
-  text-align: center;
-}
-
 .level-name {
   flex: 1;
   font-size: 12px;
@@ -113,13 +93,6 @@
   padding: 1px 5px;
   border-radius: 10px;
 }
-
-.level-group.locked .level-header {
-  opacity: .5;
-  cursor: default;
-}
-
-.level-group.locked .level-header:hover { background: transparent; }
 
 .level-group.collapsed .challenge-list {
   display: none;
@@ -165,6 +138,12 @@
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+.ch-project-badge {
+  font-size: 10px;
+  margin-left: 3px;
+  opacity: .85;
 }
 
 .challenge-item.done .ch-title {
