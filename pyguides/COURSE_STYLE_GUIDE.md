@@ -374,7 +374,7 @@ All code inside `<pre><code>` must use these span classes. Do not use any other 
 | `hl-builtin` | Built-in types and functions: `str`, `int`, `bool`, `list`, `dict`, `print` |
 | `hl-tag` | HTML tags: `<div>`, `<form>` |
 | `hl-attr` | HTML attributes: `name="..."`, `class="..."` |
-| `hl-template` | Jinja2 template syntax: `{{ }}`, `{% %}` |
+| `hl-template` | Jinja2 template syntax: {% raw %}`{{ }}`, `{% %}`{% endraw %} |
 
 HTML special characters inside `<pre><code>` must be escaped: `<` → `&lt;`, `>` → `&gt;`, `&` → `&amp;`.
 
