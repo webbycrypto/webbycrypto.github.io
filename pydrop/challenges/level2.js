@@ -396,7 +396,7 @@ window.LEVEL2 = [
     xp: 20,
     instructions: `<p>A recursive function calls itself with a smaller version of the same problem, over and over, until it reaches a case simple enough to answer directly, called the base case. Every recursive function needs one, or it calls itself forever.</p>
 <span class="task-label">Your Task</span>
-<p class="task-line">Define a function <code>factorial</code> that takes an integer <code>n</code> and returns <code>n!</code>. The base case is: if <code>n == 0</code>, return <code>1</code>. Otherwise return <code>n * factorial(n - 1)</code>.</p>
+<p class="task-line">Define a recursive function <code>factorial</code> that takes an integer <code>n</code> and returns <code>n!</code> (n factorial).</p>
 <div class="example-block">
   <span class="example-label">Example</span>
   <div class="io-row"><span class="io-key">Input</span><code class="io-val">factorial(5)</code></div>
@@ -642,11 +642,7 @@ window.LEVEL2 = [
     xp: 20,
     instructions: `<p><code>map(func, iterable)</code> applies a function to every item in a sequence, and <code>filter(func, iterable)</code> keeps only the items where that function returns something truthy. Both hand back a lazy iterator, so you'll usually wrap the result in <code>list()</code> to see or store the actual values.</p>
 <span class="task-label">Your Task</span>
-<p class="task-line">Given <code>numbers</code>:</p>
-<ul>
-  <li>Create <code>doubled</code> using <code>map()</code> and a lambda to double each number (convert result to list).</li>
-  <li>Create <code>evens</code> using <code>filter()</code> and a lambda to keep only even numbers (convert result to list).</li>
-</ul>
+<p class="task-line">Given <code>numbers</code>, create <code>doubled</code> with <code>map()</code> and a lambda (each number doubled), and <code>evens</code> with <code>filter()</code> and a lambda (only the even numbers), converting both results to lists.</p>
 <div class="example-block">
   <span class="example-label">Example</span>
   <div class="io-row"><span class="io-key">Input</span><code class="io-val">numbers = [1, 2, 3, 4, 5, 6]</code></div>
@@ -772,7 +768,7 @@ window.LEVEL2 = [
       ],
       pyTests: [
         { code: "assert divide(10, 2) == 5.0", message: "divide(10, 2) should return 5.0." },
-        { code: "assert divide.__doc__ and len(divide.__doc__.strip()) > 0", message: "'divide' should have a non-empty docstring." }
+        { code: "assert divide.__doc__ and divide.__doc__.strip() == 'Divide a by b and return the result.'", message: "'divide' should have exactly the docstring \"Divide a by b and return the result.\"" }
       ]
     },
     explanation: `<p>Docstrings are accessible via <code>func.__doc__</code> and are used by IDEs, <code>help()</code>, and documentation generators like Sphinx. They are a best practice for any function others will call.</p>`
@@ -812,7 +808,7 @@ window.LEVEL2 = [
         { code: "original = [1, 2, 3]\nadd_item(original, 4)\nassert original == [1, 2, 3]", message: "The original list should be unchanged after calling add_item -- don't use .append()." }
       ]
     },
-    explanation: `<p>Pure functions are easier to test and reason about. <code>items + [item]</code> creates a brand new list; the original <code>items</code> is unchanged. <code>items.append(item)</code> would modify the original, making the function impure.</p>`
+    explanation: `<p>This same pattern shows up anywhere you want predictable behavior: pure functions can be cached, run in parallel, or tested with plain input/output pairs, since they never depend on or change anything outside their own arguments. That's also why test suites lean on them so heavily -- an impure function's result can depend on when or how many times it's called, which makes a test flaky in ways a pure function's never can.</p>`
   },
   {
     id: 37,

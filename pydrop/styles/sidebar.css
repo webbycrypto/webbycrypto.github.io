@@ -151,18 +151,16 @@
 }
 
 /* -------------------------------------------------------------------------
-   Difficulty chips in sidebar
+   Difficulty indicator in sidebar -- a small color dot, not a text chip
 ------------------------------------------------------------------------- */
-.ch-diff {
-  font-size: 9px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: .4px;
-  padding: 1px 5px;
-  border-radius: 4px;
+.ch-diff-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
   flex-shrink: 0;
+  background: currentColor;
 }
 
-.diff-easy   { background: rgba(166,227,161,.15); color: var(--accent-green); }
-.diff-medium { background: rgba(249,226,175,.15); color: var(--accent-yellow); }
-.diff-hard   { background: rgba(243,139,168,.15); color: var(--accent-red); }
+.diff-easy   { color: var(--accent-green); }
+.diff-medium { color: var(--accent-yellow); }
+.diff-hard   { color: var(--accent-red); }

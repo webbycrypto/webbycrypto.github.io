@@ -1,0 +1,31 @@
+/* Tailwind v4, CSS-first config. Preflight is deliberately NOT imported --
+   main.css's existing reset (*,*::before,*::after{box-sizing:border-box;
+   margin:0;padding:0}) stays the single source of truth, so it isn't
+   duplicated/conflicted with Tailwind's own reset layer. */
+@import "tailwindcss/theme.css" layer(theme);
+@import "tailwindcss/utilities.css" layer(utilities);
+
+@theme {
+  --color-ink: var(--bg-base);
+  --color-surface: var(--bg-mantle);
+  --color-elevated: var(--bg-surface0);
+  --color-border: var(--border);
+  --color-ink2: var(--text-primary);
+  --color-muted: var(--text-muted);
+  --color-amber: var(--accent);
+  --color-teal: var(--accent-teal);
+  --color-success: var(--accent-green);
+  --color-danger: var(--accent-red);
+
+  --font-sans: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-mono: 'Cascadia Code', Consolas, 'Courier New', monospace;
+}
+
+/* Explicit content sources -- only the files that use Tailwind utility
+   classes need scanning. challenges/*.js only ever uses the legacy
+   semantic classes (task-label, example-block, etc.), never Tailwind
+   utilities, but is included defensively per the plan. */
+@source "../../index.html";
+@source "../../scripts/ui.js";
+@source "../../scripts/app.js";
+@source "../../challenges/*.js";

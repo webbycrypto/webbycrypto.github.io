@@ -322,10 +322,6 @@ window.LEVEL1 = [
   <span class="example-label">Example</span>
   <div class="io-row"><span class="io-key">Input</span><code class="io-val">items = ["apples", "bananas", "cherries"]</code></div>
   <div class="io-row"><span class="io-key">Output</span><code class="io-val">"You are bringing apples, bananas, and cherries."</code></div>
-</div>
-<div class="note-block">
-  <span class="note-label">Note</span>
-  <span>This example has three items. With just one, the sentence would simply read "You are bringing apples," since there's nothing to join.</span>
 </div>`,
     hints: [
       "Join everything except the last item with commas: ', '.join(items[:-1])",
@@ -428,6 +424,7 @@ window.LEVEL1 = [
   <div class="io-row"><span class="io-key">Input</span><code class="io-val">scores = {"alice": 95, "bob": 87, "charlie": 92}</code></div>
   <div class="io-row"><span class="io-key">all_keys</span><code class="io-val">dict_keys(['alice', 'bob', 'charlie'])</code></div>
   <div class="io-row"><span class="io-key">all_values</span><code class="io-val">dict_values([95, 87, 92])</code></div>
+  <div class="io-row"><span class="io-key">all_items</span><code class="io-val">dict_items([('alice', 95), ('bob', 87), ('charlie', 92)])</code></div>
 </div>`,
     hints: [
       "all_keys = scores.keys()",
@@ -748,6 +745,7 @@ window.LEVEL1 = [
 <div class="example-block">
   <span class="example-label">Example</span>
   <div class="io-row"><span class="io-key">Input</span><code class="io-val">raw = "  hello world  "</code></div>
+  <div class="io-row"><span class="io-key">shouted</span><code class="io-val">"  HELLO WORLD  "</code></div>
   <div class="io-row"><span class="io-key">trimmed</span><code class="io-val">"hello world"</code></div>
   <div class="io-row"><span class="io-key">words</span><code class="io-val">["hello", "world"]</code></div>
 </div>`,

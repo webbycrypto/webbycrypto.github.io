@@ -330,6 +330,10 @@ window.LEVEL4 = [
 <div class="example-block">
   <span class="example-label">Example</span>
   <div class="io-row"><span class="io-key">fetch_all(["a", "b"])</span><code class="io-val">resolves to ["Data from a", "Data from b"]</code></div>
+</div>
+<div class="note-block">
+  <span class="note-label">Note</span>
+  <span>This one is checked on its code shape rather than actually run here, since asyncio.gather() needs a real running event loop to demonstrate concurrent scheduling.</span>
 </div>`,
     hints: [
       "async def fetch_all(urls: list):",
@@ -346,7 +350,7 @@ window.LEVEL4 = [
         { type: "matchesRegex", pattern: "\\*tasks|\\*\\[", message: "Unpack the tasks into asyncio.gather()." }
       ]
     },
-    explanation: `<p><code>asyncio.gather(*coroutines)</code> schedules all coroutines to run concurrently. This is far faster than awaiting them one at a time when the operations are I/O-bound (like HTTP requests).</p>`
+    explanation: `<p><code>asyncio.gather(*coroutines)</code> returns results in the same order the coroutines were passed in, even though they may finish in a different order. If any one of them raises, by default <code>gather()</code> propagates that exception once every task has completed.</p>`
   },
   {
     id: 70,
@@ -1018,6 +1022,10 @@ window.LEVEL4 = [
     instructions: `<p>A mutable object like a list can't be used directly as a dataclass default; Python would create it once and share that exact same list across every instance. <code>field(default_factory=list)</code> solves this by calling <code>list()</code> fresh for each new instance instead.</p>
 <span class="task-label">Your Task</span>
 <p class="task-line">Import <code>dataclass</code> and <code>field</code> from <code>dataclasses</code>. Define a <code>@dataclass</code> class <code>Team</code> with a <code>name: str</code> field and a <code>members: list</code> field that defaults to an empty list using <code>field(default_factory=list)</code>.</p>
+<div class="example-block">
+  <span class="example-label">Example</span>
+  <div class="io-row"><span class="io-key">Team("Red").members</span><code class="io-val">[]</code></div>
+</div>
 <div class="note-block">
   <span class="note-label">Note</span>
   <span>Two separate Team instances should never share the same members list. Appending to one team's members shouldn't affect another team created afterward.</span>

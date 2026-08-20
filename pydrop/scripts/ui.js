@@ -21,7 +21,9 @@ const UI = (function () {
     _sidebar = document.getElementById('sidebar');
     _mainPanel = document.getElementById('main-panel');
     _toastContainer = document.getElementById('toast-container');
-    _applyTheme(Progress.getState().theme || 'dark');
+    _applyTheme(Progress.getState().theme || 'light');
+    const storedSidebarOpen = Progress.getState().sidebarOpen;
+    _applySidebar(storedSidebarOpen === undefined ? window.innerWidth > 900 : storedSidebarOpen);
   }
 
   // -----------------------------------------------------------------------
@@ -68,7 +70,7 @@ const UI = (function () {
           '<span class="ch-title">' + escHtml(c.title) +
           (c.kind === 'project' ? ' <span class="ch-project-badge" title="Guided project">📘</span>' : '') +
           '</span>' +
-          '<span class="ch-diff ' + diffClass + '">' + c.difficulty + '</span>' +
+          '<span class="ch-diff-dot ' + diffClass + '" data-difficulty="' + c.difficulty + '" title="' + c.difficulty + '" aria-label="' + c.difficulty + ' difficulty"></span>' +
           '</div>';
       });
       html += '</div>';
@@ -253,7 +255,8 @@ const UI = (function () {
 
     items.forEach(function (el) {
       const title = el.querySelector('.ch-title').textContent.toLowerCase();
-      const diff = (el.querySelector('.ch-diff') || {}).textContent || '';
+      const dotEl = el.querySelector('.ch-diff-dot');
+      const diff = dotEl ? dotEl.getAttribute('data-difficulty') || '' : '';
       const id = parseInt(el.getAttribute('data-id'), 10);
       const challenge = (window.ALL_CHALLENGES || []).find(function (c) { return c.id === id; });
       const topicMatch = !topic || (challenge && challenge.topic === topic);
@@ -291,7 +294,7 @@ const UI = (function () {
   // -----------------------------------------------------------------------
 
   function toggleTheme() {
-    const current = Progress.getState().theme || 'dark';
+    const current = Progress.getState().theme || 'light';
     const next = current === 'dark' ? 'light' : 'dark';
     _applyTheme(next);
     Progress.setTheme(next);
@@ -301,6 +304,23 @@ const UI = (function () {
     document.documentElement.setAttribute('data-theme', theme);
     const btn = document.getElementById('btn-theme');
     if (btn) btn.textContent = theme === 'dark' ? '☀️' : '🌙';
+  }
+
+  // -----------------------------------------------------------------------
+  // Sidebar drawer
+  // -----------------------------------------------------------------------
+
+  function toggleSidebar() {
+    const isOpen = !document.getElementById('app').classList.contains('sidebar-collapsed');
+    _applySidebar(!isOpen);
+    Progress.setSidebarOpen(!isOpen);
+  }
+
+  function _applySidebar(open) {
+    const app = document.getElementById('app');
+    if (app) app.classList.toggle('sidebar-collapsed', !open);
+    const btn = document.getElementById('btn-sidebar-toggle');
+    if (btn) btn.setAttribute('aria-expanded', String(open));
   }
 
   // -----------------------------------------------------------------------
@@ -424,7 +444,7 @@ const UI = (function () {
     init, renderSidebar, renderChallenge, markChallengeDone, showFeedback, showBadges,
     showHint, filterSidebar,
     getAdjacentChallengeId, getRandomChallengeId, getDailyChallenge,
-    toggleTheme, openDashboard, showModal, closeModal, showToast,
+    toggleTheme, toggleSidebar, openDashboard, showModal, closeModal, showToast,
     showPyTestFeedback, showRuntimeError, showTimeout,
     setLoadingRuntime, setRunning
   };

@@ -1,55 +1,56 @@
 /* main.css -- CSS variables, reset, base layout, dark/light themes */
 
 /* -------------------------------------------------------------------------
-   Catppuccin Mocha dark theme (default)
+   Editorial palette -- light theme is the priority/default: white +
+   neutral cool grays, with a confident cobalt blue as the single accent
 ------------------------------------------------------------------------- */
 :root,
-[data-theme="dark"] {
-  --bg-base:       #1e1e2e;
-  --bg-mantle:     #181825;
-  --bg-sidebar:    #11111b;
-  --bg-surface0:   #313244;
-  --bg-surface1:   #45475a;
-  --bg-surface2:   #585b70;
-  --text-primary:  #cdd6f4;
-  --text-muted:    #a6adc8;
-  --text-faint:    #585b70;
-  --accent:        #cba6f7;
-  --accent-blue:   #89b4fa;
-  --accent-green:  #a6e3a1;
-  --accent-red:    #f38ba8;
-  --accent-yellow: #f9e2af;
-  --accent-orange: #fab387;
-  --accent-teal:   #94e2d5;
-  --border:        #313244;
+[data-theme="light"] {
+  --bg-base:       #ffffff;
+  --bg-mantle:     #ffffff;
+  --bg-sidebar:    #ffffff;
+  --bg-surface0:   #f5f5f7;
+  --bg-surface1:   #e9e9ec;
+  --bg-surface2:   #dcdce0;
+  --text-primary:  #1c1e2b;
+  --text-muted:    #55536a;
+  --text-faint:    #8a8798;
+  --accent:        #3457d9;
+  --accent-blue:   #3d8f80;
+  --accent-green:  #4f8f3f;
+  --accent-red:    #c9424d;
+  --accent-yellow: #3457d9;
+  --accent-orange: #3457d9;
+  --accent-teal:   #3d8f80;
+  --border:        #e4e4e9;
   --font-mono:     'Cascadia Code', 'Consolas', 'Courier New', monospace;
-  --font-ui:       system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-ui:       'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
   --radius:        8px;
-  --shadow:        0 2px 8px rgba(0,0,0,.4);
+  --shadow:        0 2px 8px rgba(0,0,0,.12);
 }
 
 /* -------------------------------------------------------------------------
-   Light theme overrides
+   Dark theme (opt-in)
 ------------------------------------------------------------------------- */
-[data-theme="light"] {
-  --bg-base:       #eff1f5;
-  --bg-mantle:     #e6e9ef;
-  --bg-sidebar:    #dce0e8;
-  --bg-surface0:   #ccd0da;
-  --bg-surface1:   #bcc0cc;
-  --bg-surface2:   #acb0be;
-  --text-primary:  #4c4f69;
-  --text-muted:    #6c6f85;
-  --text-faint:    #9ca0b0;
-  --accent:        #7287fd;
-  --accent-blue:   #1e66f5;
-  --accent-green:  #40a02b;
-  --accent-red:    #d20f39;
-  --accent-yellow: #df8e1d;
-  --accent-orange: #fe640b;
-  --accent-teal:   #179299;
-  --border:        #ccd0da;
-  --shadow:        0 2px 8px rgba(0,0,0,.12);
+[data-theme="dark"] {
+  --bg-base:       #14151f;
+  --bg-mantle:     #1c1e2b;
+  --bg-sidebar:    #1c1e2b;
+  --bg-surface0:   #262838;
+  --bg-surface1:   #2f3142;
+  --bg-surface2:   #3a3d52;
+  --text-primary:  #f0eee6;
+  --text-muted:    #a8a6b8;
+  --text-faint:    #6d6b7d;
+  --accent:        #6e8fff;
+  --accent-blue:   #5fb3a3;
+  --accent-green:  #7fb069;
+  --accent-red:    #e8646f;
+  --accent-yellow: #6e8fff;
+  --accent-orange: #6e8fff;
+  --accent-teal:   #5fb3a3;
+  --border:        #2f3142;
+  --shadow:        0 2px 8px rgba(0,0,0,.4);
 }
 
 /* -------------------------------------------------------------------------
@@ -80,9 +81,13 @@ body {
 #app {
   display: grid;
   grid-template-rows: 44px 1fr;
-  grid-template-columns: 280px 1fr;
+  grid-template-columns: var(--sidebar-w, 280px) 1fr;
   height: 100vh;
   overflow: hidden;
+  transition: grid-template-columns .2s ease;
+}
+#app.sidebar-collapsed {
+  --sidebar-w: 0px;
 }
 
 /* Topbar spans full width */
@@ -420,17 +425,10 @@ select.filter-select:focus { border-color: var(--accent); }
 ------------------------------------------------------------------------- */
 @media (max-width: 900px) {
   #app {
-    grid-template-columns: 220px 1fr;
+    --sidebar-w: 220px;
   }
 }
 
 @media (max-width: 640px) {
-  #app {
-    grid-template-columns: 1fr;
-    grid-template-rows: 44px auto 1fr;
-  }
-  #sidebar {
-    display: none;
-  }
   #search-input { width: 120px; }
 }

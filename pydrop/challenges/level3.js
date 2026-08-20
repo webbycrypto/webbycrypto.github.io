@@ -158,7 +158,7 @@ window.LEVEL3 = [
   <div class="io-row"><span class="io-key">Cat().sound()</span><code class="io-val">"Meow"</code></div>
 </div>`,
     hints: [
-      "class Cat(Animal):  -- inherits from Animal",
+      "class Cat(Animal): -- inherits from Animal",
       "Override the sound method in Cat."
     ],
     starterCode: "class Animal:\n    def sound(self):\n        return \"...\"\n\n# Define Cat inheriting from Animal\n",

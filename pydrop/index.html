@@ -1,11 +1,17 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="dark">
+<html lang="en" data-theme="light">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>DropAcademy -- Learn Python by Doing</title>
 
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
   <!-- Styles -->
+  <link rel="stylesheet" href="styles/tailwind.css">
   <link rel="stylesheet" href="styles/main.css">
   <link rel="stylesheet" href="styles/sidebar.css">
   <link rel="stylesheet" href="styles/editor.css">
@@ -35,6 +41,15 @@
        TOPBAR
   =================================================================== -->
   <header id="topbar">
+    <button
+      id="btn-sidebar-toggle"
+      class="btn btn-ghost"
+      title="Toggle sidebar"
+      aria-label="Toggle sidebar"
+      aria-expanded="true"
+      aria-controls="sidebar"
+    >☰</button>
+
     <a class="topbar-brand" href="#" onclick="return false;" title="DropAcademy">
       <img src="assets/logo.png" alt="DropAcademy" class="topbar-logo">
     </a>
@@ -101,73 +116,83 @@
        MAIN PANEL
   =================================================================== -->
   <main id="main-panel">
+    <div id="main-columns" class="flex flex-col lg:flex-row h-full min-h-0">
 
-    <!-- Challenge info: title, difficulty chips, instructions -->
-    <div id="challenge-info">
-      <!-- Rendered by ui.js renderChallenge() -->
-    </div>
-
-    <!-- Editor region -->
-    <div class="editor-region">
-
-      <div class="editor-titlebar">
-        <span class="editor-filename">solution.py</span>
-        <span class="shortcut-hint">
-          <span class="kbd">Ctrl+Enter</span> Run &nbsp;
-          <span class="kbd">Ctrl+R</span> Reset &nbsp;
-          <span class="kbd">Ctrl+H</span> Hint &nbsp;
-          <span class="kbd">Tab</span> Indent
-        </span>
+      <!-- Instructions column -->
+      <div id="info-col" class="lg:w-[42%] lg:max-w-[640px] lg:border-r lg:border-[color:var(--border)] flex flex-col min-h-0 overflow-hidden">
+        <!-- Challenge info: title, difficulty chips, instructions -->
+        <div id="challenge-info">
+          <!-- Rendered by ui.js renderChallenge() -->
+        </div>
       </div>
 
-      <div class="editor-wrapper">
-        <div id="line-numbers" aria-hidden="true"></div>
-        <div id="highlight-layer" aria-hidden="true"></div>
-        <textarea
-          id="code-editor"
-          spellcheck="false"
-          autocomplete="off"
-          autocorrect="off"
-          autocapitalize="off"
-          aria-label="Python code editor"
-          aria-multiline="true"
-        ></textarea>
-      </div>
+      <!-- Editor + feedback column -->
+      <div id="editor-col" class="flex-1 flex flex-col min-h-0 overflow-hidden">
 
-      <!-- Action buttons -->
-      <div class="action-bar">
-        <button id="btn-run" class="btn btn-primary" title="Run and check (Ctrl+Enter)">
-          &#9654; Run
-        </button>
-        <button id="btn-reset" class="btn btn-secondary" title="Reset to starter code (Ctrl+R)">
-          &#8635; Reset
-        </button>
-        <button id="btn-hint" class="btn btn-ghost" title="Show a hint (Ctrl+H)">
-          &#128161; Hint
-        </button>
-        <button id="btn-solution" class="btn btn-ghost" title="Show solution">
-          &#128065; Solution
-        </button>
-        <span class="spacer"></span>
-        <button id="btn-prev" class="btn btn-ghost" title="Previous challenge (Ctrl+[)">
-          &#8592; Prev
-        </button>
-        <button id="btn-next" class="btn btn-primary" title="Next challenge (Ctrl+])">
-          Next &#8594;
-        </button>
-      </div>
+        <!-- Editor region -->
+        <div class="editor-region">
 
-    </div><!-- .editor-region -->
+          <div class="editor-titlebar">
+            <span class="editor-filename">solution.py</span>
+            <span class="shortcut-hint">
+              <span class="kbd">Ctrl+Enter</span> Run &nbsp;
+              <span class="kbd">Ctrl+R</span> Reset &nbsp;
+              <span class="kbd">Ctrl+H</span> Hint &nbsp;
+              <span class="kbd">Tab</span> Indent
+            </span>
+          </div>
 
-    <!-- Feedback zone: hints, pass/fail, explanation -->
-    <div class="feedback-zone">
-      <div id="hint-area">
-        <div id="hint-text"></div>
-      </div>
-      <div id="feedback-panel"></div>
-      <div id="explanation-panel"></div>
-    </div>
+          <div class="editor-wrapper">
+            <div id="line-numbers" aria-hidden="true"></div>
+            <div id="highlight-layer" aria-hidden="true"></div>
+            <textarea
+              id="code-editor"
+              spellcheck="false"
+              autocomplete="off"
+              autocorrect="off"
+              autocapitalize="off"
+              aria-label="Python code editor"
+              aria-multiline="true"
+            ></textarea>
+          </div>
 
+          <!-- Action buttons -->
+          <div class="action-bar">
+            <button id="btn-run" class="btn btn-primary" title="Run and check (Ctrl+Enter)">
+              &#9654; Run
+            </button>
+            <button id="btn-reset" class="btn btn-secondary" title="Reset to starter code (Ctrl+R)">
+              &#8635; Reset
+            </button>
+            <button id="btn-hint" class="btn btn-ghost" title="Show a hint (Ctrl+H)">
+              &#128161; Hint
+            </button>
+            <button id="btn-solution" class="btn btn-ghost" title="Show solution">
+              &#128065; Solution
+            </button>
+            <span class="spacer"></span>
+            <button id="btn-prev" class="btn btn-ghost" title="Previous challenge (Ctrl+[)">
+              &#8592; Prev
+            </button>
+            <button id="btn-next" class="btn btn-primary" title="Next challenge (Ctrl+])">
+              Next &#8594;
+            </button>
+          </div>
+
+        </div><!-- .editor-region -->
+
+        <!-- Feedback zone: hints, pass/fail, explanation -->
+        <div class="feedback-zone">
+          <div id="hint-area">
+            <div id="hint-text"></div>
+          </div>
+          <div id="feedback-panel"></div>
+          <div id="explanation-panel"></div>
+        </div>
+
+      </div><!-- #editor-col -->
+
+    </div><!-- #main-columns -->
   </main><!-- #main-panel -->
 
 </div><!-- #app -->

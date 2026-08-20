@@ -182,6 +182,7 @@ const App = (function () {
 
     document.getElementById('btn-dashboard').addEventListener('click', UI.openDashboard);
     document.getElementById('btn-theme').addEventListener('click', UI.toggleTheme);
+    document.getElementById('btn-sidebar-toggle').addEventListener('click', UI.toggleSidebar);
 
     document.getElementById('modal-close').addEventListener('click', UI.closeModal);
     document.getElementById('modal-overlay').addEventListener('click', function (e) {

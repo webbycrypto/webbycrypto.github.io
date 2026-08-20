@@ -14,7 +14,8 @@ const Progress = (function () {
     streak: 0,
     lastActiveDate: null,
     currentChallenge: null,
-    theme: 'dark'
+    theme: 'light',
+    sidebarOpen: undefined
   };
 
   const BADGE_DEFS = [
@@ -186,6 +187,11 @@ const Progress = (function () {
     save();
   }
 
+  function setSidebarOpen(open) {
+    state.sidebarOpen = open;
+    save();
+  }
+
   function exportProgress() {
     const json = JSON.stringify(state, null, 2);
     const blob = new Blob([json], { type: 'application/json' });
@@ -252,7 +258,7 @@ const Progress = (function () {
   return {
     load, save, getState, clearAll,
     completeChallenge, markHintUsed, markSolutionRevealed,
-    setCurrentChallenge, saveEditorCode, loadEditorCode, setTheme,
+    setCurrentChallenge, saveEditorCode, loadEditorCode, setTheme, setSidebarOpen,
     exportProgress, importProgress,
     getLevelProgress, getTotalProgress, getAllBadgeDefs,
     isChallengeCompleted, wasHintUsed

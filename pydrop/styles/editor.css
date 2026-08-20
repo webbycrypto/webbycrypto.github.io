@@ -10,12 +10,32 @@
   overflow: hidden;
 }
 
+/* -------------------------------------------------------------------------
+   Two-pane main content: instructions column + editor/feedback column
+------------------------------------------------------------------------- */
+#main-columns {
+  height: 100%;
+  min-height: 0;
+}
+#info-col,
+#editor-col {
+  min-height: 0;
+}
+
+/* Below the two-pane breakpoint (Tailwind's lg, 1024px) #main-columns
+   drops to a stacked column -- without an explicit height split here,
+   the instructions column would size to its content and push the editor
+   column down, reintroducing page-level scrolling. */
+@media (max-width: 1023px) {
+  #info-col   { flex: 0 1 40%; }
+  #editor-col { flex: 1 1 60%; }
+}
+
 /* Challenge info + instructions */
 #challenge-info {
   padding: 16px 20px 0;
-  flex-shrink: 0;
+  height: 100%;
   overflow-y: auto;
-  max-height: 34%;
   border-bottom: 1px solid var(--border);
 }
 
@@ -42,7 +62,7 @@
   font-weight: 600;
   padding: 2px 8px;
   border-radius: 10px;
-  background: rgba(137,180,250,.15);
+  background: color-mix(in srgb, var(--accent-blue) 15%, transparent);
   color: var(--accent-blue);
 }
 
@@ -54,16 +74,16 @@
   padding: 2px 8px;
   border-radius: 10px;
 }
-.diff-chip.diff-easy   { background: rgba(166,227,161,.15); color: var(--accent-green); }
-.diff-chip.diff-medium { background: rgba(249,226,175,.15); color: var(--accent-yellow); }
-.diff-chip.diff-hard   { background: rgba(243,139,168,.15); color: var(--accent-red); }
+.diff-chip.diff-easy   { background: color-mix(in srgb, var(--accent-green) 15%, transparent); color: var(--accent-green); }
+.diff-chip.diff-medium { background: color-mix(in srgb, var(--accent-yellow) 15%, transparent); color: var(--accent-yellow); }
+.diff-chip.diff-hard   { background: color-mix(in srgb, var(--accent-red) 15%, transparent); color: var(--accent-red); }
 
 .done-chip {
   font-size: 11px;
   font-weight: 600;
   padding: 2px 8px;
   border-radius: 10px;
-  background: rgba(166,227,161,.15);
+  background: color-mix(in srgb, var(--accent-green) 15%, transparent);
   color: var(--accent-green);
 }
 
@@ -72,7 +92,7 @@
   font-weight: 600;
   padding: 2px 8px;
   border-radius: 10px;
-  background: rgba(148,226,213,.15);
+  background: color-mix(in srgb, var(--accent-teal) 15%, transparent);
   color: var(--accent-teal);
 }
 
@@ -88,6 +108,7 @@
   line-height: 1.65;
   color: var(--text-primary);
   padding-bottom: 12px;
+  max-width: 72ch;
 }
 
 .instructions p { margin-bottom: 8px; }
@@ -157,7 +178,7 @@
 .note-block {
   display: flex;
   gap: 8px;
-  background: rgba(249,226,175,.08);
+  background: color-mix(in srgb, var(--accent-yellow) 8%, transparent);
   border-left: 3px solid var(--accent-yellow);
   border-radius: 6px;
   padding: 9px 13px;
@@ -336,12 +357,12 @@
 }
 
 .feedback-panel.success {
-  background: rgba(166,227,161,.08);
+  background: color-mix(in srgb, var(--accent-green) 8%, transparent);
   color: var(--accent-green);
 }
 
 .feedback-panel.error {
-  background: rgba(243,139,168,.08);
+  background: color-mix(in srgb, var(--accent-red) 8%, transparent);
   color: var(--accent-red);
 }
 
@@ -375,7 +396,7 @@
 }
 
 .explanation {
-  background: rgba(137,180,250,.06);
+  background: color-mix(in srgb, var(--accent-blue) 6%, transparent);
   border-left: 3px solid var(--accent-blue);
   border-radius: 0 var(--radius) var(--radius) 0;
   padding: 10px 14px;
@@ -407,22 +428,12 @@
 /* -------------------------------------------------------------------------
    Syntax highlight token colours
 ------------------------------------------------------------------------- */
-.hl-keyword    { color: #cba6f7; }  /* accent -- purple */
-.hl-builtin    { color: #89b4fa; }  /* blue */
-.hl-string     { color: #a6e3a1; }  /* green */
-.hl-number     { color: #fab387; }  /* orange */
-.hl-comment    { color: #585b70; font-style: italic; }
-.hl-decorator  { color: #f9e2af; }  /* yellow */
-.hl-function   { color: #89dceb; }  /* teal */
-.hl-operator   { color: #cdd6f4; }  /* text */
-.hl-punctuation { color: #a6adc8; } /* subtext */
-
-[data-theme="light"] .hl-keyword    { color: #7287fd; }
-[data-theme="light"] .hl-builtin    { color: #1e66f5; }
-[data-theme="light"] .hl-string     { color: #40a02b; }
-[data-theme="light"] .hl-number     { color: #fe640b; }
-[data-theme="light"] .hl-comment    { color: #9ca0b0; }
-[data-theme="light"] .hl-decorator  { color: #df8e1d; }
-[data-theme="light"] .hl-function   { color: #179299; }
-[data-theme="light"] .hl-operator   { color: #4c4f69; }
-[data-theme="light"] .hl-punctuation { color: #6c6f85; }
+.hl-keyword     { color: var(--accent); }
+.hl-builtin     { color: var(--accent-teal); }
+.hl-string      { color: var(--accent-green); }
+.hl-number      { color: var(--accent-orange); }
+.hl-comment     { color: var(--text-faint); font-style: italic; }
+.hl-decorator   { color: var(--accent-yellow); }
+.hl-function    { color: var(--accent-teal); }
+.hl-operator    { color: var(--text-primary); }
+.hl-punctuation { color: var(--text-muted); }
