@@ -134,7 +134,7 @@
 .ch-title {
   flex: 1;
   font-size: 12px;
-  color: var(--text-primary);
+  color: var(--text-muted);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -147,7 +147,7 @@
 }
 
 .challenge-item.done .ch-title {
-  color: var(--text-muted);
+  color: var(--text-primary);
 }
 
 /* -------------------------------------------------------------------------
