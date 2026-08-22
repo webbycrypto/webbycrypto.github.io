@@ -7,6 +7,18 @@ window.LEVEL4 = [
     level: 4,
     xp: 10,
     instructions: `<p>Type hints annotate what types a function expects, written as <code>name: type</code> after each parameter. They're optional and Python never enforces them at runtime, but they make a function's contract obvious at a glance and let tools like IDEs and mypy catch mistakes before you ever run the code.</p>
+<p class="blueprint-line"><code>def function_name(param: type):</code></p>
+<div class="example-block">
+  <span class="example-label">Quick Example</span>
+  <pre><code>def greet(name: str, count: int):
+    return name * count
+
+print(greet("hi", 2))  # Output: hihi</code></pre>
+</div>
+<div class="note-block">
+  <span class="note-label">Note</span>
+  <span>Type hints are just documentation as far as Python is concerned -- passing the wrong type won't raise an error on its own. Tools like mypy are what actually check them.</span>
+</div>
 <span class="task-label">Your Task</span>
 <p class="task-line">Define a function <code>repeat</code> that takes a string <code>text</code> and an integer <code>times</code> with proper type hints, and returns the string repeated that many times.</p>
 <div class="example-block">
@@ -40,6 +52,18 @@ window.LEVEL4 = [
     level: 4,
     xp: 10,
     instructions: `<p>The <code>-></code> arrow annotates what a function returns, written right before the final colon in the signature. Combined with parameter hints, it documents a function's full contract: what goes in, and what comes back out.</p>
+<p class="blueprint-line"><code>def function_name(param: type) -> return_type:</code></p>
+<div class="example-block">
+  <span class="example-label">Quick Example</span>
+  <pre><code>def is_positive(n: int) -> bool:
+    return n > 0
+
+print(is_positive(-3))  # Output: False</code></pre>
+</div>
+<div class="note-block">
+  <span class="note-label">Note</span>
+  <span>A function that returns nothing should be annotated <code>-> None</code>, not left blank.</span>
+</div>
 <span class="task-label">Your Task</span>
 <p class="task-line">Define a function <code>is_even</code> that takes an integer <code>n</code> with a type hint and returns a <code>bool</code>. Annotate the return type with <code>-> bool</code>.</p>
 <div class="example-block">
@@ -73,6 +97,21 @@ window.LEVEL4 = [
     level: 4,
     xp: 20,
     instructions: `<p><code>Optional[X]</code> means a value is either <code>X</code> or <code>None</code>, which is exactly the shape of a function that might not find what it's looking for. In Python 3.10+ you can write the shorter <code>X | None</code> instead, but <code>Optional</code> from <code>typing</code> still works everywhere.</p>
+<p class="blueprint-line"><code>def function_name(param: type) -> Optional[return_type]:</code></p>
+<div class="example-block">
+  <span class="example-label">Quick Example</span>
+  <pre><code>from typing import Optional
+
+def get_middle_name(full_name: str) -> Optional[str]:
+    parts = full_name.split()
+    return parts[1] if len(parts) == 3 else None
+
+print(get_middle_name("Ada Lovelace"))  # Output: None</code></pre>
+</div>
+<p><strong>Shorthand</strong></p>
+<ul>
+  <li><code>Optional[int]</code> is equivalent to <code>Union[int, None]</code>, and in Python 3.10+ can be written as <code>int | None</code> with no import at all.</li>
+</ul>
 <span class="task-label">Your Task</span>
 <p class="task-line">Import <code>Optional</code> from <code>typing</code>. Define a function <code>find_first</code> that takes a list <code>items</code> and a value <code>target</code>, and returns <code>Optional[int]</code>, the index of the first occurrence, or <code>None</code> if not found.</p>
 <div class="example-block">
@@ -112,6 +151,20 @@ window.LEVEL4 = [
     level: 4,
     xp: 20,
     instructions: `<p>Type hints can describe what's inside a list or dictionary, not just the container itself. <code>List[type]</code> and <code>Dict[key_type, value_type]</code> come from <code>typing</code>; Python 3.9+ also lets you write the built-in <code>list[type]</code> and <code>dict[key, value]</code> directly, no import needed.</p>
+<p class="blueprint-line"><code>def function_name(items: List[item_type]) -> Dict[key_type, value_type]:</code></p>
+<div class="example-block">
+  <span class="example-label">Quick Example</span>
+  <pre><code>from typing import List
+
+def total(prices: List[float]) -> float:
+    return sum(prices)
+
+print(total([1.5, 2.5, 3.0]))  # Output: 7.0</code></pre>
+</div>
+<p><strong>Shorthand</strong></p>
+<ul>
+  <li><code>List[str]</code> / <code>Dict[str, int]</code> (from <code>typing</code>) can be written as plain <code>list[str]</code> / <code>dict[str, int]</code> on Python 3.9+, no import required.</li>
+</ul>
 <span class="task-label">Your Task</span>
 <p class="task-line">Import <code>List</code> and <code>Dict</code> from <code>typing</code>. Define a function <code>count_words</code> that takes a <code>List[str]</code> named <code>words</code> and returns a <code>Dict[str, int]</code> with each word as a key and its count as the value.</p>
 <div class="example-block">
@@ -145,7 +198,21 @@ window.LEVEL4 = [
     topic: "Dataclasses",
     level: 4,
     xp: 20,
-    instructions: `<p>The <code>@dataclass</code> decorator looks at a class's annotated attributes and automatically generates <code>__init__</code>, <code>__repr__</code>, and <code>__eq__</code> for you, so a class that's mostly just a bundle of fields doesn't need any of that boilerplate written by hand.</p>
+    instructions: `<p>A line starting with <code>@</code> directly above a class is <b>decorator syntax</b>. A decorator is a function that takes whatever's defined right below it and hands back a modified version of it. <code>@dataclass</code> above <code>class Product:</code> is shorthand for <code>Product = dataclass(Product)</code>, applied automatically when the class is defined.</p>
+<p>You'll meet this pattern often -- Flask uses <code>@app.route("/home")</code> to turn a function into a URL handler, and pytest uses <code>@pytest.fixture</code> to mark setup functions. Here, <code>@dataclass</code> reads a class's annotated attributes and generates <code>__init__</code>, <code>__repr__</code>, and <code>__eq__</code> for you, so a field-only class needs no hand-written boilerplate.</p>
+<p class="blueprint-line"><code>@dataclass</code><br><code>class ClassName:</code><br><code>&nbsp;&nbsp;&nbsp;&nbsp;field_name: field_type</code></p>
+<div class="example-block">
+  <span class="example-label">Quick Example</span>
+  <pre><code>from dataclasses import dataclass
+
+@dataclass
+class Point:
+    x: int
+    y: int
+
+p = Point(3, 4)
+print(p)  # Output: Point(x=3, y=4)</code></pre>
+</div>
 <span class="task-label">Your Task</span>
 <p class="task-line">Import <code>dataclass</code> from <code>dataclasses</code>. Define a <code>@dataclass</code> class <code>Product</code> with fields: <code>name: str</code>, <code>price: float</code>, and <code>in_stock: bool</code>.</p>
 <div class="example-block">
@@ -183,6 +250,23 @@ window.LEVEL4 = [
     level: 4,
     xp: 20,
     instructions: `<p>Dataclass fields can have default values, exactly like function parameters, which makes them optional when you create an instance. Fields with a default have to come after any fields without one, in the order you declare them.</p>
+<ul>
+  <li><strong>Default value:</strong> a value written as <code>field: type = value</code>, used automatically when the caller doesn't supply that argument.</li>
+</ul>
+<div class="example-block">
+  <span class="example-label">Quick Example</span>
+  <pre><code>from dataclasses import dataclass
+
+@dataclass
+class Timer:
+    seconds: int = 60
+
+print(Timer().seconds)  # Output: 60</code></pre>
+</div>
+<div class="note-block">
+  <span class="note-label">Note</span>
+  <span>A field without a default can't come after one that has a default -- Python raises a <code>TypeError</code> at class definition time if you get the order backwards.</span>
+</div>
 <span class="task-label">Your Task</span>
 <p class="task-line">Define a <code>@dataclass</code> class <code>Config</code> with: <code>host: str = "localhost"</code>, <code>port: int = 8000</code>, and <code>debug: bool = False</code>.</p>
 <div class="example-block">
@@ -219,6 +303,25 @@ window.LEVEL4 = [
     level: 4,
     xp: 30,
     instructions: `<p>The <code>__post_init__</code> method runs automatically right after a dataclass's generated <code>__init__</code> finishes setting all the fields, which makes it the natural place for validation: by the time it runs, every field already has its value, ready to be checked.</p>
+<p class="blueprint-line"><code>def __post_init__(self):</code><br><code>&nbsp;&nbsp;&nbsp;&nbsp;if not condition: raise ValueError(...)</code></p>
+<div class="example-block">
+  <span class="example-label">Quick Example</span>
+  <pre><code>from dataclasses import dataclass
+
+@dataclass
+class Age:
+    years: int
+
+    def __post_init__(self):
+        if self.years < 0:
+            raise ValueError("Age can't be negative")
+
+print(Age(5))  # Output: Age(years=5)</code></pre>
+</div>
+<div class="note-block">
+  <span class="note-label">Note</span>
+  <span>If <code>__post_init__</code> raises, the object never finishes construction -- the exception propagates straight out of the call that created it, so there's no half-built instance left lying around.</span>
+</div>
 <span class="task-label">Your Task</span>
 <p class="task-line">Define a <code>@dataclass</code> class <code>Rectangle</code> with fields <code>width: float</code> and <code>height: float</code>. Add a <code>__post_init__</code> that raises a <code>ValueError</code> if either dimension is not positive.</p>
 <div class="example-block">
@@ -255,13 +358,38 @@ window.LEVEL4 = [
     topic: "Dataclasses",
     level: 4,
     xp: 20,
-    instructions: `<p>Real records are rarely flat. A customer has an address, and an address is its own little bundle of fields, so a nested dataclass, one dataclass used as a field inside another, models that shape directly, instead of reaching for a dictionary of dictionaries where a typo in a key silently gives you <code>None</code> or a crash.</p>
+    instructions: `<p>Real records are rarely flat. A customer has an address, and an address is its own bundle of fields.</p>
+<p>A nested dataclass, one dataclass used as a field inside another, models that shape directly. A dictionary of dictionaries could work too, but a typo in a key would silently return <code>None</code> or crash instead of raising a clear error.</p>
+<ul>
+  <li><strong>Nested dataclass:</strong> a dataclass field whose type is itself another dataclass, so <code>customer.address.city</code> reads exactly like the sentence describing the data.</li>
+</ul>
+<p class="blueprint-line"><code>outer_field: InnerDataclass</code></p>
+<div class="example-block">
+  <span class="example-label">Quick Example</span>
+  <pre><code>from dataclasses import dataclass
+
+@dataclass
+class Engine:
+    horsepower: int
+
+@dataclass
+class Car:
+    make: str
+    engine: Engine
+
+c = Car("Toyota", Engine(120))
+print(c.engine.horsepower)  # Output: 120</code></pre>
+</div>
 <span class="task-label">Your Task</span>
 <p class="task-line">Define a <code>@dataclass</code> class <code>Address</code> with fields <code>city: str</code> and <code>zip_code: str</code>. Define a <code>@dataclass</code> class <code>Customer</code> with fields <code>name: str</code>, <code>address: Address</code>, and <code>orders: list</code> defaulting to an empty list.</p>
 <div class="example-block">
   <span class="example-label">Example</span>
   <div class="io-row"><span class="io-key">Input</span><code class="io-val">Customer("Homer", Address("Springfield", "00000"))</code></div>
   <div class="io-row"><span class="io-key">.address.city</span><code class="io-val">"Springfield"</code></div>
+</div>
+<div class="note-block">
+  <span class="note-label">Note</span>
+  <span>Notice the field() call for orders, instead of just writing orders: list = []. A mutable default like a list can't safely be shared between dataclass instances -- field(default_factory=list) tells Python to build a brand new empty list for every new Customer, instead of reusing the same one across all of them. We'll dig into exactly why a few challenges from now -- for now, just use this pattern whenever a dataclass field should default to an empty list, dict, or set.</span>
 </div>`,
     hints: [
       "@dataclass\nclass Address:\n    city: str\n    zip_code: str",
@@ -289,7 +417,19 @@ window.LEVEL4 = [
     topic: "Async",
     level: 4,
     xp: 20,
-    instructions: `<p>Calling an <code>async</code> function doesn't run its body immediately; it hands back a coroutine object that has to be driven to completion, usually with <code>await</code>. This is the foundation of Python's non-blocking I/O: an awaited operation can pause and let other work happen while it waits.</p>
+    instructions: `<p>Calling an <code>async</code> function doesn't run its body immediately; it hands back a coroutine object that has to be driven to completion, usually with <code>await</code>.</p>
+<p>Think of a food court with five separate counters instead of one line: ordering noodles and then standing there staring at that counter until it's ready is "blocking" -- nobody else gets served. Async is ordering, then wandering off to another counter while the noodles cook -- <code>await</code> is that "wandering off" moment, letting Python make progress elsewhere ("non-blocking") instead of freezing everything for one slow operation.</p>
+<p class="blueprint-line"><code>async def function_name(param):</code><br><code>&nbsp;&nbsp;&nbsp;&nbsp;result = await some_slow_operation()</code></p>
+<div class="example-block">
+  <span class="example-label">Quick Example</span>
+  <pre><code>import asyncio
+
+async def order_noodles():
+    await asyncio.sleep(0)
+    return "noodles ready"
+
+print(asyncio.run(order_noodles()))  # Output: noodles ready</code></pre>
+</div>
 <span class="task-label">Your Task</span>
 <p class="task-line">Define an <code>async</code> function <code>fetch_data</code> that takes a <code>url: str</code> parameter. Inside, simulate an async operation by doing <code>await asyncio.sleep(0)</code> (import asyncio), then return the string <code>f"Data from {url}"</code>.</p>
 <div class="example-block">
@@ -325,6 +465,20 @@ window.LEVEL4 = [
     level: 4,
     xp: 30,
     instructions: `<p><code>asyncio.gather()</code> takes several coroutines and runs them concurrently, waiting until all of them finish before handing back their results in the same order you gave them. This is far faster than awaiting each one in turn when they're all independent, I/O-bound operations like network requests.</p>
+<p class="blueprint-line"><code>results = await asyncio.gather(*coroutine_list)</code></p>
+<div class="example-block">
+  <span class="example-label">Quick Example</span>
+  <pre><code>import asyncio
+
+async def square(n):
+    await asyncio.sleep(0)
+    return n * n
+
+async def main():
+    return await asyncio.gather(square(2), square(3))
+
+print(asyncio.run(main()))  # Output: [4, 9]</code></pre>
+</div>
 <span class="task-label">Your Task</span>
 <p class="task-line">Define an async function <code>fetch_all</code> that takes a list of URLs <code>urls: list</code>. Use <code>asyncio.gather()</code> to concurrently call a pre-existing <code>fetch_data(url)</code> for each URL, and return the results as a list.</p>
 <div class="example-block">
@@ -360,6 +514,17 @@ window.LEVEL4 = [
     level: 4,
     xp: 10,
     instructions: `<p>Environment variables store configuration outside your code entirely, which keeps sensitive values like passwords and API keys out of source control. Read them with <code>os.environ.get(key, default)</code> rather than square brackets, so a missing variable falls back to a sensible default instead of crashing the program.</p>
+<div class="example-block">
+  <span class="example-label">Quick Example</span>
+  <pre><code>import os
+
+port = os.environ.get("PORT", "8000")
+print(port)  # Output: 8000</code></pre>
+</div>
+<div class="note-block">
+  <span class="note-label">Note</span>
+  <span>Reading with square brackets, <code>os.environ["PORT"]</code>, raises a <code>KeyError</code> the instant the variable is missing. <code>.get()</code> with a default avoids that entirely.</span>
+</div>
 <span class="task-label">Your Task</span>
 <p class="task-line">Import <code>os</code>. Create a variable <code>db_url</code> that reads the environment variable <code>"DATABASE_URL"</code>, with a fallback default of <code>"sqlite:///app.db"</code>.</p>
 <div class="example-block">
@@ -393,6 +558,7 @@ window.LEVEL4 = [
     level: 4,
     xp: 10,
     instructions: `<p>A <code>.env</code> file stores environment variables locally in a simple <code>KEY=value</code> format, so developers don't have to set them by hand every time. The third-party <code>python-dotenv</code> library reads that file and copies its values into <code>os.environ</code>, right where <code>os.environ.get()</code> can find them.</p>
+<p class="blueprint-line"><code>load_dotenv()</code><br><code>value = os.environ.get("KEY", default)</code></p>
 <span class="task-label">Your Task</span>
 <p class="task-line">Write the code that would load a <code>.env</code> file using <code>python-dotenv</code>. Import <code>load_dotenv</code> from <code>dotenv</code> and call it. Then read <code>SECRET_KEY</code> from environment variables into a variable named <code>secret</code>, with default <code>"dev-secret"</code>.</p>
 <div class="note-block">
@@ -424,6 +590,15 @@ window.LEVEL4 = [
     level: 4,
     xp: 20,
     instructions: `<p>A folder becomes an importable Python package the moment it contains an <code>__init__.py</code> file. Every other <code>.py</code> file inside that folder is a module belonging to the package, and <code>__init__.py</code> itself is what runs when the package is first imported.</p>
+<div class="example-block">
+  <span class="example-label">Quick Example</span>
+  <pre><code># file: mypkg/__init__.py
+GREETING = "hi"
+
+# elsewhere:
+import mypkg
+print(mypkg.GREETING)  # Output: hi</code></pre>
+</div>
 <span class="task-label">Your Task</span>
 <p class="task-line">Write a minimal <code>__init__.py</code> for a package named <code>myapp</code>. It should define a variable <code>VERSION = "1.0.0"</code> and import the <code>create_app</code> function from a sibling module <code>.core</code> (relative import).</p>
 <div class="note-block">
@@ -453,6 +628,11 @@ window.LEVEL4 = [
     level: 4,
     xp: 20,
     instructions: `<p>Inside a package, relative imports reach sibling modules without spelling out the whole package path. A single leading dot <code>.</code> means "the current package"; two dots <code>..</code> means "one level up, the parent package."</p>
+<p><strong>Shorthand</strong></p>
+<ul>
+  <li><code>from .models import User</code> -- the single dot means "the module named models, in this same package."</li>
+  <li><code>from ..utils import helper</code> -- two dots means "go up one package level, then look for utils."</li>
+</ul>
 <span class="task-label">Your Task</span>
 <p class="task-line">Write an import statement that imports <code>User</code> from the <code>models</code> module in the same package (single dot relative import), and also imports <code>get_db</code> from a <code>database</code> module in the same package.</p>
 <div class="note-block">
@@ -481,6 +661,12 @@ window.LEVEL4 = [
     level: 4,
     xp: 10,
     instructions: `<p>A <code>requirements.txt</code> file lists the packages a project depends on, one per line, each optionally pinned to a version. Anyone (or any deployment system) can then recreate the exact same set of dependencies with a single install command.</p>
+<p><strong>Shorthand</strong></p>
+<ul>
+  <li><code>package==1.2.3</code> pins to that exact version.</li>
+  <li><code>package>=1.2.3</code> requires at least that version.</li>
+  <li><code>package</code> alone means any version is acceptable.</li>
+</ul>
 <span class="task-label">Your Task</span>
 <p class="task-line">Write a valid <code>requirements.txt</code> that includes: <code>fastapi</code> version <code>0.104.1</code> (exact), <code>uvicorn</code> version at least <code>0.24.0</code> (use <code>>=</code>), and <code>pydantic</code> with no version constraint.</p>
 <div class="example-block">
@@ -516,6 +702,10 @@ window.LEVEL4 = [
     level: 4,
     xp: 15,
     instructions: `<p>Every Python script gets called with a list of the words typed after it on the command line -- <code>sys.argv</code>. <code>sys.argv[0]</code> is always the script's own name, so the actual arguments start at index <code>1</code>. Running <code>python greet.py Alice</code> gives <code>sys.argv == ["greet.py", "Alice"]</code>.</p>
+<div class="note-block">
+  <span class="note-label">Note</span>
+  <span>Don't forget <code>sys.argv[0]</code> is the script's own filename, not the first real argument -- that's why counting or indexing has to skip index 0.</span>
+</div>
 <span class="task-label">Your Task</span>
 <p class="task-line">Using <code>sys.argv</code>, create <code>first_arg</code> as the first argument passed in (not the script name), and <code>arg_count</code> as how many arguments were passed (also not counting the script name).</p>
 <div class="example-block">
@@ -553,7 +743,26 @@ window.LEVEL4 = [
     topic: "CLI Tools",
     level: 4,
     xp: 25,
-    instructions: `<p>The <code>argparse</code> module builds a proper command-line interface for you: define what arguments a script accepts, and it handles reading <code>sys.argv</code>, converting types, and producing a <code>--help</code> message for free. <code>nargs='*'</code> on a positional argument means "collect zero or more values into a list."</p>
+    instructions: `<p><code>argparse</code> builds a proper command-line interface for a script: define what arguments it accepts, and it handles reading the terminal input, converting types, and producing a <code>--help</code> message for free. This project pulls together two things you already know -- joining a list into a string with <code>" ".join(...)</code> and <code>.upper()</code> for case conversion -- and wires them up to real command-line input for the first time.</p>
+<p class="blueprint-line"><code>parser.add_argument(name, nargs='*')</code></p>
+<div class="example-block">
+  <span class="example-label">Quick Example</span>
+  <pre><code>parser = argparse.ArgumentParser()
+parser.add_argument("words", nargs="*")
+args = parser.parse_args()
+# Running: python howler.py are you a mouse
+print(args.words)  # Output: ['are', 'you', 'a', 'mouse']</code></pre>
+</div>
+<p><strong>New pieces in this project</strong></p>
+<ul>
+  <li><code>ArgumentParser()</code>: builds the object that knows how to read and validate command-line input.</li>
+  <li><code>nargs='*'</code>: tells that argument to collect zero or more words into a list, instead of expecting exactly one value.</li>
+  <li><code>parse_args()</code>: actually reads the terminal input and returns it as an object with one attribute per argument (<code>args.words</code>).</li>
+</ul>
+<div class="note-block">
+  <span class="note-label">Note</span>
+  <span>Since <code>nargs='*'</code> collects the words into a list, you'll need <code>" ".join(...)</code> before you can call <code>.upper()</code> on the result -- you can't uppercase a list directly.</span>
+</div>
 <span class="task-label">Your Task</span>
 <p class="task-line">Build a script that "howls" whatever words are passed on the command line. Set up an <code>ArgumentParser</code> with one positional argument <code>words</code> using <code>nargs='*'</code>, join the collected words into a single phrase, and print it in uppercase.</p>
 <div class="example-block">
@@ -591,7 +800,19 @@ window.LEVEL4 = [
     topic: "CLI Tools",
     level: 4,
     xp: 25,
-    instructions: `<p>Not every program takes its input from arguments -- many read from standard input instead, so they can be fed piped text (<code>cat notes.txt | python wc.py</code>) as easily as typed input. <code>sys.stdin.read()</code> reads everything available on standard input as one string.</p>
+    instructions: `<p>From <em>Tiny Python Projects</em>: a word counter, adapted here to read standard input rather than a file. It combines counting words with <code>.split()</code> and formatting a result with an f-string, both already familiar, with one new way of getting input into a script: reading from a pipe (<code>cat notes.txt | python wc.py</code>) instead of <code>sys.argv</code> or <code>input()</code>.</p>
+<p class="blueprint-line"><code>text = sys.stdin.read()</code></p>
+<div class="example-block">
+  <span class="example-label">Quick Example</span>
+  <pre><code>import sys
+
+text = sys.stdin.read()
+print(len(text.split()))  # Output: word count of whatever was piped in</code></pre>
+</div>
+<p><strong>New pieces in this project</strong></p>
+<ul>
+  <li><code>sys.stdin.read()</code>: reads everything available on standard input as one string, so a script can be fed piped text instead of typed arguments.</li>
+</ul>
 <span class="task-label">Your Task</span>
 <p class="task-line">Read all of standard input, count how many words it contains (splitting on whitespace), and print <code>"There are {n} words in the input."</code> with the count filled in.</p>
 <div class="example-block">
@@ -626,6 +847,23 @@ window.LEVEL4 = [
     level: 4,
     xp: 20,
     instructions: `<p>Exceptions form a hierarchy, and catching a parent class also catches every subclass beneath it. Building your own small hierarchy, one base error with several specific subclasses, lets calling code catch broadly with <code>except AppError</code> or narrowly with <code>except NotFoundError</code>, depending on what it actually needs to handle.</p>
+<ul>
+  <li><strong>Custom exception:</strong> a class that inherits from <code>Exception</code> (directly or through another custom exception), so it can be raised and caught like any built-in error.</li>
+</ul>
+<p class="blueprint-line"><code>class BaseError(Exception): ...</code><br><code>class SpecificError(BaseError): ...</code></p>
+<div class="example-block">
+  <span class="example-label">Quick Example</span>
+  <pre><code>class NetworkError(Exception):
+    pass
+
+class TimeoutError2(NetworkError):
+    pass
+
+try:
+    raise TimeoutError2("too slow")
+except NetworkError:
+    print("caught by parent class")  # Output: caught by parent class</code></pre>
+</div>
 <span class="task-label">Your Task</span>
 <p class="task-line">Define a base exception <code>AppError</code> inheriting from <code>Exception</code>. Define two subclasses: <code>NotFoundError</code> and <code>AuthError</code>, both inheriting from <code>AppError</code>. Each should store a <code>message</code> attribute set in <code>__init__</code> (call <code>super().__init__(message)</code>).</p>
 <div class="example-block">
@@ -661,6 +899,18 @@ window.LEVEL4 = [
     level: 4,
     xp: 20,
     instructions: `<p>The <code>logging</code> module is the standard way to record what a program is doing, and it beats scattering <code>print()</code> calls everywhere: log messages carry a severity level, a source, and can be routed to a file, the console, or a remote service without changing the calling code.</p>
+<ul>
+  <li><strong>Logger:</strong> an object, made with <code>logging.getLogger(name)</code>, that you call <code>.info()</code>, <code>.warning()</code>, etc. on to record messages tagged with that name.</li>
+  <li><strong>basicConfig(level=...):</strong> sets up the root logging system once, including the minimum severity level that actually gets shown.</li>
+</ul>
+<div class="example-block">
+  <span class="example-label">Quick Example</span>
+  <pre><code>import logging
+
+logging.basicConfig(level=logging.INFO)
+log = logging.getLogger("billing")
+log.info("Invoice sent")  # Output: INFO:billing:Invoice sent</code></pre>
+</div>
 <span class="task-label">Your Task</span>
 <p class="task-line">Import <code>logging</code>. Configure basic logging with level <code>logging.INFO</code> using <code>basicConfig</code>. Create a logger named <code>"myapp"</code> using <code>logging.getLogger()</code>. Log the message <code>"App started"</code> at INFO level.</p>
 <div class="example-block">
@@ -697,6 +947,19 @@ window.LEVEL4 = [
     level: 4,
     xp: 20,
     instructions: `<p>An <code>assert</code> statement checks that something you believe should always be true actually is, and raises <code>AssertionError</code> immediately if it isn't, which catches a bad assumption right where it happens instead of letting it cause confusing symptoms somewhere else later. Pairing that with a <code>logger.debug()</code> call gives you a trail of what the function was doing when something went wrong.</p>
+<p class="blueprint-line"><code>assert condition, "error message"</code></p>
+<div class="example-block">
+  <span class="example-label">Quick Example</span>
+  <pre><code>def half(n):
+    assert n % 2 == 0, "n must be even"
+    return n // 2
+
+print(half(10))  # Output: 5</code></pre>
+</div>
+<div class="note-block">
+  <span class="note-label">Note</span>
+  <span><code>assert</code> is meant to catch bugs, situations that should be impossible if the code is correct, not to validate ordinary user input. Python can strip asserts out entirely when run with the <code>-O</code> flag, so never rely on one for something that must always run.</span>
+</div>
 <span class="task-label">Your Task</span>
 <p class="task-line">Define a function <code>calculate_average(numbers)</code> that asserts <code>numbers</code> isn't empty (with a clear message), logs a debug message with <code>logger.debug()</code>, then returns the average.</p>
 <div class="example-block">
@@ -732,6 +995,13 @@ window.LEVEL4 = [
     level: 4,
     xp: 10,
     instructions: `<p>The <code>json</code> module converts between Python objects and JSON text. <code>json.dumps(obj)</code> turns a Python object into a JSON string, and <code>json.loads(text)</code> does the reverse, parsing JSON text back into Python objects. Every web API you'll ever call speaks this format.</p>
+<div class="example-block">
+  <span class="example-label">Quick Example</span>
+  <pre><code>import json
+
+payload = json.dumps({"ok": True})
+print(payload)  # Output: {"ok": true}</code></pre>
+</div>
 <span class="task-label">Your Task</span>
 <p class="task-line">Given the dictionary <code>data</code> below, create <code>json_str</code> by serialising it. Then create <code>parsed</code> by deserialising <code>json_str</code> back to a Python object.</p>
 <div class="example-block">
@@ -767,6 +1037,17 @@ window.LEVEL4 = [
     level: 4,
     xp: 20,
     instructions: `<p>Writing to a file and reading it back is the most basic form of persistence: data that survives after your program ends. <code>f.read()</code> returns everything in the file as one string, and <code>.splitlines()</code> breaks that string apart at each newline into a list of lines, without keeping the newline characters themselves.</p>
+<ul>
+  <li><strong>.splitlines():</strong> breaks a string apart at each newline into a list of lines, without keeping the <code>\\n</code> characters or leaving a stray empty string for a trailing newline.</li>
+</ul>
+<div class="example-block">
+  <span class="example-label">Quick Example</span>
+  <pre><code>with open("scores.txt", "w") as f:
+    f.write("10\\n20\\n30")
+
+with open("scores.txt") as f:
+    print(f.read().splitlines())  # Output: ['10', '20', '30']</code></pre>
+</div>
 <span class="task-label">Your Task</span>
 <p class="task-line">Write three lines to <code>"notes.txt"</code> separated by newlines, then read the file back and split it into a list named <code>lines</code>.</p>
 <div class="example-block">
@@ -800,6 +1081,22 @@ window.LEVEL4 = [
     level: 4,
     xp: 20,
     instructions: `<p><code>pathlib.Path</code> is the modern, object-oriented way to work with filesystem paths, replacing manual string concatenation with <code>os.path</code>. The <code>/</code> operator joins path segments safely and correctly regardless of operating system, since a <code>Path</code> object knows how to render itself with the right separators.</p>
+<ul>
+  <li><strong>Path:</strong> an object representing a filesystem location, built with <code>Path("some/path")</code>, that you can join further with <code>/</code> instead of string concatenation.</li>
+</ul>
+<p class="blueprint-line"><code>path = Path(base) / "segment" / "segment"</code></p>
+<div class="example-block">
+  <span class="example-label">Quick Example</span>
+  <pre><code>from pathlib import Path
+
+folder = Path("data")
+full_path = folder / "input.csv"
+print(full_path)  # Output: data/input.csv</code></pre>
+</div>
+<div class="note-block">
+  <span class="note-label">Note</span>
+  <span>The <code>/</code> operator here is joining path segments, not doing division -- it only works this way because the left-hand side is already a <code>Path</code> object.</span>
+</div>
 <span class="task-label">Your Task</span>
 <p class="task-line">Import <code>Path</code> from <code>pathlib</code>. Create a <code>Path</code> object <code>base</code> pointing to <code>"/home/user/projects"</code>. Create a sub-path <code>config_file</code> pointing to <code>"/home/user/projects/myapp/config.json"</code> by using the <code>/</code> operator.</p>
 <div class="example-block">
@@ -823,7 +1120,7 @@ window.LEVEL4 = [
         { code: "assert str(config_file) == '/home/user/projects/myapp/config.json'", message: "'config_file' should be /home/user/projects/myapp/config.json." }
       ]
     },
-    explanation: `<p><code>pathlib</code>'s <code>/</code> operator joins path segments safely across operating systems. It also provides useful methods: <code>.exists()</code>, <code>.read_text()</code>, <code>.write_text()</code>, <code>.parent</code>, <code>.stem</code>, <code>.suffix</code>.</p>`
+    explanation: `<p><code>pathlib</code>'s <code>/</code> operator joins path segments safely across operating systems, regardless of whether the underlying OS uses forward slashes or backslashes. Path objects also have handy methods for actually working with the file itself, like <code>.read_text()</code> and <code>.write_text()</code> for whole-file reads and writes without needing a separate <code>with open(...)</code> block -- you'll use those in the next challenge.</p>`
   },
   {
     id: 124,
@@ -833,6 +1130,15 @@ window.LEVEL4 = [
     level: 4,
     xp: 20,
     instructions: `<p><code>Path</code> objects don't just represent locations, they can act on them too. <code>.mkdir(exist_ok=True)</code> creates a directory (and quietly does nothing if it already exists, instead of raising an error), while <code>.write_text()</code> and <code>.read_text()</code> skip the <code>with open(...)</code> ceremony entirely for simple whole-file reads and writes.</p>
+<div class="example-block">
+  <span class="example-label">Quick Example</span>
+  <pre><code>from pathlib import Path
+
+logs = Path("logs")
+logs.mkdir(exist_ok=True)
+(logs / "run.log").write_text("started")
+print((logs / "run.log").read_text())  # Output: started</code></pre>
+</div>
 <span class="task-label">Your Task</span>
 <p class="task-line">Create a directory named <code>"reports"</code> (fine if it already exists), then write <code>"All systems normal"</code> to <code>reports/summary.txt</code> using pathlib.</p>
 <div class="example-block">
@@ -867,7 +1173,22 @@ window.LEVEL4 = [
     xp: 20,
     kind: "project",
     source: "Tiny Python Projects #19, \"Word of the Day\"",
-    instructions: `<p>The <code>csv</code> module handles the fiddly parts of reading comma-separated data, like quoted fields containing commas, that a plain <code>.split(",")</code> would get wrong. This project from <em>Tiny Python Projects</em> parses a small word-list CSV, using <code>csv.DictReader</code> so each row comes back as a dictionary keyed by column name instead of an unlabeled list.</p>
+    instructions: `<p>From <em>Tiny Python Projects</em>: a word-of-the-day tool that parses a small CSV word list. The <code>csv</code> module handles the fiddly parts of comma-separated data, like quoted fields containing commas, that a plain <code>.split(",")</code> would get wrong.</p>
+<p class="blueprint-line"><code>reader = csv.DictReader(file_or_string)</code></p>
+<div class="example-block">
+  <span class="example-label">Quick Example</span>
+  <pre><code>import csv, io
+
+data = "name,age\\nAda,36\\n"
+reader = csv.DictReader(io.StringIO(data))
+row = list(reader)[0]
+print(row["name"])  # Output: Ada</code></pre>
+</div>
+<p><strong>New pieces in this project</strong></p>
+<ul>
+  <li><code>csv.DictReader</code>: parses CSV text and hands back each row as a dictionary keyed by column name, instead of an unlabeled list of values.</li>
+  <li><code>io.StringIO(text)</code>: wraps a plain string so it behaves like an open file, which is what <code>csv.DictReader</code> expects to read from.</li>
+</ul>
 <span class="task-label">Your Task</span>
 <p class="task-line">Parse <code>data</code> using <code>csv.DictReader</code> wrapped in <code>io.StringIO(data)</code>, collect every row into a list <code>words</code>, then read the first row's <code>"word"</code> field into <code>first_word</code>.</p>
 <div class="example-block">
@@ -904,7 +1225,23 @@ window.LEVEL4 = [
     xp: 30,
     kind: "project",
     source: "Automate the Boring Stuff with Python, ch.12, \"Web Scraping\"",
-    instructions: `<p>The book's version of this chapter fetches a live web page over the network; this version skips the network entirely and parses a fixed HTML string instead, using the standard library's <code>html.parser.HTMLParser</code>, so the result is exactly the same every time it runs. Subclass it and override <code>handle_starttag</code>, <code>handle_endtag</code>, and <code>handle_data</code> to react as the parser walks through the markup.</p>
+    instructions: `<p>The book's version of this chapter fetches a live web page over the network; this version skips the network entirely and parses a fixed HTML string instead, so the result is exactly the same every time it runs. It combines subclassing and instance state, both already familiar from custom exception classes and dataclasses, with the standard library's <code>html.parser.HTMLParser</code>: subclass it and override its handler methods to react as it walks through the markup.</p>
+<p class="blueprint-line"><code>class MyParser(HTMLParser): def handle_starttag(self, tag, attrs): ...</code></p>
+<div class="example-block">
+  <span class="example-label">Quick Example</span>
+  <pre><code>from html.parser import HTMLParser
+
+class TagPrinter(HTMLParser):
+    def handle_starttag(self, tag, attrs):
+        print(tag)
+
+TagPrinter().feed("&lt;p&gt;hi&lt;/p&gt;")  # Output: p</code></pre>
+</div>
+<p><strong>New pieces in this project</strong></p>
+<ul>
+  <li><code>HTMLParser</code>: calls <code>handle_starttag</code> on every opening tag, <code>handle_endtag</code> on every closing tag, and <code>handle_data</code> on the text between them, as it walks through markup fed to it.</li>
+  <li><code>.feed(html)</code>: runs the parser over a string of HTML, triggering the handler methods above.</li>
+</ul>
 <span class="task-label">Your Task</span>
 <p class="task-line">Define a class <code>ListParser(HTMLParser)</code> that collects the text inside every <code>&lt;li&gt;</code> tag into <code>self.items</code>. Feed it <code>html_content</code> and store the result in <code>items</code>.</p>
 <div class="example-block">
@@ -941,7 +1278,29 @@ window.LEVEL4 = [
     topic: "Modules",
     level: 4,
     xp: 30,
-    instructions: `<p>The third-party <code>openpyxl</code> library reads and writes real <code>.xlsx</code> files. A <code>Workbook()</code> starts as one blank sheet (<code>wb.active</code>); <code>.append(row)</code> adds a row of values to it, and <code>.save(filename)</code> writes the file. <code>load_workbook(filename)</code> reopens a saved file, and <code>.iter_rows(min_row=2, values_only=True)</code> walks its rows as plain tuples, skipping the header.</p>
+    instructions: `<p>Same write-then-reopen-and-compute shape you've already used with plain text files and CSV, applied to a real binary spreadsheet format via the third-party <code>openpyxl</code> library. It handles the <code>.xlsx</code> format itself; you still supply the loop that builds rows and the one that totals them.</p>
+<p class="blueprint-line"><code>ws.append(row)</code> ... <code>wb.save(filename)</code> ... <code>load_workbook(filename).active</code></p>
+<div class="example-block">
+  <span class="example-label">Quick Example</span>
+  <pre><code>from openpyxl import Workbook, load_workbook
+
+wb = Workbook()
+ws = wb.active
+ws.append(["Name", "Score"])
+ws.append(["Ada", 95])
+wb.save("scores.xlsx")
+
+ws2 = load_workbook("scores.xlsx").active
+for name, score in ws2.iter_rows(min_row=2, values_only=True):
+    print(name, score)  # Output: Ada 95</code></pre>
+</div>
+<p><strong>New pieces in this project</strong></p>
+<ul>
+  <li><code>Workbook()</code> / <code>wb.active</code>: creates a new workbook, starting with one blank sheet.</li>
+  <li><code>.append(row)</code>: adds a row of values to the bottom of a sheet.</li>
+  <li><code>.save(filename)</code> / <code>load_workbook(filename)</code>: writes a workbook to a real <code>.xlsx</code> file and reopens one from disk.</li>
+  <li><code>.iter_rows(min_row=2, values_only=True)</code>: walks a sheet's rows as plain tuples of values, skipping the header row.</li>
+</ul>
 <span class="task-label">Your Task</span>
 <p class="task-line">Given <code>sales_data</code> (a list of <code>(product, quantity, price)</code> tuples), build a workbook with a header row <code>["Product", "Quantity", "Price"]</code> followed by each row of <code>sales_data</code>, and save it as <code>"sales.xlsx"</code>. Then reopen that file and compute <code>total_revenue</code> (sum of <code>quantity * price</code> across every row) and <code>product_count</code> (how many product rows there are).</p>
 <div class="example-block">
@@ -985,6 +1344,21 @@ window.LEVEL4 = [
     level: 4,
     xp: 20,
     instructions: `<p>f-strings support format specifiers after a colon inside the braces, written as <code>{value:spec}</code>. <code>.2f</code> rounds to 2 decimal places, <code>,</code> adds thousands separators, and <code>>N</code> right-aligns the result inside a field of width <code>N</code>, and you can combine several of these in one spec.</p>
+<ul>
+  <li><strong>Format spec:</strong> the part after the colon inside <code>{value:spec}</code>, controlling how a value is rendered as text.</li>
+</ul>
+<p class="blueprint-line"><code>f"{value:spec}"</code></p>
+<div class="example-block">
+  <span class="example-label">Quick Example</span>
+  <pre><code>total = 9821.5
+print(f"{total:,.2f}")  # Output: 9,821.50</code></pre>
+</div>
+<p><strong>Shorthand</strong></p>
+<ul>
+  <li><code>:.2f</code> rounds a float to 2 decimal places (e.g. <code>3.14159</code> -> <code>3.14</code>).</li>
+  <li><code>:,</code> adds thousands separators (e.g. <code>1000000</code> -> <code>1,000,000</code>).</li>
+  <li><code>:>10</code> right-aligns the value inside a 10-character-wide field.</li>
+</ul>
 <span class="task-label">Your Task</span>
 <p class="task-line">Given <code>amount</code>, create <code>money</code> formatted with 2 decimal places and a comma thousands separator, and <code>padded</code> right-aligned in a 20-character field.</p>
 <div class="example-block">
@@ -1020,6 +1394,27 @@ window.LEVEL4 = [
     level: 4,
     xp: 30,
     instructions: `<p>A mutable object like a list can't be used directly as a dataclass default; Python would create it once and share that exact same list across every instance. <code>field(default_factory=list)</code> solves this by calling <code>list()</code> fresh for each new instance instead.</p>
+<ul>
+  <li><strong>field(default_factory=list):</strong> tells a dataclass to call <code>list()</code> fresh for every new instance, instead of building one shared list at class-definition time.</li>
+</ul>
+<p class="blueprint-line"><code>field_name: list = field(default_factory=list)</code></p>
+<div class="example-block">
+  <span class="example-label">Quick Example</span>
+  <pre><code>from dataclasses import dataclass, field
+
+@dataclass
+class Cart:
+    items: list = field(default_factory=list)
+
+a = Cart()
+b = Cart()
+a.items.append("apple")
+print(b.items)  # Output: []</code></pre>
+</div>
+<div class="note-block">
+  <span class="note-label">Note</span>
+  <span>Writing <code>members: list = []</code> directly looks like it should work, but Python builds that <code>[]</code> exactly once, when the class is defined, and every instance would then share that same list. <code>field(default_factory=list)</code> is the workaround.</span>
+</div>
 <span class="task-label">Your Task</span>
 <p class="task-line">Import <code>dataclass</code> and <code>field</code> from <code>dataclasses</code>. Define a <code>@dataclass</code> class <code>Team</code> with a <code>name: str</code> field and a <code>members: list</code> field that defaults to an empty list using <code>field(default_factory=list)</code>.</p>
 <div class="example-block">
@@ -1059,6 +1454,18 @@ window.LEVEL4 = [
     level: 4,
     xp: 20,
     instructions: `<p>The <code>datetime</code> module's <code>date</code> objects represent a calendar day, and subtracting one from another gives you a <code>timedelta</code> whose <code>.days</code> attribute is the number of days between them, handling month lengths and leap years correctly without you ever counting by hand. <code>.strftime()</code> turns a date into a formatted string using the same directive codes (<code>%Y</code>, <code>%B</code>, <code>%d</code>, and so on) as most other languages.</p>
+<div class="example-block">
+  <span class="example-label">Quick Example</span>
+  <pre><code>from datetime import date
+
+a = date(2024, 6, 1)
+b = date(2024, 6, 10)
+print((b - a).days)  # Output: 9</code></pre>
+</div>
+<p><strong>Shorthand</strong></p>
+<ul>
+  <li><code>%Y</code> four-digit year, <code>%B</code> full month name, <code>%d</code> zero-padded day (e.g. <code>"%B %d, %Y"</code> -> "June 01, 2024").</li>
+</ul>
 <span class="task-label">Your Task</span>
 <p class="task-line">Given <code>start</code> and <code>end</code>, create <code>days_between</code> as the number of days between them, and <code>formatted</code> as <code>start</code> written out as <code>"Month DD, YYYY"</code>.</p>
 <div class="example-block">

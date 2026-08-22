@@ -192,6 +192,37 @@
   flex-shrink: 0;
 }
 
+.blueprint-line {
+  font-family: var(--font-mono);
+  font-size: 12.5px;
+  background: var(--bg-surface0);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 8px 14px;
+  margin: 10px 0;
+  color: var(--accent-teal);
+}
+.blueprint-line code {
+  background: none;
+  padding: 0;
+  color: inherit;
+}
+
+.example-block pre {
+  margin: 0;
+  overflow-x: auto;
+}
+.example-block pre code {
+  display: block;
+  background: none;
+  padding: 0;
+  border-radius: 0;
+  color: var(--text-primary);
+  font-size: 12.5px;
+  line-height: 1.5;
+  white-space: pre;
+}
+
 @media (max-width: 560px) {
   .io-row { flex-direction: column; gap: 2px; }
   .io-key { width: auto; }

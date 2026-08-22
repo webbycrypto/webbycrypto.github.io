@@ -6,7 +6,25 @@ window.LEVEL3 = [
     topic: "Classes",
     level: 3,
     xp: 10,
-    instructions: `<p>A <strong>class</strong> is a blueprint for creating objects: it groups together the data an object holds and the behavior it can perform. You define one with the <code>class</code> keyword, and any function defined inside it becomes a <strong>method</strong> that instances of the class can call.</p>
+    instructions: `<p>A <strong>class</strong> is a blueprint for creating objects: it groups together the data an object holds and the behavior it can perform. You define a class with the <code>class</code> keyword, and any function defined inside it becomes a <strong>method</strong> that instances of the class can call.</p>
+<p>Every method you write inside a class needs <code>self</code> as its first parameter. When you call <code>my_dog.speak()</code>, Python automatically passes <code>my_dog</code> in as <code>self</code> behind the scenes -- that's how the method knows which specific object it's working with. You never type <code>self</code> yourself when calling the method, only when defining it.</p>
+<ul>
+  <li><strong>Class:</strong> the blueprint, defined once with <code>class</code>. Calling it like a function, e.g. <code>Dog()</code>, builds one actual object from it.</li>
+  <li><strong>self:</strong> the first parameter of every method, automatically filled in with whichever object made the call -- you never type it yourself at the call site.</li>
+</ul>
+<p class="blueprint-line"><code>class Name:</code><br><code>&nbsp;&nbsp;&nbsp;&nbsp;def method(self):</code></p>
+<div class="example-block">
+  <span class="example-label">Quick Example</span>
+  <pre><code>class Cat:
+    def speak(self):
+        return "Meow!"
+
+print(Cat().speak())  # Output: Meow!</code></pre>
+</div>
+<div class="note-block">
+  <span class="note-label">Note</span>
+  <span>Forgetting <code>self</code> as a method's first parameter causes a <code>TypeError</code> the moment you call the method -- Python always passes the calling object in as the first argument, whether you left a slot for it or not.</span>
+</div>
 <span class="task-label">Your Task</span>
 <p class="task-line">Define a class <code>Dog</code> with a single method <code>speak</code> that returns the string <code>"Woof!"</code>.</p>
 <div class="example-block">
@@ -41,6 +59,26 @@ window.LEVEL3 = [
     level: 3,
     xp: 10,
     instructions: `<p>The <code>__init__</code> method runs automatically the moment an object is created, which makes it the natural place to set up an object's starting data, called <strong>instance attributes</strong>. Whatever you attach to <code>self</code> inside <code>__init__</code> stays attached to that specific object for as long as it exists.</p>
+<ul>
+  <li><strong>Instance attributes:</strong> variables attached directly to a specific object. If you create two different Person objects, each keeps its own distinct copy of these variables (e.g., Alice has her name, Bob has his name) so their data never leaks into each other.</li>
+  <li><strong>The self keyword:</strong> a temporary name Python uses to point directly to the specific object currently being built or modified.</li>
+</ul>
+<p class="blueprint-line"><code>class Person:</code><br><code>&nbsp;&nbsp;&nbsp;&nbsp;def __init__(self, name, age):</code></p>
+<div class="example-block">
+  <span class="example-label">Quick Example</span>
+  <pre><code>class Person:
+    def __init__(self, name, age):
+        self.name = name
+        self.age = age
+
+alice = Person("Alice", 30)
+bob = Person("Bob", 25)
+print(alice.name)  # Output: Alice</code></pre>
+</div>
+<div class="note-block">
+  <span class="note-label">Note</span>
+  <span>In Python, <code>__init__</code> uses two underscores on both sides of the name. Writing <code>_init_</code> with single underscores will cause a silent failure where your data is never saved.</span>
+</div>
 <span class="task-label">Your Task</span>
 <p class="task-line">Define a class <code>Person</code> with an <code>__init__</code> method that takes <code>name</code> and <code>age</code> and stores them as instance attributes <code>self.name</code> and <code>self.age</code>.</p>
 <div class="example-block">
@@ -76,6 +114,18 @@ window.LEVEL3 = [
     level: 3,
     xp: 10,
     instructions: `<p>Instance methods operate on an object's own data, always receiving <code>self</code> as the first parameter so they can reach whatever was stored on that instance. Beyond that, they work just like any other function: take arguments, compute something, and return a result.</p>
+<div class="example-block">
+  <span class="example-label">Quick Example</span>
+  <pre><code>class Rectangle:
+    def __init__(self, width, height):
+        self.width = width
+        self.height = height
+
+    def area(self):
+        return self.width * self.height
+
+print(Rectangle(3, 4).area())  # Output: 12</code></pre>
+</div>
 <span class="task-label">Your Task</span>
 <p class="task-line">Extend the <code>Person</code> class to include a method <code>introduce</code> that returns an f-string using the instance's <code>name</code> and <code>age</code>.</p>
 <div class="example-block">
@@ -109,6 +159,31 @@ window.LEVEL3 = [
     level: 3,
     xp: 20,
     instructions: `<p>A <code>@classmethod</code> receives the class itself (<code>cls</code>) as its first argument instead of an instance, which makes it useful for building objects in alternative ways. A <code>@staticmethod</code> receives nothing special at all; it's just a regular function that happens to live inside the class's namespace because it's conceptually related.</p>
+<p>Below, <code>Pizza.margherita()</code> is a classmethod that builds a pizza pre-configured with toppings, without the caller needing to know the exact list. <code>is_vegetarian</code> is a staticmethod: it doesn't touch <code>self</code> or <code>cls</code> at all, it's just a helper function that logically belongs with the class.</p>
+<ul>
+  <li><strong>cls:</strong> the class-method equivalent of <code>self</code> -- it refers to the class itself, not to any one instance, so calling <code>cls(...)</code> constructs a new object of that class.</li>
+</ul>
+<p><strong>Shorthand</strong></p>
+<ul>
+  <li><code>@classmethod</code> above a method means its first parameter is <code>cls</code> instead of <code>self</code> -- call it as <code>ClassName.method(...)</code>.</li>
+  <li><code>@staticmethod</code> above a method means it takes no automatic first parameter -- call it as <code>ClassName.method(...)</code> like a plain function.</li>
+</ul>
+<div class="example-block">
+  <span class="example-label">Quick Example</span>
+  <pre><code>class Pizza:
+    def __init__(self, toppings):
+        self.toppings = toppings
+
+    @classmethod
+    def margherita(cls):
+        return cls(["tomato", "mozzarella"])
+
+    @staticmethod
+    def is_vegetarian(toppings):
+        return "pepperoni" not in toppings
+
+print(Pizza.margherita().toppings)  # Output: ['tomato', 'mozzarella']</code></pre>
+</div>
 <span class="task-label">Your Task</span>
 <p class="task-line">Add to the <code>Circle</code> class:</p>
 <ul>
@@ -150,6 +225,22 @@ window.LEVEL3 = [
     level: 3,
     xp: 20,
     instructions: `<p><strong>Inheritance</strong> lets one class (the child) automatically pick up the attributes and methods of another (the parent), by naming the parent in parentheses after the child's class name. The child can then <strong>override</strong> any method by defining its own version with the same name.</p>
+<p class="blueprint-line"><code>class Child(Parent):</code></p>
+<div class="example-block">
+  <span class="example-label">Quick Example</span>
+  <pre><code>class Shape:
+    def area(self):
+        return 0
+
+class Square(Shape):
+    def __init__(self, side):
+        self.side = side
+
+    def area(self):
+        return self.side ** 2
+
+print(Square(4).area())  # Output: 16</code></pre>
+</div>
 <span class="task-label">Your Task</span>
 <p class="task-line">Define a parent class <code>Animal</code> with a method <code>sound</code> returning <code>"..."</code>. Then define a child class <code>Cat</code> that inherits from <code>Animal</code> and overrides <code>sound</code> to return <code>"Meow"</code>.</p>
 <div class="example-block">
@@ -184,6 +275,23 @@ window.LEVEL3 = [
     level: 3,
     xp: 20,
     instructions: `<p><code>super()</code> gives you a handle on the parent class from inside a child class, letting you call the parent's version of a method and then add to it, rather than rewriting everything from scratch. It's most common inside <code>__init__</code>, where the child wants the parent's setup plus a bit more of its own.</p>
+<div class="example-block">
+  <span class="example-label">Quick Example</span>
+  <pre><code>class Vehicle:
+    def __init__(self, wheels):
+        self.wheels = wheels
+
+class Car(Vehicle):
+    def __init__(self, wheels, brand):
+        super().__init__(wheels)
+        self.brand = brand
+
+print(Car(4, "Toyota").wheels)  # Output: 4</code></pre>
+</div>
+<div class="note-block">
+  <span class="note-label">Note</span>
+  <span>If a child class defines its own <code>__init__</code> and never calls <code>super().__init__(...)</code>, the parent's setup never runs at all, so any attributes the parent would normally set simply won't exist on the child's instances.</span>
+</div>
 <span class="task-label">Your Task</span>
 <p class="task-line">Define <code>Employee</code> that inherits from <code>Person</code>. Its <code>__init__</code> should call <code>super().__init__(name, age)</code> and also set <code>self.role</code> from a third parameter.</p>
 <div class="example-block">
@@ -219,6 +327,32 @@ window.LEVEL3 = [
     level: 3,
     xp: 20,
     instructions: `<p><code>__str__</code> defines the human-readable string shown by <code>print()</code>, while <code>__repr__</code> defines the more technical, developer-facing version you see in the REPL or when debugging. Defining both lets your objects describe themselves sensibly in every context Python might display them.</p>
+<ul>
+  <li><strong>__repr__:</strong> a dunder method Python falls back to any time <code>__str__</code> isn't defined, and the one used when you just type an object's name in the REPL.</li>
+</ul>
+<div class="example-block">
+  <span class="example-label">Quick Example</span>
+  <pre><code>class Book:
+    def __init__(self, title):
+        self.title = title
+
+    def __str__(self):
+        return self.title
+
+    def __repr__(self):
+        return f"Book({self.title!r})"
+
+print(str(Book("Dune")))   # Output: Dune
+print(repr(Book("Dune")))  # Output: Book('Dune')</code></pre>
+</div>
+<p><strong>Shorthand</strong></p>
+<ul>
+  <li><code>__str__</code> and <code>__repr__</code> are both dunder methods -- the double underscores on each side are what Python's built-ins (<code>print()</code>, <code>str()</code>, <code>repr()</code>) look for automatically.</li>
+</ul>
+<div class="note-block">
+  <span class="note-label">Note</span>
+  <span>If you only define one, define <code>__repr__</code> -- Python falls back to it for <code>str()</code> too when <code>__str__</code> is missing, but not the other way around.</span>
+</div>
 <span class="task-label">Your Task</span>
 <p class="task-line">Add both methods to the <code>Point</code> class. <code>__str__</code> should return <code>"(x, y)"</code> and <code>__repr__</code> should return <code>"Point(x, y)"</code>.</p>
 <div class="example-block">
@@ -253,6 +387,25 @@ window.LEVEL3 = [
     level: 3,
     xp: 20,
     instructions: `<p><strong>Magic methods</strong> (also called dunder methods, for their double underscores) are how your own classes hook into Python's built-in operators and functions. Define <code>__len__</code> and suddenly <code>len(your_object)</code> works; define <code>__eq__</code> and <code>==</code> starts comparing your objects the way you tell it to.</p>
+<p>When you write <code>bag1 == bag2</code>, Python calls <code>bag1.__eq__(bag2)</code> and uses whatever it returns. Same story with <code>len(bag)</code> -- Python calls <code>bag.__len__()</code>. Magic methods are just regular methods with reserved names that Python's built-in syntax already knows to call automatically.</p>
+<div class="example-block">
+  <span class="example-label">Quick Example</span>
+  <pre><code>class Playlist:
+    def __init__(self, songs):
+        self.songs = songs
+
+    def __len__(self):
+        return len(self.songs)
+
+    def __eq__(self, other):
+        return self.songs == other.songs
+
+print(len(Playlist(["a", "b"])))  # Output: 2</code></pre>
+</div>
+<div class="note-block">
+  <span class="note-label">Note</span>
+  <span>Defining <code>__eq__</code> without also defining <code>__hash__</code> makes instances of your class unhashable by default, which means they can no longer be used as dictionary keys or put into a set.</span>
+</div>
 <span class="task-label">Your Task</span>
 <p class="task-line">Add to the <code>Bag</code> class:</p>
 <ul>
@@ -282,7 +435,7 @@ window.LEVEL3 = [
         { code: "assert Bag([1, 2]) != Bag([1, 2, 3])", message: "Bags with different items should not be equal." }
       ]
     },
-    explanation: `<p>Magic methods let your objects integrate with Python's built-in syntax. With <code>__len__</code>, <code>len(bag)</code> works. With <code>__eq__</code>, <code>bag1 == bag2</code> works. Python calls these automatically.</p>`
+    explanation: `<p>Magic methods let your objects integrate with Python's built-in syntax. With <code>__len__</code>, <code>len(bag)</code> works because Python calls <code>bag.__len__()</code> for you. With <code>__eq__</code>, <code>bag1 == bag2</code> is really <code>bag1.__eq__(bag2)</code> running behind the scenes -- Python just gives you a shorthand syntax for it.</p>`
   },
   {
     id: 49,
@@ -292,6 +445,20 @@ window.LEVEL3 = [
     level: 3,
     xp: 20,
     instructions: `<p><code>try</code> / <code>except</code> lets your program catch an error as it happens and handle it gracefully, instead of crashing outright. Code that might fail goes in the <code>try</code> block; the <code>except</code> block only runs if that specific error actually occurs.</p>
+<div class="example-block">
+  <span class="example-label">Quick Example</span>
+  <pre><code>def get_item(items, index):
+    try:
+        return items[index]
+    except IndexError:
+        return None
+
+print(get_item([1, 2, 3], 10))  # Output: None</code></pre>
+</div>
+<div class="note-block">
+  <span class="note-label">Note</span>
+  <span>A bare <code>except:</code> with no error type catches everything, including bugs you'd actually want to see. Name the specific exception you expect, like <code>except ZeroDivisionError:</code>, instead.</span>
+</div>
 <span class="task-label">Your Task</span>
 <p class="task-line">Define a function <code>safe_divide</code> that takes <code>a</code> and <code>b</code>. If <code>b</code> is zero, catch the <code>ZeroDivisionError</code> and return <code>None</code>. Otherwise return <code>a / b</code>.</p>
 <div class="example-block">
@@ -326,6 +493,22 @@ window.LEVEL3 = [
     level: 3,
     xp: 20,
     instructions: `<p>You can raise exceptions yourself with <code>raise</code>, and even define your own exception types by inheriting from <code>Exception</code> or one of its built-in subclasses. A custom exception lets callers catch precisely your error and nothing else, instead of catching something broad like every possible <code>ValueError</code>.</p>
+<ul>
+  <li><strong>raise:</strong> the keyword that triggers an exception immediately, stopping normal execution and handing control to the nearest matching <code>except</code> block, if any.</li>
+</ul>
+<p class="blueprint-line"><code>class CustomError(Exception):</code></p>
+<div class="example-block">
+  <span class="example-label">Quick Example</span>
+  <pre><code>class TooLongError(ValueError):
+    pass
+
+def check_length(word):
+    if len(word) > 10:
+        raise TooLongError("Word is too long")
+    return word
+
+print(check_length("hi"))  # Output: hi</code></pre>
+</div>
 <span class="task-label">Your Task</span>
 <p class="task-line">Define a custom exception class <code>NegativeError</code> inheriting from <code>ValueError</code>. Then define a function <code>sqrt_safe</code> that takes <code>n</code>: if <code>n</code> is negative, raise <code>NegativeError("Number must not be negative")</code>. Otherwise return <code>n ** 0.5</code>.</p>
 <div class="example-block">
@@ -360,6 +543,17 @@ window.LEVEL3 = [
     level: 3,
     xp: 20,
     instructions: `<p>The <code>with</code> statement manages a resource automatically: it opens the resource, hands it to you, and guarantees cleanup happens afterward, even if an exception occurs partway through. For files, that means the file is always closed properly, without you ever having to call <code>f.close()</code> yourself.</p>
+<div class="example-block">
+  <span class="example-label">Quick Example</span>
+  <pre><code>with open("notes.txt", "w") as f:
+    f.write("first line")
+
+print(f.closed)  # Output: True</code></pre>
+</div>
+<div class="note-block">
+  <span class="note-label">Note</span>
+  <span>Opening a file without <code>with</code> and forgetting <code>f.close()</code> can leave the file locked or its data unflushed to disk, especially if an error happens before you reach the close call.</span>
+</div>
 <span class="task-label">Your Task</span>
 <p class="task-line">Write code that opens a file named <code>"data.txt"</code> for writing using a <code>with</code> statement. Inside, write the string <code>"Hello from Python"</code> to it. Assign the file object to <code>f</code>.</p>
 <div class="example-block">
@@ -392,6 +586,23 @@ window.LEVEL3 = [
     level: 3,
     xp: 30,
     instructions: `<p>You're not limited to the <code>with</code> statement's built-in tools; you can create your own context manager by defining <code>__enter__</code> and <code>__exit__</code> on a class. <code>__enter__</code> runs when the <code>with</code> block starts, and its return value becomes whatever comes after <code>as</code>. <code>__exit__</code> runs when the block ends, no matter how it ends.</p>
+<p>Real-world context managers usually guard something that needs cleanup no matter what happens, like a database connection or a file lock. That's why <code>__exit__</code> always runs, even if the code inside the <code>with</code> block crashes: if <code>exc_type</code> is <code>None</code>, the block finished normally; otherwise <code>exc_type</code>/<code>exc_val</code>/<code>exc_tb</code> tell you what went wrong and where.</p>
+<p class="blueprint-line"><code>def __enter__(self):</code><br><code>def __exit__(self, exc_type, exc_val, exc_tb):</code></p>
+<div class="example-block">
+  <span class="example-label">Quick Example</span>
+  <pre><code>class Resource:
+    def __enter__(self):
+        print("open")
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        print("closed")
+
+with Resource() as r:
+    pass
+# Output: open
+# Output: closed</code></pre>
+</div>
 <span class="task-label">Your Task</span>
 <p class="task-line">Define a class <code>Timer</code> that acts as a context manager. <code>__enter__</code> should print <code>"Starting"</code> and return <code>self</code>. <code>__exit__</code> should accept <code>exc_type, exc_val, exc_tb</code> and print <code>"Done"</code>.</p>
 <div class="example-block">
@@ -426,6 +637,23 @@ window.LEVEL3 = [
     level: 3,
     xp: 20,
     instructions: `<p>A generator function uses <code>yield</code> instead of <code>return</code>, pausing at each one rather than ending the function. Calling the function doesn't run any of its code yet; it hands back a generator object, and each call to <code>next()</code> (or each step of a <code>for</code> loop) resumes execution up to the next <code>yield</code>.</p>
+<ul>
+  <li><strong>yield:</strong> pauses the function and hands back a value, but keeps all of its local state so it can pick up right where it left off on the next call.</li>
+</ul>
+<div class="example-block">
+  <span class="example-label">Quick Example</span>
+  <pre><code>def count_up(n):
+    i = 1
+    while i <= n:
+        yield i
+        i += 1
+
+print(list(count_up(3)))  # Output: [1, 2, 3]</code></pre>
+</div>
+<div class="note-block">
+  <span class="note-label">Note</span>
+  <span>Calling a generator function, like <code>count_up(3)</code>, does not run any of its code right away -- it only creates the generator object. The body only starts executing once you call <code>next()</code> on it or iterate over it.</span>
+</div>
 <span class="task-label">Your Task</span>
 <p class="task-line">Define a generator function <code>countdown</code> that takes <code>n</code> and yields values from <code>n</code> down to <code>1</code> (inclusive).</p>
 <div class="example-block">
@@ -461,6 +689,16 @@ window.LEVEL3 = [
     level: 3,
     xp: 20,
     instructions: `<p>A generator expression looks like a list comprehension but with round brackets instead of square ones, and it produces values lazily, one at a time, rather than building the whole sequence in memory up front. Wrap it in <code>list()</code> whenever you actually need every value at once.</p>
+<div class="example-block">
+  <span class="example-label">Quick Example</span>
+  <pre><code>words = ["hi", "hey", "hello"]
+gen = (w.upper() for w in words)
+print(list(gen))  # Output: ['HI', 'HEY', 'HELLO']</code></pre>
+</div>
+<div class="note-block">
+  <span class="note-label">Note</span>
+  <span>A generator expression can only be looped through once. Once you've exhausted it, whether by converting it to a list or finishing a <code>for</code> loop over it, it's empty for good and needs to be recreated to use again.</span>
+</div>
 <span class="task-label">Your Task</span>
 <p class="task-line">Given <code>numbers = range(1, 11)</code>, create a generator expression <code>gen</code> that produces the square of each number. Then convert it to a list named <code>squares</code>.</p>
 <div class="example-block">
@@ -494,6 +732,30 @@ window.LEVEL3 = [
     level: 3,
     xp: 30,
     instructions: `<p>An <strong>iterator</strong> implements two methods: <code>__iter__</code> (which just returns itself) and <code>__next__</code> (which returns the next value, or raises <code>StopIteration</code> once there's nothing left). Any object with both methods can be used directly in a <code>for</code> loop, the same as a list or a range.</p>
+<p class="blueprint-line"><code>def __iter__(self):</code><br><code>def __next__(self):</code></p>
+<div class="example-block">
+  <span class="example-label">Quick Example</span>
+  <pre><code>class Evens:
+    def __init__(self, limit):
+        self.n = 0
+        self.limit = limit
+
+    def __iter__(self):
+        return self
+
+    def __next__(self):
+        if self.n >= self.limit:
+            raise StopIteration
+        value = self.n
+        self.n += 2
+        return value
+
+print(list(Evens(6)))  # Output: [0, 2, 4]</code></pre>
+</div>
+<div class="note-block">
+  <span class="note-label">Note</span>
+  <span>Forgetting to raise <code>StopIteration</code> when the sequence is exhausted leaves <code>__next__</code> with nothing to signal the end, so a <code>for</code> loop or <code>list()</code> call over it will run forever.</span>
+</div>
 <span class="task-label">Your Task</span>
 <p class="task-line">Define a class <code>Counter</code> that counts from <code>start</code> to <code>stop</code> (exclusive). Implement <code>__iter__</code> and <code>__next__</code>. Raise <code>StopIteration</code> when the count reaches <code>stop</code>.</p>
 <div class="example-block">
@@ -530,6 +792,30 @@ window.LEVEL3 = [
     level: 3,
     xp: 20,
     instructions: `<p>A <strong>decorator</strong> is a function that takes another function and returns a modified version of it, typically by wrapping it in a new function that adds behavior before or after the original runs. This is how you add reusable behavior, like logging or timing, to many different functions without repeating the same code in each one.</p>
+<ul>
+  <li><strong>wrapper:</strong> the inner function a decorator defines and returns -- it's what actually runs in place of the original function, calling the original somewhere inside itself.</li>
+  <li><strong>*args, **kwargs:</strong> used in the wrapper so it can accept whatever arguments the original function takes, no matter how many or what kind, and pass them straight through.</li>
+</ul>
+<p class="blueprint-line"><code>def decorator(func):</code><br><code>&nbsp;&nbsp;&nbsp;&nbsp;def wrapper(*args, **kwargs):</code></p>
+<div class="example-block">
+  <span class="example-label">Quick Example</span>
+  <pre><code>def logged(func):
+    def wrapper(*args, **kwargs):
+        print("calling", func.__name__)
+        return func(*args, **kwargs)
+    return wrapper
+
+@logged
+def add(a, b):
+    return a + b
+
+print(add(2, 3))  # Output: calling add
+                   # Output: 5</code></pre>
+</div>
+<div class="note-block">
+  <span class="note-label">Note</span>
+  <span>A decorator must <code>return wrapper</code> (the function itself), not <code>return wrapper()</code> (a call to it). Returning the call runs it immediately and hands back its result instead of the reusable wrapped function.</span>
+</div>
 <span class="task-label">Your Task</span>
 <p class="task-line">Define a decorator <code>shout</code> that wraps a function: it calls the original function, takes its string result, and returns it in uppercase.</p>
 <div class="example-block">
@@ -567,6 +853,19 @@ window.LEVEL3 = [
     level: 3,
     xp: 20,
     instructions: `<p>Apply a decorator by placing <code>@decorator_name</code> directly above a function definition. It's shorthand for calling the decorator on the function afterward and reassigning the name, <code>greet = shout(greet)</code>, just written in a way that reads clearly right next to the function it modifies.</p>
+<div class="example-block">
+  <span class="example-label">Quick Example</span>
+  <pre><code>def loud(func):
+    def wrapper():
+        return func().upper()
+    return wrapper
+
+@loud
+def name():
+    return "sam"
+
+print(name())  # Output: SAM</code></pre>
+</div>
 <span class="task-label">Your Task</span>
 <p class="task-line">Given the <code>shout</code> decorator (pre-written), define a function <code>greet</code> that returns <code>"hello"</code>, and apply the <code>@shout</code> decorator to it.</p>
 <div class="example-block">
@@ -600,11 +899,32 @@ window.LEVEL3 = [
     level: 3,
     xp: 30,
     instructions: `<p>The <code>@property</code> decorator lets a method be accessed like a plain attribute, no parentheses needed, which is handy for values that are computed from other data rather than stored directly. Pairing it with <code>@name.setter</code> lets assignment (<code>obj.name = value</code>) run your own logic too, instead of just overwriting a variable.</p>
+<div class="example-block">
+  <span class="example-label">Quick Example</span>
+  <pre><code>class Circle:
+    def __init__(self, radius):
+        self._radius = radius
+
+    @property
+    def diameter(self):
+        return self._radius * 2
+
+    @diameter.setter
+    def diameter(self, value):
+        self._radius = value / 2
+
+c = Circle(5)
+print(c.diameter)  # Output: 10</code></pre>
+</div>
 <span class="task-label">Your Task</span>
 <p class="task-line">Define a <code>Temperature</code> class with a private attribute <code>_celsius</code>. Add a <code>@property</code> named <code>fahrenheit</code> that returns the Fahrenheit equivalent (<code>celsius * 9/5 + 32</code>). Add a <code>@fahrenheit.setter</code> that converts Fahrenheit to Celsius and stores it.</p>
 <div class="example-block">
   <span class="example-label">Example</span>
   <div class="io-row"><span class="io-key">Temperature(0).fahrenheit</span><code class="io-val">32.0</code></div>
+</div>
+<div class="note-block">
+  <span class="note-label">Note</span>
+  <span>The leading underscore in <code>_celsius</code> is just a convention -- Python doesn't actually stop anyone from accessing <code>t._celsius</code> directly. It's a signal to other developers that "this is internal, use the property instead." Python doesn't enforce true privacy the way some other languages do.</span>
 </div>`,
     hints: [
       "@property",
@@ -637,6 +957,16 @@ window.LEVEL3 = [
     level: 3,
     xp: 30,
     instructions: `<p>Comprehensions can be nested to flatten or transform structures that have more than one level, like a list of lists. Reading a nested comprehension left to right matches how you'd write the equivalent nested <code>for</code> loops: the leftmost <code>for</code> is the outer loop.</p>
+<div class="example-block">
+  <span class="example-label">Quick Example</span>
+  <pre><code>groups = [["a", "b"], ["c"], ["d", "e"]]
+flat = [letter for group in groups for letter in group]
+print(flat)  # Output: ['a', 'b', 'c', 'd', 'e']</code></pre>
+</div>
+<div class="note-block">
+  <span class="note-label">Note</span>
+  <span>The order of the <code>for</code> clauses matters -- swapping them, or getting the loop variable names backward, is a common mistake that raises a <code>NameError</code> instead of flattening correctly.</span>
+</div>
 <span class="task-label">Your Task</span>
 <p class="task-line">Given <code>matrix = [[1, 2, 3], [4, 5, 6], [7, 8, 9]]</code>, create a list <code>flat</code> that contains all numbers in a single flat list using a nested list comprehension.</p>
 <div class="example-block">
@@ -670,6 +1000,16 @@ window.LEVEL3 = [
     level: 3,
     xp: 30,
     instructions: `<p>The <strong>walrus operator</strong> <code>:=</code> lets you assign a value to a name and use that value in the same expression, instead of needing a separate assignment line first. It's most useful when you'd otherwise have to compute the same thing twice, once to test it and once to use it.</p>
+<div class="example-block">
+  <span class="example-label">Quick Example</span>
+  <pre><code>readings = [12, 45, 8, 33]
+loud = [r for r in readings if (r := r * 2) > 50]
+print(loud)  # Output: [90, 66]</code></pre>
+</div>
+<div class="note-block">
+  <span class="note-label">Note</span>
+  <span>The walrus operator needs its own parentheses when used inside a comprehension condition, like <code>(v := item)</code> -- leaving them off is a syntax error.</span>
+</div>
 <span class="task-label">Your Task</span>
 <p class="task-line">Given a list <code>data</code>, write a list comprehension that filters values greater than 5. Use the walrus operator to assign each item to <code>v</code> inside the comprehension condition and include <code>v</code> in the output. Store the result in <code>big</code>.</p>
 <div class="example-block">
@@ -704,7 +1044,21 @@ window.LEVEL3 = [
     xp: 30,
     kind: "project",
     source: "Tiny Python Projects #21, \"Tic-Tac-Toe\"",
-    instructions: `<p>A tic-tac-toe board is nine cells and eight possible winning lines: three rows, three columns, and two diagonals. This capstone project, adapted from <em>Tiny Python Projects</em>, pulls together everything this level covered, a class with its own state, methods that mutate that state, and a check that scans for a pattern, into the core logic behind a real game.</p>
+    instructions: `<p>A tic-tac-toe board is nine cells and eight possible winning lines: three rows, three columns, and two diagonals. This capstone project, adapted from <em>Tiny Python Projects</em>, combines what you already know -- a class with its own instance state and a method that mutates it -- with two new pieces: unpacking a tuple straight in a <code>for</code> loop, and a chained comparison to check three cells at once.</p>
+<p class="blueprint-line"><code>for a, b, c in triples:</code><br><code>&nbsp;&nbsp;&nbsp;&nbsp;if cells[a] == cells[b] == cells[c] != " ":</code></p>
+<div class="example-block">
+  <span class="example-label">Quick Example</span>
+  <pre><code>triples = [(0, 1, 2), (3, 4, 5)]
+values = ["X", "X", "X", "O", " ", "O"]
+for a, b, c in triples:
+    if values[a] == values[b] == values[c] != " ":
+        print(a, b, c)  # Output: 0 1 2</code></pre>
+</div>
+<p><strong>New pieces in this project</strong></p>
+<ul>
+  <li>Unpacking a tuple in a <code>for</code> loop: <code>for a, b, c in triples:</code> pulls the three numbers out of each tuple directly into three names, instead of indexing into it by hand.</li>
+  <li>Chained comparison: <code>x == y == z != " "</code> checks all three conditions at once -- true only if x, y, and z all match each other and none of them is blank.</li>
+</ul>
 <span class="task-label">Your Task</span>
 <p class="task-line">Define a class <code>Board</code> with a <code>move(position, mark)</code> method that places <code>"X"</code> or <code>"O"</code> at one of 9 cells (indexed 0 to 8), and a <code>winner()</code> method that returns <code>"X"</code> or <code>"O"</code> if that player has completed a row, column, or diagonal, or <code>None</code> if nobody has won yet.</p>
 <div class="example-block">

@@ -6,7 +6,22 @@ window.LEVEL1 = [
     topic: "Variables",
     level: 1,
     xp: 10,
-    instructions: `<p>A <strong>variable</strong> is simply a name you give to a value so you can use it again later. In Python you don't need to declare a type first: you just write a name, an <code>=</code> sign, and a value, and that's it, the variable now exists and holds that value until you change it. Variables are how almost every program keeps track of information, like a score, a username, or a total, while it runs.</p>
+    instructions: `<p>A <strong>variable</strong> is a name you give to a value so you can use it again later. In Python you don't declare a type first: write a name, an <code>=</code> sign, and a value, and it exists.</p>
+<p>Variables track information like a score, a username, or a total while a program runs.</p>
+<ul>
+  <li><strong>Assignment operator:</strong> the <code>=</code> sign doesn't mean "equals" here, it means "store the thing on the right under the name on the left."</li>
+  <li><strong>Comment (#):</strong> anything after a <code>#</code> on a line is ignored by Python -- it's a note for whoever reads the code, not an instruction that runs.</li>
+</ul>
+<div class="example-block">
+  <span class="example-label">Quick Example</span>
+  <pre><code># Store 42 under the name "answer"
+answer = 42
+print(answer)  # Output: 42</code></pre>
+</div>
+<div class="note-block">
+  <span class="note-label">Note</span>
+  <span>Python is case-sensitive: <code>answer</code> and <code>Answer</code> are two completely different names.</span>
+</div>
 <span class="task-label">Your Task</span>
 <p class="task-line">Assign the integer <code>42</code> to a variable named <code>answer</code>.</p>`,
     hints: [
@@ -34,7 +49,20 @@ window.LEVEL1 = [
     topic: "Variables",
     level: 1,
     xp: 10,
-    instructions: `<p>A <strong>string</strong> is just text, wrapped in quotes so Python knows where it starts and ends. You can use single quotes or double quotes; they work exactly the same way, so pick whichever is easier to read (double quotes are handy when your text has an apostrophe in it). Strings are everywhere in programming: names, messages, and anything else made of words or characters gets stored as a string.</p>
+    instructions: `<p>A <strong>string</strong> is text, wrapped in quotes so Python knows where it starts and ends.</p>
+<p>Single and double quotes work identically; pick whichever's easier to read (double quotes are handy when your text has an apostrophe in it).</p>
+<ul>
+  <li><strong>Quotes:</strong> anything between matching <code>'</code> or <code>"</code> marks is text, not code, so Python doesn't try to run it or do math with it.</li>
+</ul>
+<div class="example-block">
+  <span class="example-label">Quick Example</span>
+  <pre><code>greeting = "Hello, World!"
+print(greeting)  # Output: Hello, World!</code></pre>
+</div>
+<div class="note-block">
+  <span class="note-label">Note</span>
+  <span>Mixing quote styles, like starting with <code>"</code> and ending with <code>'</code>, causes a syntax error. The opening and closing quote have to match.</span>
+</div>
 <span class="task-label">Your Task</span>
 <p class="task-line">Create a variable named <code>greeting</code> and assign it the string <code>"Hello, World!"</code>.</p>`,
     hints: [
@@ -61,7 +89,18 @@ window.LEVEL1 = [
     topic: "Variables",
     level: 1,
     xp: 10,
-    instructions: `<p>Python has two everyday number types. A whole number like <code>5</code> or <code>100</code> is called an <strong>int</strong>. A number with a decimal point like <code>3.14</code> is called a <strong>float</strong>. You don't have to tell Python which one you're making; it figures that out just from how you type the number. This matters later on, since mixing an int and a float in a calculation always gives you a float back.</p>
+    instructions: `<p>Python has two everyday number types. A whole number like <code>5</code> is an <strong>int</strong>; a number with a decimal point like <code>3.14</code> is a <strong>float</strong>. Python figures out which one you meant just from how you type it.</p>
+<p>Mixing an int and a float in a calculation always gives you a float back.</p>
+<ul>
+  <li><strong>float:</strong> a number with a decimal point, like <code>9.99</code>, even if the digits after the dot are just <code>0</code>.</li>
+</ul>
+<div class="example-block">
+  <span class="example-label">Quick Example</span>
+  <pre><code>age = 25
+price = 9.99
+print(type(age))    # Output: &lt;class 'int'&gt;
+print(type(price))  # Output: &lt;class 'float'&gt;</code></pre>
+</div>
 <span class="task-label">Your Task</span>
 <p class="task-line">Create two variables: <code>age</code> set to <code>25</code> (an integer) and <code>price</code> set to <code>9.99</code> (a float).</p>`,
     hints: [
@@ -89,7 +128,19 @@ window.LEVEL1 = [
     topic: "Variables",
     level: 1,
     xp: 10,
-    instructions: `<p>A <strong>boolean</strong> is a value that can only be <code>True</code> or <code>False</code>, nothing else, and it always starts with a capital letter in Python. You'll run into booleans constantly once you start writing conditions, since comparing two things, like checking if one number is bigger than another, always produces a <code>True</code> or <code>False</code> answer. They're the building block behind every decision a program makes.</p>
+    instructions: `<p>A <strong>boolean</strong> is a value that can only be <code>True</code> or <code>False</code>, always capitalized in Python. Comparing two things, like checking if one number is bigger than another, always produces a boolean answer.</p>
+<ul>
+  <li><strong>Capitalization:</strong> it's <code>True</code> and <code>False</code>, not <code>true</code> and <code>false</code>. Python treats the lowercase versions as undefined names, not booleans.</li>
+</ul>
+<div class="example-block">
+  <span class="example-label">Quick Example</span>
+  <pre><code>is_online = True
+print(is_online)  # Output: True</code></pre>
+</div>
+<div class="note-block">
+  <span class="note-label">Note</span>
+  <span>Typing <code>true</code> in lowercase raises a <code>NameError</code> instead of giving you a boolean. Always capitalize the first letter.</span>
+</div>
 <span class="task-label">Your Task</span>
 <p class="task-line">Create two variables: <code>is_online</code> set to <code>True</code> and <code>is_admin</code> set to <code>False</code>.</p>`,
     hints: [
@@ -117,7 +168,15 @@ window.LEVEL1 = [
     topic: "Strings",
     level: 1,
     xp: 10,
-    instructions: `<p>You can stick two strings together using the <code>+</code> sign. This is called <strong>concatenation</strong>, and it just means "join them end to end" rather than doing any math. It only works between strings though: trying to add a string and a number with <code>+</code> causes an error, so you'd need to turn the number into text first with <code>str()</code>. You'll use this constantly whenever you build a message out of smaller pieces.</p>
+    instructions: `<p>You can stick two strings together using the <code>+</code> sign. This is called <strong>concatenation</strong>: it joins them end to end rather than doing any math.</p>
+<p>It only works between strings, though. Adding a string and a number with <code>+</code> causes an error, so convert the number to text first with <code>str()</code>.</p>
+<ul>
+  <li><strong>Concatenation:</strong> <code>+</code> between two strings glues them into one, with no space added automatically -- you have to include any spacing yourself.</li>
+</ul>
+<div class="note-block">
+  <span class="note-label">Note</span>
+  <span><code>"a" + 1</code> raises a <code>TypeError</code>. Python won't silently convert a number to text for you, so wrap it in <code>str()</code> first.</span>
+</div>
 <span class="task-label">Your Task</span>
 <p class="task-line">Create <code>first</code> and <code>second</code> as shown below, then create a third variable <code>result</code> that joins them together.</p>
 <div class="example-block">
@@ -149,7 +208,18 @@ window.LEVEL1 = [
     topic: "Strings",
     level: 1,
     xp: 10,
-    instructions: `<p>An <strong>f-string</strong> is a handy way to build text that includes variables, without gluing the pieces together yourself. Just put an <code>f</code> right before the quotes, then wrap any variable name in curly braces and Python will swap in its value automatically. You can even do simple math inside the braces. f-strings are the easiest and most common way to combine text and data in modern Python.</p>
+    instructions: `<p>An <strong>f-string</strong> builds text that includes variables, without gluing pieces together yourself. Put an <code>f</code> right before the quotes, wrap a variable name in curly braces, and Python swaps in its value automatically. You can even do simple math inside the braces.</p>
+<p class="blueprint-line"><code>f"...{variable}..."</code></p>
+<div class="example-block">
+  <span class="example-label">Quick Example</span>
+  <pre><code>name = "Alice"
+age = 30
+print(f"{name} is {age} years old")  # Output: Alice is 30 years old</code></pre>
+</div>
+<div class="note-block">
+  <span class="note-label">Note</span>
+  <span>Forgetting the <code>f</code> before the quotes is a common slip -- without it, Python prints the curly braces and variable names literally instead of substituting the values.</span>
+</div>
 <span class="task-label">Your Task</span>
 <p class="task-line">Create a variable <code>message</code> using an f-string that greets someone by name and age, in the shape shown below.</p>
 <div class="example-block">
@@ -182,7 +252,22 @@ window.LEVEL1 = [
     topic: "Lists",
     level: 1,
     xp: 10,
-    instructions: `<p>A <strong>list</strong> holds several items together in order, written inside square brackets and separated by commas. You can grab any item by its position, called an index, and Python starts counting from <code>0</code> instead of <code>1</code>, so the first item is always at index <code>0</code>. Lists are one of the most useful tools in Python, since you can add, remove, or change items whenever you like.</p>
+    instructions: `<p>A <strong>list</strong> holds several items together in order, written inside square brackets and separated by commas. You grab any item by its position, called an index, and Python starts counting from <code>0</code>, so the first item is always at index <code>0</code>.</p>
+<p class="blueprint-line"><code>my_list[index]</code></p>
+<div class="example-block">
+  <span class="example-label">Quick Example</span>
+  <pre><code>fruits = ["apple", "banana", "cherry"]
+print(fruits[0])  # Output: apple</code></pre>
+</div>
+<p><strong>Shorthand</strong></p>
+<ul>
+  <li><code>fruits[0]</code> targets the first item.</li>
+  <li><code>fruits[-1]</code> targets the last item, counting backward from the end.</li>
+</ul>
+<div class="note-block">
+  <span class="note-label">Note</span>
+  <span>Reaching for index <code>1</code> to get the first item is an easy off-by-one mistake. The first item is always at index <code>0</code>.</span>
+</div>
 <span class="task-label">Your Task</span>
 <p class="task-line">Create a variable <code>fruits</code> containing three strings, then create <code>first_fruit</code> holding the first element.</p>
 <div class="example-block">
@@ -209,13 +294,129 @@ window.LEVEL1 = [
     explanation: `<p>Lists count from <code>0</code>, not <code>1</code>, so the first item sits at index <code>0</code>. You can also count from the end with negative indexes: <code>fruits[-1]</code> gives you the last item.</p>`
   },
   {
+    id: 220,
+    title: "Reading a Traceback",
+    difficulty: "easy",
+    topic: "Debugging",
+    level: 1,
+    xp: 10,
+    instructions: `<p>Sooner or later your code will crash, and when it does, Python prints a <strong>traceback</strong>: a report showing exactly where things went wrong. It looks intimidating, but you only need to read two parts of it -- the line pointing at your code, and the very last line.</p>
+<ul>
+  <li><strong>Exception type:</strong> the word before the colon on the traceback's last line (like <code>IndexError</code> or <code>NameError</code>) -- it names the general category of what went wrong.</li>
+</ul>
+<div class="example-block">
+  <span class="example-label">Quick Example</span>
+  <pre><code>fruits = ["apple", "banana", "cherry"]
+print(fruits[3])
+# Traceback (most recent call last):
+#   File "script.py", line 2, in &lt;module&gt;
+#     print(fruits[3])
+# IndexError: list index out of range</code></pre>
+</div>
+<p><strong>Common exception types</strong></p>
+<ul>
+  <li><code>IndexError</code>: asked a list for a position that doesn't exist (like index 3 in a 3-item list).</li>
+  <li><code>NameError</code>: used a variable that was never created -- almost always a typo.</li>
+  <li><code>KeyError</code>: asked a dictionary for a key it doesn't have.</li>
+</ul>
+<div class="note-block">
+  <span class="note-label">Note</span>
+  <span>Read a traceback from the bottom up: the last line tells you what broke, the line above it shows exactly which line of your code triggered it. Skip the middle the first time through.</span>
+</div>
+<span class="task-label">Your Task</span>
+<p class="task-line">The code below crashes with an <code>IndexError</code>. Read the traceback it would produce, then fix the bug so <code>favorite</code> correctly holds <code>fruits[2]</code>, <code>"cherry"</code>, without the program crashing.</p>
+<div class="example-block">
+  <span class="example-label">Example</span>
+  <div class="io-row"><span class="io-key">fruits</span><code class="io-val">["apple", "banana", "cherry"]</code></div>
+  <div class="io-row"><span class="io-key">favorite</span><code class="io-val">"cherry"</code></div>
+</div>`,
+    hints: [
+      "The list only has 3 items, at indexes 0, 1, and 2 -- index 3 doesn't exist.",
+      "favorite = fruits[2]"
+    ],
+    starterCode: 'fruits = ["apple", "banana", "cherry"]\nfavorite = fruits[3]  # this crashes -- fix the index\n',
+    solution: 'fruits = ["apple", "banana", "cherry"]\nfavorite = fruits[2]',
+    validation: {
+      checks: [
+        { type: "matchesRegex", pattern: "favorite\\s*=\\s*fruits\\[\\s*2\\s*\\]", message: "Fix the index so favorite = fruits[2]." }
+      ],
+      pyTests: [
+        { code: "assert favorite == 'cherry'", message: "'favorite' should be fruits[2], i.e. \"cherry\"." }
+      ]
+    },
+    explanation: `<p>The traceback's last line, <code>IndexError: list index out of range</code>, told you exactly what kind of mistake it was before you even looked at the code. That's the whole point of reading it: it turns "my program crashed, why" into "I asked for an index that doesn't exist," which is a much faster problem to fix.</p>`
+  },
+  {
+    id: 132,
+    title: "Functions vs Methods: the Dot",
+    difficulty: "easy",
+    topic: "Lists",
+    level: 1,
+    xp: 10,
+    instructions: `<p>In Python, every value you work with, such as ints, strings, and lists, is called an <strong>object</strong>. An object is a bundle of data plus a set of built-in actions it knows how to perform on itself, called <strong>methods</strong>.</p>
+<p>A method is just a function that belongs to a specific object. You call it with a dot: <code>object.method()</code> instead of <code>function(object)</code>.</p>
+<p class="blueprint-line"><code>function(object)</code>&nbsp;&nbsp;vs&nbsp;&nbsp;<code>object.method(args)</code></p>
+<div class="example-block">
+  <span class="example-label">Quick Example</span>
+  <pre><code>fruits = ["apple", "banana", "apple", "cherry"]
+print(len(fruits))            # Output: 4
+print(fruits.count("apple"))  # Output: 2</code></pre>
+</div>
+<div class="note-block">
+  <span class="note-label">Note</span>
+  <span>The dot basically means "hey object, do this thing you know how to do." Both shapes give you information about the list, but the dot always means a method is attached to whatever's on its left.</span>
+</div>
+<span class="task-label">Your Task</span>
+<p class="task-line">Create <code>total</code> using the function <code>len()</code> on <code>fruits</code>, then create <code>apple_count</code> using the method <code>fruits.count("apple")</code>.</p>
+<div class="example-block">
+  <span class="example-label">Example</span>
+  <div class="io-row"><span class="io-key">Input</span><code class="io-val">fruits = ["apple", "banana", "apple", "cherry"]</code></div>
+  <div class="io-row"><span class="io-key">total</span><code class="io-val">4</code></div>
+  <div class="io-row"><span class="io-key">apple_count</span><code class="io-val">2</code></div>
+</div>`,
+    hints: [
+      "len(fruits) is a function call: the value goes inside the parentheses.",
+      "fruits.count(\"apple\") is a method call: the value comes first, then a dot, then the method name.",
+      "total = len(fruits)",
+      "apple_count = fruits.count(\"apple\")"
+    ],
+    starterCode: 'fruits = ["apple", "banana", "apple", "cherry"]\n# Use len() and .count() to fill in total and apple_count\n',
+    solution: 'fruits = ["apple", "banana", "apple", "cherry"]\ntotal = len(fruits)\napple_count = fruits.count("apple")',
+    validation: {
+      checks: [
+        { type: "matchesRegex", pattern: "\\btotal\\s*=\\s*len\\(\\s*fruits\\s*\\)", message: "Use len(fruits) to create 'total'." },
+        { type: "matchesRegex", pattern: "fruits\\.count\\(\\s*['\"]apple['\"]\\s*\\)", message: "Use fruits.count(\"apple\") to create 'apple_count'." }
+      ],
+      pyTests: [
+        { code: "assert total == 4", message: "'total' should be len(fruits), i.e. 4." },
+        { code: "assert apple_count == 2", message: "'apple_count' should be fruits.count(\"apple\"), i.e. 2." }
+      ]
+    },
+    explanation: `<p><code>len(fruits)</code> is a function: it takes the list as an argument, inside the parentheses. <code>fruits.count("apple")</code> is a method: it's attached to the list itself with a dot, and only takes the arguments it actually needs (here, what to count). Same idea, "give me info about this list," just two different calling shapes. From the next challenge on, you'll see methods like <code>.append()</code> and <code>.remove()</code> written the exact same <code>value.method(args)</code> way.</p>`
+  },
+  {
     id: 8,
     title: "List Methods: append and remove",
     difficulty: "easy",
     topic: "Lists",
     level: 1,
     xp: 10,
-    instructions: `<p>Lists can change after you create them, which is what makes them so useful. The <code>append()</code> method adds a new item to the end of a list, and <code>remove()</code> deletes the first item that matches what you give it. Together with a few other methods like <code>pop()</code> and <code>sort()</code>, these let you update a list's contents directly instead of building a brand new one every time something changes.</p>
+    instructions: `<p>Lists can change after you create them. <code>append()</code> adds a new item to the end of a list, and <code>remove()</code> deletes the first item that matches what you give it. Both change the list itself in place instead of building a new one.</p>
+<ul>
+  <li><strong>In place:</strong> the method edits the existing list directly and gives back <code>None</code>, rather than handing you a new list to store.</li>
+</ul>
+<p class="blueprint-line"><code>my_list.append(item)</code>&nbsp;&nbsp;/&nbsp;&nbsp;<code>my_list.remove(item)</code></p>
+<div class="example-block">
+  <span class="example-label">Quick Example</span>
+  <pre><code>colors = ["red", "green", "blue"]
+colors.append("yellow")
+colors.remove("green")
+print(colors)  # Output: ['red', 'blue', 'yellow']</code></pre>
+</div>
+<div class="note-block">
+  <span class="note-label">Note</span>
+  <span><code>remove()</code> deletes by value, not position, and raises a <code>ValueError</code> if the item isn't found. It also only removes the first match, even if the value shows up more than once.</span>
+</div>
 <span class="task-label">Your Task</span>
 <p class="task-line">Append <code>"yellow"</code> to <code>colors</code>, then remove <code>"green"</code> from it.</p>
 <div class="example-block">
@@ -238,7 +439,94 @@ window.LEVEL1 = [
         { code: "assert colors == ['red', 'blue', 'yellow']", message: "'colors' should be [\"red\", \"blue\", \"yellow\"] after appending \"yellow\" and removing \"green\"." }
       ]
     },
-    explanation: `<p><code>append()</code> adds to the end of a list, and <code>remove()</code> deletes the first match it finds (raising an error if nothing matches). A few other handy methods: <code>insert()</code>, <code>pop()</code>, <code>sort()</code>, <code>reverse()</code>.</p>`
+    explanation: `<p><code>append()</code> adds to the end of a list, and <code>remove()</code> deletes the first match it finds (raising an error if nothing matches). Both change the list in place rather than handing back a new one. You'll meet two more handy list methods, <code>pop()</code> and <code>sort()</code>, in the next couple of challenges.</p>`
+  },
+  {
+    id: 133,
+    title: "List Methods: pop",
+    difficulty: "easy",
+    topic: "Lists",
+    level: 1,
+    xp: 10,
+    instructions: `<p><code>pop()</code> removes an item from a list and hands it back to you at the same time, which <code>remove()</code> doesn't do. Called with no arguments, <code>list.pop()</code> takes off the very last item. Give it an index, like <code>list.pop(0)</code>, and it removes and returns whatever's sitting at that position instead.</p>
+<p class="blueprint-line"><code>my_list.pop(index)</code></p>
+<div class="example-block">
+  <span class="example-label">Quick Example</span>
+  <pre><code>queue = ["ticket1", "ticket2", "ticket3"]
+next_ticket = queue.pop(0)
+print(next_ticket)  # Output: ticket1
+print(queue)        # Output: ['ticket2', 'ticket3']</code></pre>
+</div>
+<span class="task-label">Your Task</span>
+<p class="task-line">Create <code>next_ticket</code> by popping the first item (index <code>0</code>) off <code>queue</code>.</p>
+<div class="example-block">
+  <span class="example-label">Example</span>
+  <div class="io-row"><span class="io-key">Before</span><code class="io-val">queue = ["ticket1", "ticket2", "ticket3"]</code></div>
+  <div class="io-row"><span class="io-key">next_ticket</span><code class="io-val">"ticket1"</code></div>
+  <div class="io-row"><span class="io-key">queue after</span><code class="io-val">["ticket2", "ticket3"]</code></div>
+</div>`,
+    hints: [
+      "queue.pop(0) removes and returns the item at index 0.",
+      "next_ticket = queue.pop(0)"
+    ],
+    starterCode: 'queue = ["ticket1", "ticket2", "ticket3"]\n# Pop the first ticket off the queue\n',
+    solution: 'queue = ["ticket1", "ticket2", "ticket3"]\nnext_ticket = queue.pop(0)',
+    validation: {
+      checks: [
+        { type: "matchesRegex", pattern: "next_ticket\\s*=\\s*queue\\.pop\\(\\s*0\\s*\\)", message: "Use queue.pop(0) and store the result in 'next_ticket'." }
+      ],
+      pyTests: [
+        { code: "assert next_ticket == 'ticket1'", message: "'next_ticket' should be \"ticket1\", the item popped from index 0." },
+        { code: "assert queue == ['ticket2', 'ticket3']", message: "'queue' should have \"ticket1\" removed, leaving [\"ticket2\", \"ticket3\"]." }
+      ]
+    },
+    explanation: `<p><code>pop()</code> is different from <code>remove()</code> in one key way: <code>remove()</code> throws the item away, <code>pop()</code> hands it back to you while also taking it out of the list. Leave the parentheses empty and it pops the last item; give it an index and it pops from that specific spot instead.</p>`
+  },
+  {
+    id: 134,
+    title: "List Methods: sort",
+    difficulty: "easy",
+    topic: "Lists",
+    level: 1,
+    xp: 10,
+    instructions: `<p><code>sort()</code> rearranges a list into order, smallest to largest by default, changing the list itself instead of giving you a new one back. Numbers sort numerically, strings sort alphabetically, and you can pass <code>reverse=True</code> for largest to smallest instead.</p>
+<ul>
+  <li><strong>In place, returns None:</strong> <code>sort()</code> rearranges the existing list and hands back nothing useful, so assigning its result wipes your data out.</li>
+</ul>
+<p class="blueprint-line"><code>my_list.sort(reverse=True/False)</code></p>
+<div class="example-block">
+  <span class="example-label">Quick Example</span>
+  <pre><code>scores = [42, 17, 89, 3, 56]
+scores.sort()
+print(scores)  # Output: [3, 17, 42, 56, 89]</code></pre>
+</div>
+<span class="task-label">Your Task</span>
+<p class="task-line">Sort <code>scores</code> from smallest to largest, in place, using <code>.sort()</code>.</p>
+<div class="example-block">
+  <span class="example-label">Example</span>
+  <div class="io-row"><span class="io-key">Before</span><code class="io-val">scores = [42, 17, 89, 3, 56]</code></div>
+  <div class="io-row"><span class="io-key">After</span><code class="io-val">[3, 17, 42, 56, 89]</code></div>
+</div>
+<div class="note-block">
+  <span class="note-label">Note</span>
+  <span>Just call <code>scores.sort()</code> on its own line. Don't write <code>scores = scores.sort()</code>, since <code>sort()</code> returns <code>None</code>, and that would wipe your list out entirely.</span>
+</div>`,
+    hints: [
+      "scores.sort() rearranges the list in place.",
+      "Don't assign the result: scores.sort() returns None, not the sorted list."
+    ],
+    starterCode: "scores = [42, 17, 89, 3, 56]\n# Sort scores from smallest to largest\n",
+    solution: "scores = [42, 17, 89, 3, 56]\nscores.sort()",
+    validation: {
+      checks: [
+        { type: "matchesRegex", pattern: "scores\\.sort\\(\\s*\\)", message: "Call scores.sort() to sort the list in place." },
+        { type: "matchesRegex", pattern: "^(?!.*scores\\s*=\\s*scores\\.sort).*$", message: "Don't reassign scores to the result of sort() -- it returns None." }
+      ],
+      pyTests: [
+        { code: "assert scores == [3, 17, 42, 56, 89]", message: "'scores' should be sorted smallest to largest: [3, 17, 42, 56, 89]." }
+      ]
+    },
+    explanation: `<p><code>sort()</code> rearranges the list in place and returns <code>None</code>, so don't write <code>scores = scores.sort()</code>, that wipes out your list and replaces it with <code>None</code>. Just call <code>scores.sort()</code> on its own line. Pass <code>reverse=True</code>, like <code>scores.sort(reverse=True)</code>, to sort largest to smallest instead.</p>`
   },
   {
     id: 106,
@@ -247,7 +535,27 @@ window.LEVEL1 = [
     topic: "Lists",
     level: 1,
     xp: 10,
-    instructions: `<p>Slicing lets you pull out a chunk of a list by giving a start and a stop position inside square brackets, written as <code>list[start:stop]</code>. The stop position is never included, so <code>list[1:4]</code> grabs index 1 through 3. Negative numbers count backward from the end, so <code>-1</code> is the last item and <code>-2</code> is the second-to-last, which makes grabbing "the last few items" easy without knowing exactly how long the list is.</p>
+    instructions: `<p>Slicing lets you pull out a chunk of a list by giving a start and a stop position inside square brackets, written as <code>list[start:stop]</code>. The stop position is never included, so <code>list[1:4]</code> grabs indices 1 through 3. Negative numbers count backward from the end of the list.</p>
+<ul>
+  <li><strong>Omitted boundaries:</strong> leaving a side of the colon blank means "all the way to the start" or "all the way to the end."</li>
+</ul>
+<p class="blueprint-line"><code>my_list[start:stop]</code></p>
+<div class="example-block">
+  <span class="example-label">Quick Example</span>
+  <pre><code>numbers = [10, 20, 30, 40, 50]
+print(numbers[1:4])  # Output: [20, 30, 40]
+print(numbers[-2:])  # Output: [40, 50]</code></pre>
+</div>
+<p><strong>Shorthand</strong></p>
+<ul>
+  <li><code>list[1:4]</code> extracts items starting at index 1 up through index 3.</li>
+  <li><code>list[-1]</code> targets the absolute last item in the list.</li>
+  <li><code>list[-2:]</code> targets the second-to-last item and runs all the way to the end.</li>
+</ul>
+<div class="note-block">
+  <span class="note-label">Note</span>
+  <span>Python list indices start counting at 0, not 1. A slice of [1:4] will completely skip the very first item in your list.</span>
+</div>
 <span class="task-label">Your Task</span>
 <p class="task-line">Create <code>middle</code> as <code>numbers[1:4]</code> and <code>last_two</code> as <code>numbers[-2:]</code>.</p>
 <div class="example-block">
@@ -281,7 +589,19 @@ window.LEVEL1 = [
     topic: "Lists",
     level: 1,
     xp: 10,
-    instructions: `<p>The <code>.join()</code> method builds a single string out of a list of strings, gluing them together with whatever separator you call it on. You call it on the separator, not the list, which trips a lot of people up at first: <code>", ".join(words)</code> reads as "join words together using <code>", "</code> between each one." It's the reverse of <code>.split()</code>, and it's the standard way to turn a list back into readable text.</p>
+    instructions: `<p>The <code>.join()</code> method builds a single string out of a list of strings, gluing them together with whatever separator you call it on. You call it on the separator, not the list: <code>", ".join(words)</code> reads as "join words using <code>", "</code> between each one."</p>
+<p>It's the reverse of <code>.split()</code>.</p>
+<p class="blueprint-line"><code>"separator".join(list_of_strings)</code></p>
+<div class="example-block">
+  <span class="example-label">Quick Example</span>
+  <pre><code>words = ["red", "green", "blue"]
+csv_line = ", ".join(words)
+print(csv_line)  # Output: red, green, blue</code></pre>
+</div>
+<div class="note-block">
+  <span class="note-label">Note</span>
+  <span><code>.join()</code> only works on a list of strings. Trying to join a list containing a number raises a <code>TypeError</code>, so convert every item with <code>str()</code> first if needed.</span>
+</div>
 <span class="task-label">Your Task</span>
 <p class="task-line">Create <code>csv_line</code> by joining <code>words</code> with <code>", "</code> between each one.</p>
 <div class="example-block">
@@ -315,7 +635,13 @@ window.LEVEL1 = [
     xp: 15,
     kind: "project",
     source: "Tiny Python Projects #3, \"Picnic\"",
-    instructions: `<p>Real programs often need to turn a list into a sentence a person would actually read, not just print the raw list. This short guided project is adapted from <em>Tiny Python Projects</em>: build the classic "who's bringing what" picnic sentence, joining everything except the last item with commas, then adding "and" before the final one.</p>
+    instructions: `<p>This project is adapted from <em>Tiny Python Projects</em>' Picnic exercise: turning a list into a sentence a person would actually read, the way you'd say it out loud instead of just printing the raw list. It combines two things you already know -- slicing with <code>items[:-1]</code> and <code>items[-1]</code>, and joining a list of strings with <code>", ".join(...)</code> -- inside an f-string.</p>
+<div class="example-block">
+  <span class="example-label">Quick Example</span>
+  <pre><code>items = ["milk", "eggs"]
+line = f"{', '.join(items[:-1])}, and {items[-1]}"
+print(line)  # Output: milk, and eggs</code></pre>
+</div>
 <span class="task-label">Your Task</span>
 <p class="task-line">Build a variable <code>sentence</code> from the <code>items</code> list below, using <code>", ".join(...)</code> for everything except the last item.</p>
 <div class="example-block">
@@ -348,7 +674,16 @@ window.LEVEL1 = [
     topic: "Tuples",
     level: 1,
     xp: 10,
-    instructions: `<p>A <strong>tuple</strong> looks a lot like a list, since you access items the same way with an index, but once you create a tuple you can never change what's inside it. Tuples use round brackets instead of square ones. They're a good fit for values that shouldn't change, like a pair of coordinates, and since they're locked in place, Python can even use them as dictionary keys, which lists aren't allowed to be.</p>
+    instructions: `<p>A <strong>tuple</strong> looks a lot like a list, and you access items the same way with an index, but once created you can never change what's inside it. Tuples use round brackets instead of square ones.</p>
+<p>They're a good fit for values that shouldn't change, like a pair of coordinates, and since they're locked in place, Python can even use them as dictionary keys, unlike lists.</p>
+<ul>
+  <li><strong>Immutable:</strong> once a tuple is created, you can't add, remove, or reassign any of its items. Trying to raises a <code>TypeError</code>.</li>
+</ul>
+<div class="example-block">
+  <span class="example-label">Quick Example</span>
+  <pre><code>coordinates = (10, 20)
+print(coordinates[0])  # Output: 10</code></pre>
+</div>
 <span class="task-label">Your Task</span>
 <p class="task-line">Create a variable <code>coordinates</code> holding a tuple, then create <code>x</code> and <code>y</code> from its first and second elements.</p>
 <div class="example-block">
@@ -383,7 +718,22 @@ window.LEVEL1 = [
     topic: "Dictionaries",
     level: 1,
     xp: 10,
-    instructions: `<p>A <strong>dictionary</strong> stores information as pairs: a key and the value that goes with it, instead of numbered positions. You look things up by their key rather than counting positions, which makes dictionaries perfect for representing something like a person, where each piece of information (name, age, city) has its own label. Accessing a key that doesn't exist raises an error, unless you use the safer <code>.get()</code> method instead.</p>
+    instructions: `<p>A <strong>dictionary</strong> stores information as pairs: a key and the value that goes with it, instead of numbered positions. That makes dictionaries a good fit for something like a person, where each piece of information (name, age, city) has its own label.</p>
+<p>Accessing a key that doesn't exist raises an error, unless you use the safer <code>.get()</code> method instead.</p>
+<ul>
+  <li><strong>Key:</strong> the label you look a value up by, written before the colon inside <code>{}</code>.</li>
+  <li><strong>Value:</strong> the data attached to that key, written after the colon.</li>
+</ul>
+<p class="blueprint-line"><code>my_dict[key]</code></p>
+<div class="example-block">
+  <span class="example-label">Quick Example</span>
+  <pre><code>person = {"name": "Bob", "age": 28}
+print(person["name"])  # Output: Bob</code></pre>
+</div>
+<div class="note-block">
+  <span class="note-label">Note</span>
+  <span>Looking up a key that doesn't exist with square brackets, like <code>person["email"]</code>, raises a <code>KeyError</code> and crashes the program.</span>
+</div>
 <span class="task-label">Your Task</span>
 <p class="task-line">Create a variable <code>person</code> with the keys shown below, then create <code>persons_name</code> by accessing the <code>"name"</code> key.</p>
 <div class="example-block">
@@ -416,7 +766,17 @@ window.LEVEL1 = [
     topic: "Dictionaries",
     level: 1,
     xp: 10,
-    instructions: `<p>Dictionaries give you three simple ways to look at what's inside them. <code>.keys()</code> lists every key, <code>.values()</code> lists every value, and <code>.items()</code> gives you every key paired with its value together, which is great when you want to loop through both at once. None of these hand you back a plain list though, so wrap the result in <code>list()</code> if that's the format you actually need.</p>
+    instructions: `<p>Dictionaries give you three ways to look at what's inside them: <code>.keys()</code> lists every key, <code>.values()</code> lists every value, and <code>.items()</code> pairs each key with its value together.</p>
+<p>None of these hand you back a plain list, so wrap the result in <code>list()</code> if that's the format you need.</p>
+<ul>
+  <li><strong>View object:</strong> <code>.keys()</code>, <code>.values()</code>, and <code>.items()</code> return a live view, not a list -- it updates automatically if the dictionary changes, and you can't index into it directly.</li>
+</ul>
+<div class="example-block">
+  <span class="example-label">Quick Example</span>
+  <pre><code>scores = {"alice": 95, "bob": 87}
+print(list(scores.keys()))    # Output: ['alice', 'bob']
+print(list(scores.items()))   # Output: [('alice', 95), ('bob', 87)]</code></pre>
+</div>
 <span class="task-label">Your Task</span>
 <p class="task-line">Create <code>all_keys</code>, <code>all_values</code>, and <code>all_items</code> from <code>scores</code> using the three methods above.</p>
 <div class="example-block">
@@ -454,7 +814,13 @@ window.LEVEL1 = [
     topic: "Dictionaries",
     level: 1,
     xp: 10,
-    instructions: `<p>Looking up a missing key with square brackets, like <code>prices["mango"]</code>, crashes the program with a <code>KeyError</code>. The <code>.get()</code> method is a safer alternative: <code>.get(key, default)</code> returns the value if the key exists, or your chosen default if it doesn't, without ever raising an error. This is especially useful when you don't control what keys might show up, like data pulled from a file or typed by a user.</p>
+    instructions: `<p>Looking up a missing key with square brackets, like <code>prices["mango"]</code>, crashes the program with a <code>KeyError</code>. The <code>.get()</code> method is a safer alternative: <code>.get(key, default)</code> returns the value if the key exists, or your chosen default if it doesn't, without raising an error.</p>
+<p class="blueprint-line"><code>my_dict.get(key, default)</code></p>
+<div class="example-block">
+  <span class="example-label">Quick Example</span>
+  <pre><code>prices = {"apple": 1, "banana": 2}
+print(prices.get("mango", 0))  # Output: 0</code></pre>
+</div>
 <span class="task-label">Your Task</span>
 <p class="task-line">Create <code>apple_price</code> and <code>mango_price</code> from <code>prices</code> using <code>.get(key, 0)</code> for both, even though one key is missing.</p>
 <div class="example-block">
@@ -490,17 +856,26 @@ window.LEVEL1 = [
     xp: 15,
     kind: "project",
     source: "Tiny Python Projects #7, \"Gashlycrumb\"",
-    instructions: `<p>A dictionary is a natural fit whenever you need to look something up by a short code, like a letter, an ID, or a country abbreviation. This guided project is adapted from <em>Tiny Python Projects</em>: an alphabet book where each letter maps to a line of text, and you look up whichever letter you're given.</p>
+    instructions: `<p>A dictionary is a natural fit whenever you need to look something up by a short code, like a letter, an ID, or a country abbreviation. This project is adapted from <em>Tiny Python Projects</em>: an alphabet book where each letter maps to a line of text. It combines two things you already know -- dictionary lookups and f-strings -- with one new piece: a safe lookup that doesn't crash on a missing key.</p>
+<p class="blueprint-line"><code>dictionary.get(key, default)</code></p>
+<div class="example-block">
+  <span class="example-label">Quick Example</span>
+  <pre><code>alphabet = {"A": "is for Amy who fell down the stairs"}
+letter = "D"
+line = alphabet.get(letter, "is a mystery")
+print(line)  # Output: "is a mystery"</code></pre>
+</div>
+<p><code>.get(key, default)</code> looks up <code>key</code> like <code>alphabet[key]</code> does, but returns <code>default</code> instead of crashing with a <code>KeyError</code> when the key isn't there.</p>
+<div class="note-block">
+  <span class="note-label">Note</span>
+  <span>This shortened alphabet only has entries for A, B, and C -- looking up a letter like "D" is exactly what exercises the fallback, instead of crashing the program.</span>
+</div>
 <span class="task-label">Your Task</span>
 <p class="task-line">Build a variable <code>line</code> by looking up <code>letter</code> safely in <code>alphabet</code> with <code>.get(letter, "is a mystery")</code> and combining it with <code>letter</code> itself.</p>
 <div class="example-block">
   <span class="example-label">Example</span>
   <div class="io-row"><span class="io-key">Input</span><code class="io-val">letter = "B"</code></div>
   <div class="io-row"><span class="io-key">Output</span><code class="io-val">"B is for Basil assaulted by bears"</code></div>
-</div>
-<div class="note-block">
-  <span class="note-label">Note</span>
-  <span>This shortened alphabet only has entries for A, B, and C. Try a letter like "D" and the fallback text kicks in instead of crashing.</span>
 </div>`,
     hints: [
       "Look the letter up safely: alphabet.get(letter, \"is a mystery\")",
@@ -527,7 +902,17 @@ window.LEVEL1 = [
     topic: "Sets",
     level: 1,
     xp: 10,
-    instructions: `<p>A <strong>set</strong> holds a group of values where every duplicate gets automatically thrown out, so no matter what you put in, you only ever get the unique items back. This makes sets great for removing duplicates from data or checking whether something exists in a collection, since the <code>in</code> keyword can check membership in a set much faster than it can in a list, especially as the collection grows larger.</p>
+    instructions: `<p>A <strong>set</strong> holds a group of values where every duplicate gets automatically thrown out, so you only ever get the unique items back. Sets are also great for membership checks: the <code>in</code> keyword tests a set much faster than it does a list, especially as the collection grows.</p>
+<div class="example-block">
+  <span class="example-label">Quick Example</span>
+  <pre><code>unique_numbers = {1, 2, 3, 2, 1}
+print(unique_numbers)      # Output: {1, 2, 3}
+print(3 in unique_numbers) # Output: True</code></pre>
+</div>
+<div class="note-block">
+  <span class="note-label">Note</span>
+  <span>Sets don't keep any order, so you can't index into one with <code>my_set[0]</code>. Sort or convert to a list first if order matters.</span>
+</div>
 <span class="task-label">Your Task</span>
 <p class="task-line">Create <code>unique_numbers</code> as a set, then create <code>has_three</code> using <code>in</code> to check if <code>3</code> is in it.</p>
 <div class="example-block">
@@ -561,7 +946,27 @@ window.LEVEL1 = [
     topic: "Conditionals",
     level: 1,
     xp: 10,
-    instructions: `<p><code>if</code>, <code>elif</code>, and <code>else</code> let your program choose between different pieces of code depending on what's true. Python checks each condition one by one, from top to bottom, and as soon as one is <code>True</code> it runs that block and skips the rest. Instead of curly braces like some languages use, Python relies on indentation (spaces) to show which lines belong together, so getting that right really matters.</p>
+    instructions: `<p><code>if</code>, <code>elif</code>, and <code>else</code> let your program choose between different pieces of code depending on what's true. Python checks each condition top to bottom, and as soon as one is <code>True</code> it runs that block and skips the rest.</p>
+<p>Two rules make this work: every <code>if</code>/<code>elif</code>/<code>else</code> line ends with a colon <code>:</code>, and the lines belonging to that block are indented underneath it (4 spaces, by convention) instead of wrapped in curly braces.</p>
+<ul>
+  <li><strong>elif:</strong> short for "else if" -- only checked if every condition above it was <code>False</code>.</li>
+  <li><strong>Truthy/falsy:</strong> a condition doesn't need a comparison at all -- <code>if some_list:</code> is true whenever the list isn't empty, since empty collections, <code>0</code>, and <code>None</code> all count as false, and everything else counts as true.</li>
+</ul>
+<div class="example-block">
+  <span class="example-label">Quick Example</span>
+  <pre><code>temp = 50
+if temp > 80:
+    print("hot")
+elif temp > 50:
+    print("mild")
+else:
+    print("cold")
+# Output: cold</code></pre>
+</div>
+<div class="note-block">
+  <span class="note-label">Note</span>
+  <span>Mixing tabs and spaces, or indenting inconsistently, raises an <code>IndentationError</code>. Pick one style and stick with it throughout the block.</span>
+</div>
 <span class="task-label">Your Task</span>
 <p class="task-line">Given <code>score</code>, write a conditional that sets <code>grade</code> to:</p>
 <ul>
@@ -605,7 +1010,16 @@ window.LEVEL1 = [
     topic: "Loops",
     level: 1,
     xp: 10,
-    instructions: `<p>A <strong>for loop</strong> lets you run the same piece of code once for every item in a list, string, or other collection, without you having to keep track of a counter yourself. Python hands you each item in turn through your loop variable. This is the most common way to work through a collection in Python, whether you're printing each item or building up a brand new list as you go.</p>
+    instructions: `<p>A <strong>for loop</strong> lets you run the same piece of code once for every item in a list, string, or other collection, without keeping track of a counter yourself. Python hands you each item in turn through your loop variable.</p>
+<p class="blueprint-line"><code>for item in collection:</code></p>
+<div class="example-block">
+  <span class="example-label">Quick Example</span>
+  <pre><code>animals = ["cat", "dog"]
+for animal in animals:
+    print(animal.upper())
+# Output: CAT
+# Output: DOG</code></pre>
+</div>
 <span class="task-label">Your Task</span>
 <p class="task-line">Write a for loop that builds a new list <code>upper_animals</code> where each animal name is uppercased using <code>.upper()</code>. Use <code>append()</code> inside the loop.</p>
 <div class="example-block">
@@ -637,7 +1051,18 @@ window.LEVEL1 = [
     topic: "Loops",
     level: 1,
     xp: 10,
-    instructions: `<p>A <strong>while loop</strong> keeps repeating as long as its condition stays true, checking that condition again before every single pass. Unlike a for loop, nothing moves forward on its own, so you have to change something inside the loop yourself, or it will run forever. while loops are handy when you don't know ahead of time how many times you'll need to repeat something, like waiting for a specific value to be reached.</p>
+    instructions: `<p>A <strong>while loop</strong> keeps repeating as long as its condition stays true, checking that condition again before every pass. Unlike a for loop, nothing moves forward on its own, so you have to change something inside the loop yourself, or it runs forever.</p>
+<ul>
+  <li><strong>Condition check:</strong> Python re-checks the condition before every pass through the loop, including the very first one -- if it's already <code>False</code>, the loop body never runs at all.</li>
+</ul>
+<p class="blueprint-line"><code>while condition:</code></p>
+<div class="example-block">
+  <span class="example-label">Quick Example</span>
+  <pre><code>count = 0
+while count < 3:
+    count += 1
+print(count)  # Output: 3</code></pre>
+</div>
 <span class="task-label">Your Task</span>
 <p class="task-line">Write a while loop that increments <code>count</code> by 1 each iteration until it reaches <code>5</code>.</p>
 <div class="example-block">
@@ -675,7 +1100,16 @@ window.LEVEL1 = [
     xp: 15,
     kind: "project",
     source: "Tiny Python Projects #4, \"Jump the Five\"",
-    instructions: `<p>A cipher swaps each character for another one using a fixed rule, and a dictionary is a natural way to store that rule as a lookup table. This project is adapted from <em>Tiny Python Projects</em>: it's a real substitution cipher called "jump the five," where every digit trades places with the one five away from it (0 and 5 swap, 1 and 6 swap, and so on). You'll combine two things you already know, looping over a sequence and looking things up in a dictionary, to encode a whole string one character at a time.</p>
+    instructions: `<p>This project is adapted from <em>Tiny Python Projects</em>' Jump the Five exercise: a real substitution cipher where every digit trades places with the one five away from it (0 and 5 swap, 1 and 6 swap, and so on). It combines two things you already know -- dictionary lookups and building a string with <code>+=</code> in a loop -- with one new piece: looping over a string steps through it one character at a time, the same way a for loop steps through a list.</p>
+<div class="example-block">
+  <span class="example-label">Quick Example</span>
+  <pre><code>word = "cat"
+for char in word:
+    print(char)
+# Output: c
+# Output: a
+# Output: t</code></pre>
+</div>
 <span class="task-label">Your Task</span>
 <p class="task-line">Loop over <code>code</code> and build <code>encoded</code> by looking up each digit in <code>jump</code> and adding it on.</p>
 <div class="example-block">
@@ -708,7 +1142,15 @@ window.LEVEL1 = [
     topic: "Lists",
     level: 1,
     xp: 10,
-    instructions: `<p>Lists can hold other lists inside them, which is a simple way to represent a grid or table of values. To reach something inside a nested list you use two sets of brackets in a row: the first picks which inner list, or row, you want, and the second picks the item inside that row. You can nest as many levels deep as you need, though two levels is by far the most common case you'll run into.</p>
+    instructions: `<p>Lists can hold other lists inside them, which is a simple way to represent a grid or table of values. To reach something inside a nested list you use two sets of brackets in a row: the first picks which inner list, or row, you want, and the second picks the item inside that row.</p>
+<p>Once you've got the row, indexing into it works exactly like indexing into any other list, you're just doing it twice in a row.</p>
+<p class="blueprint-line"><code>matrix[row][column]</code></p>
+<div class="example-block">
+  <span class="example-label">Quick Example</span>
+  <pre><code>matrix = [[1, 2, 3], [4, 5, 6], [7, 8, 9]]
+print(matrix[1])     # Output: [4, 5, 6]
+print(matrix[1][1])  # Output: 5</code></pre>
+</div>
 <span class="task-label">Your Task</span>
 <p class="task-line">Create a variable <code>middle</code> that holds the center element of <code>matrix</code> (row 1, column 1).</p>
 <div class="example-block">
@@ -739,7 +1181,18 @@ window.LEVEL1 = [
     topic: "Strings",
     level: 1,
     xp: 10,
-    instructions: `<p>Strings come with a bunch of built-in methods for working with text, and every one of them gives you back a brand new string instead of changing the original, since strings can't be changed once created. <code>.upper()</code> makes everything uppercase, <code>.strip()</code> removes extra spaces from the start and end, and <code>.split()</code> breaks a string apart into a list of pieces. It's common to chain a few of these together in one line.</p>
+    instructions: `<p>Strings come with built-in methods for working with text, and every one of them returns a brand new string instead of changing the original, since strings can't be changed once created. <code>.upper()</code> makes everything uppercase, <code>.strip()</code> removes extra spaces from the start and end, and <code>.split()</code> breaks a string apart into a list of pieces.</p>
+<div class="example-block">
+  <span class="example-label">Quick Example</span>
+  <pre><code>raw = "  hello world  "
+print(raw.strip().split(" "))  # Output: ['hello', 'world']</code></pre>
+</div>
+<p><strong>Shorthand</strong></p>
+<ul>
+  <li><code>.upper()</code> uppercases every letter.</li>
+  <li><code>.strip()</code> trims whitespace from both ends only, leaving interior spacing alone.</li>
+  <li><code>.split(" ")</code> breaks the string into a list wherever a space appears.</li>
+</ul>
 <span class="task-label">Your Task</span>
 <p class="task-line">Create <code>shouted</code> (uppercased), <code>trimmed</code> (stripped), and <code>words</code> (stripped and split by a single space) from <code>raw</code>.</p>
 <div class="example-block">
@@ -779,7 +1232,18 @@ window.LEVEL1 = [
     xp: 15,
     kind: "project",
     source: "Tiny Python Projects #2, \"The Crow's Nest\"",
-    instructions: `<p>Slicing lets you pull out a piece of a string (or a list) by giving a start and stop position inside square brackets, without writing a loop. A negative index counts backward from the end, so <code>-1</code> is the last character. This project is adapted from <em>Tiny Python Projects</em>' Crow's Nest exercise, which is really about getting comfortable pulling strings apart into pieces, a skill you'll use constantly once you start working with real text.</p>
+    instructions: `<p>This project is adapted from <em>Tiny Python Projects</em>' Crow's Nest exercise: pulling a string apart into pieces using slicing, a skill you already used on lists. The new piece is a third slice value, the step, which lets you skip through a sequence instead of just taking a start and stop.</p>
+<p class="blueprint-line"><code>sequence[start:stop:step]</code></p>
+<div class="example-block">
+  <span class="example-label">Quick Example</span>
+  <pre><code>letters = "abcdef"
+print(letters[::2])   # Output: ace
+print(letters[::-1])  # Output: fedcba</code></pre>
+</div>
+<p><strong>New pieces in this project</strong></p>
+<ul>
+  <li><code>[::step]</code>: the third slice value skips through the sequence that many at a time; a negative step, like <code>-1</code>, walks backward and reverses it.</li>
+</ul>
 <span class="task-label">Your Task</span>
 <p class="task-line">Create <code>first_word</code> as the first 3 characters, <code>last_word</code> as the last 4 characters, and <code>reversed_text</code> as the whole string reversed.</p>
 <div class="example-block">
@@ -819,7 +1283,17 @@ window.LEVEL1 = [
     xp: 15,
     kind: "project",
     source: "Tiny Python Projects #8, \"Apples and Bananas\"",
-    instructions: `<p>Every string has a <code>.replace(old, new)</code> method that swaps every occurrence of one piece of text for another, and returns a brand new string rather than changing the original. Since each call returns a fresh string, you can chain several <code>.replace()</code> calls one after another to swap out several different things in a row. This project is adapted from <em>Tiny Python Projects</em>' Apples and Bananas exercise: swapping every vowel in a sentence for a single vowel of your choice.</p>
+    instructions: `<p>This project is adapted from <em>Tiny Python Projects</em>' Apples and Bananas exercise: swapping every vowel in a sentence for a single vowel of your choice. It uses the dot-method calls you already know, with one new method: <code>.replace(old, new)</code>.</p>
+<p class="blueprint-line"><code>string.replace(old, new)</code></p>
+<div class="example-block">
+  <span class="example-label">Quick Example</span>
+  <pre><code>text = "cat"
+print(text.replace("a", "u"))  # Output: cut</code></pre>
+</div>
+<p><strong>New pieces in this project</strong></p>
+<ul>
+  <li><code>.replace(old, new)</code>: swaps every occurrence of <code>old</code> for <code>new</code> and returns a brand new string, since strings can't change in place. Because it returns a fresh string, you can chain several calls in a row: <code>text.replace("a", "x").replace("e", "y")</code>.</li>
+</ul>
 <span class="task-label">Your Task</span>
 <p class="task-line">Build <code>result</code> by chaining <code>.replace()</code> calls so every lowercase vowel (a, e, i, o, u) in <code>sentence</code> becomes <code>new_vowel</code>.</p>
 <div class="example-block">
@@ -852,7 +1326,22 @@ window.LEVEL1 = [
     topic: "Variables",
     level: 1,
     xp: 10,
-    instructions: `<p>Sometimes you need to turn one type of value into another, which Python calls <strong>casting</strong>. <code>int()</code> and <code>float()</code> turn text into numbers, and <code>str()</code> turns a number back into text. This comes up constantly, because anything typed by a user, or read from a file, arrives as text by default, even if it looks like a number, so you have to convert it before doing any math with it.</p>
+    instructions: `<p>Turning one type of value into another is called <strong>casting</strong> in Python. <code>int()</code> and <code>float()</code> turn text into numbers, and <code>str()</code> turns a number back into text.</p>
+<p>Anything typed by a user, or read from a file, arrives as text by default, even if it looks like a number, so you have to convert it before doing any math with it.</p>
+<ul>
+  <li><strong>Casting:</strong> wrapping a value in <code>int()</code>, <code>float()</code>, or <code>str()</code> doesn't change the original variable -- it produces a new value of the requested type.</li>
+</ul>
+<p class="blueprint-line"><code>int(value)</code>&nbsp;&nbsp;/&nbsp;&nbsp;<code>float(value)</code>&nbsp;&nbsp;/&nbsp;&nbsp;<code>str(value)</code></p>
+<div class="example-block">
+  <span class="example-label">Quick Example</span>
+  <pre><code>num_str = "100"
+num_int = int(num_str)
+print(num_int)  # Output: 100</code></pre>
+</div>
+<div class="note-block">
+  <span class="note-label">Note</span>
+  <span><code>int("abc")</code> raises a <code>ValueError</code> since "abc" isn't a valid number. Only convert text you know actually looks like a number.</span>
+</div>
 <span class="task-label">Your Task</span>
 <p class="task-line">Create <code>num_int</code> and <code>num_float</code> from <code>num_str</code>, then create <code>back_to_str</code> by converting <code>num_int</code> back to a string.</p>
 <div class="example-block">
@@ -890,7 +1379,20 @@ window.LEVEL1 = [
     topic: "Variables",
     level: 1,
     xp: 10,
-    instructions: `<p>Python lets you set several variables at once on a single line, matching up values on the right with names on the left in order. This also makes swapping two variables really simple: writing <code>a, b = b, a</code> swaps their values in one step, with no extra temporary variable needed, since Python works out the whole right side first before assigning anything to either name.</p>
+    instructions: `<p>Python lets you set several variables at once on a single line, matching up values on the right with names on the left in order.</p>
+<p>This also makes swapping two variables simple: <code>a, b = b, a</code> swaps their values in one step, with no temporary variable needed, since Python works out the whole right side before assigning anything to either name.</p>
+<p class="blueprint-line"><code>a, b = b, a</code></p>
+<div class="example-block">
+  <span class="example-label">Quick Example</span>
+  <pre><code>a, b = 10, 20
+a, b = b, a
+print(a, b)  # Output: 20 10</code></pre>
+</div>
+<p><strong>Shorthand</strong></p>
+<ul>
+  <li><code>a, b = 10, 20</code> assigns both variables in one line, no separate statements needed.</li>
+  <li><code>a, b = b, a</code> swaps two variables' values without a temporary variable.</li>
+</ul>
 <span class="task-label">Your Task</span>
 <p class="task-line">Create <code>a</code> and <code>b</code> in one line, then swap their values in another single line (without a temporary variable).</p>
 <div class="example-block">
@@ -922,7 +1424,17 @@ window.LEVEL1 = [
     topic: "Variables",
     level: 1,
     xp: 10,
-    instructions: `<p>When a real program calls <code>input()</code>, it pauses and waits for the user to type something, then hands that text back as a <strong>string</strong>, even if what they typed was just digits. Since you can't do math directly with a string of digits, you'll almost always need to convert it with <code>int()</code> or <code>float()</code> first. Reading input and then converting it is one of the very first patterns you'll use in almost any program.</p>
+    instructions: `<p>When a real program calls <code>input()</code>, it pauses and waits for the user to type something, then hands that text back as a <strong>string</strong>, even if what they typed was just digits. Since you can't do math directly with a string of digits, you'll need to convert it with <code>int()</code> or <code>float()</code> first.</p>
+<div class="example-block">
+  <span class="example-label">Quick Example</span>
+  <pre><code>user_input = "42"
+number = int(user_input)
+print(number * 2)  # Output: 84</code></pre>
+</div>
+<div class="note-block">
+  <span class="note-label">Note</span>
+  <span>Forgetting to convert the string before doing math causes a <code>TypeError</code> (numbers) or unwanted text repetition (like <code>"42" * 2</code> giving <code>"4242"</code> instead of <code>84</code>).</span>
+</div>
 <span class="task-label">Your Task</span>
 <p class="task-line">Simulate typed input with <code>user_input</code>, convert it to an integer named <code>number</code>, then create <code>doubled</code> as <code>number * 2</code>.</p>
 <div class="example-block">
