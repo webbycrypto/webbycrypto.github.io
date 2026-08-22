@@ -22,6 +22,7 @@
   --accent-yellow: #3457d9;
   --accent-orange: #3457d9;
   --accent-teal:   #3d8f80;
+  --accent-purple: #7c3aed;
   --border:        #e4e4e9;
   --font-mono:     'Cascadia Code', 'Consolas', 'Courier New', monospace;
   --font-ui:       'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
@@ -49,6 +50,7 @@
   --accent-yellow: #6e8fff;
   --accent-orange: #6e8fff;
   --accent-teal:   #5fb3a3;
+  --accent-purple: #a78bfa;
   --border:        #2f3142;
   --shadow:        0 2px 8px rgba(0,0,0,.4);
 }

@@ -62,28 +62,18 @@
   font-weight: 600;
   padding: 2px 8px;
   border-radius: 10px;
-  background: color-mix(in srgb, var(--accent-blue) 15%, transparent);
+  background: transparent;
+  border: 1px solid var(--accent-blue);
   color: var(--accent-blue);
 }
-
-.diff-chip {
-  font-size: 11px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: .4px;
-  padding: 2px 8px;
-  border-radius: 10px;
-}
-.diff-chip.diff-easy   { background: color-mix(in srgb, var(--accent-green) 15%, transparent); color: var(--accent-green); }
-.diff-chip.diff-medium { background: color-mix(in srgb, var(--accent-yellow) 15%, transparent); color: var(--accent-yellow); }
-.diff-chip.diff-hard   { background: color-mix(in srgb, var(--accent-red) 15%, transparent); color: var(--accent-red); }
 
 .done-chip {
   font-size: 11px;
   font-weight: 600;
   padding: 2px 8px;
   border-radius: 10px;
-  background: color-mix(in srgb, var(--accent-green) 15%, transparent);
+  background: transparent;
+  border: 1px solid var(--accent-green);
   color: var(--accent-green);
 }
 
@@ -92,7 +82,8 @@
   font-weight: 600;
   padding: 2px 8px;
   border-radius: 10px;
-  background: color-mix(in srgb, var(--accent-teal) 15%, transparent);
+  background: transparent;
+  border: 1px solid var(--accent-teal);
   color: var(--accent-teal);
 }
 
@@ -132,17 +123,15 @@
   font-weight: 700;
   letter-spacing: .07em;
   text-transform: uppercase;
-  color: var(--accent);
-  margin: 14px 0 4px;
+  color: var(--text-primary);
+  margin: 20px 0 4px;
+  padding-top: 16px;
+  border-top: 1px solid var(--border);
 }
 .task-line { margin: 0 0 4px; }
 
 .example-block {
-  background: var(--bg-surface0);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  padding: 12px 16px;
-  margin: 10px 0;
+  margin: 14px 0;
 }
 .example-label {
   display: block;
@@ -151,18 +140,22 @@
   font-weight: 700;
   letter-spacing: .07em;
   text-transform: uppercase;
-  color: var(--accent-blue);
+  color: var(--text-primary);
   margin-bottom: 8px;
+}
+/* Only the task's own "Example" label (the one after "Your Task") gets the
+   purple treatment -- the concept-level "Quick Example" stays plain, and
+   "INPUT"/"OUTPUT" underneath it stay the same muted style either way. */
+.task-label ~ .example-block .example-label {
+  color: var(--accent-purple);
 }
 .io-row {
   display: flex;
-  gap: 10px;
-  align-items: baseline;
-  padding: 2px 0;
+  flex-direction: column;
+  gap: 6px;
+  padding: 6px 0;
 }
 .io-key {
-  flex-shrink: 0;
-  width: 54px;
   font-size: 10.5px;
   font-weight: 700;
   color: var(--text-faint);
@@ -170,26 +163,29 @@
   letter-spacing: .03em;
 }
 .io-val {
+  display: block;
   font-family: var(--font-mono);
   font-size: 12.5px;
   color: var(--text-primary);
+  background: var(--bg-mantle);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 8px 12px;
 }
 
 .note-block {
-  display: flex;
-  gap: 8px;
-  background: color-mix(in srgb, var(--accent-yellow) 8%, transparent);
-  border-left: 3px solid var(--accent-yellow);
-  border-radius: 6px;
-  padding: 9px 13px;
+  display: block;
   margin: 10px 0 4px;
-  font-size: 12.5px;
-  color: var(--text-muted);
+  font-size: 13px;
+  line-height: 1.55;
+  color: var(--text-primary);
 }
 .note-label {
   font-weight: 700;
-  color: var(--accent-yellow);
-  flex-shrink: 0;
+  color: var(--accent);
+}
+.note-label::after {
+  content: ":";
 }
 
 .blueprint-line {
@@ -209,6 +205,10 @@
 }
 
 .example-block pre {
+  background: var(--bg-surface0);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 12px 16px;
   margin: 0;
   overflow-x: auto;
 }
@@ -219,14 +219,42 @@
   border-radius: 0;
   color: var(--text-primary);
   font-size: 12.5px;
-  line-height: 1.5;
+}
+.code-line {
+  display: block;
+  line-height: 1.6;
+}
+.line-no {
+  display: inline-block;
+  width: 16px;
+  color: var(--text-faint);
+  user-select: none;
+}
+.line-code {
   white-space: pre;
 }
 
-@media (max-width: 560px) {
-  .io-row { flex-direction: column; gap: 2px; }
-  .io-key { width: auto; }
+/* Sits directly under the Quick Example's code block, sharing its border so
+   the two read as one continuous box divided by a hairline. */
+.example-block:has(+ .example-output) pre {
+  border-radius: var(--radius) var(--radius) 0 0;
+  border-bottom: none;
 }
+.example-output {
+  background: var(--bg-surface0);
+  border: 1px solid var(--border);
+  border-top: 1px solid var(--border);
+  border-radius: 0 0 var(--radius) var(--radius);
+  padding: 10px 16px;
+  margin: -14px 0 14px;
+  font-family: var(--font-mono);
+  font-size: 12.5px;
+  color: var(--text-faint);
+}
+.example-output-val {
+  color: var(--accent-green);
+}
+
 
 /* -------------------------------------------------------------------------
    Editor region

@@ -101,14 +101,77 @@ const UI = (function () {
   // Challenge Panel
   // -----------------------------------------------------------------------
 
+  // Post-processes rendered instructions HTML: adds line numbers + real
+  // syntax highlighting to Quick Example code blocks, and splits a trailing
+  // "# Output: ..." comment out into its own callout instead of leaving it
+  // inline in the code. Also flags the task-level Example's "Output" io-row
+  // so it can get the matching callout styling via CSS.
+  function _enhanceExampleBlocks(root) {
+    root.querySelectorAll('.example-block pre code').forEach(function (codeEl) {
+      const lines = codeEl.textContent.split('\n');
+      let outputText = null;
+
+      for (let i = lines.length - 1; i >= 0; i--) {
+        const m = lines[i].match(/^(.*?)#\s*Output:\s*(.+)$/);
+        if (m) {
+          outputText = m[2].trim();
+          if (m[1].trim() === '') {
+            lines.splice(i, 1);
+          } else {
+            lines[i] = m[1].replace(/\s+$/, '');
+          }
+          break;
+        }
+      }
+      while (lines.length && lines[lines.length - 1].trim() === '') lines.pop();
+
+      codeEl.innerHTML = lines.map(function (line, idx) {
+        const highlighted = Highlighter.highlight(line);
+        return '<span class="code-line"><span class="line-no">' + (idx + 1) + '</span><span class="line-code">' + (highlighted || '&nbsp;') + '</span></span>';
+      }).join('');
+
+      const pre = codeEl.closest('pre');
+      pre.classList.add('code-block');
+
+      if (outputText !== null) {
+        const exampleBlock = pre.closest('.example-block');
+        const out = document.createElement('div');
+        out.className = 'example-output';
+        out.appendChild(document.createTextNode('# Output: '));
+        const val = document.createElement('span');
+        val.className = 'example-output-val';
+        val.textContent = outputText;
+        out.appendChild(val);
+        exampleBlock.insertAdjacentElement('afterend', out);
+      }
+    });
+
+    root.querySelectorAll('.io-row').forEach(function (row) {
+      const key = row.querySelector('.io-key');
+      if (key && key.textContent.trim().toLowerCase() === 'output') {
+        row.classList.add('io-row--output');
+      }
+    });
+
+    // Give the task's own Input/Output values the same real syntax
+    // highlighting as the Quick Example code, instead of flat single-color
+    // text. Handles multi-line values (joined with <br> in the content).
+    root.querySelectorAll('.io-val').forEach(function (el) {
+      const rawLines = el.innerHTML.split(/<br\s*\/?>/i);
+      el.innerHTML = rawLines.map(function (line) {
+        const tmp = document.createElement('div');
+        tmp.innerHTML = line;
+        return Highlighter.highlight(tmp.textContent);
+      }).join('<br>');
+    });
+  }
+
   function renderChallenge(challenge) {
     const done = Progress.isChallengeCompleted(challenge.id);
-    const diffLabel = { easy: 'Easy', medium: 'Medium', hard: 'Hard' }[challenge.difficulty] || challenge.difficulty;
 
     const html = '<div class="challenge-header">' +
       '<div class="challenge-meta">' +
       '<span class="topic-chip">' + escHtml(challenge.topic) + '</span>' +
-      '<span class="diff-chip diff-' + challenge.difficulty + '">' + diffLabel + '</span>' +
       (challenge.kind === 'project' ? '<span class="project-chip">📘 Guided Project</span>' : '') +
       (done ? '<span class="done-chip">✓ Completed</span>' : '') +
       '</div>' +
@@ -118,6 +181,7 @@ const UI = (function () {
       '<div class="instructions">' + challenge.instructions + '</div>';
 
     document.getElementById('challenge-info').innerHTML = html;
+    _enhanceExampleBlocks(document.getElementById('challenge-info'));
 
     // Action bar
     document.getElementById('btn-run').classList.toggle('done', done);
