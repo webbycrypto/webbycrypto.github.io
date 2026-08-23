@@ -220,7 +220,7 @@ const Progress = (function () {
 
   function getLevelProgress() {
     const challenges = window.ALL_CHALLENGES || [];
-    const levels = [1, 2, 3, 4, 5];
+    const levels = [1, 2, 3, 4, 5, 6];
     return levels.map(function (lvl) {
       const inLevel = challenges.filter(function (c) { return c.level === lvl && c.kind !== 'intro'; });
       const doneInLevel = inLevel.filter(function (c) {

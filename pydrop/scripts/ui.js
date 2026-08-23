@@ -14,7 +14,8 @@ const UI = (function () {
     2: 'Functions & Logic',
     3: 'Intermediate Python',
     4: 'Modern Python for Web',
-    5: 'Blockchain Fundamentals'
+    5: 'Blockchain Fundamentals',
+    6: 'Applied Python for Blockchain'
   };
 
   // Common Python builtins that are genuinely useful but never come up in
@@ -83,7 +84,7 @@ const UI = (function () {
       '</div>';
 
     // Level trees
-    for (let lvl = 1; lvl <= 5; lvl++) {
+    for (let lvl = 1; lvl <= 6; lvl++) {
       const levelChallenges = challenges.filter(function (c) { return c.level === lvl; });
       const gradableInLevel = levelChallenges.filter(function (c) { return c.kind !== 'intro'; });
       const completedCount = gradableInLevel.filter(function (c) {
