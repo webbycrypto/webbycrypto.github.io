@@ -9,6 +9,12 @@ const UI = (function () {
   let _mainPanel = null;
   let _toastContainer = null;
 
+  // Which level groups are collapsed -- tracked here since renderSidebar()
+  // rebuilds the sidebar's innerHTML from scratch on every navigation, which
+  // would otherwise wipe out any collapse state the user just set.
+  const _collapsedLevels = new Set();
+  let _collapsedLevelsInitialized = false;
+
   const LEVEL_NAMES = {
     1: 'Python Basics',
     2: 'Functions & Logic',
@@ -43,7 +49,7 @@ const UI = (function () {
       example: 'pow(2, 10)\n# Output: 1024'
     },
     {
-      term: 'abs()', definition: 'Absolute value of a number -- drops the sign.',
+      term: 'abs()', definition: 'Absolute value of a number: drops the sign.',
       example: 'abs(-7)\n# Output: 7'
     },
     {
@@ -51,7 +57,7 @@ const UI = (function () {
       example: 'callable(len)\n# Output: True'
     },
     {
-      term: 'iter()', definition: 'Turns an iterable into an iterator you can manually advance with next() -- what a for loop does internally.',
+      term: 'iter()', definition: 'Turns an iterable into an iterator you can manually advance with next(): what a for loop does internally.',
       example: 'it = iter([10, 20, 30])\nnext(it)\n# Output: 10'
     }
   ];
@@ -73,7 +79,16 @@ const UI = (function () {
     const state = Progress.getState();
     const challenges = window.ALL_CHALLENGES || [];
 
-    let html = '<div class="sidebar-header"><img src="assets/logo.png" alt="DropAcademy" class="sidebar-logo"></div>';
+    if (!_collapsedLevelsInitialized) {
+      _collapsedLevelsInitialized = true;
+      const activeChallenge = challenges.find(function (c) { return c.id === currentId; });
+      const activeLevel = activeChallenge ? activeChallenge.level : 1;
+      for (let lvl = 1; lvl <= 6; lvl++) {
+        if (lvl !== activeLevel) _collapsedLevels.add(lvl);
+      }
+    }
+
+    let html = '';
 
     // Progress widget
     const tp = Progress.getTotalProgress();
@@ -91,9 +106,9 @@ const UI = (function () {
         return Progress.isChallengeCompleted(c.id);
       }).length;
 
-      html += '<div class="level-group">' +
+      html += '<div class="level-group' + (_collapsedLevels.has(lvl) ? ' collapsed' : '') + '">' +
         '<div class="level-header" data-level="' + lvl + '">' +
-        '<span class="level-name">Level ' + lvl + ' -- ' + LEVEL_NAMES[lvl] + '</span>' +
+        '<span class="level-name">Level ' + lvl + ': ' + LEVEL_NAMES[lvl] + '</span>' +
         '<span class="level-count">' + completedCount + '/' + gradableInLevel.length + '</span>' +
         '</div>';
 
@@ -126,8 +141,11 @@ const UI = (function () {
     // Collapse/expand level headers
     _sidebar.querySelectorAll('.level-header').forEach(function (el) {
       el.addEventListener('click', function () {
+        const lvl = parseInt(el.getAttribute('data-level'), 10);
         const group = el.closest('.level-group');
-        group.classList.toggle('collapsed');
+        const nowCollapsed = group.classList.toggle('collapsed');
+        if (nowCollapsed) _collapsedLevels.add(lvl);
+        else _collapsedLevels.delete(lvl);
       });
     });
 
@@ -592,7 +610,7 @@ const UI = (function () {
         : '';
       const sourceHtml = e.challengeId !== null
         ? '<button class="glossary-source" data-id="' + e.challengeId + '">' +
-          escHtml('Level ' + e.level + ' -- ' + e.challengeTitle) + '</button>'
+          escHtml('Level ' + e.level + ': ' + e.challengeTitle) + '</button>'
         : '<span class="glossary-source glossary-source--extra">Not covered in a lesson</span>';
       return '<div class="glossary-entry" data-term="' + escHtml(e.term.toLowerCase()) + '" data-topic="' + escHtml(e.topic) + '">' +
         '<div class="glossary-term-row"><code class="glossary-term">' + escHtml(e.term) + '</code>' +

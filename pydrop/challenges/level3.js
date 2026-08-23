@@ -5,7 +5,7 @@ window.LEVEL3 = [
     kind: "intro",
     topic: "Introduction",
     level: 3,
-    instructions: `<p>This level is object-oriented programming: classes, <code>self</code>, inheritance, magic methods, exceptions, context managers, generators/iterators, decorators, and properties. It's the biggest shift in how you think about code so far -- instead of writing steps to run, you're designing objects that carry their own data and behavior around with them.</p>
+    instructions: `<p>This level is object-oriented programming: classes, <code>self</code>, inheritance, magic methods, exceptions, context managers, generators/iterators, decorators, and properties. It's the biggest shift in how you think about code so far: instead of writing steps to run, you're designing objects that carry their own data and behavior around with them.</p>
 <p>It closes with a real project: a working Tic-Tac-Toe board with win-checking logic, built entirely from the class-design skills the level teaches. By the end, you'll be able to model a real-world thing as a Python class instead of a pile of loose variables.</p>`,
     starterCode: ""
   },
@@ -17,10 +17,10 @@ window.LEVEL3 = [
     level: 3,
     xp: 10,
     instructions: `<p>A <strong>class</strong> is a blueprint for creating objects: it groups together the data an object holds and the behavior it can perform. You define a class with the <code>class</code> keyword, and any function defined inside it becomes a <strong>method</strong> that instances of the class can call.</p>
-<p>Every method you write inside a class needs <code>self</code> as its first parameter. When you call <code>my_dog.speak()</code>, Python automatically passes <code>my_dog</code> in as <code>self</code> behind the scenes -- that's how the method knows which specific object it's working with. You never type <code>self</code> yourself when calling the method, only when defining it.</p>
+<p>Every method you write inside a class needs <code>self</code> as its first parameter. When you call <code>my_dog.speak()</code>, Python automatically passes <code>my_dog</code> in as <code>self</code> behind the scenes. That's how the method knows which specific object it's working with. You never type <code>self</code> yourself when calling the method, only when defining it.</p>
 <ul>
   <li><strong>Class:</strong> the blueprint, defined once with <code>class</code>. Calling it like a function, e.g. <code>Dog()</code>, builds one actual object from it.</li>
-  <li><strong>self:</strong> the first parameter of every method, automatically filled in with whichever object made the call -- you never type it yourself at the call site.</li>
+  <li><strong>self:</strong> the first parameter of every method, automatically filled in with whichever object made the call. You never type it yourself at the call site.</li>
 </ul>
 <p class="blueprint-line"><code>class Name:</code><br><code>&nbsp;&nbsp;&nbsp;&nbsp;def method(self):</code></p>
 <div class="example-block">
@@ -33,7 +33,7 @@ print(Cat().speak())  # Output: Meow!</code></pre>
 </div>
 <div class="note-block">
   <span class="note-label">Note</span>
-  <span>Forgetting <code>self</code> as a method's first parameter causes a <code>TypeError</code> the moment you call the method -- Python always passes the calling object in as the first argument, whether you left a slot for it or not.</span>
+  <span>Forgetting <code>self</code> as a method's first parameter causes a <code>TypeError</code> the moment you call the method: Python always passes the calling object in as the first argument, whether you left a slot for it or not.</span>
 </div>
 <span class="task-label">Your Task</span>
 <p class="task-line">Define a class <code>Dog</code> with a single method <code>speak</code> that returns the string <code>"Woof!"</code>.</p>
@@ -59,7 +59,7 @@ print(Cat().speak())  # Output: Meow!</code></pre>
         { code: "assert Dog().speak() == 'Woof!'", message: "Dog().speak() should return \"Woof!\"." }
       ]
     },
-    explanation: `<p>Instance methods always receive <code>self</code> as their first parameter -- it is a reference to the object the method is called on. You never pass <code>self</code> explicitly when calling a method.</p>`
+    explanation: `<p>Instance methods always receive <code>self</code> as their first parameter. It is a reference to the object the method is called on. You never pass <code>self</code> explicitly when calling a method.</p>`
   },
   {
     id: 42,
@@ -171,12 +171,12 @@ print(Rectangle(3, 4).area())  # Output: 12</code></pre>
     instructions: `<p>A <code>@classmethod</code> receives the class itself (<code>cls</code>) as its first argument instead of an instance, which makes it useful for building objects in alternative ways. A <code>@staticmethod</code> receives nothing special at all; it's just a regular function that happens to live inside the class's namespace because it's conceptually related.</p>
 <p>Below, <code>Pizza.margherita()</code> is a classmethod that builds a pizza pre-configured with toppings, without the caller needing to know the exact list. <code>is_vegetarian</code> is a staticmethod: it doesn't touch <code>self</code> or <code>cls</code> at all, it's just a helper function that logically belongs with the class.</p>
 <ul>
-  <li><strong>cls:</strong> the class-method equivalent of <code>self</code> -- it refers to the class itself, not to any one instance, so calling <code>cls(...)</code> constructs a new object of that class.</li>
+  <li><strong>cls:</strong> the class-method equivalent of <code>self</code>. It refers to the class itself, not to any one instance, so calling <code>cls(...)</code> constructs a new object of that class.</li>
 </ul>
 <p><strong>Shorthand</strong></p>
 <ul>
-  <li><code>@classmethod</code> above a method means its first parameter is <code>cls</code> instead of <code>self</code> -- call it as <code>ClassName.method(...)</code>.</li>
-  <li><code>@staticmethod</code> above a method means it takes no automatic first parameter -- call it as <code>ClassName.method(...)</code> like a plain function.</li>
+  <li><code>@classmethod</code> above a method means its first parameter is <code>cls</code> instead of <code>self</code>. Call it as <code>ClassName.method(...)</code>.</li>
+  <li><code>@staticmethod</code> above a method means it takes no automatic first parameter. Call it as <code>ClassName.method(...)</code> like a plain function.</li>
 </ul>
 <div class="example-block">
   <span class="example-label">Quick Example</span>
@@ -259,7 +259,7 @@ print(Square(4).area())  # Output: 16</code></pre>
   <div class="io-row"><span class="io-key">Cat().sound()</span><code class="io-val">"Meow"</code></div>
 </div>`,
     hints: [
-      "class Cat(Animal): -- inherits from Animal",
+      "class Cat(Animal): inherits from Animal",
       "Override the sound method in Cat."
     ],
     starterCode: "class Animal:\n    def sound(self):\n        return \"...\"\n\n# Define Cat inheriting from Animal\n",
@@ -357,11 +357,11 @@ print(repr(Book("Dune")))  # Output: Book('Dune')</code></pre>
 </div>
 <p><strong>Shorthand</strong></p>
 <ul>
-  <li><code>__str__</code> and <code>__repr__</code> are both dunder methods -- the double underscores on each side are what Python's built-ins (<code>print()</code>, <code>str()</code>, <code>repr()</code>) look for automatically.</li>
+  <li><code>__str__</code> and <code>__repr__</code> are both dunder methods: the double underscores on each side are what Python's built-ins (<code>print()</code>, <code>str()</code>, <code>repr()</code>) look for automatically.</li>
 </ul>
 <div class="note-block">
   <span class="note-label">Note</span>
-  <span>If you only define one, define <code>__repr__</code> -- Python falls back to it for <code>str()</code> too when <code>__str__</code> is missing, but not the other way around.</span>
+  <span>If you only define one, define <code>__repr__</code>: Python falls back to it for <code>str()</code> too when <code>__str__</code> is missing, but not the other way around.</span>
 </div>
 <span class="task-label">Your Task</span>
 <p class="task-line">Add both methods to the <code>Point</code> class. <code>__str__</code> should return <code>"(x, y)"</code> and <code>__repr__</code> should return <code>"Point(x, y)"</code>.</p>
@@ -387,7 +387,7 @@ print(repr(Book("Dune")))  # Output: Book('Dune')</code></pre>
         { code: "p = Point(3, 4)\nassert repr(p) == 'Point(3, 4)'", message: "repr(Point(3, 4)) should be \"Point(3, 4)\"." }
       ]
     },
-    explanation: `<p>If you only define one, define <code>__repr__</code> -- Python falls back to it for both. The convention: <code>__repr__</code> should ideally produce a string that could recreate the object, while <code>__str__</code> is for display.</p>`
+    explanation: `<p>If you only define one, define <code>__repr__</code>: Python falls back to it for both. The convention: <code>__repr__</code> should ideally produce a string that could recreate the object, while <code>__str__</code> is for display.</p>`
   },
   {
     id: 48,
@@ -397,7 +397,7 @@ print(repr(Book("Dune")))  # Output: Book('Dune')</code></pre>
     level: 3,
     xp: 20,
     instructions: `<p><strong>Magic methods</strong> (also called dunder methods, for their double underscores) are how your own classes hook into Python's built-in operators and functions. Define <code>__len__</code> and suddenly <code>len(your_object)</code> works; define <code>__eq__</code> and <code>==</code> starts comparing your objects the way you tell it to.</p>
-<p>When you write <code>bag1 == bag2</code>, Python calls <code>bag1.__eq__(bag2)</code> and uses whatever it returns. Same story with <code>len(bag)</code> -- Python calls <code>bag.__len__()</code>. Magic methods are just regular methods with reserved names that Python's built-in syntax already knows to call automatically.</p>
+<p>When you write <code>bag1 == bag2</code>, Python calls <code>bag1.__eq__(bag2)</code> and uses whatever it returns. Same story with <code>len(bag)</code>: Python calls <code>bag.__len__()</code>. Magic methods are just regular methods with reserved names that Python's built-in syntax already knows to call automatically.</p>
 <div class="example-block">
   <span class="example-label">Quick Example</span>
   <pre><code>class Playlist:
@@ -445,7 +445,7 @@ print(len(Playlist(["a", "b"])))  # Output: 2</code></pre>
         { code: "assert Bag([1, 2]) != Bag([1, 2, 3])", message: "Bags with different items should not be equal." }
       ]
     },
-    explanation: `<p>Magic methods let your objects integrate with Python's built-in syntax. With <code>__len__</code>, <code>len(bag)</code> works because Python calls <code>bag.__len__()</code> for you. With <code>__eq__</code>, <code>bag1 == bag2</code> is really <code>bag1.__eq__(bag2)</code> running behind the scenes -- Python just gives you a shorthand syntax for it.</p>`
+    explanation: `<p>Magic methods let your objects integrate with Python's built-in syntax. With <code>__len__</code>, <code>len(bag)</code> works because Python calls <code>bag.__len__()</code> for you. With <code>__eq__</code>, <code>bag1 == bag2</code> is really <code>bag1.__eq__(bag2)</code> running behind the scenes. Python just gives you a shorthand syntax for it.</p>`
   },
   {
     id: 49,
@@ -586,7 +586,7 @@ print(f.closed)  # Output: True</code></pre>
         { code: "with open('data.txt') as check_f:\n    assert check_f.read() == 'Hello from Python'", message: "Reading data.txt back should give \"Hello from Python\"." }
       ]
     },
-    explanation: `<p>The <code>with</code> statement calls <code>__enter__</code> at the start and <code>__exit__</code> at the end (even on exceptions). For files, this means the file is always closed properly -- no manual <code>f.close()</code> needed.</p>`
+    explanation: `<p>The <code>with</code> statement calls <code>__enter__</code> at the start and <code>__exit__</code> at the end (even on exceptions). For files, this means the file is always closed properly: no manual <code>f.close()</code> needed.</p>`
   },
   {
     id: 52,
@@ -662,7 +662,7 @@ print(list(count_up(3)))  # Output: [1, 2, 3]</code></pre>
 </div>
 <div class="note-block">
   <span class="note-label">Note</span>
-  <span>Calling a generator function, like <code>count_up(3)</code>, does not run any of its code right away -- it only creates the generator object. The body only starts executing once you call <code>next()</code> on it or iterate over it.</span>
+  <span>Calling a generator function, like <code>count_up(3)</code>, does not run any of its code right away. It only creates the generator object. The body only starts executing once you call <code>next()</code> on it or iterate over it.</span>
 </div>
 <span class="task-label">Your Task</span>
 <p class="task-line">Define a generator function <code>countdown</code> that takes <code>n</code> and yields values from <code>n</code> down to <code>1</code> (inclusive).</p>
@@ -682,14 +682,14 @@ print(list(count_up(3)))  # Output: [1, 2, 3]</code></pre>
       checks: [
         { type: "hasValidDef", name: "countdown", message: "Define a function named 'countdown' with a colon: def countdown(n):" },
         { type: "matchesRegex", pattern: "yield\\s+n", message: "Use yield to produce each value." },
-        { type: "matchesRegex", pattern: "while\\s+n|n\\s*-=\\s*1|n\\s*=\\s*n\\s*-\\s*1", message: "Use a loop and decrement n -- a single yield n is not enough." }
+        { type: "matchesRegex", pattern: "while\\s+n|n\\s*-=\\s*1|n\\s*=\\s*n\\s*-\\s*1", message: "Use a loop and decrement n. A single yield n is not enough." }
       ],
       pyTests: [
         { code: "assert list(countdown(3)) == [3, 2, 1]", message: "list(countdown(3)) should be [3, 2, 1]." },
         { code: "assert list(countdown(1)) == [1]", message: "list(countdown(1)) should be [1]." }
       ]
     },
-    explanation: `<p>A generator pauses at each <code>yield</code> and resumes where it left off on the next call. This makes generators memory-efficient for large sequences -- they never store the whole sequence at once.</p>`
+    explanation: `<p>A generator pauses at each <code>yield</code> and resumes where it left off on the next call. This makes generators memory-efficient for large sequences: they never store the whole sequence at once.</p>`
   },
   {
     id: 54,
@@ -732,7 +732,7 @@ print(list(gen))  # Output: ['HI', 'HEY', 'HELLO']</code></pre>
         { code: "assert squares == [1, 4, 9, 16, 25, 36, 49, 64, 81, 100]", message: "'squares' should be [1, 4, 9, 16, 25, 36, 49, 64, 81, 100]." }
       ]
     },
-    explanation: `<p>Generator expressions use round brackets instead of square brackets. They do not compute all values upfront -- they yield them one at a time. Use them when you only need to iterate once or when the sequence is large.</p>`
+    explanation: `<p>Generator expressions use round brackets instead of square brackets. They do not compute all values upfront: they yield them one at a time. Use them when you only need to iterate once or when the sequence is large.</p>`
   },
   {
     id: 55,
@@ -803,7 +803,7 @@ print(list(Evens(6)))  # Output: [0, 2, 4]</code></pre>
     xp: 20,
     instructions: `<p>A <strong>decorator</strong> is a function that takes another function and returns a modified version of it, typically by wrapping it in a new function that adds behavior before or after the original runs. This is how you add reusable behavior, like logging or timing, to many different functions without repeating the same code in each one.</p>
 <ul>
-  <li><strong>wrapper:</strong> the inner function a decorator defines and returns -- it's what actually runs in place of the original function, calling the original somewhere inside itself.</li>
+  <li><strong>wrapper:</strong> the inner function a decorator defines and returns. It's what actually runs in place of the original function, calling the original somewhere inside itself.</li>
   <li><strong>*args, **kwargs:</strong> used in the wrapper so it can accept whatever arguments the original function takes, no matter how many or what kind, and pass them straight through.</li>
 </ul>
 <p class="blueprint-line"><code>def decorator(func):</code><br><code>&nbsp;&nbsp;&nbsp;&nbsp;def wrapper(*args, **kwargs):</code></p>
@@ -934,7 +934,7 @@ print(c.diameter)  # Output: 10</code></pre>
 </div>
 <div class="note-block">
   <span class="note-label">Note</span>
-  <span>The leading underscore in <code>_celsius</code> is just a convention -- Python doesn't actually stop anyone from accessing <code>t._celsius</code> directly. It's a signal to other developers that "this is internal, use the property instead." Python doesn't enforce true privacy the way some other languages do.</span>
+  <span>The leading underscore in <code>_celsius</code> is just a convention. Python doesn't actually stop anyone from accessing <code>t._celsius</code> directly. It's a signal to other developers that "this is internal, use the property instead." Python doesn't enforce true privacy the way some other languages do.</span>
 </div>`,
     hints: [
       "@property",
@@ -975,7 +975,7 @@ print(flat)  # Output: ['a', 'b', 'c', 'd', 'e']</code></pre>
 </div>
 <div class="note-block">
   <span class="note-label">Note</span>
-  <span>The order of the <code>for</code> clauses matters -- swapping them, or getting the loop variable names backward, is a common mistake that raises a <code>NameError</code> instead of flattening correctly.</span>
+  <span>The order of the <code>for</code> clauses matters: swapping them, or getting the loop variable names backward, is a common mistake that raises a <code>NameError</code> instead of flattening correctly.</span>
 </div>
 <span class="task-label">Your Task</span>
 <p class="task-line">Given <code>matrix = [[1, 2, 3], [4, 5, 6], [7, 8, 9]]</code>, create a list <code>flat</code> that contains all numbers in a single flat list using a nested list comprehension.</p>
@@ -1018,7 +1018,7 @@ print(loud)  # Output: [90, 66]</code></pre>
 </div>
 <div class="note-block">
   <span class="note-label">Note</span>
-  <span>The walrus operator needs its own parentheses when used inside a comprehension condition, like <code>(v := item)</code> -- leaving them off is a syntax error.</span>
+  <span>The walrus operator needs its own parentheses when used inside a comprehension condition, like <code>(v := item)</code>. Leaving them off is a syntax error.</span>
 </div>
 <span class="task-label">Your Task</span>
 <p class="task-line">Given a list <code>data</code>, write a list comprehension that filters values greater than 5. Use the walrus operator to assign each item to <code>v</code> inside the comprehension condition and include <code>v</code> in the output. Store the result in <code>big</code>.</p>
@@ -1043,7 +1043,7 @@ print(loud)  # Output: [90, 66]</code></pre>
         { code: "assert big == [8, 9]", message: "'big' should be [8, 9], the values greater than 5." }
       ]
     },
-    explanation: `<p>The walrus operator is useful when you need a value both in a condition and in the expression -- avoiding calling the same function twice. It is most commonly seen in while loops and comprehensions.</p>`
+    explanation: `<p>The walrus operator is useful when you need a value both in a condition and in the expression: avoiding calling the same function twice. It is most commonly seen in while loops and comprehensions.</p>`
   },
   {
     id: 120,
@@ -1054,7 +1054,7 @@ print(loud)  # Output: [90, 66]</code></pre>
     xp: 30,
     kind: "project",
     source: "Tiny Python Projects #21, \"Tic-Tac-Toe\"",
-    instructions: `<p>A tic-tac-toe board is nine cells and eight possible winning lines: three rows, three columns, and two diagonals. This capstone project, adapted from <em>Tiny Python Projects</em>, combines what you already know -- a class with its own instance state and a method that mutates it -- with two new pieces: unpacking a tuple straight in a <code>for</code> loop, and a chained comparison to check three cells at once.</p>
+    instructions: `<p>A tic-tac-toe board is nine cells and eight possible winning lines: three rows, three columns, and two diagonals. This capstone project, adapted from <em>Tiny Python Projects</em>, combines what you already know (a class with its own instance state and a method that mutates it) with two new pieces: unpacking a tuple straight in a <code>for</code> loop, and a chained comparison to check three cells at once.</p>
 <p class="blueprint-line"><code>for a, b, c in triples:</code><br><code>&nbsp;&nbsp;&nbsp;&nbsp;if cells[a] == cells[b] == cells[c] != " ":</code></p>
 <div class="example-block">
   <span class="example-label">Quick Example</span>
@@ -1067,7 +1067,7 @@ for a, b, c in triples:
 <p><strong>New pieces in this project</strong></p>
 <ul>
   <li>Unpacking a tuple in a <code>for</code> loop: <code>for a, b, c in triples:</code> pulls the three numbers out of each tuple directly into three names, instead of indexing into it by hand.</li>
-  <li>Chained comparison: <code>x == y == z != " "</code> checks all three conditions at once -- true only if x, y, and z all match each other and none of them is blank.</li>
+  <li>Chained comparison: <code>x == y == z != " "</code> checks all three conditions at once. True only if x, y, and z all match each other and none of them is blank.</li>
 </ul>
 <span class="task-label">Your Task</span>
 <p class="task-line">Define a class <code>Board</code> with a <code>move(position, mark)</code> method that places <code>"X"</code> or <code>"O"</code> at one of 9 cells (indexed 0 to 8), and a <code>winner()</code> method that returns <code>"X"</code> or <code>"O"</code> if that player has completed a row, column, or diagonal, or <code>None</code> if nobody has won yet.</p>

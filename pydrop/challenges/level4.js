@@ -5,8 +5,8 @@ window.LEVEL4 = [
     kind: "intro",
     topic: "Introduction",
     level: 4,
-    instructions: `<p>This level is about writing Python that looks like real, production-shaped code: type hints, dataclasses, async/await, environment config, reading and writing real files, JSON, logging, and building actual command-line tools with <code>argparse</code>. It also covers reading Excel spreadsheets and parsing scraped HTML -- the unglamorous data-wrangling work most real Python jobs are made of.</p>
-<p>By the end, you'll be able to build a small CLI tool from scratch, one that takes real arguments, reads and writes real data, and handles its own errors -- the shape of code you'd actually find in a working project, not just a classroom exercise.</p>`,
+    instructions: `<p>This level is about writing Python that looks like real, production-shaped code: type hints, dataclasses, async/await, environment config, reading and writing real files, JSON, logging, and building actual command-line tools with <code>argparse</code>. It also covers reading Excel spreadsheets and parsing scraped HTML: the unglamorous data-wrangling work most real Python jobs are made of.</p>
+<p>By the end, you'll be able to build a small CLI tool from scratch, one that takes real arguments, reads and writes real data, and handles its own errors: the shape of code you'd actually find in a working project, not just a classroom exercise.</p>`,
     starterCode: ""
   },
   {
@@ -27,7 +27,7 @@ print(greet("hi", 2))  # Output: hihi</code></pre>
 </div>
 <div class="note-block">
   <span class="note-label">Note</span>
-  <span>Type hints are just documentation as far as Python is concerned -- passing the wrong type won't raise an error on its own. Tools like mypy are what actually check them.</span>
+  <span>Type hints are just documentation as far as Python is concerned. Passing the wrong type won't raise an error on its own. Tools like mypy are what actually check them.</span>
 </div>
 <span class="task-label">Your Task</span>
 <p class="task-line">Define a function <code>repeat</code> that takes a string <code>text</code> and an integer <code>times</code> with proper type hints, and returns the string repeated that many times.</p>
@@ -209,7 +209,7 @@ print(total([1.5, 2.5, 3.0]))  # Output: 7.0</code></pre>
     level: 4,
     xp: 20,
     instructions: `<p>A line starting with <code>@</code> directly above a class is <b>decorator syntax</b>. A decorator is a function that takes whatever's defined right below it and hands back a modified version of it. <code>@dataclass</code> above <code>class Product:</code> is shorthand for <code>Product = dataclass(Product)</code>, applied automatically when the class is defined.</p>
-<p>You'll meet this pattern often -- Flask uses <code>@app.route("/home")</code> to turn a function into a URL handler, and pytest uses <code>@pytest.fixture</code> to mark setup functions. Here, <code>@dataclass</code> reads a class's annotated attributes and generates <code>__init__</code>, <code>__repr__</code>, and <code>__eq__</code> for you, so a field-only class needs no hand-written boilerplate.</p>
+<p>You'll meet this pattern often: Flask uses <code>@app.route("/home")</code> to turn a function into a URL handler, and pytest uses <code>@pytest.fixture</code> to mark setup functions. Here, <code>@dataclass</code> reads a class's annotated attributes and generates <code>__init__</code>, <code>__repr__</code>, and <code>__eq__</code> for you, so a field-only class needs no hand-written boilerplate.</p>
 <p class="blueprint-line"><code>@dataclass</code><br><code>class ClassName:</code><br><code>&nbsp;&nbsp;&nbsp;&nbsp;field_name: field_type</code></p>
 <div class="example-block">
   <span class="example-label">Quick Example</span>
@@ -275,7 +275,7 @@ print(Timer().seconds)  # Output: 60</code></pre>
 </div>
 <div class="note-block">
   <span class="note-label">Note</span>
-  <span>A field without a default can't come after one that has a default -- Python raises a <code>TypeError</code> at class definition time if you get the order backwards.</span>
+  <span>A field without a default can't come after one that has a default. Python raises a <code>TypeError</code> at class definition time if you get the order backwards.</span>
 </div>
 <span class="task-label">Your Task</span>
 <p class="task-line">Define a <code>@dataclass</code> class <code>Config</code> with: <code>host: str = "localhost"</code>, <code>port: int = 8000</code>, and <code>debug: bool = False</code>.</p>
@@ -303,7 +303,7 @@ print(Timer().seconds)  # Output: 60</code></pre>
         { code: "c = Config()\nassert c.host == 'localhost' and c.port == 8000 and c.debug is False", message: "Config() with no arguments should use all three defaults." }
       ]
     },
-    explanation: `<p>Fields with defaults must come after fields without defaults (same rule as function parameters). Use <code>field(default_factory=list)</code> for mutable defaults like lists -- never use a mutable object directly as a default.</p>`
+    explanation: `<p>Fields with defaults must come after fields without defaults (same rule as function parameters). Use <code>field(default_factory=list)</code> for mutable defaults like lists. Never use a mutable object directly as a default.</p>`
   },
   {
     id: 67,
@@ -330,7 +330,7 @@ print(Age(5))  # Output: Age(years=5)</code></pre>
 </div>
 <div class="note-block">
   <span class="note-label">Note</span>
-  <span>If <code>__post_init__</code> raises, the object never finishes construction -- the exception propagates straight out of the call that created it, so there's no half-built instance left lying around.</span>
+  <span>If <code>__post_init__</code> raises, the object never finishes construction: the exception propagates straight out of the call that created it, so there's no half-built instance left lying around.</span>
 </div>
 <span class="task-label">Your Task</span>
 <p class="task-line">Define a <code>@dataclass</code> class <code>Rectangle</code> with fields <code>width: float</code> and <code>height: float</code>. Add a <code>__post_init__</code> that raises a <code>ValueError</code> if either dimension is not positive.</p>
@@ -359,7 +359,7 @@ print(Age(5))  # Output: Age(years=5)</code></pre>
         { code: "raised = False\ntry:\n    Rectangle(-1, 4)\nexcept ValueError:\n    raised = True\nassert raised, 'Rectangle(-1, 4) should raise ValueError'", message: "Rectangle(-1, 4) should raise ValueError, since width isn't positive." }
       ]
     },
-    explanation: `<p><code>__post_init__</code> is the right place for validation because it runs after all fields are set. If the validation fails, the object is never fully constructed -- the ValueError propagates to the caller.</p>`
+    explanation: `<p><code>__post_init__</code> is the right place for validation because it runs after all fields are set. If the validation fails, the object is never fully constructed: the ValueError propagates to the caller.</p>`
   },
   {
     id: 121,
@@ -399,7 +399,7 @@ print(c.engine.horsepower)  # Output: 120</code></pre>
 </div>
 <div class="note-block">
   <span class="note-label">Note</span>
-  <span>Notice the field() call for orders, instead of just writing orders: list = []. A mutable default like a list can't safely be shared between dataclass instances -- field(default_factory=list) tells Python to build a brand new empty list for every new Customer, instead of reusing the same one across all of them. We'll dig into exactly why a few challenges from now -- for now, just use this pattern whenever a dataclass field should default to an empty list, dict, or set.</span>
+  <span>Notice the field() call for orders, instead of just writing orders: list = []. A mutable default like a list can't safely be shared between dataclass instances: field(default_factory=list) tells Python to build a brand new empty list for every new Customer, instead of reusing the same one across all of them. We'll dig into exactly why a few challenges from now. For now, just use this pattern whenever a dataclass field should default to an empty list, dict, or set.</span>
 </div>`,
     hints: [
       "@dataclass\nclass Address:\n    city: str\n    zip_code: str",
@@ -428,7 +428,7 @@ print(c.engine.horsepower)  # Output: 120</code></pre>
     level: 4,
     xp: 20,
     instructions: `<p>Calling an <code>async</code> function doesn't run its body immediately; it hands back a coroutine object that has to be driven to completion, usually with <code>await</code>.</p>
-<p>Think of a food court with five separate counters instead of one line: ordering noodles and then standing there staring at that counter until it's ready is "blocking" -- nobody else gets served. Async is ordering, then wandering off to another counter while the noodles cook -- <code>await</code> is that "wandering off" moment, letting Python make progress elsewhere ("non-blocking") instead of freezing everything for one slow operation.</p>
+<p>Think of a food court with five separate counters instead of one line: ordering noodles and then standing there staring at that counter until it's ready is "blocking," and nobody else gets served. Async is ordering, then wandering off to another counter while the noodles cook: <code>await</code> is that "wandering off" moment, letting Python make progress elsewhere ("non-blocking") instead of freezing everything for one slow operation.</p>
 <p class="blueprint-line"><code>async def function_name(param):</code><br><code>&nbsp;&nbsp;&nbsp;&nbsp;result = await some_slow_operation()</code></p>
 <div class="example-block">
   <span class="example-label">Quick Example</span>
@@ -465,7 +465,7 @@ print(asyncio.run(order_noodles()))  # Output: noodles ready</code></pre>
         { code: "def __run(coro):\n    while True:\n        try:\n            coro.send(None)\n        except StopIteration as e:\n            return e.value\nassert __run(fetch_data('http://x')) == 'Data from http://x'", message: "fetch_data('http://x') should eventually resolve to 'Data from http://x'." }
       ]
     },
-    explanation: `<p><code>async def</code> defines a coroutine. It does not run immediately -- you need to <code>await</code> it or run it with <code>asyncio.run()</code>. FastAPI uses async functions for non-blocking request handling.</p>`
+    explanation: `<p><code>async def</code> defines a coroutine. It does not run immediately. You need to <code>await</code> it or run it with <code>asyncio.run()</code>. FastAPI uses async functions for non-blocking request handling.</p>`
   },
   {
     id: 69,
@@ -558,7 +558,7 @@ print(port)  # Output: 8000</code></pre>
         { code: "assert db_url == 'sqlite:///app.db'", message: "'db_url' should fall back to 'sqlite:///app.db' since DATABASE_URL isn't set." }
       ]
     },
-    explanation: `<p>Always use <code>os.environ.get(key, default)</code> rather than <code>os.environ[key]</code> -- the latter raises a <code>KeyError</code> if the variable is not set. In production, environment variables store secrets like database passwords and API keys.</p>`
+    explanation: `<p>Always use <code>os.environ.get(key, default)</code> rather than <code>os.environ[key]</code>. The latter raises a <code>KeyError</code> if the variable is not set. In production, environment variables store secrets like database passwords and API keys.</p>`
   },
   {
     id: 71,
@@ -590,7 +590,7 @@ print(port)  # Output: 8000</code></pre>
         { type: "codeContains", value: "SECRET_KEY", message: "Read the SECRET_KEY variable." }
       ]
     },
-    explanation: `<p><code>load_dotenv()</code> reads your <code>.env</code> file and sets the variables in <code>os.environ</code>. The <code>.env</code> file should never be committed to version control -- add it to <code>.gitignore</code>.</p>`
+    explanation: `<p><code>load_dotenv()</code> reads your <code>.env</code> file and sets the variables in <code>os.environ</code>. The <code>.env</code> file should never be committed to version control. Add it to <code>.gitignore</code>.</p>`
   },
   {
     id: 72,
@@ -640,8 +640,8 @@ print(mypkg.GREETING)  # Output: hi</code></pre>
     instructions: `<p>Inside a package, relative imports reach sibling modules without spelling out the whole package path. A single leading dot <code>.</code> means "the current package"; two dots <code>..</code> means "one level up, the parent package."</p>
 <p><strong>Shorthand</strong></p>
 <ul>
-  <li><code>from .models import User</code> -- the single dot means "the module named models, in this same package."</li>
-  <li><code>from ..utils import helper</code> -- two dots means "go up one package level, then look for utils."</li>
+  <li><code>from .models import User</code>: the single dot means "the module named models, in this same package."</li>
+  <li><code>from ..utils import helper</code>: two dots means "go up one package level, then look for utils."</li>
 </ul>
 <span class="task-label">Your Task</span>
 <p class="task-line">Write an import statement that imports <code>User</code> from the <code>models</code> module in the same package (single dot relative import), and also imports <code>get_db</code> from a <code>database</code> module in the same package.</p>
@@ -661,7 +661,7 @@ print(mypkg.GREETING)  # Output: hi</code></pre>
         { type: "matchesRegex", pattern: "from\\s+\\.database\\s+import\\s+get_db", message: "Import get_db from .database." }
       ]
     },
-    explanation: `<p>Relative imports are more robust than absolute imports within a package -- they do not break if the package is renamed. FastAPI and Django projects use them extensively to import between route files, models, and services.</p>`
+    explanation: `<p>Relative imports are more robust than absolute imports within a package. They do not break if the package is renamed. FastAPI and Django projects use them extensively to import between route files, models, and services.</p>`
   },
   {
     id: 74,
@@ -711,10 +711,10 @@ print(mypkg.GREETING)  # Output: hi</code></pre>
     topic: "CLI Tools",
     level: 4,
     xp: 15,
-    instructions: `<p>Every Python script gets called with a list of the words typed after it on the command line -- <code>sys.argv</code>. <code>sys.argv[0]</code> is always the script's own name, so the actual arguments start at index <code>1</code>. Running <code>python greet.py Alice</code> gives <code>sys.argv == ["greet.py", "Alice"]</code>.</p>
+    instructions: `<p>Every Python script gets called with a list of the words typed after it on the command line: <code>sys.argv</code>. <code>sys.argv[0]</code> is always the script's own name, so the actual arguments start at index <code>1</code>. Running <code>python greet.py Alice</code> gives <code>sys.argv == ["greet.py", "Alice"]</code>.</p>
 <div class="note-block">
   <span class="note-label">Note</span>
-  <span>Don't forget <code>sys.argv[0]</code> is the script's own filename, not the first real argument -- that's why counting or indexing has to skip index 0.</span>
+  <span>Don't forget <code>sys.argv[0]</code> is the script's own filename, not the first real argument. That's why counting or indexing has to skip index 0.</span>
 </div>
 <span class="task-label">Your Task</span>
 <p class="task-line">Using <code>sys.argv</code>, create <code>first_arg</code> as the first argument passed in (not the script name), and <code>arg_count</code> as how many arguments were passed (also not counting the script name).</p>
@@ -742,7 +742,7 @@ print(mypkg.GREETING)  # Output: hi</code></pre>
         { code: "assert arg_count == 2", message: "'arg_count' should be 2 (not counting the script name)." }
       ]
     },
-    explanation: `<p><code>sys.argv</code> is how a script sees what was typed after its name. Every CLI tool, from a two-line script to full frameworks like <code>argparse</code>, ultimately reads from this same list -- <code>argparse</code> just parses it for you instead of you indexing it by hand.</p>`
+    explanation: `<p><code>sys.argv</code> is how a script sees what was typed after its name. Every CLI tool, from a two-line script to full frameworks like <code>argparse</code>, ultimately reads from this same list. <code>argparse</code> just parses it for you instead of you indexing it by hand.</p>`
   },
   {
     id: 129,
@@ -753,7 +753,7 @@ print(mypkg.GREETING)  # Output: hi</code></pre>
     topic: "CLI Tools",
     level: 4,
     xp: 25,
-    instructions: `<p><code>argparse</code> builds a proper command-line interface for a script: define what arguments it accepts, and it handles reading the terminal input, converting types, and producing a <code>--help</code> message for free. This project pulls together two things you already know -- joining a list into a string with <code>" ".join(...)</code> and <code>.upper()</code> for case conversion -- and wires them up to real command-line input for the first time.</p>
+    instructions: `<p><code>argparse</code> builds a proper command-line interface for a script: define what arguments it accepts, and it handles reading the terminal input, converting types, and producing a <code>--help</code> message for free. This project pulls together two things you already know (joining a list into a string with <code>" ".join(...)</code> and <code>.upper()</code> for case conversion) and wires them up to real command-line input for the first time.</p>
 <p class="blueprint-line"><code>parser.add_argument(name, nargs='*')</code></p>
 <div class="example-block">
   <span class="example-label">Quick Example</span>
@@ -771,7 +771,7 @@ print(args.words)  # Output: ['are', 'you', 'a', 'mouse']</code></pre>
 </ul>
 <div class="note-block">
   <span class="note-label">Note</span>
-  <span>Since <code>nargs='*'</code> collects the words into a list, you'll need <code>" ".join(...)</code> before you can call <code>.upper()</code> on the result -- you can't uppercase a list directly.</span>
+  <span>Since <code>nargs='*'</code> collects the words into a list, you'll need <code>" ".join(...)</code> before you can call <code>.upper()</code> on the result. You can't uppercase a list directly.</span>
 </div>
 <span class="task-label">Your Task</span>
 <p class="task-line">Build a script that "howls" whatever words are passed on the command line. Set up an <code>ArgumentParser</code> with one positional argument <code>words</code> using <code>nargs='*'</code>, join the collected words into a single phrase, and print it in uppercase.</p>
@@ -847,7 +847,7 @@ print(len(text.split()))  # Output: word count of whatever was piped in</code></
         { code: "assert stdout_output == 'There are 9 words in the input.\\n'", message: "For the sample input, output should be 'There are 9 words in the input.'" }
       ]
     },
-    explanation: `<p>Reading from standard input instead of a fixed filename is what makes a script composable with other command-line tools -- it can sit anywhere in a pipeline, fed by whatever came before it.</p>`
+    explanation: `<p>Reading from standard input instead of a fixed filename is what makes a script composable with other command-line tools: it can sit anywhere in a pipeline, fed by whatever came before it.</p>`
   },
   {
     id: 75,
@@ -1105,7 +1105,7 @@ print(full_path)  # Output: data/input.csv</code></pre>
 </div>
 <div class="note-block">
   <span class="note-label">Note</span>
-  <span>The <code>/</code> operator here is joining path segments, not doing division -- it only works this way because the left-hand side is already a <code>Path</code> object.</span>
+  <span>The <code>/</code> operator here is joining path segments, not doing division. It only works this way because the left-hand side is already a <code>Path</code> object.</span>
 </div>
 <span class="task-label">Your Task</span>
 <p class="task-line">Import <code>Path</code> from <code>pathlib</code>. Create a <code>Path</code> object <code>base</code> pointing to <code>"/home/user/projects"</code>. Create a sub-path <code>config_file</code> pointing to <code>"/home/user/projects/myapp/config.json"</code> by using the <code>/</code> operator.</p>
@@ -1130,7 +1130,7 @@ print(full_path)  # Output: data/input.csv</code></pre>
         { code: "assert str(config_file) == '/home/user/projects/myapp/config.json'", message: "'config_file' should be /home/user/projects/myapp/config.json." }
       ]
     },
-    explanation: `<p><code>pathlib</code>'s <code>/</code> operator joins path segments safely across operating systems, regardless of whether the underlying OS uses forward slashes or backslashes. Path objects also have handy methods for actually working with the file itself, like <code>.read_text()</code> and <code>.write_text()</code> for whole-file reads and writes without needing a separate <code>with open(...)</code> block -- you'll use those in the next challenge.</p>`
+    explanation: `<p><code>pathlib</code>'s <code>/</code> operator joins path segments safely across operating systems, regardless of whether the underlying OS uses forward slashes or backslashes. Path objects also have handy methods for actually working with the file itself, like <code>.read_text()</code> and <code>.write_text()</code> for whole-file reads and writes without needing a separate <code>with open(...)</code> block. You'll use those in the next challenge.</p>`
   },
   {
     id: 124,
@@ -1321,7 +1321,7 @@ for name, score in ws2.iter_rows(min_row=2, values_only=True):
 </div>
 <div class="note-block">
   <span class="note-label">Note</span>
-  <span>Floating-point math can leave a total like 229.89999999999998 instead of an exact 229.9 -- that's normal, not a bug in your code.</span>
+  <span>Floating-point math can leave a total like 229.89999999999998 instead of an exact 229.9. That's normal, not a bug in your code.</span>
 </div>`,
     hints: [
       "ws.append([\"Product\", \"Quantity\", \"Price\"]) for the header, then ws.append(row) for each row in sales_data",
@@ -1454,7 +1454,7 @@ print(b.items)  # Output: []</code></pre>
         { code: "t1 = Team('Red')\nt2 = Team('Blue')\nt1.members.append('Alice')\nassert t2.members == []", message: "Each Team's 'members' list should be independent, not shared between instances." }
       ]
     },
-    explanation: `<p>Never use a mutable object (list, dict, set) as a direct default in a dataclass or function -- it would be shared across all instances. <code>field(default_factory=list)</code> creates a fresh empty list for each new instance.</p>`
+    explanation: `<p>Never use a mutable object (list, dict, set) as a direct default in a dataclass or function. It would be shared across all instances. <code>field(default_factory=list)</code> creates a fresh empty list for each new instance.</p>`
   },
   {
     id: 127,

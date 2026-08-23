@@ -6,7 +6,7 @@ window.LEVEL2 = [
     topic: "Introduction",
     level: 2,
     instructions: `<p>Level 1 was about values and how to store them. This level is about turning code into reusable tools: <code>def</code>, parameters, return values, <code>*args</code>/<code>**kwargs</code>, closures, comprehensions, and regular expressions for pattern matching in text.</p>
-<p>Along the way you'll build several small, real projects adapted from published Python books -- a curse generator, a password checker, a Twelve Days of Christmas printer -- each one a payoff for the concepts right before it, not a detour from them. By the end, you'll be able to write your own functions instead of copy-pasting the same logic everywhere.</p>`,
+<p>Along the way you'll build several small, real projects adapted from published Python books (a curse generator, a password checker, a Twelve Days of Christmas printer), each one a payoff for the concepts right before it, not a detour from them. By the end, you'll be able to write your own functions instead of copy-pasting the same logic everywhere.</p>`,
     starterCode: ""
   },
   {
@@ -18,7 +18,7 @@ window.LEVEL2 = [
     xp: 10,
     instructions: `<p>A <strong>regular expression</strong> (regex) is a pattern for matching pieces of text, built into Python through the <code>re</code> module. <code>re.findall(pattern, text)</code> returns every non-overlapping match as a list of strings, which makes it perfect for pulling structured pieces out of a bigger block of text. <code>\\d</code> matches any single digit, and <code>\\d+</code> matches one or more digits in a row.</p>
 <ul>
-  <li><strong>Pattern:</strong> a mini language describing what to match -- <code>\\d+</code> means "a run of one or more digit characters," not the literal text "\\d+".</li>
+  <li><strong>Pattern:</strong> a mini language describing what to match: <code>\\d+</code> means "a run of one or more digit characters," not the literal text "\\d+".</li>
 </ul>
 <p class="blueprint-line"><code>re.findall(pattern, text)</code></p>
 <div class="example-block">
@@ -30,7 +30,7 @@ print(codes)  # Output: ['12', '7']</code></pre>
 </div>
 <div class="note-block">
   <span class="note-label">Note</span>
-  <span>Every match re.findall() returns is a string, even when it looks like a number -- "12" is not 12. Wrap it in int() if you need to do arithmetic with it.</span>
+  <span>Every match re.findall() returns is a string, even when it looks like a number. "12" is not 12. Wrap it in int() if you need to do arithmetic with it.</span>
 </div>
 <span class="task-label">Your Task</span>
 <p class="task-line">Import <code>re</code>, then use <code>re.findall()</code> with the pattern <code>r"\\d+"</code> to extract every run of digits in <code>text</code> into a list called <code>numbers</code>.</p>
@@ -67,7 +67,7 @@ print(codes)  # Output: ['12', '7']</code></pre>
     xp: 10,
     instructions: `<p>While <code>re.findall()</code> pulls matches out of a string, <code>re.fullmatch(pattern, text)</code> checks whether the <strong>entire</strong> string matches a pattern, which makes it the right tool for validating input rather than searching through it. A character class like <code>[A-Za-z0-9_]</code> matches any single letter, digit, or underscore, and <code>{3,16}</code> means "repeated 3 to 16 times."</p>
 <ul>
-  <li><strong>re.fullmatch():</strong> only succeeds if the pattern accounts for the whole string, start to end -- one stray character anywhere fails it.</li>
+  <li><strong>re.fullmatch():</strong> only succeeds if the pattern accounts for the whole string, start to end. One stray character anywhere fails it.</li>
 </ul>
 <p class="blueprint-line"><code>re.fullmatch(pattern, text)</code></p>
 <div class="example-block">
@@ -131,7 +131,7 @@ print(has_digit)  # Output: True</code></pre>
 </div>
 <p><strong>New pieces in this project</strong></p>
 <ul>
-  <li><code>re.search()</code>: returns a match if the pattern appears anywhere in the string -- one hit is enough, unlike <code>re.fullmatch()</code> which needs the entire string to fit the pattern.</li>
+  <li><code>re.search()</code>: returns a match if the pattern appears anywhere in the string. One hit is enough, unlike <code>re.fullmatch()</code> which needs the entire string to fit the pattern.</li>
 </ul>
 <span class="task-label">Your Task</span>
 <p class="task-line">Create <code>is_strong</code> as <code>True</code> only if <code>password</code> is at least 8 characters long and contains at least one uppercase letter, one lowercase letter, and one digit.</p>
@@ -217,7 +217,7 @@ print(shout())  # Output: HEY!</code></pre>
     instructions: `<p>Parameters are inputs to your function, listed inside the parentheses. Whatever values you pass in when you call the function get matched up with those parameter names in order, so the function can use them in its calculations.</p>
 <ul>
   <li><strong>Parameter:</strong> the placeholder name written in the function's own definition, like <code>a</code> in <code>def add(a, b):</code>.</li>
-  <li><strong>Argument:</strong> the actual value handed over at the call site, like the <code>2</code> in <code>add(2, 3)</code> -- it gets matched to <code>a</code> by position.</li>
+  <li><strong>Argument:</strong> the actual value handed over at the call site, like the <code>2</code> in <code>add(2, 3)</code>. It gets matched to <code>a</code> by position.</li>
 </ul>
 <p class="blueprint-line"><code>def function_name(param1, param2):</code></p>
 <div class="example-block">
@@ -309,7 +309,7 @@ print(result)  # Output: 27</code></pre>
     xp: 10,
     instructions: `<p>You can give a parameter a default value, which makes it optional when calling the function. Leave it out and Python uses the default; pass something and it overrides it.</p>
 <ul>
-  <li><strong>Default value:</strong> written as <code>name=value</code> in the function's own parentheses -- it's used only when the caller doesn't supply that argument.</li>
+  <li><strong>Default value:</strong> written as <code>name=value</code> in the function's own parentheses. It's used only when the caller doesn't supply that argument.</li>
 </ul>
 <p class="blueprint-line"><code>def function_name(param=default_value):</code></p>
 <div class="example-block">
@@ -322,7 +322,7 @@ print(power(5, 3))  # Output: 125</code></pre>
 </div>
 <div class="note-block">
   <span class="note-label">Note</span>
-  <span>Parameters with a default have to come after any parameters without one -- def greet(name="World", extra) would be a syntax error.</span>
+  <span>Parameters with a default have to come after any parameters without one. def greet(name="World", extra) would be a syntax error.</span>
 </div>
 <span class="task-label">Your Task</span>
 <p class="task-line">Define a function <code>greet</code> that takes a parameter <code>name</code> with a default value of <code>"World"</code> and returns the string <code>f"Hello, {name}!"</code>.</p>
@@ -359,7 +359,7 @@ print(power(5, 3))  # Output: 125</code></pre>
     xp: 10,
     instructions: `<p>Python functions can return more than one value at once by returning a tuple, separating the values with a comma. The caller can then unpack them straight into separate variables in a single line.</p>
 <ul>
-  <li><strong>Tuple packing:</strong> <code>return a, b</code> bundles both values into a single tuple <code>(a, b)</code> behind the scenes -- the commas are what create it, not the parentheses.</li>
+  <li><strong>Tuple packing:</strong> <code>return a, b</code> bundles both values into a single tuple <code>(a, b)</code> behind the scenes. The commas are what create it, not the parentheses.</li>
 </ul>
 <div class="example-block">
   <span class="example-label">Quick Example</span>
@@ -385,7 +385,7 @@ print(quotient, remainder)  # Output: 3 2</code></pre>
     validation: {
       checks: [
         { type: "hasValidDef", name: "min_max", message: "Define a function named 'min_max' with a colon: def min_max(nums):" },
-        { type: "matchesRegex", pattern: "return\\s+min\\s*\\(", message: "Use the built-in min() function -- lists have no .min() method." },
+        { type: "matchesRegex", pattern: "return\\s+min\\s*\\(", message: "Use the built-in min() function. Lists have no .min() method." },
         { type: "matchesRegex", pattern: "return\\s+min.*max\\s*\\(|return\\s+min.*,.*max", message: "Return both min and max values separated by a comma." }
       ],
       pyTests: [
@@ -404,7 +404,7 @@ print(quotient, remainder)  # Output: 3 2</code></pre>
     xp: 20,
     kind: "project",
     source: "Tiny Python Projects #11, \"Bottles of Beer\"",
-    instructions: `<p>The "99 Bottles of Beer" song repeats the same line with one number changing each verse, except the grammar shifts at the edges: "bottles" becomes "bottle" for exactly one, and "no more bottles" replaces the number entirely at zero. This project from <em>Tiny Python Projects</em> combines defining a function that returns a value with the <code>if</code> branching you already know -- the real work is getting all three grammatical cases right, not just the common one.</p>
+    instructions: `<p>The "99 Bottles of Beer" song repeats the same line with one number changing each verse, except the grammar shifts at the edges: "bottles" becomes "bottle" for exactly one, and "no more bottles" replaces the number entirely at zero. This project from <em>Tiny Python Projects</em> combines defining a function that returns a value with the <code>if</code> branching you already know: the real work is getting all three grammatical cases right, not just the common one.</p>
 <span class="task-label">Your Task</span>
 <p class="task-line">Define a function <code>verse</code> that takes a bottle count <code>n</code> and returns the correct line for that count.</p>
 <div class="example-block">
@@ -443,7 +443,7 @@ print(quotient, remainder)  # Output: 3 2</code></pre>
     instructions: `<p>The <code>*args</code> syntax lets a function accept any number of positional arguments, whether you call it with one, five, or none at all. Inside the function, <code>args</code> is just a regular tuple holding whatever was passed in, ready to loop over or pass to another function.</p>
 <p><code>print("a", "b", "c")</code> works no matter how many arguments you give it because <code>print()</code> is defined with something like <code>*args</code> under the hood, and so are <code>max()</code> and <code>min()</code>.</p>
 <ul>
-  <li><strong>*args:</strong> collects every extra positional argument into one tuple named <code>args</code> -- the star is what triggers the collecting, "args" is just the conventional name.</li>
+  <li><strong>*args:</strong> collects every extra positional argument into one tuple named <code>args</code>. The star is what triggers the collecting, "args" is just the conventional name.</li>
 </ul>
 <p class="blueprint-line"><code>def function_name(*args):</code></p>
 <div class="example-block">
@@ -477,7 +477,7 @@ print(loudest(3, 9, 4))  # Output: 9</code></pre>
         { code: "assert total(5) == 5", message: "total(5) should return 5." }
       ]
     },
-    explanation: `<p>Inside the function, <code>args</code> is a tuple of all positional arguments passed. You can iterate over it or pass it to functions like <code>sum()</code>. The name <code>args</code> is a convention -- the <code>*</code> is what matters.</p>`
+    explanation: `<p>Inside the function, <code>args</code> is a tuple of all positional arguments passed. You can iterate over it or pass it to functions like <code>sum()</code>. The name <code>args</code> is a convention. The <code>*</code> is what matters.</p>`
   },
   {
     id: 27,
@@ -582,7 +582,7 @@ print(countdown_sum(4))  # Output: 10</code></pre>
     xp: 20,
     instructions: `<p>A list comprehension builds a new list by applying an expression to each item in an existing iterable, all in one concise line, instead of writing a full for-loop with an <code>append()</code> call. The pattern reads almost like plain English: <code>[expression for item in iterable]</code>.</p>
 <ul>
-  <li><strong>Expression:</strong> the part before <code>for</code> -- it's evaluated once per item and becomes that item's slot in the new list.</li>
+  <li><strong>Expression:</strong> the part before <code>for</code>. It's evaluated once per item and becomes that item's slot in the new list.</li>
 </ul>
 <p class="blueprint-line"><code>[expression for item in iterable]</code></p>
 <div class="example-block">
@@ -754,7 +754,7 @@ print(animal, dice)  # Output: one of cat/dog/fox, a number 1-6</code></pre>
     xp: 20,
     kind: "project",
     source: "Tiny Python Projects #10, \"Telephone\"",
-    instructions: `<p>Like the party game it's named after, this project from <em>Tiny Python Projects</em> is about a message getting slightly garbled. It combines <code>random.randint()</code> and <code>random.choice()</code> from The random Module with slicing -- <code>message[:position]</code> and <code>message[position + 1:]</code> work on strings exactly the same way they do on lists -- to rebuild the message around one swapped character.</p>
+    instructions: `<p>Like the party game it's named after, this project from <em>Tiny Python Projects</em> is about a message getting slightly garbled. It combines <code>random.randint()</code> and <code>random.choice()</code> from The random Module with slicing (<code>message[:position]</code> and <code>message[position + 1:]</code> work on strings exactly the same way they do on lists) to rebuild the message around one swapped character.</p>
 <div class="example-block">
   <span class="example-label">Quick Example</span>
   <pre><code>word = "abcde"
@@ -797,7 +797,7 @@ print(rebuilt)  # Output: abXde</code></pre>
     xp: 20,
     instructions: `<p>A <strong>lambda</strong> is a small, anonymous function squeezed into a single expression using the <code>lambda</code> keyword, with no <code>def</code> or name required. They're handy for short, throwaway logic you only need in one place, like a sort key or a quick transformation.</p>
 <ul>
-  <li><strong>Anonymous function:</strong> a function with no name of its own -- <code>lambda x: x * 2</code> is a complete function value, and assigning it to <code>double</code> is what gives it a name to call later.</li>
+  <li><strong>Anonymous function:</strong> a function with no name of its own. <code>lambda x: x * 2</code> is a complete function value, and assigning it to <code>double</code> is what gives it a name to call later.</li>
 </ul>
 <p class="blueprint-line"><code>lambda parameters: expression</code></p>
 <div class="example-block">
@@ -807,7 +807,7 @@ print(square(6))  # Output: 36</code></pre>
 </div>
 <div class="note-block">
   <span class="note-label">Note</span>
-  <span>A lambda body can only be a single expression, not statements -- no if/else blocks, no loops, no assignments. Anything more complex needs a regular def function.</span>
+  <span>A lambda body can only be a single expression, not statements: no if/else blocks, no loops, no assignments. Anything more complex needs a regular def function.</span>
 </div>
 <span class="task-label">Your Task</span>
 <p class="task-line">Create a lambda assigned to <code>double</code> that takes a single argument <code>x</code> and returns <code>x * 2</code>.</p>
@@ -846,8 +846,8 @@ print(square(6))  # Output: 36</code></pre>
     xp: 20,
     instructions: `<p><code>map(func, iterable)</code> applies a function to every item in a sequence, and <code>filter(func, iterable)</code> keeps only the items where that function returns something truthy. Both hand back a lazy iterator, so you'll usually wrap the result in <code>list()</code> to see or store the actual values.</p>
 <ul>
-  <li><strong>map():</strong> transforms every item -- the output has exactly the same number of items as the input, just changed.</li>
-  <li><strong>filter():</strong> selects a subset of items -- the output can be shorter than the input, since items that fail the check get dropped.</li>
+  <li><strong>map():</strong> transforms every item. The output has exactly the same number of items as the input, just changed.</li>
+  <li><strong>filter():</strong> selects a subset of items. The output can be shorter than the input, since items that fail the check get dropped.</li>
 </ul>
 <p class="blueprint-line"><code>list(map(func, iterable))</code>&nbsp;&nbsp;/&nbsp;&nbsp;<code>list(filter(func, iterable))</code></p>
 <div class="example-block">
@@ -883,7 +883,7 @@ print(long_names)  # Output: ['ana']</code></pre>
         { code: "assert evens == [2, 4, 6]", message: "'evens' should be [2, 4, 6]." }
       ]
     },
-    explanation: `<p><code>map()</code> and <code>filter()</code> return lazy iterators -- wrap them in <code>list()</code> to materialise the results. In modern Python, list comprehensions are often preferred: <code>[x * 2 for x in numbers]</code> is equivalent to the map above.</p>`
+    explanation: `<p><code>map()</code> and <code>filter()</code> return lazy iterators. Wrap them in <code>list()</code> to materialise the results. In modern Python, list comprehensions are often preferred: <code>[x * 2 for x in numbers]</code> is equivalent to the map above.</p>`
   },
   {
     id: 33,
@@ -893,10 +893,10 @@ print(long_names)  # Output: ['ana']</code></pre>
     level: 2,
     xp: 20,
     instructions: `<p>Functions can be defined inside other functions, and the inner one keeps access to variables from the outer function's scope even after the outer function has finished running. This pattern is called a <strong>closure</strong>: the inner function "remembers" the environment it was created in.</p>
-<p>Call <code>make_multiplier(3)</code> and you get back a brand-new function that always multiplies by 3 -- the <code>3</code> is baked in, not re-passed every time. That's why the example below has two sets of parentheses: <code>make_multiplier(3)</code> runs first and hands back the <code>multiply</code> function, then <code>(4)</code> calls that returned function.</p>
-<p>You could also save the first call in a variable, like <code>triple = make_multiplier(3)</code>, then call <code>triple(4)</code>, <code>triple(10)</code>, and so on -- it'll still remember <code>factor = 3</code> every time.</p>
+<p>Call <code>make_multiplier(3)</code> and you get back a brand-new function that always multiplies by 3: the <code>3</code> is baked in, not re-passed every time. That's why the example below has two sets of parentheses: <code>make_multiplier(3)</code> runs first and hands back the <code>multiply</code> function, then <code>(4)</code> calls that returned function.</p>
+<p>You could also save the first call in a variable, like <code>triple = make_multiplier(3)</code>, then call <code>triple(4)</code>, <code>triple(10)</code>, and so on: it'll still remember <code>factor = 3</code> every time.</p>
 <ul>
-  <li><strong>Nested function:</strong> a <code>def</code> written inside another function's body -- it doesn't exist yet outside that outer function, only the value returned from it does.</li>
+  <li><strong>Nested function:</strong> a <code>def</code> written inside another function's body. It doesn't exist yet outside that outer function, only the value returned from it does.</li>
 </ul>
 <div class="example-block">
   <span class="example-label">Quick Example</span>
@@ -931,14 +931,14 @@ print(hi("Sam"))  # Output: Hi, Sam!</code></pre>
       checks: [
         { type: "hasValidDef", name: "make_multiplier", message: "Define the outer function 'make_multiplier' with a colon." },
         { type: "matchesRegex", pattern: "def\\s+multiply", message: "Define an inner function 'multiply'." },
-        { type: "matchesRegex", pattern: "return\\s+multiply\\b(?!\\s*\\()", message: "Return the inner function by name only -- no parentheses after multiply." }
+        { type: "matchesRegex", pattern: "return\\s+multiply\\b(?!\\s*\\()", message: "Return the inner function by name only. No parentheses after multiply." }
       ],
       pyTests: [
         { code: "assert make_multiplier(3)(4) == 12", message: "make_multiplier(3)(4) should return 12." },
         { code: "assert make_multiplier(5)(2) == 10", message: "make_multiplier(5)(2) should return 10." }
       ]
     },
-    explanation: `<p>This pattern is called a closure. The inner function "closes over" the <code>factor</code> variable from the outer scope. Even after <code>make_multiplier</code> returns, the returned function still remembers <code>factor</code> -- that's what makes <code>make_multiplier(3)</code> and <code>make_multiplier(5)</code> behave like two independent functions instead of sharing one <code>factor</code> value. This is the same trick behind things like a discount calculator factory: <code>make_discount(0.2)</code> could hand you back a function that always takes 20% off, while <code>make_discount(0.5)</code> hands back one that always takes off half, each one remembering its own rate.</p>`
+    explanation: `<p>This pattern is called a closure. The inner function "closes over" the <code>factor</code> variable from the outer scope. Even after <code>make_multiplier</code> returns, the returned function still remembers <code>factor</code>: that's what makes <code>make_multiplier(3)</code> and <code>make_multiplier(5)</code> behave like two independent functions instead of sharing one <code>factor</code> value. This is the same trick behind things like a discount calculator factory: <code>make_discount(0.2)</code> could hand you back a function that always takes 20% off, while <code>make_discount(0.5)</code> hands back one that always takes off half, each one remembering its own rate.</p>`
   },
   {
     id: 34,
@@ -1002,7 +1002,7 @@ print(total)  # Output: 5</code></pre>
     xp: 10,
     instructions: `<p>A <strong>docstring</strong> is a string literal placed as the very first line inside a function body, documenting what it does. It's wrapped in triple quotes, and tools like <code>help()</code> and IDE tooltips read it automatically to show other people what the function is for.</p>
 <ul>
-  <li><strong>Docstring:</strong> a triple-quoted string as the first line of a function's body -- Python stores it on the function itself, accessible later as <code>function_name.__doc__</code>.</li>
+  <li><strong>Docstring:</strong> a triple-quoted string as the first line of a function's body. Python stores it on the function itself, accessible later as <code>function_name.__doc__</code>.</li>
 </ul>
 <div class="example-block">
   <span class="example-label">Quick Example</span>
@@ -1014,7 +1014,7 @@ print(square.__doc__)  # Output: Return n multiplied by itself.</code></pre>
 </div>
 <div class="note-block">
   <span class="note-label">Note</span>
-  <span>A docstring only counts if it's the very first statement in the function body -- placed after any other line, it's just a regular unused string, not a real docstring.</span>
+  <span>A docstring only counts if it's the very first statement in the function body. Placed after any other line, it's just a regular unused string, not a real docstring.</span>
 </div>
 <span class="task-label">Your Task</span>
 <p class="task-line">Define a function <code>divide</code> that takes <code>a</code> and <code>b</code>. Add a docstring that says <code>"Divide a by b and return the result."</code> Then return <code>a / b</code>.</p>
@@ -1024,7 +1024,7 @@ print(square.__doc__)  # Output: Return n multiplied by itself.</code></pre>
   <div class="io-row"><span class="io-key">Output</span><code class="io-val">5.0</code></div>
 </div>`,
     hints: [
-      "\"\"\"Divide a by b and return the result.\"\"\"  -- place this as the first line of the body",
+      "\"\"\"Divide a by b and return the result.\"\"\"  (place this as the first line of the body)",
       "Docstrings use triple quotes."
     ],
     starterCode: "# Define divide with a docstring\n",
@@ -1079,7 +1079,7 @@ print(original)                # Output: ['book']</code></pre>
 </div>`,
     hints: [
       "Return items + [item]  (creates a new list)",
-      "Do NOT use items.append(item) -- that modifies in place."
+      "Do NOT use items.append(item). That modifies in place."
     ],
     starterCode: "# Write a pure add_item function\n",
     solution: "def add_item(items, item):\n    return items + [item]",
@@ -1090,10 +1090,10 @@ print(original)                # Output: ['book']</code></pre>
       ],
       pyTests: [
         { code: "original = [1, 2, 3]\nresult = add_item(original, 4)\nassert result == [1, 2, 3, 4]", message: "add_item([1, 2, 3], 4) should return [1, 2, 3, 4]." },
-        { code: "original = [1, 2, 3]\nadd_item(original, 4)\nassert original == [1, 2, 3]", message: "The original list should be unchanged after calling add_item -- don't use .append()." }
+        { code: "original = [1, 2, 3]\nadd_item(original, 4)\nassert original == [1, 2, 3]", message: "The original list should be unchanged after calling add_item. Don't use .append()." }
       ]
     },
-    explanation: `<p>This same pattern shows up anywhere you want predictable behavior: pure functions can be cached, run in parallel, or tested with plain input/output pairs, since they never depend on or change anything outside their own arguments. That's also why test suites lean on them so heavily -- an impure function's result can depend on when or how many times it's called, which makes a test flaky in ways a pure function's never can.</p>`
+    explanation: `<p>This same pattern shows up anywhere you want predictable behavior: pure functions can be cached, run in parallel, or tested with plain input/output pairs, since they never depend on or change anything outside their own arguments. That's also why test suites lean on them so heavily: an impure function's result can depend on when or how many times it's called, which makes a test flaky in ways a pure function's never can.</p>`
   },
   {
     id: 37,
@@ -1185,7 +1185,7 @@ print(run_with(str.upper, "hi"))  # Output: HI</code></pre>
     xp: 20,
     kind: "project",
     source: "Tiny Python Projects #12, \"Ransom\"",
-    instructions: `<p>A classic ransom note look mixes upper and lower case letters at random, deciding independently for every single character. This project from <em>Tiny Python Projects</em> combines <code>random.choice()</code> with <code>.join()</code>, which you used in Joining a List into a String -- with one new piece: feeding <code>.join()</code> a generator expression directly, instead of building a list first.</p>
+    instructions: `<p>A classic ransom note look mixes upper and lower case letters at random, deciding independently for every single character. This project from <em>Tiny Python Projects</em> combines <code>random.choice()</code> with <code>.join()</code>, which you used in Joining a List into a String, with one new piece: feeding <code>.join()</code> a generator expression directly, instead of building a list first.</p>
 <p class="blueprint-line"><code>"".join(expression for item in iterable)</code></p>
 <div class="example-block">
   <span class="example-label">Quick Example</span>
@@ -1195,7 +1195,7 @@ print(doubled)  # Output: aabbcc</code></pre>
 </div>
 <p><strong>New pieces in this project</strong></p>
 <ul>
-  <li>Generator expression in <code>.join()</code>: <code>(expr for item in iterable)</code> with no square brackets -- values are produced one at a time instead of building a full list before joining them.</li>
+  <li>Generator expression in <code>.join()</code>: <code>(expr for item in iterable)</code> with no square brackets. Values are produced one at a time instead of building a full list before joining them.</li>
 </ul>
 <span class="task-label">Your Task</span>
 <p class="task-line">Create <code>ransom</code> by randomly uppercasing or lowercasing each character of <code>message</code>, then joining the results back into one string.</p>
@@ -1231,7 +1231,7 @@ print(doubled)  # Output: aabbcc</code></pre>
     xp: 20,
     kind: "project",
     source: "Tiny Python Projects #16, \"The Scrambler\"",
-    instructions: `<p>This project from <em>Tiny Python Projects</em> keeps a word's first and last letter fixed, the way readers can usually still parse a word even when its middle letters are jumbled, and shuffles everything in between. It combines the slicing you already know -- <code>word[1:-1]</code> to grab the middle -- with one new piece: <code>random.shuffle()</code>.</p>
+    instructions: `<p>This project from <em>Tiny Python Projects</em> keeps a word's first and last letter fixed, the way readers can usually still parse a word even when its middle letters are jumbled, and shuffles everything in between. It combines the slicing you already know (<code>word[1:-1]</code> to grab the middle) with one new piece: <code>random.shuffle()</code>.</p>
 <p class="blueprint-line"><code>random.shuffle(list)</code></p>
 <div class="example-block">
   <span class="example-label">Quick Example</span>
@@ -1242,7 +1242,7 @@ print(letters)  # Output: the same 4 letters, reordered</code></pre>
 </div>
 <p><strong>New pieces in this project</strong></p>
 <ul>
-  <li><code>random.shuffle()</code>: reorders a list randomly in place and returns <code>None</code> -- it works on lists only, which is why the middle letters need to become a list first.</li>
+  <li><code>random.shuffle()</code>: reorders a list randomly in place and returns <code>None</code>. It works on lists only, which is why the middle letters need to become a list first.</li>
 </ul>
 <span class="task-label">Your Task</span>
 <p class="task-line">Create <code>scrambled</code> by shuffling the middle letters of <code>word</code> with <code>random.shuffle()</code>, keeping the first and last letters where they are.</p>
@@ -1257,7 +1257,7 @@ print(letters)  # Output: the same 4 letters, reordered</code></pre>
 </div>`,
     hints: [
       "middle = list(word[1:-1])",
-      "random.shuffle(middle)  -- call it on its own line, don't assign its result",
+      "random.shuffle(middle)  (call it on its own line, don't assign its result)",
       "scrambled = word[0] + \"\".join(middle) + word[-1]"
     ],
     starterCode: 'word = "python"\n# Shuffle the middle letters, keep first and last fixed\n',
@@ -1327,7 +1327,7 @@ print(ord("a"))  # Output: 97</code></pre>
     xp: 20,
     instructions: `<p>The <code>*</code> operator unpacks a list or tuple into individual positional arguments when you call a function with it, so <code>func(*[1, 2, 3])</code> is exactly the same as calling <code>func(1, 2, 3)</code> directly. This is handy whenever the arguments you need already live inside a list.</p>
 <ul>
-  <li><strong>Unpacking (*):</strong> spreads a list or tuple's items out into separate positional arguments at the call site -- the opposite direction from <code>*args</code>, which gathers loose arguments back into a tuple.</li>
+  <li><strong>Unpacking (*):</strong> spreads a list or tuple's items out into separate positional arguments at the call site. The opposite direction from <code>*args</code>, which gathers loose arguments back into a tuple.</li>
 </ul>
 <p class="blueprint-line"><code>function_name(*iterable)</code></p>
 <div class="example-block">
@@ -1351,7 +1351,7 @@ print(volume(*dims))  # Output: 24</code></pre>
 </div>`,
     hints: [
       "def add3(a, b, c): return a + b + c",
-      "result = add3(*nums)  -- unpacks the list into three arguments"
+      "result = add3(*nums)  (unpacks the list into three arguments)"
     ],
     starterCode: "# Define add3 and call it with *nums\n",
     solution: "def add3(a, b, c):\n    return a + b + c\n\nnums = [1, 2, 3]\nresult = add3(*nums)",
@@ -1375,10 +1375,10 @@ print(volume(*dims))  # Output: 24</code></pre>
     topic: "Functions",
     level: 2,
     xp: 20,
-    instructions: `<p>Just like <code>*</code> unpacks a list into positional arguments, <code>**</code> unpacks a dictionary into keyword arguments when you call a function with it. If <code>info = {"name": "Ana", "age": 30}</code>, then <code>func(**info)</code> is exactly the same as calling <code>func(name="Ana", age=30)</code> directly -- Python matches each key in the dictionary to a parameter with the same name.</p>
-<p>This comes up whenever you're loading data from a form, a JSON file, or a database row, since it usually arrives as a dictionary already -- you can hand the whole dictionary to a function with <code>**</code> instead of pulling out each field by hand.</p>
+    instructions: `<p>Just like <code>*</code> unpacks a list into positional arguments, <code>**</code> unpacks a dictionary into keyword arguments when you call a function with it. If <code>info = {"name": "Ana", "age": 30}</code>, then <code>func(**info)</code> is exactly the same as calling <code>func(name="Ana", age=30)</code> directly. Python matches each key in the dictionary to a parameter with the same name.</p>
+<p>This comes up whenever you're loading data from a form, a JSON file, or a database row, since it usually arrives as a dictionary already: you can hand the whole dictionary to a function with <code>**</code> instead of pulling out each field by hand.</p>
 <ul>
-  <li><strong>Unpacking (**):</strong> spreads a dictionary's key-value pairs out into keyword arguments at the call site -- each key becomes a parameter name, each value becomes that argument's value.</li>
+  <li><strong>Unpacking (**):</strong> spreads a dictionary's key-value pairs out into keyword arguments at the call site. Each key becomes a parameter name, each value becomes that argument's value.</li>
 </ul>
 <p class="blueprint-line"><code>function_name(**dictionary)</code></p>
 <div class="example-block">
@@ -1391,7 +1391,7 @@ print(announce(**movie))  # Output: Arrival (2016)</code></pre>
 </div>
 <p><strong>Shorthand</strong></p>
 <ul>
-  <li><code>func(**info)</code> unpacks a dict into keyword arguments -- opposite direction from <code>**kwargs</code>, which gathers keyword arguments back into a dict.</li>
+  <li><code>func(**info)</code> unpacks a dict into keyword arguments. Opposite direction from <code>**kwargs</code>, which gathers keyword arguments back into a dict.</li>
 </ul>
 <div class="note-block">
   <span class="note-label">Note</span>
@@ -1406,7 +1406,7 @@ print(announce(**movie))  # Output: Arrival (2016)</code></pre>
 </div>`,
     hints: [
       "def build_profile(name, age, city): return f\"{name}, {age}, from {city}\"",
-      "result = build_profile(**info)  -- unpacks the dict into name=, age=, city="
+      "result = build_profile(**info)  (unpacks the dict into name=, age=, city=)"
     ],
     starterCode: 'info = {"name": "Ana", "age": 30, "city": "Lima"}\n# Define build_profile and call it with **info\n',
     solution: 'def build_profile(name, age, city):\n    return f"{name}, {age}, from {city}"\n\ninfo = {"name": "Ana", "age": 30, "city": "Lima"}\nresult = build_profile(**info)',
@@ -1489,7 +1489,7 @@ print(60 <= temp <= 80)  # Output: True</code></pre>
 </div>
 <div class="note-block">
   <span class="note-label">Note</span>
-  <span>Comparisons (<code>&gt;</code>, <code>&lt;=</code>, etc.) are checked before <code>and</code>/<code>or</code> combine them, so <code>a > 0 and b > 0</code> reads exactly like it looks: two separate checks joined together, no extra parentheses needed. <code>and</code> also short-circuits -- if the left side is already <code>False</code>, Python never bothers checking the right side.</span>
+  <span>Comparisons (<code>&gt;</code>, <code>&lt;=</code>, etc.) are checked before <code>and</code>/<code>or</code> combine them, so <code>a > 0 and b > 0</code> reads exactly like it looks: two separate checks joined together, no extra parentheses needed. <code>and</code> also short-circuits: if the left side is already <code>False</code>, Python never bothers checking the right side.</span>
 </div>
 <span class="task-label">Your Task</span>
 <p class="task-line">Define a function <code>is_valid_age</code> that takes <code>age</code> and returns <code>True</code> if age is between 0 and 120 (inclusive) using a chained comparison.</p>

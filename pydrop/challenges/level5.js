@@ -5,8 +5,8 @@ window.LEVEL5 = [
     kind: "intro",
     topic: "Introduction",
     level: 5,
-    instructions: `<p>This level is different from everything before it: instead of general Python skills, you're using the Python you already know to build a real, working blockchain from scratch -- hashing, chaining blocks together, Merkle trees, proof of work, digital signatures, proof of stake, and Byzantine fault tolerance. Every concept is grounded in code you write and run yourself, not just definitions.</p>
-<p>Nothing here assumes you know blockchain already. By the end, you'll understand what a hash chain actually protects against, why proof of work and proof of stake exist as competing answers to the same problem, and how systems like Bitcoin and Ethereum work under the hood -- because you'll have built simplified versions of each piece yourself.</p>`,
+    instructions: `<p>This level is different from everything before it. Instead of general Python skills, you're using the Python you already know to build a real, working blockchain from scratch: hashing, chaining blocks together, Merkle trees, proof of work, digital signatures, proof of stake, and Byzantine fault tolerance. Every concept is grounded in code you write and run yourself, not just definitions.</p>
+<p>Nothing here assumes you know blockchain already. By the end, you'll understand what a hash chain actually protects against, why proof of work and proof of stake exist as competing answers to the same problem, and how systems like Bitcoin and Ethereum work under the hood, because you'll have built simplified versions of each piece yourself.</p>`,
     starterCode: ""
   },
   {
@@ -18,8 +18,8 @@ window.LEVEL5 = [
     xp: 15,
     instructions: `<p>Everything in a blockchain rests on one building block: the cryptographic <strong>hash function</strong>. A hash function takes data of any size and squeezes it down to a fixed-length fingerprint. Python's <code>hashlib</code> module gives you several options, and <code>sha256</code> is the one Bitcoin itself uses.</p>
 <ul>
-  <li><strong>One-way function:</strong> given the fingerprint, there's no way to work backward to find the original data -- short of guessing every possible input, which for anything non-trivial would take longer than the age of the universe.</li>
-  <li><strong>Deterministic behavior:</strong> the exact same input always produces the exact same fingerprint, every time, on every computer. Change even one character of the input and the fingerprint comes out completely different -- there's no "close" hash for "close" data.</li>
+  <li><strong>One-way function:</strong> given the fingerprint, there's no way to work backward to find the original data, short of guessing every possible input, which for anything non-trivial would take longer than the age of the universe.</li>
+  <li><strong>Deterministic behavior:</strong> the exact same input always produces the exact same fingerprint, every time, on every computer. Change even one character of the input and the fingerprint comes out completely different. There's no "close" hash for "close" data.</li>
 </ul>
 <div class="example-block">
   <span class="example-label">Quick Example</span>
@@ -29,13 +29,13 @@ print(data_hash)  # Output: "cf55026ba78c889dbdaf0c32701cdb4d662f3d3ea4460110d3e
 </div>
 <p><strong>The Hashing Pipeline</strong></p>
 <ul>
-  <li><code>data.encode()</code> converts Python text into raw bytes, which hash functions require -- they don't work on Python's text type directly.</li>
+  <li><code>data.encode()</code> converts Python text into raw bytes, which hash functions require. They don't work on Python's text type directly.</li>
   <li><code>hashlib.sha256(...)</code> runs the algorithm and hands back a hash object.</li>
-  <li><code>.hexdigest()</code> renders that hash object as a readable, 64-character string of hexadecimal digits -- that string is what you'll see and store as "the hash" everywhere from here on.</li>
+  <li><code>.hexdigest()</code> renders that hash object as a readable, 64-character string of hexadecimal digits. That string is what you'll see and store as "the hash" everywhere from here on.</li>
 </ul>
 <div class="note-block">
   <span class="note-label">Note</span>
-  <span>Don't try to predict a hash by eye -- that unreadable-looking string is the entire point. If you could look at two hashes and immediately tell how their inputs relate, the hash function would have failed at its job.</span>
+  <span>Don't try to predict a hash by eye. That unreadable-looking string is the entire point. If you could look at two hashes and immediately tell how their inputs relate, the hash function would have failed at its job.</span>
 </div>
 <span class="task-label">Your Task</span>
 <p class="task-line">Given the string <code>data</code>, create <code>data_hash</code> as its SHA-256 hash, rendered as a hex string.</p>`,
@@ -58,7 +58,7 @@ print(data_hash)  # Output: "cf55026ba78c889dbdaf0c32701cdb4d662f3d3ea4460110d3e
         { code: "assert len(data_hash) == 64", message: "A SHA-256 hex digest is always 64 characters long." }
       ]
     },
-    explanation: `<p>You'll call this exact pattern -- encode, hash, hexdigest -- constantly for the rest of this level. Every block's identity, every proof-of-work attempt, and every Merkle tree node comes down to hashing some string and looking at the result.</p>`
+    explanation: `<p>You'll call this exact pattern (encode, hash, hexdigest) constantly for the rest of this level. Every block's identity, every proof-of-work attempt, and every Merkle tree node comes down to hashing some string and looking at the result.</p>`
   },
   {
     id: 201,
@@ -68,7 +68,7 @@ print(data_hash)  # Output: "cf55026ba78c889dbdaf0c32701cdb4d662f3d3ea4460110d3e
     level: 5,
     xp: 15,
     instructions: `<p>Hashing's security comes from the <strong>avalanche effect</strong>: change even one character of the input and the output comes out completely different, with no partial credit. "Pay Alice 10 coins" and "Pay Alice 100 coins" hash to two strings that share nothing in common, even though the messages look almost identical.</p>
-<p>That's exactly how a blockchain catches tampering -- recompute a hash and compare it to what it should be, and any edit at all, however small, shows up immediately.</p>
+<p>That's exactly how a blockchain catches tampering: recompute a hash and compare it to what it should be, and any edit at all, however small, shows up immediately.</p>
 <div class="example-block">
   <span class="example-label">Quick Example</span>
   <pre><code>msg_a = "unlock"
@@ -98,10 +98,10 @@ print(hashlib.sha256(msg_b.encode()).hexdigest()[:8])
         { type: "matchesRegex", pattern: "hashes_match\\s*=\\s*original_hash\\s*==\\s*tampered_hash", message: "Set hashes_match by comparing the two hashes with ==." }
       ],
       pyTests: [
-        { code: "assert hashes_match == False", message: "The two hashes should not match -- even a small change to the text should produce a completely different hash." }
+        { code: "assert hashes_match == False", message: "The two hashes should not match. Even a small change to the text should produce a completely different hash." }
       ]
     },
-    explanation: `<p>Notice that "10" became "100" -- a change a human skimming the text might not even catch. The hash didn't skim it. This is the entire mechanism a blockchain relies on to detect that something in its history was altered: no edit is too small to change the hash.</p>`
+    explanation: `<p>Notice that "10" became "100", a change a human skimming the text might not even catch. The hash didn't skim it. This is the entire mechanism a blockchain relies on to detect that something in its history was altered: no edit is too small to change the hash.</p>`
   },
   {
     id: 202,
@@ -110,8 +110,8 @@ print(hashlib.sha256(msg_b.encode()).hexdigest()[:8])
     topic: "Block Structure",
     level: 5,
     xp: 20,
-    instructions: `<p>A blockchain is a list of <strong>blocks</strong>, each bundling data with a few pieces of bookkeeping: <code>index</code>, <code>timestamp</code>, <code>data</code>, and <code>previous_hash</code> (the hash of the block before it -- the actual link in the chain, as you'll see next challenge). Each block also carries its own <code>hash</code>, computed from its other fields rather than passed in -- otherwise nothing would stop you from attaching any hash you like to any data you like.</p>
-<p>Recall <code>__post_init__</code> from Level 4: it runs right after a dataclass's normal <code>__init__</code>, the right place to compute a field from the others instead of accepting it as a constructor argument. Marking a field <code>field(init=False)</code> tells the dataclass "don't expect this in the constructor call -- something else will set it."</p>
+    instructions: `<p>A blockchain is a list of <strong>blocks</strong>, each bundling data with a few pieces of bookkeeping: <code>index</code>, <code>timestamp</code>, <code>data</code>, and <code>previous_hash</code> (the hash of the block before it, the actual link in the chain, as you'll see next challenge). Each block also carries its own <code>hash</code>, computed from its other fields rather than passed in. Otherwise nothing would stop you from attaching any hash you like to any data you like.</p>
+<p>Recall <code>__post_init__</code> from Level 4: it runs right after a dataclass's normal <code>__init__</code>, the right place to compute a field from the others instead of accepting it as a constructor argument. Marking a field <code>field(init=False)</code> tells the dataclass "don't expect this in the constructor call; something else will set it."</p>
 <div class="example-block">
   <span class="example-label">Quick Example</span>
   <pre><code>@dataclass
@@ -128,7 +128,7 @@ print(r.stamp)  # Output: an 8-char hash computed from item+price, not passed in
 </div>
 <div class="note-block">
   <span class="note-label">Note</span>
-  <span>A field(init=False) still needs to come after fields without defaults in the dataclass -- ordering rules don't disappear just because init=False skips the constructor.</span>
+  <span>A field(init=False) still needs to come after fields without defaults in the dataclass. Ordering rules don't disappear just because init=False skips the constructor.</span>
 </div>
 <span class="task-label">Your Task</span>
 <p class="task-line">Define a <code>Block</code> dataclass with fields <code>index: int</code>, <code>timestamp: str</code>, <code>data: str</code>, <code>previous_hash: str</code>, and <code>hash: str = field(init=False)</code>. Give it a method <code>compute_hash(self)</code> that joins <code>index</code>, <code>timestamp</code>, <code>data</code>, and <code>previous_hash</code> into one string and returns its SHA-256 hex digest. In <code>__post_init__</code>, set <code>self.hash</code> by calling <code>self.compute_hash()</code>.</p>
@@ -138,7 +138,7 @@ print(r.stamp)  # Output: an 8-char hash computed from item+price, not passed in
   <div class="io-row"><span class="io-key">Output</span><code class="io-val">a Block whose .hash equals .compute_hash()</code></div>
 </div>`,
     hints: [
-      "hash: str = field(init=False) -- goes after the other fields since it has no default value passed in",
+      "hash: str = field(init=False), goes after the other fields since it has no default value passed in",
       "def compute_hash(self): return hashlib.sha256(f\"{self.index}{self.timestamp}{self.data}{self.previous_hash}\".encode()).hexdigest()",
       "def __post_init__(self): self.hash = self.compute_hash()"
     ],
@@ -157,7 +157,7 @@ print(r.stamp)  # Output: an 8-char hash computed from item+price, not passed in
         { code: "b1 = Block(index=0, timestamp='2026-01-01T00:00:00', data='Genesis Block', previous_hash='0')\nb2 = Block(index=0, timestamp='2026-01-01T00:00:00', data='Genesis Block', previous_hash='0')\nassert b1.hash == b2.hash", message: "Two blocks built from identical fields should produce identical hashes." }
       ]
     },
-    explanation: `<p>Because the hash is always recomputed from the block's own fields rather than trusted at face value, a Block can never lie about its own hash -- anyone holding the block can verify it themselves in one line. That self-checking property is what the next few challenges build into an entire chain.</p>`
+    explanation: `<p>Because the hash is always recomputed from the block's own fields rather than trusted at face value, a Block can never lie about its own hash. Anyone holding the block can verify it themselves in one line. That self-checking property is what the next few challenges build into an entire chain.</p>`
   },
   {
     id: 203,
@@ -166,7 +166,7 @@ print(r.stamp)  # Output: an 8-char hash computed from item+price, not passed in
     topic: "Block Structure",
     level: 5,
     xp: 20,
-    instructions: `<p>The "chain" in blockchain comes from what <code>previous_hash</code> does: each new block stores the previous block's hash inside itself. That single link turns a list of independent blocks into a chain -- to change any block, you'd also have to change every block's <code>previous_hash</code> that comes after it, which (as you'll see soon with proof of work) is deliberately made expensive.</p>
+    instructions: `<p>The "chain" in blockchain comes from what <code>previous_hash</code> does: each new block stores the previous block's hash inside itself. That single link turns a list of independent blocks into a chain: to change any block, you'd also have to change every block's <code>previous_hash</code> that comes after it, which (as you'll see soon with proof of work) is deliberately made expensive.</p>
 <p>Every chain starts with a <strong>genesis block</strong>: block 0, with no real predecessor, so its <code>previous_hash</code> is conventionally set to <code>"0"</code>. Every block after that points back to the one before it.</p>
 <p class="blueprint-line"><code>build_chain(entries) -> [Block, Block, ...]</code></p>
 <div class="example-block">
@@ -174,7 +174,7 @@ print(r.stamp)  # Output: an 8-char hash computed from item+price, not passed in
   <pre><code>chain = [Block(index=0, timestamp="t0", data="Genesis Block", previous_hash="0")]
 next_block = Block(index=1, timestamp="t1", data="entry", previous_hash=chain[-1].hash)
 print(next_block.previous_hash == chain[0].hash)
-# Output: True -- each new block links to the one before it</code></pre>
+# Output: True (each new block links to the one before it)</code></pre>
 </div>
 <span class="task-label">Your Task</span>
 <p class="task-line">Write <code>build_chain(entries)</code>, which takes a list of data strings and returns a list of <code>Block</code>s: a genesis block first (<code>index=0</code>, <code>data="Genesis Block"</code>, <code>previous_hash="0"</code>), then one block per entry in <code>entries</code>, each linked to the block before it via <code>previous_hash</code>. Use <code>timestamp=f"2026-01-01T00:0{i}:00"</code> for each block's timestamp, where <code>i</code> is that block's index.</p>
@@ -186,7 +186,7 @@ print(next_block.previous_hash == chain[0].hash)
     hints: [
       "Start the list with the genesis block: chain = [Block(index=0, timestamp=\"2026-01-01T00:00:00\", data=\"Genesis Block\", previous_hash=\"0\")]",
       "Loop with enumerate(entries, start=1) to get both the index and the data",
-      "Each new block's previous_hash is chain[-1].hash -- the hash of the block you just appended"
+      "Each new block's previous_hash is chain[-1].hash, the hash of the block you just appended"
     ],
     starterCode: "from dataclasses import dataclass, field\nimport hashlib\n\n@dataclass\nclass Block:\n    index: int\n    timestamp: str\n    data: str\n    previous_hash: str\n    hash: str = field(init=False)\n\n    def __post_init__(self):\n        self.hash = self.compute_hash()\n\n    def compute_hash(self):\n        contents = f\"{self.index}{self.timestamp}{self.data}{self.previous_hash}\"\n        return hashlib.sha256(contents.encode()).hexdigest()\n\n\ndef build_chain(entries):\n    # Start with the genesis block, then append one linked block per entry\n    pass\n",
     solution: "from dataclasses import dataclass, field\nimport hashlib\n\n@dataclass\nclass Block:\n    index: int\n    timestamp: str\n    data: str\n    previous_hash: str\n    hash: str = field(init=False)\n\n    def __post_init__(self):\n        self.hash = self.compute_hash()\n\n    def compute_hash(self):\n        contents = f\"{self.index}{self.timestamp}{self.data}{self.previous_hash}\"\n        return hashlib.sha256(contents.encode()).hexdigest()\n\n\ndef build_chain(entries):\n    chain = [Block(index=0, timestamp=\"2026-01-01T00:00:00\", data=\"Genesis Block\", previous_hash=\"0\")]\n    for i, entry in enumerate(entries, start=1):\n        prev = chain[-1]\n        chain.append(Block(index=i, timestamp=f\"2026-01-01T00:0{i}:00\", data=entry, previous_hash=prev.hash))\n    return chain",
@@ -202,7 +202,7 @@ print(next_block.previous_hash == chain[0].hash)
         { code: "chain = build_chain(['Pay Alice 10 coins', 'Pay Bob 5 coins'])\nassert chain[1].previous_hash == chain[0].hash\nassert chain[2].previous_hash == chain[1].hash", message: "Each block's previous_hash should equal the previous block's hash." }
       ]
     },
-    explanation: `<p>You now have an actual chain -- a sequence of blocks where each one cryptographically references the one before it. The next challenge puts this to work: writing the function that walks the chain and confirms none of those links have been broken.</p>`
+    explanation: `<p>You now have an actual chain: a sequence of blocks where each one cryptographically references the one before it. The next challenge puts this to work: writing the function that walks the chain and confirms none of those links have been broken.</p>`
   },
   {
     id: 204,
@@ -212,13 +212,13 @@ print(next_block.previous_hash == chain[0].hash)
     level: 5,
     xp: 20,
     instructions: `<p>Validating a chain means checking two things for every block: does its stored <code>hash</code> still match what <code>compute_hash()</code> gives right now, and does its <code>previous_hash</code> still match the actual hash of the block before it?</p>
-<p>Editing a block's <code>data</code> directly breaks the first check immediately for that block. Even patching the stored hash too doesn't help -- the second check still catches it, since the next block's <code>previous_hash</code> now points to a hash that no longer exists in the chain.</p>
+<p>Editing a block's <code>data</code> directly breaks the first check immediately for that block. Even patching the stored hash too doesn't help. The second check still catches it, since the next block's <code>previous_hash</code> now points to a hash that no longer exists in the chain.</p>
 <div class="example-block">
   <span class="example-label">Quick Example</span>
   <pre><code>block = Block(index=1, timestamp="t1", data="entry", previous_hash="abc")
 block.data = "tampered"  # edited directly, hash not recomputed
 print(block.hash == block.compute_hash())
-# Output: False -- the stored hash no longer matches</code></pre>
+# Output: False (the stored hash no longer matches)</code></pre>
 </div>
 <span class="task-label">Your Task</span>
 <p class="task-line">Write <code>is_chain_valid(chain)</code>, which returns <code>True</code> if every block's hash matches its own recomputed hash <em>and</em> every block's <code>previous_hash</code> matches the previous block's hash (skip the previous-hash check for the genesis block, which has none), and <code>False</code> the moment either check fails anywhere in the chain.</p>
@@ -247,7 +247,7 @@ print(block.hash == block.compute_hash())
         { code: "chain = build_chain(['Pay Alice 10 coins'])\nassert is_chain_valid(chain) == True", message: "A chain with just a genesis block plus one entry should still validate." }
       ]
     },
-    explanation: `<p>This is the function every <strong>node</strong> in a real network runs to decide whether to trust a chain it received from someone else -- a node is just a computer running the blockchain's software; anyone can run one, and from here on this level talks about "nodes" doing things like validating, mining, or voting on blocks. It's also deliberately cheap to run -- checking a chain takes a few hash computations per block, which is why the next challenge's proof of work makes <em>creating</em> a valid block expensive instead, so that verifying stays fast while forging stays slow.</p>`
+    explanation: `<p>This is the function every <strong>node</strong> in a real network runs to decide whether to trust a chain it received from someone else: a node is just a computer running the blockchain's software; anyone can run one, and from here on this level talks about "nodes" doing things like validating, mining, or voting on blocks. It's also deliberately cheap to run: checking a chain takes a few hash computations per block, which is why the next challenge's proof of work makes <em>creating</em> a valid block expensive instead, so that verifying stays fast while forging stays slow.</p>`
   },
   {
     id: 205,
@@ -257,7 +257,7 @@ print(block.hash == block.compute_hash())
     topic: "Block Structure",
     level: 5,
     xp: 30,
-    instructions: `<p>This project reuses the two checks you wrote for <code>is_chain_valid</code> in Validating a Chain -- a block's own hash matching its recomputed hash, and its <code>previous_hash</code> matching the block before it. The only new twist is the loop shape: instead of returning on the first failure, you walk the entire chain and collect every failing index, so one broken block doesn't hide problems elsewhere in the same chain.</p>
+    instructions: `<p>This project reuses the two checks you wrote for <code>is_chain_valid</code> in Validating a Chain: a block's own hash matching its recomputed hash, and its <code>previous_hash</code> matching the block before it. The only new twist is the loop shape: instead of returning on the first failure, you walk the entire chain and collect every failing index, so one broken block doesn't hide problems elsewhere in the same chain.</p>
 <div class="example-block">
   <span class="example-label">Quick Example</span>
   <pre><code>bad = []
@@ -268,14 +268,14 @@ print(bad)
 # Output: every failing index, not just the first one found</code></pre>
 </div>
 <span class="task-label">Your Task</span>
-<p class="task-line">Write <code>find_tampered_blocks(chain)</code>, which returns a list of the <code>index</code> values of every block that fails either check from before (its own hash doesn't match its recomputed hash, or its <code>previous_hash</code> doesn't match the prior block's hash) -- checking every block rather than stopping at the first failure. Then, given <code>chain</code> (already built for you, with block 2's data silently edited after the fact), use your function to set <code>tampered_indexes</code>.</p>
+<p class="task-line">Write <code>find_tampered_blocks(chain)</code>, which returns a list of the <code>index</code> values of every block that fails either check from before (its own hash doesn't match its recomputed hash, or its <code>previous_hash</code> doesn't match the prior block's hash), checking every block rather than stopping at the first failure. Then, given <code>chain</code> (already built for you, with block 2's data silently edited after the fact), use your function to set <code>tampered_indexes</code>.</p>
 <div class="example-block">
   <span class="example-label">Example</span>
   <div class="io-row"><span class="io-key">Input</span><code class="io-val">a 4-block chain where only block 2's data was edited after creation</code></div>
   <div class="io-row"><span class="io-key">tampered_indexes</span><code class="io-val">[2]</code></div>
 </div>`,
     hints: [
-      "Loop over every block, don't return early -- collect every failing index instead",
+      "Loop over every block, don't return early; collect every failing index instead",
       "A block fails if block.hash != block.compute_hash()",
       "A block also fails if (for non-genesis blocks) previous_hash != chain[i-1].hash",
       "Use a list and .append(block.index) for each failure, avoiding duplicate entries for the same block"
@@ -292,7 +292,7 @@ print(bad)
         { code: "clean_chain = build_chain(['Pay Alice 10 coins', 'Pay Bob 5 coins'])\nassert find_tampered_blocks(clean_chain) == []", message: "An untouched chain should report no tampered blocks." }
       ]
     },
-    explanation: `<p>Editing <code>chain[2].data</code> directly, the way this project does, is exactly what an attacker would try -- reach into the data structure and change a value in place. It doesn't work, not because Python stops you (it doesn't), but because the block's own stored hash instantly stops matching what its fields now hash to. The block is now visibly lying about itself, and <code>find_tampered_blocks</code> catches the lie precisely.</p>`
+    explanation: `<p>Editing <code>chain[2].data</code> directly, the way this project does, is exactly what an attacker would try: reach into the data structure and change a value in place. It doesn't work, not because Python stops you (it doesn't), but because the block's own stored hash instantly stops matching what its fields now hash to. The block is now visibly lying about itself, and <code>find_tampered_blocks</code> catches the lie precisely.</p>`
   },
   {
     id: 206,
@@ -301,15 +301,15 @@ print(bad)
     topic: "Merkle Trees",
     level: 5,
     xp: 25,
-    instructions: `<p>A block holds a whole batch of transactions, not one string. A <strong>Merkle tree</strong> gives that batch a single fingerprint without hashing it all as one blob: hash every transaction individually (the "leaves"), then repeatedly pair up and hash the hashes -- each round halving the count -- until exactly one hash remains, the <strong>Merkle root</strong>.</p>
-<p>Because every round only combines existing hashes, changing one transaction changes its leaf hash, then its pair's hash, all the way up to the root -- one root catches a change anywhere in the batch, exactly like <code>previous_hash</code> did for the chain, just one level deeper. If a round has an odd count of hashes, the standard fix (used by Bitcoin) is to duplicate the last hash so it can pair with itself.</p>
+    instructions: `<p>A block holds a whole batch of transactions, not one string. A <strong>Merkle tree</strong> gives that batch a single fingerprint without hashing it all as one blob: hash every transaction individually (the "leaves"), then repeatedly pair up and hash the hashes (each round halving the count) until exactly one hash remains, the <strong>Merkle root</strong>.</p>
+<p>Because every round only combines existing hashes, changing one transaction changes its leaf hash, then its pair's hash, all the way up to the root: one root catches a change anywhere in the batch, exactly like <code>previous_hash</code> did for the chain, just one level deeper. If a round has an odd count of hashes, the standard fix (used by Bitcoin) is to duplicate the last hash so it can pair with itself.</p>
 <p class="blueprint-line"><code>compute_merkle_root(transactions) -> root_hash</code></p>
 <div class="example-block">
   <span class="example-label">Quick Example</span>
   <pre><code>leaves = [hashlib.sha256(t.encode()).hexdigest() for t in ["a", "b"]]
 root = hashlib.sha256((leaves[0] + leaves[1]).encode()).hexdigest()
 print(len(root))
-# Output: 64 -- one hash now represents both original transactions</code></pre>
+# Output: 64 (one hash now represents both original transactions)</code></pre>
 </div>
 <span class="task-label">Your Task</span>
 <p class="task-line">Write <code>compute_merkle_root(transactions)</code>, which takes a list of transaction strings and returns the Merkle root: hash each transaction, then repeatedly hash pairs together (duplicating the last hash of a round if the count is odd) until only one hash remains.</p>
@@ -343,7 +343,7 @@ print(len(root))
         { code: "changed = compute_merkle_root(['Pay Alice 10 coins', 'Pay Bob 5 coins', 'Pay Carol 999 coins'])\nassert changed != merkle_root", message: "Changing any one transaction should change the Merkle root." }
       ]
     },
-    explanation: `<p>Notice the shape: this is the exact same "hash things, then hash the hashes" idea as <code>Block.compute_hash</code>, just applied repeatedly in rounds instead of once. That's what makes it efficient -- verifying a batch of a thousand transactions is still just a handful of hash operations at the top of the tree, not a thousand-item comparison. The next project puts that efficiency to use: proving one specific transaction is in the batch without needing the other 999.</p>`
+    explanation: `<p>Notice the shape: this is the exact same "hash things, then hash the hashes" idea as <code>Block.compute_hash</code>, just applied repeatedly in rounds instead of once. That's what makes it efficient: verifying a batch of a thousand transactions is still just a handful of hash operations at the top of the tree, not a thousand-item comparison. The next project puts that efficiency to use: proving one specific transaction is in the batch without needing the other 999.</p>`
   },
   {
     id: 207,
@@ -353,19 +353,19 @@ print(len(root))
     topic: "Merkle Trees",
     level: 5,
     xp: 35,
-    instructions: `<p>This project builds on the round-by-round pairing from Merkle Trees' <code>compute_merkle_root</code>, but instead of collapsing everything down to one root, it tracks a single transaction's position through those same rounds -- recording just the one sibling hash needed at each level to reconstruct the root, instead of the entire batch.</p>
+    instructions: `<p>This project builds on the round-by-round pairing from Merkle Trees' <code>compute_merkle_root</code>, but instead of collapsing everything down to one root, it tracks a single transaction's position through those same rounds, recording just the one sibling hash needed at each level to reconstruct the root, instead of the entire batch.</p>
 <p class="blueprint-line"><code>build_merkle_proof(transactions, index) -> [(sibling_hash, side), ...]</code></p>
 <div class="example-block">
   <span class="example-label">Quick Example</span>
   <pre><code>a, b = "left-hash", "right-hash"
 print(hashlib.sha256((a + b).encode()).hexdigest()[:8])
 print(hashlib.sha256((b + a).encode()).hexdigest()[:8])
-# Output: two different prefixes -- concatenation order changes the hash</code></pre>
+# Output: two different prefixes (concatenation order changes the hash)</code></pre>
 </div>
 <p><strong>New pieces in this project</strong></p>
 <ul>
   <li><code>side</code>: which side ("left" or "right") a proof step's sibling sits on, so you concatenate it in the right order when replaying the proof.</li>
-  <li><code>index // 2</code>: halves your tracked position each round, mirroring how the hash list itself halves -- this is how you follow one transaction up to the root.</li>
+  <li><code>index // 2</code>: halves your tracked position each round, mirroring how the hash list itself halves. This is how you follow one transaction up to the root.</li>
 </ul>
 <span class="task-label">Your Task</span>
 <p class="task-line">Write two functions. <code>build_merkle_proof(transactions, index)</code> returns the proof for the transaction at <code>index</code>: a list of <code>(sibling_hash, side)</code> tuples, one per level, walking from the leaves up to the root (assume <code>len(transactions)</code> is a power of 2, so no duplicate-hash rule is needed here). <code>verify_merkle_proof(transaction, proof, root)</code> hashes <code>transaction</code>, then replays the proof step by step (combining with each sibling on the correct side and re-hashing) to see whether the result matches <code>root</code>.</p>
@@ -396,7 +396,7 @@ print(hashlib.sha256((b + a).encode()).hexdigest()[:8])
         { code: "for i in range(4):\n    p = build_merkle_proof(transactions, i)\n    assert verify_merkle_proof(transactions[i], p, root) == True", message: "Every transaction's own proof should verify successfully against the root." }
       ]
     },
-    explanation: `<p>This is exactly the mechanism that lets a lightweight wallet (one that doesn't store the entire blockchain) confirm a payment happened, by asking a full node for a Merkle proof instead of the whole block. The wallet only needs a few sibling hashes and the block's root -- not gigabytes of transaction history -- to be cryptographically confident the transaction is really there.</p>`
+    explanation: `<p>This is exactly the mechanism that lets a lightweight wallet (one that doesn't store the entire blockchain) confirm a payment happened, by asking a full node for a Merkle proof instead of the whole block. The wallet only needs a few sibling hashes and the block's root, not gigabytes of transaction history, to be cryptographically confident the transaction is really there.</p>`
   },
   {
     id: 208,
@@ -405,8 +405,8 @@ print(hashlib.sha256((b + a).encode()).hexdigest()[:8])
     topic: "Proof of Work",
     level: 5,
     xp: 30,
-    instructions: `<p>Proof of work makes producing a valid block computationally expensive, so rewriting history means redoing that work for every block after an edit. A block only counts once its hash meets a <strong>difficulty target</strong> -- conventionally, some number of leading zeros. Since a block's real fields don't naturally hash to that, you add a <strong>nonce</strong>: a number that contributes nothing meaningful to the block's content but changes the hash completely every time it changes (the avalanche effect again).</p>
-<p>"Mining" means trying <code>nonce = 0, 1, 2, ...</code> until the hash happens to start with enough zeros. There's no shortcut -- hashing is one-way, so there's no working backward from a wanted hash to the nonce that produces it. Each extra required zero multiplies the expected search by 16 (hex digits range over 16 values), which is the entire hard-to-find, trivial-to-check asymmetry that secures the system.</p>
+    instructions: `<p>Proof of work makes producing a valid block computationally expensive, so rewriting history means redoing that work for every block after an edit. A block only counts once its hash meets a <strong>difficulty target</strong>: conventionally, some number of leading zeros. Since a block's real fields don't naturally hash to that, you add a <strong>nonce</strong>: a number that contributes nothing meaningful to the block's content but changes the hash completely every time it changes (the avalanche effect again).</p>
+<p>"Mining" means trying <code>nonce = 0, 1, 2, ...</code> until the hash happens to start with enough zeros. There's no shortcut: hashing is one-way, so there's no working backward from a wanted hash to the nonce that produces it. Each extra required zero multiplies the expected search by 16 (hex digits range over 16 values), which is the entire hard-to-find, trivial-to-check asymmetry that secures the system.</p>
 <p class="blueprint-line"><code>mine_block(index, timestamp, data, previous_hash, difficulty) -> (nonce, hash)</code></p>
 <div class="example-block">
   <span class="example-label">Quick Example</span>
@@ -425,7 +425,7 @@ print(nonce)
 </div>
 <div class="note-block">
   <span class="note-label">Note</span>
-  <span>110,395 attempts sounds like a lot, but a computer runs through it in a fraction of a second. Real networks like Bitcoin use difficulty levels so high that the whole network, with enormous specialized hardware, still takes about 10 minutes per block -- that gap between "instant here" and "10 minutes at industrial scale" is exactly what makes real proof of work expensive to attack.</span>
+  <span>110,395 attempts sounds like a lot, but a computer runs through it in a fraction of a second. Real networks like Bitcoin use difficulty levels so high that the whole network, with enormous specialized hardware, still takes about 10 minutes per block. That gap between "instant here" and "10 minutes at industrial scale" is exactly what makes real proof of work expensive to attack.</span>
 </div>`,
     hints: [
       "compute_hash joins the five values into one f-string and hashes it, same pattern as Block.compute_hash but with nonce added",
@@ -448,7 +448,7 @@ print(nonce)
         { code: "assert mined_nonce == 110395", message: "Searching nonces from 0 upward for these exact inputs at difficulty 4 should land on nonce 110395." }
       ]
     },
-    explanation: `<p>Notice that <code>mine_block</code> is pure brute force -- try, check, increment, repeat -- with no cleverness possible because of the same one-way property that made hashing useful for tamper detection in the first place. That's not a limitation of this implementation; it's true of every proof-of-work system, including real ones. The next project wires this straight into the <code>Block</code> class, so building a chain now means actually mining every block, not just linking them.</p>`
+    explanation: `<p>Notice that <code>mine_block</code> is pure brute force (try, check, increment, repeat) with no cleverness possible because of the same one-way property that made hashing useful for tamper detection in the first place. That's not a limitation of this implementation; it's true of every proof-of-work system, including real ones. The next project wires this straight into the <code>Block</code> class, so building a chain now means actually mining every block, not just linking them.</p>`
   },
   {
     id: 209,
@@ -458,7 +458,7 @@ print(nonce)
     topic: "Proof of Work",
     level: 5,
     xp: 40,
-    instructions: `<p>This project combines the <code>Block</code> dataclass pattern from Block Structure (<code>field(init=False)</code> plus <code>__post_init__</code>) with the mining loop from Proof of Work. The only change: instead of computing its hash once, <code>__post_init__</code> now calls <code>self.mine()</code>, which searches nonces the same way <code>mine_block</code> did, and unpacks the result straight into two computed fields at once. Validating the chain also gains one more check beyond <code>is_chain_valid</code>: a block's hash must actually satisfy its difficulty target, not just match its own recomputed hash -- otherwise a block that was never mined at all could still "validate."</p>
+    instructions: `<p>This project combines the <code>Block</code> dataclass pattern from Block Structure (<code>field(init=False)</code> plus <code>__post_init__</code>) with the mining loop from Proof of Work. The only change: instead of computing its hash once, <code>__post_init__</code> now calls <code>self.mine()</code>, which searches nonces the same way <code>mine_block</code> did, and unpacks the result straight into two computed fields at once. Validating the chain also gains one more check beyond <code>is_chain_valid</code>: a block's hash must actually satisfy its difficulty target, not just match its own recomputed hash; otherwise a block that was never mined at all could still "validate."</p>
 <div class="example-block">
   <span class="example-label">Quick Example</span>
   <pre><code>def __post_init__(self):
@@ -495,7 +495,7 @@ print(nonce)
         { code: "chain[2].data = 'Pay Bob 500 coins'\nassert is_pow_chain_valid(chain) == False", message: "Editing a block's data after mining (without re-mining) should invalidate the chain." }
       ]
     },
-    explanation: `<p>This is a real, working (if tiny) proof-of-work blockchain -- every block on it was actually mined, not just linked. Notice what tampering now costs: changing <code>chain[2].data</code> doesn't just break one hash comparison anymore, it means block 2 would need to be re-mined from scratch (a real, unavoidable amount of computation) <em>and</em> every block after it re-mined too, since each one's <code>previous_hash</code> depends on the one before. That compounding cost, multiplied across an entire real network's history, is what makes rewriting an established blockchain practically infeasible.</p>`
+    explanation: `<p>This is a real, working (if tiny) proof-of-work blockchain: every block on it was actually mined, not just linked. Notice what tampering now costs: changing <code>chain[2].data</code> doesn't just break one hash comparison anymore, it means block 2 would need to be re-mined from scratch (a real, unavoidable amount of computation) <em>and</em> every block after it re-mined too, since each one's <code>previous_hash</code> depends on the one before. That compounding cost, multiplied across an entire real network's history, is what makes rewriting an established blockchain practically infeasible.</p>`
   },
   {
     id: 210,
@@ -504,19 +504,19 @@ print(nonce)
     topic: "Account State",
     level: 5,
     xp: 25,
-    instructions: `<p>Real blockchains track <strong>state</strong> -- who owns what -- and every transaction changes it. This level uses the <strong>account-based model</strong> (how Ethereum works): one dictionary mapping each address to its balance, like <code>{"Alice": 100, "Bob": 50}</code>.</p>
-<p>Applying a transaction means checking the sender can cover the amount and that the amount itself is positive, then moving the balance if both hold. If either check fails, the transaction is simply rejected -- the dictionary stays untouched.</p>
+    instructions: `<p>Real blockchains track <strong>state</strong> (who owns what), and every transaction changes it. This level uses the <strong>account-based model</strong> (how Ethereum works): one dictionary mapping each address to its balance, like <code>{"Alice": 100, "Bob": 50}</code>.</p>
+<p>Applying a transaction means checking the sender can cover the amount and that the amount itself is positive, then moving the balance if both hold. If either check fails, the transaction is simply rejected. The dictionary stays untouched.</p>
 <p class="blueprint-line"><code>apply_transaction(balances, sender, recipient, amount) -> bool</code></p>
 <div class="example-block">
   <span class="example-label">Quick Example</span>
   <pre><code>balances = {"Dave": 10}
 can_afford = balances.get("Dave", 0) >= 50
 print(can_afford)
-# Output: False -- Dave can't cover 50, so this transaction should be rejected</code></pre>
+# Output: False (Dave can't cover 50, so this transaction should be rejected)</code></pre>
 </div>
 <div class="note-block">
   <span class="note-label">Note</span>
-  <span>Always read balances with .get(address, 0), never balances[address] directly -- an address that's never sent or received anything isn't a KeyError, it's a balance of zero.</span>
+  <span>Always read balances with .get(address, 0), never balances[address] directly. An address that's never sent or received anything isn't a KeyError, it's a balance of zero.</span>
 </div>
 <span class="task-label">Your Task</span>
 <p class="task-line">Write <code>apply_transaction(balances, sender, recipient, amount)</code>. If <code>amount</code> is not positive, or the sender's balance (use <code>balances.get(sender, 0)</code> so a never-seen address reads as 0, not an error) is less than <code>amount</code>, leave <code>balances</code> unchanged and return <code>False</code>. Otherwise, subtract <code>amount</code> from the sender, add it to the recipient (again using <code>.get(recipient, 0)</code> in case the recipient is new), and return <code>True</code>.</p>
@@ -547,7 +547,7 @@ print(can_afford)
         { code: "assert balances == {'Alice': 70, 'Bob': 80}", message: "Only the one valid transaction should have changed the balances." }
       ]
     },
-    explanation: `<p>Notice that the two rejected transactions left <code>balances</code> completely untouched -- there's no partial transfer, no negative balance ever created. That all-or-nothing behavior is what makes a ledger trustworthy: every balance in it is always the honest result of only the transactions that were actually valid.</p>`
+    explanation: `<p>Notice that the two rejected transactions left <code>balances</code> completely untouched: there's no partial transfer, no negative balance ever created. That all-or-nothing behavior is what makes a ledger trustworthy: every balance in it is always the honest result of only the transactions that were actually valid.</p>`
   },
   {
     id: 211,
@@ -556,8 +556,8 @@ print(can_afford)
     topic: "Account State",
     level: 5,
     xp: 25,
-    instructions: `<p><code>apply_transaction</code> has a hole: nothing stops anyone from calling it and draining an account, since nothing checks the sender actually authorized it. Real blockchains close this with <strong>digital signatures</strong>: each account holds a secret key, and a transaction is only valid alongside a signature that could only have been produced with that secret. This secret key is effectively what a crypto "wallet" holds and uses -- wallet software is really just a keeper of this key, signing transactions with it on your behalf.</p>
-<p>Real systems use asymmetric cryptography for this (a private key that signs, a separate public key that verifies). This challenge simulates the same core idea more simply with <code>hmac</code>, a keyed hash where the same secret used to sign is also needed to verify -- forging a signature without that secret is just as infeasible as reversing a hash.</p>
+    instructions: `<p><code>apply_transaction</code> has a hole: nothing stops anyone from calling it and draining an account, since nothing checks the sender actually authorized it. Real blockchains close this with <strong>digital signatures</strong>: each account holds a secret key, and a transaction is only valid alongside a signature that could only have been produced with that secret. This secret key is effectively what a crypto "wallet" holds and uses. Wallet software is really just a keeper of this key, signing transactions with it on your behalf.</p>
+<p>Real systems use asymmetric cryptography for this (a private key that signs, a separate public key that verifies). This challenge simulates the same core idea more simply with <code>hmac</code>, a keyed hash where the same secret used to sign is also needed to verify. Forging a signature without that secret is just as infeasible as reversing a hash.</p>
 <ul>
   <li><strong>hmac.compare_digest:</strong> a constant-time string comparison, safe for checking secrets without leaking timing information.</li>
 </ul>
@@ -568,7 +568,7 @@ print(can_afford)
 sig_a = hmac.new(b"key-a", msg.encode(), hashlib.sha256).hexdigest()
 sig_b = hmac.new(b"key-b", msg.encode(), hashlib.sha256).hexdigest()
 print(hmac.compare_digest(sig_a, sig_b))
-# Output: False -- same message, different keys, unrelated signatures</code></pre>
+# Output: False (same message, different keys, unrelated signatures)</code></pre>
 </div>
 <span class="task-label">Your Task</span>
 <p class="task-line">Write <code>sign_transaction(sender, recipient, amount, private_key)</code>, which builds a message from the three transaction fields and returns <code>hmac.new(private_key.encode(), message.encode(), hashlib.sha256).hexdigest()</code>. Write <code>verify_signature(sender, recipient, amount, signature, private_key)</code>, which recomputes the expected signature the same way and returns whether it matches <code>signature</code> via <code>hmac.compare_digest</code>.</p>
@@ -599,7 +599,7 @@ print(hmac.compare_digest(sig_a, sig_b))
         { code: "assert len(signature) == 64", message: "An HMAC-SHA256 signature, like a plain SHA-256 hash, is a 64-character hex string." }
       ]
     },
-    explanation: `<p><code>wrong_key</code> and <code>tampered_amount</code> failing for two different reasons is the whole point: a signature is tied to <em>both</em> the exact secret that made it <em>and</em> the exact data it was made over. Change either one -- steal someone's transaction and try to replay it with your own key, or take a legitimately signed transaction and quietly bump the amount -- and the signature no longer matches. Next up: wiring this into <code>apply_transaction</code> so unsigned or forged transactions never touch the ledger at all.</p>`
+    explanation: `<p><code>wrong_key</code> and <code>tampered_amount</code> failing for two different reasons is the whole point: a signature is tied to <em>both</em> the exact secret that made it <em>and</em> the exact data it was made over. Change either one (steal someone's transaction and try to replay it with your own key, or take a legitimately signed transaction and quietly bump the amount) and the signature no longer matches. Next up: wiring this into <code>apply_transaction</code> so unsigned or forged transactions never touch the ledger at all.</p>`
   },
   {
     id: 212,
@@ -609,9 +609,9 @@ print(hmac.compare_digest(sig_a, sig_b))
     topic: "Account State",
     level: 5,
     xp: 40,
-    instructions: `<p>This project combines <code>apply_transaction</code> from Account Balances & Transactions with <code>verify_signature</code> from Signing Transactions, processing a whole batch the way a real node would: check the signature first, and only if that passes, attempt the balance transfer. A transaction can fail for either reason, and a real ledger needs to say which. The "ledger" here is nothing more than the <code>balances</code> dict plus a running record of what happened to each transaction -- that's literally what a ledger is: a record of who has what, and why it changed.</p>
+    instructions: `<p>This project combines <code>apply_transaction</code> from Account Balances & Transactions with <code>verify_signature</code> from Signing Transactions, processing a whole batch the way a real node would: check the signature first, and only if that passes, attempt the balance transfer. A transaction can fail for either reason, and a real ledger needs to say which. The "ledger" here is nothing more than the <code>balances</code> dict plus a running record of what happened to each transaction. That's literally what a ledger is: a record of who has what, and why it changed.</p>
 <span class="task-label">Your Task</span>
-<p class="task-line">Write <code>process_ledger(balances, account_keys, transactions)</code>. <code>account_keys</code> maps each address to its secret key; each transaction in <code>transactions</code> is a dict with <code>"sender"</code>, <code>"recipient"</code>, <code>"amount"</code>, and <code>"signature"</code>. For every transaction, in order: look up the sender's key from <code>account_keys</code> (use <code>.get(sender, "")</code> in case the sender is unknown), and verify the signature. If it fails, append <code>"rejected: bad signature"</code> to a results list and move to the next transaction -- don't touch <code>balances</code>. If it passes, call <code>apply_transaction</code>; if that returns <code>False</code>, append <code>"rejected: insufficient funds"</code>. If both checks pass, append <code>"accepted"</code>. Return the results list. (<code>balances</code> is a dict, so your changes to it apply directly -- no need to return it too.)</p>
+<p class="task-line">Write <code>process_ledger(balances, account_keys, transactions)</code>. <code>account_keys</code> maps each address to its secret key; each transaction in <code>transactions</code> is a dict with <code>"sender"</code>, <code>"recipient"</code>, <code>"amount"</code>, and <code>"signature"</code>. For every transaction, in order: look up the sender's key from <code>account_keys</code> (use <code>.get(sender, "")</code> in case the sender is unknown), and verify the signature. If it fails, append <code>"rejected: bad signature"</code> to a results list and move to the next transaction. Don't touch <code>balances</code>. If it passes, call <code>apply_transaction</code>; if that returns <code>False</code>, append <code>"rejected: insufficient funds"</code>. If both checks pass, append <code>"accepted"</code>. Return the results list. (<code>balances</code> is a dict, so your changes to it apply directly; no need to return it too.)</p>
 <div class="example-block">
   <span class="example-label">Example</span>
   <div class="io-row"><span class="io-key">Input</span><code class="io-val">4 transactions: a valid transfer, one signed with the wrong key, one that overspends, and another valid transfer</code></div>
@@ -638,7 +638,7 @@ print(hmac.compare_digest(sig_a, sig_b))
         { code: "assert balances == {'Alice': 45, 'Bob': 80, 'Carol': 25}", message: "Only the two accepted transactions should have moved any balance." }
       ]
     },
-    explanation: `<p>Bob's transaction to Carol failed for a security reason (wrong key), and Carol's transaction to Alice failed for an economic reason (no funds) -- two completely different kinds of invalid, and your ledger caught both without letting either one touch the balances. This two-layer check -- "is it authorized?" then "is it affordable?" -- is exactly what every real account-based blockchain does before it lets a transaction into a block at all.</p>`
+    explanation: `<p>Bob's transaction to Carol failed for a security reason (wrong key), and Carol's transaction to Alice failed for an economic reason (no funds): two completely different kinds of invalid, and your ledger caught both without letting either one touch the balances. This two-layer check ("is it authorized?" then "is it affordable?") is exactly what every real account-based blockchain does before it lets a transaction into a block at all.</p>`
   },
   {
     id: 213,
@@ -647,7 +647,7 @@ print(hmac.compare_digest(sig_a, sig_b))
     topic: "Proof of Stake",
     level: 5,
     xp: 25,
-    instructions: `<p>Proof of work earns the right to propose a block by burning computation. <strong>Proof of stake</strong> asks a different question instead: validators put up a <strong>stake</strong> -- coins committed to the network -- and the next proposer is chosen randomly, weighted so a bigger stake means a proportionally better chance of being picked. No mining, no wasted computation, no difficulty target.</p>
+    instructions: `<p>Proof of work earns the right to propose a block by burning computation. <strong>Proof of stake</strong> asks a different question instead: validators put up a <strong>stake</strong> (coins committed to the network), and the next proposer is chosen randomly, weighted so a bigger stake means a proportionally better chance of being picked. No mining, no wasted computation, no difficulty target.</p>
 <p>Think of stake as buying raffle tickets: a validator with 50 staked holds 5 times as many tickets as one with 10 staked, so they're 5 times as likely to win a given round, though a small validator can still occasionally win. <code>random.choices(population, weights=...)</code> runs this raffle directly, without you writing the weighting logic by hand.</p>
 <p class="blueprint-line"><code>random.choices(population, weights=weights, k=1)</code></p>
 <div class="example-block">
@@ -662,11 +662,11 @@ print(picks[0])
 <div class="example-block">
   <span class="example-label">Example</span>
   <div class="io-row"><span class="io-key">Input</span><code class="io-val">stakes = {"Alice": 50, "Bob": 30, "Carol": 20}</code></div>
-  <div class="io-row"><span class="io-key">select_validator(stakes)</span><code class="io-val">one of "Alice", "Bob", or "Carol" -- Alice is picked roughly half the time over many calls, since her stake is half the total</code></div>
+  <div class="io-row"><span class="io-key">select_validator(stakes)</span><code class="io-val">one of "Alice", "Bob", or "Carol": Alice is picked roughly half the time over many calls, since her stake is half the total</code></div>
 </div>
 <div class="note-block">
   <span class="note-label">Note</span>
-  <span>random.choices() always returns a list (so it can pick several items at once with the k argument) -- with k=1 you still get a one-item list back, so grab [0] to get the name itself.</span>
+  <span>random.choices() always returns a list (so it can pick several items at once with the k argument); with k=1 you still get a one-item list back, so grab [0] to get the name itself.</span>
 </div>`,
     hints: [
       "validators = list(stakes.keys())",
@@ -688,7 +688,7 @@ print(picks[0])
         { code: "assert selected == 'Bob'", message: "With this challenge's fixed random seed, selecting from these exact stakes should land on 'Bob'." }
       ]
     },
-    explanation: `<p>A single call like this doesn't prove much on its own -- Bob winning once doesn't mean the weighting is working, since even a fair coin comes up heads sometimes. The next project runs this hundreds of times and checks the pattern that emerges, which is really where "weighted by stake" becomes visible.</p>`
+    explanation: `<p>A single call like this doesn't prove much on its own. Bob winning once doesn't mean the weighting is working, since even a fair coin comes up heads sometimes. The next project runs this hundreds of times and checks the pattern that emerges, which is really where "weighted by stake" becomes visible.</p>`
   },
   {
     id: 214,
@@ -698,13 +698,13 @@ print(picks[0])
     topic: "Proof of Stake",
     level: 5,
     xp: 30,
-    instructions: `<p>One weighted pick from <code>select_validator</code> doesn't tell you much -- to actually see proof of stake favoring bigger stakes, you need to call it many times and look at the overall pattern, the same way you'd flip a weighted coin a thousand times to notice it isn't fair rather than trusting a single flip. This project runs that repeated simulation and tallies who got picked each round.</p>
+    instructions: `<p>One weighted pick from <code>select_validator</code> doesn't tell you much: to actually see proof of stake favoring bigger stakes, you need to call it many times and look at the overall pattern, the same way you'd flip a weighted coin a thousand times to notice it isn't fair rather than trusting a single flip. This project runs that repeated simulation and tallies who got picked each round.</p>
 <span class="task-label">Your Task</span>
-<p class="task-line">Write <code>simulate_rounds(stakes, rounds)</code>, which calls <code>select_validator(stakes)</code> once per round for <code>rounds</code> rounds, and returns a dict mapping each validator who won at least one round to how many rounds they won (a <code>collections.Counter</code> works well here -- it's a dict that treats a missing key as <code>0</code> automatically, so <code>tally[winner] += 1</code> just works even the first time you see that winner -- and can be converted to a plain dict with <code>dict(...)</code> at the end). Then, given <code>stakes</code> and a tally from 1000 rounds, find <code>most_selected</code>: the validator with the highest count in the tally.</p>
+<p class="task-line">Write <code>simulate_rounds(stakes, rounds)</code>, which calls <code>select_validator(stakes)</code> once per round for <code>rounds</code> rounds, and returns a dict mapping each validator who won at least one round to how many rounds they won (a <code>collections.Counter</code> works well here, it's a dict that treats a missing key as <code>0</code> automatically, so <code>tally[winner] += 1</code> just works even the first time you see that winner, and can be converted to a plain dict with <code>dict(...)</code> at the end). Then, given <code>stakes</code> and a tally from 1000 rounds, find <code>most_selected</code>: the validator with the highest count in the tally.</p>
 <div class="example-block">
   <span class="example-label">Example</span>
   <div class="io-row"><span class="io-key">Input</span><code class="io-val">stakes = {"Alice": 500, "Bob": 300, "Carol": 200}<br>tally = simulate_rounds(stakes, 1000)</code></div>
-  <div class="io-row"><span class="io-key">most_selected</span><code class="io-val">"Alice" -- Alice holds half the total stake, so across 1000 rounds she should win noticeably more often than Bob or Carol</code></div>
+  <div class="io-row"><span class="io-key">most_selected</span><code class="io-val">"Alice": Alice holds half the total stake, so across 1000 rounds she should win noticeably more often than Bob or Carol</code></div>
 </div>`,
     hints: [
       "from collections import Counter",
@@ -726,7 +726,7 @@ print(picks[0])
         { code: "assert set(tally.keys()) <= {'Alice', 'Bob', 'Carol'}", message: "Every winner in the tally should be one of the three staked validators." }
       ]
     },
-    explanation: `<p>Run this simulation again with Carol's stake bumped up to something huge, and you'd watch <code>most_selected</code> flip to her -- the mechanism doesn't care about identity, only stake. That's both the appeal of proof of stake (no wasted energy, proportional to real economic commitment) and its most-discussed criticism: validators who already hold the most tend to get selected the most, which compounds their advantage over time in a way proof of work's brute-force competition doesn't.</p>`
+    explanation: `<p>Run this simulation again with Carol's stake bumped up to something huge, and you'd watch <code>most_selected</code> flip to her: the mechanism doesn't care about identity, only stake. That's both the appeal of proof of stake (no wasted energy, proportional to real economic commitment) and its most-discussed criticism: validators who already hold the most tend to get selected the most, which compounds their advantage over time in a way proof of work's brute-force competition doesn't.</p>`
   },
   {
     id: 215,
@@ -735,19 +735,19 @@ print(picks[0])
     topic: "Byzantine Fault Tolerance",
     level: 5,
     xp: 30,
-    instructions: `<p>Proof of work and proof of stake both pick a single winner to propose the next block. A third consensus family -- used by systems like practical Byzantine Fault Tolerance (PBFT) -- has a known, fixed committee of nodes <strong>vote</strong> on a proposed block, which only commits if enough of them agree.</p>
-<p>"Enough" means more than <strong>two-thirds</strong> of the committee, not a plain majority -- that minimum bar is called a <strong>quorum</strong>. The name comes from the "Byzantine Generals Problem": some nodes might lie or vote inconsistently, and a two-thirds threshold (rather than 50%-plus-one) is what still lets an honest majority reach correct agreement despite that.</p>
+    instructions: `<p>Proof of work and proof of stake both pick a single winner to propose the next block. A third consensus family, used by systems like practical Byzantine Fault Tolerance (PBFT), has a known, fixed committee of nodes <strong>vote</strong> on a proposed block, which only commits if enough of them agree.</p>
+<p>"Enough" means more than <strong>two-thirds</strong> of the committee, not a plain majority: that minimum bar is called a <strong>quorum</strong>. The name comes from the "Byzantine Generals Problem": some nodes might lie or vote inconsistently, and a two-thirds threshold (rather than 50%-plus-one) is what still lets an honest majority reach correct agreement despite that.</p>
 <p class="blueprint-line"><code>has_quorum(accept_count, total_nodes) -> bool</code></p>
 <div class="example-block">
   <span class="example-label">Quick Example</span>
   <pre><code>accept_count, total_nodes = 3, 4
 cleared = accept_count * 3 > total_nodes * 2
 print(cleared)
-# Output: True -- 3 of 4 votes is more than two-thirds</code></pre>
+# Output: True (3 of 4 votes is more than two-thirds)</code></pre>
 </div>
 <div class="note-block">
   <span class="note-label">Note</span>
-  <span>Never test "more than two-thirds" with floating-point division (accept_count / total_nodes > 2/3) -- rounding can put a vote count on the wrong side of the boundary. Cross-multiply instead (accept_count * 3 > total_nodes * 2) for an exact whole-number comparison.</span>
+  <span>Never test "more than two-thirds" with floating-point division (accept_count / total_nodes > 2/3). Rounding can put a vote count on the wrong side of the boundary. Cross-multiply instead (accept_count * 3 > total_nodes * 2) for an exact whole-number comparison.</span>
 </div>
 <span class="task-label">Your Task</span>
 <p class="task-line">Write <code>count_accepts(votes)</code>, which takes a list of vote strings (each either <code>"accept"</code> or <code>"reject"</code>) and returns how many are <code>"accept"</code>. Write <code>has_quorum(accept_count, total_nodes)</code>, which returns whether <code>accept_count</code> is strictly more than two-thirds of <code>total_nodes</code>, computed with whole-number cross-multiplication rather than division.</p>
@@ -755,12 +755,12 @@ print(cleared)
   <span class="example-label">Example</span>
   <div class="io-row"><span class="io-key">Input</span><code class="io-val">votes = ["accept", "accept", "accept", "accept", "accept", "reject", "reject"]</code></div>
   <div class="io-row"><span class="io-key">accept_count</span><code class="io-val">5</code></div>
-  <div class="io-row"><span class="io-key">block_accepted</span><code class="io-val">True -- 5 out of 7 clears the two-thirds bar</code></div>
+  <div class="io-row"><span class="io-key">block_accepted</span><code class="io-val">True: 5 out of 7 clears the two-thirds bar</code></div>
 </div>`,
     hints: [
       "votes.count(\"accept\") counts matching items in a list directly",
       "has_quorum should return accept_count * 3 > total_nodes * 2",
-      "Don't write accept_count / total_nodes > 2/3 -- that's the floating-point version this challenge is asking you to avoid"
+      "Don't write accept_count / total_nodes > 2/3; that's the floating-point version this challenge is asking you to avoid"
     ],
     starterCode: "def count_accepts(votes):\n    # Count how many entries in votes are \"accept\"\n    pass\n\n\ndef has_quorum(accept_count, total_nodes):\n    # Return whether accept_count is strictly more than two-thirds of total_nodes\n    pass\n\n\nvotes = [\"accept\", \"accept\", \"accept\", \"accept\", \"accept\", \"reject\", \"reject\"]\naccept_count = count_accepts(votes)\nblock_accepted = has_quorum(accept_count, len(votes))\n",
     solution: "def count_accepts(votes):\n    return votes.count(\"accept\")\n\n\ndef has_quorum(accept_count, total_nodes):\n    return accept_count * 3 > total_nodes * 2\n\n\nvotes = [\"accept\", \"accept\", \"accept\", \"accept\", \"accept\", \"reject\", \"reject\"]\naccept_count = count_accepts(votes)\nblock_accepted = has_quorum(accept_count, len(votes))",
@@ -778,7 +778,7 @@ print(cleared)
         { code: "assert has_quorum(2, 4) == False", message: "2 out of 4 (exactly half) is not more than two-thirds." }
       ]
     },
-    explanation: `<p><code>has_quorum(4, 7)</code> being <code>False</code> right next to <code>has_quorum(5, 7)</code> being <code>True</code> is the whole threshold living right on that boundary -- there's no partial credit at two-thirds, either a proposal clears it or it doesn't. The next project shows exactly why that specific line, and not a plain 50%-plus-one majority, is what protects the system from a minority of dishonest nodes.</p>`
+    explanation: `<p><code>has_quorum(4, 7)</code> being <code>False</code> right next to <code>has_quorum(5, 7)</code> being <code>True</code> is the whole threshold living right on that boundary: there's no partial credit at two-thirds, either a proposal clears it or it doesn't. The next project shows exactly why that specific line, and not a plain 50%-plus-one majority, is what protects the system from a minority of dishonest nodes.</p>`
   },
   {
     id: 216,
@@ -794,8 +794,8 @@ print(cleared)
 <div class="example-block">
   <span class="example-label">Example</span>
   <div class="io-row"><span class="io-key">Input</span><code class="io-val">committee_size = 7</code></div>
-  <div class="io-row"><span class="io-key">consensus_at_2</span><code class="io-val">True -- 5 honest votes out of 7 clears two-thirds</code></div>
-  <div class="io-row"><span class="io-key">consensus_at_3</span><code class="io-val">False -- only 4 honest votes out of 7, just short</code></div>
+  <div class="io-row"><span class="io-key">consensus_at_2</span><code class="io-val">True: 5 honest votes out of 7 clears two-thirds</code></div>
+  <div class="io-row"><span class="io-key">consensus_at_3</span><code class="io-val">False: only 4 honest votes out of 7, just short</code></div>
 </div>`,
     hints: [
       "honest_count = total_nodes - byzantine_count",
@@ -803,7 +803,7 @@ print(cleared)
       "return has_quorum(accept_count, total_nodes)",
       "committee_size = 7; consensus_at_2 = simulate_consensus(committee_size, 2); consensus_at_3 = simulate_consensus(committee_size, 3)"
     ],
-    starterCode: "def has_quorum(accept_count, total_nodes):\n    return accept_count * 3 > total_nodes * 2\n\n\ndef simulate_consensus(total_nodes, byzantine_count):\n    # Honest nodes vote accept, Byzantine nodes vote reject -- does the block still reach quorum?\n    pass\n\n\ncommittee_size = 7\nconsensus_at_2 = simulate_consensus(committee_size, 2)\nconsensus_at_3 = simulate_consensus(committee_size, 3)\n",
+    starterCode: "def has_quorum(accept_count, total_nodes):\n    return accept_count * 3 > total_nodes * 2\n\n\ndef simulate_consensus(total_nodes, byzantine_count):\n    # Honest nodes vote accept, Byzantine nodes vote reject. Does the block still reach quorum?\n    pass\n\n\ncommittee_size = 7\nconsensus_at_2 = simulate_consensus(committee_size, 2)\nconsensus_at_3 = simulate_consensus(committee_size, 3)\n",
     solution: "def has_quorum(accept_count, total_nodes):\n    return accept_count * 3 > total_nodes * 2\n\n\ndef simulate_consensus(total_nodes, byzantine_count):\n    honest_count = total_nodes - byzantine_count\n    accept_count = honest_count\n    return has_quorum(accept_count, total_nodes)\n\n\ncommittee_size = 7\nconsensus_at_2 = simulate_consensus(committee_size, 2)\nconsensus_at_3 = simulate_consensus(committee_size, 3)",
     validation: {
       checks: [
@@ -813,12 +813,12 @@ print(cleared)
       ],
       pyTests: [
         { code: "assert consensus_at_2 == True", message: "With 2 Byzantine nodes out of 7, the 5 honest votes should still reach quorum." },
-        { code: "assert consensus_at_3 == False", message: "With 3 Byzantine nodes out of 7, only 4 honest votes remain -- not enough to reach quorum." },
+        { code: "assert consensus_at_3 == False", message: "With 3 Byzantine nodes out of 7, only 4 honest votes remain, not enough to reach quorum." },
         { code: "assert simulate_consensus(4, 1) == True", message: "A smaller committee of 4 should tolerate 1 Byzantine node (3 honest votes clears quorum)." },
         { code: "assert simulate_consensus(4, 2) == False", message: "The same committee of 4 should not tolerate 2 Byzantine nodes (only 2 honest votes, exactly half)." }
       ]
     },
-    explanation: `<p>Notice how narrowly <code>consensus_at_2</code> passes: 5 votes against a threshold of "more than 4.67." One more Byzantine node and it flips to <code>False</code>. That's not a coincidence -- it's the classical Byzantine fault tolerance result that a committee of size <code>3f + 1</code> can tolerate exactly <code>f</code> faulty nodes and no more, which is why real BFT systems are so specific about committee sizing: 7 nodes doesn't just happen to tolerate 2 faults, it's built to tolerate exactly 2 and not 3. Compare this to proof of work and proof of stake, which you've already built -- those defend against dishonesty by making cheating expensive (wasted computation) or costly (staked coins at risk); this family defends by requiring an honest supermajority to physically outvote any dishonest minority, which only works as long as that minority stays under a third.</p>`
+    explanation: `<p>Notice how narrowly <code>consensus_at_2</code> passes: 5 votes against a threshold of "more than 4.67." One more Byzantine node and it flips to <code>False</code>. That's not a coincidence. It's the classical Byzantine fault tolerance result that a committee of size <code>3f + 1</code> can tolerate exactly <code>f</code> faulty nodes and no more, which is why real BFT systems are so specific about committee sizing: 7 nodes doesn't just happen to tolerate 2 faults, it's built to tolerate exactly 2 and not 3. Compare this to proof of work and proof of stake, which you've already built: those defend against dishonesty by making cheating expensive (wasted computation) or costly (staked coins at risk); this family defends by requiring an honest supermajority to physically outvote any dishonest minority, which only works as long as that minority stays under a third.</p>`
   },
   {
     id: 217,
@@ -827,18 +827,18 @@ print(cleared)
     topic: "UTXO Model",
     level: 5,
     xp: 25,
-    instructions: `<p>The account model keeps one balance number per address. Bitcoin uses something different: the <strong>UTXO model</strong> (Unspent Transaction Output). There's no balances dictionary at all -- instead the ledger tracks a pile of individual "coins," each a UTXO owned by exactly one address and worth some fixed amount, sitting there until it's spent.</p>
-<p>Think of it like a wallet of physical bills rather than a bank balance: holding a $50 bill and a $30 bill, "how much do I have" means adding up what's in the wallet, not reading one stored number. Alice's "balance" isn't stored anywhere -- it's the sum of every UTXO that lists her as owner.</p>
+    instructions: `<p>The account model keeps one balance number per address. Bitcoin uses something different: the <strong>UTXO model</strong> (Unspent Transaction Output). There's no balances dictionary at all. Instead the ledger tracks a pile of individual "coins," each a UTXO owned by exactly one address and worth some fixed amount, sitting there until it's spent.</p>
+<p>Think of it like a wallet of physical bills rather than a bank balance: holding a $50 bill and a $30 bill, "how much do I have" means adding up what's in the wallet, not reading one stored number. Alice's "balance" isn't stored anywhere. It's the sum of every UTXO that lists her as owner.</p>
 <p class="blueprint-line"><code>get_balance(utxo_set, owner) -> int</code></p>
 <div class="example-block">
   <span class="example-label">Quick Example</span>
   <pre><code>utxo_set = {"tx-a": {"owner": "Dave", "amount": 15}, "tx-b": {"owner": "Dave", "amount": 5}}
 total = sum(u["amount"] for u in utxo_set.values() if u["owner"] == "Dave")
 print(total)
-# Output: 20 -- Dave's "balance" is just the sum of his individual UTXOs</code></pre>
+# Output: 20 (Dave's "balance" is just the sum of his individual UTXOs)</code></pre>
 </div>
 <span class="task-label">Your Task</span>
-<p class="task-line">A UTXO set is a dict mapping a unique ID to a UTXO -- each UTXO itself a dict with <code>"owner"</code> and <code>"amount"</code>. Write <code>get_balance(utxo_set, owner)</code>, which returns the sum of <code>"amount"</code> across every UTXO in <code>utxo_set</code> owned by <code>owner</code> (0 if they own none).</p>
+<p class="task-line">A UTXO set is a dict mapping a unique ID to a UTXO, each UTXO itself a dict with <code>"owner"</code> and <code>"amount"</code>. Write <code>get_balance(utxo_set, owner)</code>, which returns the sum of <code>"amount"</code> across every UTXO in <code>utxo_set</code> owned by <code>owner</code> (0 if they own none).</p>
 <div class="example-block">
   <span class="example-label">Example</span>
   <div class="io-row"><span class="io-key">Input</span><code class="io-val">utxo_set = {"tx0-0": {"owner": "Alice", "amount": 50}, "tx0-1": {"owner": "Alice", "amount": 30}, "tx0-2": {"owner": "Bob", "amount": 20}}</code></div>
@@ -864,7 +864,7 @@ print(total)
         { code: "assert carol_balance == 0", message: "Carol owns no UTXOs, so her balance should be 0." }
       ]
     },
-    explanation: `<p>This "sum up everything I own" pattern is the entire reason the model is called UTXO -- there's genuinely nothing to update when you check a balance, only something to add up. The real complexity shows up on the spending side: unlike an account balance, which you can decrement by any amount, a UTXO has to be spent as a whole unit. The next project shows what that actually requires.</p>`
+    explanation: `<p>This "sum up everything I own" pattern is the entire reason the model is called UTXO: there's genuinely nothing to update when you check a balance, only something to add up. The real complexity shows up on the spending side: unlike an account balance, which you can decrement by any amount, a UTXO has to be spent as a whole unit. The next project shows what that actually requires.</p>`
   },
   {
     id: 218,
@@ -874,21 +874,21 @@ print(total)
     topic: "UTXO Model",
     level: 5,
     xp: 40,
-    instructions: `<p>This project builds on the ownership-filtering pattern from the UTXO Model challenge's <code>get_balance</code>, but for spending rather than reading. Here's the catch the account model never had to deal with: you can't spend "part of" a UTXO. If Alice's only UTXO is worth 50 and she wants to send Bob 40, she can't hand over just a slice of it -- she has to consume the <em>entire</em> 50-coin UTXO as an input, send 40 of it to Bob as a new output, and get the leftover 10 back as a new UTXO of her own, called <strong>change</strong> (the same way paying for a $6 coffee with a $10 bill gets you $4 back, rather than the bill somehow becoming worth exactly $6). If one UTXO isn't enough to cover the amount, multiple UTXOs get consumed together as inputs until their combined total covers it.</p>
-<p>So a UTXO transaction always follows the same shape: pick existing UTXOs belonging to the sender that add up to at least the amount needed, delete all of them from the UTXO set, then create one new UTXO for the recipient and -- if the inputs added up to more than the amount -- one more new UTXO back to the sender for the change.</p>
+    instructions: `<p>This project builds on the ownership-filtering pattern from the UTXO Model challenge's <code>get_balance</code>, but for spending rather than reading. Here's the catch the account model never had to deal with: you can't spend "part of" a UTXO. If Alice's only UTXO is worth 50 and she wants to send Bob 40, she can't hand over just a slice of it: she has to consume the <em>entire</em> 50-coin UTXO as an input, send 40 of it to Bob as a new output, and get the leftover 10 back as a new UTXO of her own, called <strong>change</strong> (the same way paying for a $6 coffee with a $10 bill gets you $4 back, rather than the bill somehow becoming worth exactly $6). If one UTXO isn't enough to cover the amount, multiple UTXOs get consumed together as inputs until their combined total covers it.</p>
+<p>So a UTXO transaction always follows the same shape: pick existing UTXOs belonging to the sender that add up to at least the amount needed, delete all of them from the UTXO set, then create one new UTXO for the recipient and, if the inputs added up to more than the amount, one more new UTXO back to the sender for the change.</p>
 <div class="example-block">
   <span class="example-label">Quick Example</span>
   <pre><code>wallet = {"coin-1": 50, "coin-2": 30}
 del wallet["coin-1"]
 print(wallet)
-# Output: {'coin-2': 30} -- the spent entry is gone outright, not zeroed out</code></pre>
+# Output: {'coin-2': 30} (the spent entry is gone outright, not zeroed out)</code></pre>
 </div>
 <p><strong>New pieces in this project</strong></p>
 <ul>
-  <li><code>del utxo_set[some_id]</code>: removes that entry from the dict entirely -- a spent UTXO is gone for good, not just set to zero.</li>
+  <li><code>del utxo_set[some_id]</code>: removes that entry from the dict entirely. A spent UTXO is gone for good, not just set to zero.</li>
 </ul>
 <span class="task-label">Your Task</span>
-<p class="task-line">Write <code>select_utxos(utxo_set, owner, amount)</code>, which walks <code>owner</code>'s UTXOs and keeps collecting them (tracking a running total) until that total meets or exceeds <code>amount</code>, returning <code>(selected_ids, total)</code> -- the list of UTXO IDs collected, and their combined value (which may be less than <code>amount</code> if the owner didn't have enough). Then write <code>spend_utxos(utxo_set, owner, recipient, amount, next_id)</code>: use <code>select_utxos</code> to gather inputs; if the total is less than <code>amount</code>, leave <code>utxo_set</code> untouched and return <code>False</code>; otherwise delete every selected input from <code>utxo_set</code>, add a new UTXO for <code>recipient</code> worth <code>amount</code> at key <code>f"{next_id}-0"</code>, add a change UTXO back to <code>owner</code> at key <code>f"{next_id}-1"</code> if there's any leftover, and return <code>True</code>.</p>
+<p class="task-line">Write <code>select_utxos(utxo_set, owner, amount)</code>, which walks <code>owner</code>'s UTXOs and keeps collecting them (tracking a running total) until that total meets or exceeds <code>amount</code>, returning <code>(selected_ids, total)</code>: the list of UTXO IDs collected, and their combined value (which may be less than <code>amount</code> if the owner didn't have enough). Then write <code>spend_utxos(utxo_set, owner, recipient, amount, next_id)</code>: use <code>select_utxos</code> to gather inputs; if the total is less than <code>amount</code>, leave <code>utxo_set</code> untouched and return <code>False</code>; otherwise delete every selected input from <code>utxo_set</code>, add a new UTXO for <code>recipient</code> worth <code>amount</code> at key <code>f"{next_id}-0"</code>, add a change UTXO back to <code>owner</code> at key <code>f"{next_id}-1"</code> if there's any leftover, and return <code>True</code>.</p>
 <div class="example-block">
   <span class="example-label">Example</span>
   <div class="io-row"><span class="io-key">Input</span><code class="io-val">Alice owns UTXOs worth 50 and 30; spend_utxos(utxo_set, "Alice", "Bob", 40, "tx1")</code></div>
@@ -920,7 +920,7 @@ print(wallet)
         { code: "assert len(utxo_set) == 4", message: "After one successful spend, the set should have 4 UTXOs: Alice's untouched 30, Bob's untouched 20, Bob's new 40, and Alice's 10 change." }
       ]
     },
-    explanation: `<p>Compare this to <code>apply_transaction</code> from the account-state challenges: that was a single subtraction and a single addition on one dict. This took an entire input-selection step, a delete-everything-selected step, and up to two brand-new entries -- meaningfully more bookkeeping for the same basic "send money" operation. That's the real tradeoff between the two models: UTXO transactions are self-contained and easy to verify in isolation (everything a transaction needs is right there in its inputs), while account-based transactions are simpler to reason about but depend on a shared, constantly-mutating balance table. Neither model is strictly better; they're different answers to the same problem, and real systems have picked both.</p>`
+    explanation: `<p>Compare this to <code>apply_transaction</code> from the account-state challenges: that was a single subtraction and a single addition on one dict. This took an entire input-selection step, a delete-everything-selected step, and up to two brand-new entries: meaningfully more bookkeeping for the same basic "send money" operation. That's the real tradeoff between the two models: UTXO transactions are self-contained and easy to verify in isolation (everything a transaction needs is right there in its inputs), while account-based transactions are simpler to reason about but depend on a shared, constantly-mutating balance table. Neither model is strictly better; they're different answers to the same problem, and real systems have picked both.</p>`
   },
   {
     id: 219,
@@ -930,10 +930,10 @@ print(wallet)
     topic: "Capstone",
     level: 5,
     xp: 50,
-    instructions: `<p>This capstone combines every piece built separately across this level, given to you below exactly as you already wrote it: <code>sign_transaction</code> / <code>verify_signature</code> (Signing Transactions), <code>apply_transaction</code> (Account Balances & Transactions), <code>process_ledger</code> (Wallet Ledger), <code>compute_merkle_root</code> (Merkle Trees), and <code>mine_block_hash</code> (the same proof-of-work search from Proof of Work, renamed since this block hashes a Merkle root instead of a single data string). Nothing new to learn here -- the only new work is wiring them together in the right order, which is exactly what building a real block requires.</p>
-<p>The order matters: a block can only be mined once you know exactly which transactions belong in it, and you only know that once you've checked which ones are actually valid. So: verify and apply transactions first (only the valid ones actually happened), summarize the accepted ones into a Merkle root (so the block has one fingerprint for its whole batch), then mine -- searching for a nonce that makes the block's hash meet the difficulty target, just hashing the Merkle root instead of a plain data string this time.</p>
+    instructions: `<p>This capstone combines every piece built separately across this level, given to you below exactly as you already wrote it: <code>sign_transaction</code> / <code>verify_signature</code> (Signing Transactions), <code>apply_transaction</code> (Account Balances & Transactions), <code>process_ledger</code> (Wallet Ledger), <code>compute_merkle_root</code> (Merkle Trees), and <code>mine_block_hash</code> (the same proof-of-work search from Proof of Work, renamed since this block hashes a Merkle root instead of a single data string). Nothing new to learn here: the only new work is wiring them together in the right order, which is exactly what building a real block requires.</p>
+<p>The order matters: a block can only be mined once you know exactly which transactions belong in it, and you only know that once you've checked which ones are actually valid. First verify and apply transactions (only the valid ones actually happened), then summarize the accepted ones into a Merkle root (so the block has one fingerprint for its whole batch), then mine, searching for a nonce that makes the block's hash meet the difficulty target, just hashing the Merkle root instead of a plain data string this time.</p>
 <span class="task-label">Your Task</span>
-<p class="task-line">Write <code>build_block(index, timestamp, transactions, previous_hash, difficulty, balances, account_keys)</code>. First, run <code>transactions</code> through <code>process_ledger</code> (which verifies signatures and applies valid transfers to <code>balances</code> in place) and keep only the ones marked <code>"accepted"</code> -- <code>process_ledger</code> returns its results in the same order as <code>transactions</code>, so <code>zip(transactions, results)</code> (which walks both lists in lockstep, pairing up item 1 with item 1, item 2 with item 2, and so on) lets you match each transaction with its own result. Turn each accepted transaction into a string with the given <code>transaction_to_string</code> helper, and pass that list to <code>compute_merkle_root</code>. Mine the block with <code>mine_block_hash(index, timestamp, merkle_root, previous_hash, difficulty)</code> to get a <code>(nonce, hash)</code> pair. Return a dict with keys <code>"index"</code>, <code>"timestamp"</code>, <code>"transactions"</code> (the accepted list), <code>"merkle_root"</code>, <code>"previous_hash"</code>, <code>"nonce"</code>, and <code>"hash"</code>.</p>
+<p class="task-line">Write <code>build_block(index, timestamp, transactions, previous_hash, difficulty, balances, account_keys)</code>. First, run <code>transactions</code> through <code>process_ledger</code> (which verifies signatures and applies valid transfers to <code>balances</code> in place) and keep only the ones marked <code>"accepted"</code>: <code>process_ledger</code> returns its results in the same order as <code>transactions</code>, so <code>zip(transactions, results)</code> (which walks both lists in lockstep, pairing up item 1 with item 1, item 2 with item 2, and so on) lets you match each transaction with its own result. Turn each accepted transaction into a string with the given <code>transaction_to_string</code> helper, and pass that list to <code>compute_merkle_root</code>. Mine the block with <code>mine_block_hash(index, timestamp, merkle_root, previous_hash, difficulty)</code> to get a <code>(nonce, hash)</code> pair. Return a dict with keys <code>"index"</code>, <code>"timestamp"</code>, <code>"transactions"</code> (the accepted list), <code>"merkle_root"</code>, <code>"previous_hash"</code>, <code>"nonce"</code>, and <code>"hash"</code>.</p>
 <div class="example-block">
   <span class="example-label">Example</span>
   <div class="io-row"><span class="io-key">Input</span><code class="io-val">2 transactions: Alice sends Bob 30 (valid), Bob tries to send Alice 1000 (insufficient funds)</code></div>
@@ -965,6 +965,6 @@ print(wallet)
         { code: "assert block['merkle_root'] == compute_merkle_root([transaction_to_string(block['transactions'][0])])", message: "The stored merkle_root should match recomputing it from the block's own accepted transactions." }
       ]
     },
-    explanation: `<p>Trace what just happened: an unsigned or forged transaction never had a chance (that's the signature layer), an overdraft never had a chance either (that's the balance layer), and the transaction that survived both checks got folded into a Merkle root and sealed behind real proof-of-work effort -- three completely different lines of defense, each one you built and understood separately, now working together the way they do in every real chain. That's the whole point of a blockchain's design -- no single mechanism does everything: hashing gives tamper-evidence, Merkle trees give efficient batch verification, proof of work (or stake, or BFT voting) gives sequencing that's expensive to fake, and signed account state gives authorized transfers. You've now built a working, if tiny, version of every one of those pieces.</p>`
+    explanation: `<p>Trace what just happened: an unsigned or forged transaction never had a chance (that's the signature layer), an overdraft never had a chance either (that's the balance layer), and the transaction that survived both checks got folded into a Merkle root and sealed behind real proof-of-work effort. Three completely different lines of defense, each one you built and understood separately, now working together the way they do in every real chain. That's the whole point of a blockchain's design. No single mechanism does everything: hashing gives tamper-evidence, Merkle trees give efficient batch verification, proof of work (or stake, or BFT voting) gives sequencing that's expensive to fake, and signed account state gives authorized transfers. You've now built a working, if tiny, version of every one of those pieces.</p>`
   }
 ];

@@ -5,8 +5,8 @@ window.LEVEL6 = [
     kind: "intro",
     topic: "Introduction",
     level: 6,
-    instructions: `<p>Level 5 taught you how a blockchain works underneath. This level teaches the layer real projects build on top of that: web APIs (FastAPI, Pydantic), practical cryptography beyond the HMAC stand-in from Level 5, and the tools a real Python codebase depends on -- an ORM, dependency management, and enough Web3 vocabulary (the EVM, Vyper, web3.py) to read an existing project instead of starting from zero.</p>
-<p>Some of this can't run inside this browser sandbox the way earlier challenges do -- FastAPI, a real database, a real blockchain node, none of those exist in here. Those challenges are checked on the shape of the code you write, not by running it, and the instructions will tell you exactly that. The plan is: write it here, understand exactly what it does, then actually run it for real in your own VS Code. By the end, you'll have built a small blockchain from scratch and wrapped a real API around it.</p>`,
+    instructions: `<p>Level 5 taught you how a blockchain works underneath. This level teaches the layer real projects build on top of that: web APIs (FastAPI, Pydantic), practical cryptography beyond the HMAC stand-in from Level 5, and the tools a real Python codebase depends on, like an ORM, dependency management, and enough Web3 vocabulary (the EVM, Vyper, web3.py) to read an existing project instead of starting from zero.</p>
+<p>Some of this can't run inside this browser sandbox the way earlier challenges do: FastAPI, a real database, a real blockchain node, none of those exist in here. Those challenges are checked on the shape of the code you write, not by running it, and the instructions will tell you exactly that. The plan is: write it here, understand exactly what it does, then actually run it for real in your own VS Code. By the end, you'll have built a small blockchain from scratch and wrapped a real API around it.</p>`,
     starterCode: ""
   },
   {
@@ -16,7 +16,7 @@ window.LEVEL6 = [
     topic: "Web APIs",
     level: 6,
     xp: 10,
-    instructions: `<p>An <strong>API</strong> (application programming interface) lets other programs talk to yours over the network -- a request comes in, your code runs, a response goes out. <strong>FastAPI</strong> is a Python framework for building one: you write a normal Python function, decorate it with the HTTP method and URL path it should answer, and FastAPI handles the rest.</p>
+    instructions: `<p>An <strong>API</strong> (application programming interface) lets other programs talk to yours over the network: a request comes in, your code runs, a response goes out. <strong>FastAPI</strong> is a Python framework for building one: you write a normal Python function, decorate it with the HTTP method and URL path it should answer, and FastAPI handles the rest.</p>
 <p class="blueprint-line"><code>@app.get("/path")</code><br><code>async def handler(): ...</code></p>
 <div class="example-block">
   <span class="example-label">Quick Example</span>
@@ -27,10 +27,6 @@ app = FastAPI()
 @app.get("/hello")
 async def hello():
     return {"message": "hi"}</code></pre>
-</div>
-<div class="note-block">
-  <span class="note-label">Note</span>
-  <span>FastAPI needs a real running server, which this sandbox doesn't have, so this challenge is checked on code shape, not run. Write the real code here, then actually run it in your own VS Code with <code>pip install fastapi uvicorn</code> and <code>uvicorn main:app --reload</code> to see it respond for real.</span>
 </div>
 <span class="task-label">Your Task</span>
 <p class="task-line">Create a FastAPI app named <code>app</code>. Add a <code>GET</code> route at <code>/status</code> that returns <code>{"status": "ok"}</code>.</p>
@@ -54,7 +50,7 @@ async def hello():
         { type: "hasAsync", message: "Define the route handler as an async function." }
       ]
     },
-    explanation: `<p>The decorator <code>@app.get("/status")</code> is what actually registers the route -- without it, <code>status()</code> is just a normal function FastAPI knows nothing about. The function's return value gets automatically converted to JSON for you.</p>`
+    explanation: `<p>The decorator <code>@app.get("/status")</code> is what actually registers the route. Without it, <code>status()</code> is just a normal function FastAPI knows nothing about. The function's return value gets automatically converted to JSON for you.</p>`
   },
   {
     id: 228,
@@ -63,7 +59,7 @@ async def hello():
     topic: "Web APIs",
     level: 6,
     xp: 10,
-    instructions: `<p>A route can capture part of the URL as a variable. <code>{item_id}</code> in the path becomes a real parameter in your function -- FastAPI reads it straight out of the URL and converts it to whatever type you annotate.</p>
+    instructions: `<p>A route can capture part of the URL as a variable. <code>{item_id}</code> in the path becomes a real parameter in your function. FastAPI reads it straight out of the URL and converts it to whatever type you annotate.</p>
 <ul>
   <li><strong>Query parameter:</strong> a function parameter not present in the URL path becomes an optional <code>?key=value</code> parameter instead, like <code>/search?q=apple</code>.</li>
 </ul>
@@ -74,10 +70,6 @@ async def hello():
 async def read_item(item_id: int, q: str = None):
     return {"item_id": item_id, "q": q}
 # GET /items/5?q=blue -> {"item_id": 5, "q": "blue"}</code></pre>
-</div>
-<div class="note-block">
-  <span class="note-label">Note</span>
-  <span>Checked on code shape, same as the last challenge -- run it for real locally to see it respond.</span>
 </div>
 <span class="task-label">Your Task</span>
 <p class="task-line">Add a <code>GET</code> route <code>/users/{user_id}</code> that takes <code>user_id</code> (an <code>int</code>) from the path and an optional query parameter <code>active</code> (a <code>bool</code>, default <code>True</code>), returning both as a dict.</p>
@@ -108,9 +100,9 @@ async def read_item(item_id: int, q: str = None):
     topic: "Web APIs",
     level: 6,
     xp: 15,
-    instructions: `<p>GET requests read data from the URL; <code>POST</code> requests usually carry data in the request body, as JSON. A <strong>Pydantic model</strong> describes the exact shape that JSON should have -- FastAPI parses the incoming body into it automatically, and rejects the request before your function even runs if the data doesn't match.</p>
+    instructions: `<p>GET requests read data from the URL; <code>POST</code> requests usually carry data in the request body, as JSON. A <strong>Pydantic model</strong> describes the exact shape that JSON should have. FastAPI parses the incoming body into it automatically, and rejects the request before your function even runs if the data doesn't match.</p>
 <ul>
-  <li><strong>BaseModel:</strong> the Pydantic class you inherit from to define a data shape -- each attribute becomes a required field with a type.</li>
+  <li><strong>BaseModel:</strong> the Pydantic class you inherit from to define a data shape. Each attribute becomes a required field with a type.</li>
 </ul>
 <p class="blueprint-line"><code>class Model(BaseModel):</code><br><code>&nbsp;&nbsp;&nbsp;&nbsp;field: type</code></p>
 <div class="example-block">
@@ -124,10 +116,6 @@ class Item(BaseModel):
 @app.post("/items")
 async def create_item(item: Item):
     return {"created": item.name}</code></pre>
-</div>
-<div class="note-block">
-  <span class="note-label">Note</span>
-  <span>Checked on code shape, same as the earlier FastAPI challenges.</span>
 </div>
 <span class="task-label">Your Task</span>
 <p class="task-line">Define a Pydantic model <code>Transaction</code> with fields <code>sender: str</code>, <code>recipient: str</code>, and <code>amount: float</code>. Add a <code>POST</code> route <code>/transactions</code> that accepts a <code>Transaction</code> and returns <code>{"received": True}</code>.</p>
@@ -154,7 +142,7 @@ async def create_item(item: Item):
         { type: "matchesRegex", pattern: "@app\\.post\\(\\s*[\"']\\/transactions[\"']\\s*\\)", message: "Add a POST route at /transactions." }
       ]
     },
-    explanation: `<p>The type annotation on the route parameter (<code>tx: Transaction</code>) is what tells FastAPI to parse the request body as JSON and validate it against that model -- the same mechanism that makes path/query parameters work, applied to the body instead.</p>`
+    explanation: `<p>The type annotation on the route parameter (<code>tx: Transaction</code>) is what tells FastAPI to parse the request body as JSON and validate it against that model, the same mechanism that makes path/query parameters work, applied to the body instead.</p>`
   },
   {
     id: 230,
@@ -163,7 +151,7 @@ async def create_item(item: Item):
     topic: "Web APIs",
     level: 6,
     xp: 20,
-    instructions: `<p><strong>CRUD</strong> -- Create, Read, Update, Delete -- is the standard shape of an API that manages a resource. Each operation maps to an HTTP method: <code>POST</code> creates, <code>GET</code> reads, <code>PUT</code> updates, <code>DELETE</code> removes. Same URL, different verb, different action.</p>
+    instructions: `<p><strong>CRUD</strong> (Create, Read, Update, Delete) is the standard shape of an API that manages a resource. Each operation maps to an HTTP method: <code>POST</code> creates, <code>GET</code> reads, <code>PUT</code> updates, <code>DELETE</code> removes. Same URL, different verb, different action.</p>
 <p class="blueprint-line"><code>@app.get/post/put/delete("/resource/{id}")</code></p>
 <div class="example-block">
   <span class="example-label">Quick Example</span>
@@ -181,7 +169,7 @@ async def delete_note(note_id: int):
 </div>
 <div class="note-block">
   <span class="note-label">Note</span>
-  <span>Checked on code shape. A dict standing in for a real database is fine here -- Level 6 covers a real one (SQLAlchemy) shortly.</span>
+  <span>A dict standing in for a real database is fine here; Level 6 covers a real one (SQLAlchemy) shortly.</span>
 </div>
 <span class="task-label">Your Task</span>
 <p class="task-line">Using a module-level dict <code>ledger = {}</code>, add four routes on <code>/balances/{account}</code>: <code>POST</code> sets the balance to a given <code>amount: float</code>, <code>GET</code> returns it, <code>PUT</code> updates it to a new <code>amount: float</code>, and <code>DELETE</code> removes the account, each returning <code>{"account": account}</code>.</p>
@@ -205,7 +193,7 @@ async def delete_note(note_id: int):
         { type: "matchesRegex", pattern: "@app\\.delete\\(\\s*[\"']\\/balances\\/\\{account\\}[\"']\\s*\\)", message: "Add a DELETE route on /balances/{account}." }
       ]
     },
-    explanation: `<p>This exact pattern -- one resource, four verbs -- is the backbone of most real APIs, including the ones that sit in front of real blockchains: a wallet balance, an NFT record, a transaction log, all managed through the same GET/POST/PUT/DELETE shape.</p>`
+    explanation: `<p>This exact pattern (one resource, four verbs) is the backbone of most real APIs, including the ones that sit in front of real blockchains: a wallet balance, an NFT record, a transaction log, all managed through the same GET/POST/PUT/DELETE shape.</p>`
   },
   {
     id: 231,
@@ -214,7 +202,7 @@ async def delete_note(note_id: int):
     topic: "Web APIs",
     level: 6,
     xp: 15,
-    instructions: `<p>A plain type hint like <code>amount: float</code> only checks the type. <strong>Pydantic's <code>Field()</code></strong> adds real constraints -- minimum values, string length, patterns -- so malformed data gets rejected automatically before it ever reaches your ledger.</p>
+    instructions: `<p>A plain type hint like <code>amount: float</code> only checks the type. <strong>Pydantic's <code>Field()</code></strong> adds real constraints (minimum values, string length, patterns) so malformed data gets rejected automatically before it ever reaches your ledger.</p>
 <ul>
   <li><strong>Field constraint:</strong> a rule attached to a model field (like <code>gt=0</code>, "greater than zero") that Pydantic enforces on every request, not something you check by hand.</li>
 </ul>
@@ -227,16 +215,12 @@ class Order(BaseModel):
     quantity: int = Field(gt=0)
     symbol: str = Field(min_length=1, max_length=5)</code></pre>
 </div>
-<div class="note-block">
-  <span class="note-label">Note</span>
-  <span>Checked on code shape.</span>
-</div>
 <span class="task-label">Your Task</span>
 <p class="task-line">Define a Pydantic model <code>Transfer</code> with <code>amount: float</code> constrained to be greater than <code>0</code> (using <code>Field(gt=0)</code>), and <code>to_address: str</code> constrained to a minimum length of <code>1</code> and maximum length of <code>42</code>.</p>
 <div class="example-block">
   <span class="example-label">Example</span>
   <div class="io-row"><span class="io-key">Input</span><code class="io-val">amount = -5</code></div>
-  <div class="io-row"><span class="io-key">Result</span><code class="io-val">request rejected automatically -- amount must be greater than 0</code></div>
+  <div class="io-row"><span class="io-key">Result</span><code class="io-val">request rejected automatically: amount must be greater than 0</code></div>
 </div>`,
     hints: [
       "from pydantic import BaseModel, Field",
@@ -253,7 +237,7 @@ class Order(BaseModel):
         { type: "matchesRegex", pattern: "to_address\\s*:\\s*str\\s*=\\s*Field\\(\\s*min_length\\s*=\\s*1\\s*,\\s*max_length\\s*=\\s*42\\s*\\)", message: "Constrain to_address with Field(min_length=1, max_length=42)." }
       ]
     },
-    explanation: `<p>42 isn't arbitrary here -- it's the exact character length of a real Ethereum address (<code>0x</code> plus 40 hex characters). Constraints like this are how a real API catches "someone pasted a broken address" before it ever touches actual logic.</p>`
+    explanation: `<p>42 isn't arbitrary here. It's the exact character length of a real Ethereum address (<code>0x</code> plus 40 hex characters). Constraints like this are how a real API catches "someone pasted a broken address" before it ever touches actual logic.</p>`
   },
   {
     id: 232,
@@ -262,7 +246,7 @@ class Order(BaseModel):
     topic: "Web APIs",
     level: 6,
     xp: 10,
-    instructions: `<p>You've already used <code>async</code>/<code>await</code> in Level 4. Here's why API frameworks are built around it: while one request is waiting on something slow -- a database query, a call to another service -- an async server can start handling a different request instead of just sitting idle. A <code>def</code> route blocks; an <code>async def</code> route can yield control while it waits.</p>
+    instructions: `<p>You've already used <code>async</code>/<code>await</code> in Level 4. Here's why API frameworks are built around it: while one request is waiting on something slow (a database query, a call to another service), an async server can start handling a different request instead of just sitting idle. A <code>def</code> route blocks; an <code>async def</code> route can yield control while it waits.</p>
 <ul>
   <li><strong>Blocking:</strong> code that makes the whole program wait, doing nothing else, until a slow operation finishes.</li>
 </ul>
@@ -276,7 +260,7 @@ async def slow_route():
 </div>
 <div class="note-block">
   <span class="note-label">Note</span>
-  <span>Checked on code shape. This is also why every FastAPI route in this level is written as async def, not plain def -- it's the pattern real FastAPI code uses.</span>
+  <span>This is also why every FastAPI route in this level is written as async def, not plain def; it's the pattern real FastAPI code uses.</span>
 </div>
 <span class="task-label">Your Task</span>
 <p class="task-line">Convert this blocking route into a non-blocking one: change <code>def check_status()</code> to <code>async def check_status()</code>, and change the call to <code>slow_check()</code> into <code>await slow_check()</code>.</p>
@@ -298,7 +282,7 @@ async def slow_route():
         { type: "hasAwait", message: "Use await when calling slow_check()." }
       ]
     },
-    explanation: `<p>Forgetting <code>await</code> in front of an async call is a common slip -- without it, you get the coroutine object itself, not its result, and it silently never actually runs.</p>`
+    explanation: `<p>Forgetting <code>await</code> in front of an async call is a common slip. Without it, you get the coroutine object itself, not its result, and it silently never actually runs.</p>`
   },
   {
     id: 233,
@@ -307,7 +291,7 @@ async def slow_route():
     topic: "Applied Cryptography",
     level: 6,
     xp: 15,
-    instructions: `<p>Level 5 covered hashing's core property: same input, same output, always. That's a problem when you're hashing something guessable, like an email address -- anyone can hash every common email and check for a match. A <strong>salt</strong>, a random value mixed in before hashing, breaks that: the same email hashes to something completely different for every user.</p>
+    instructions: `<p>Level 5 covered hashing's core property: same input, same output, always. That's a problem when you're hashing something guessable, like an email address. Anyone can hash every common email and check for a match. A <strong>salt</strong>, a random value mixed in before hashing, breaks that: the same email hashes to something completely different for every user.</p>
 <ul>
   <li><strong>Pseudonymization:</strong> replacing an identifying value (like an email) with a token that isn't reversible, so the data is still usable for matching without exposing what it originally was.</li>
 </ul>
@@ -344,7 +328,7 @@ print(token)  # a different token every time, even for the same email</code></pr
         { code: "assert pseudonymize('x', 'a') != pseudonymize('x', 'b')", message: "Different salts should produce different tokens for the same value." }
       ]
     },
-    explanation: `<p>This is pure standard-library Python (<code>hashlib</code>), so unlike most of this level, it runs and is graded for real. The salt has to be stored somewhere alongside the token -- without it, you couldn't recompute the same token to check a match later.</p>`
+    explanation: `<p>This is pure standard-library Python (<code>hashlib</code>), so unlike most of this level, it runs and is graded for real. The salt has to be stored somewhere alongside the token. Without it, you couldn't recompute the same token to check a match later.</p>`
   },
   {
     id: 234,
@@ -370,7 +354,7 @@ verify_key.verify(signed)  # returns the message if valid, raises BadSignatureEr
 </div>
 <div class="note-block">
   <span class="note-label">Note</span>
-  <span>PyNaCl is a third-party package (<code>pip install pynacl</code>), so this is checked on code shape here -- run it for real locally to see a tampered signature actually raise <code>BadSignatureError</code>.</span>
+  <span>Run this for real locally (<code>pip install pynacl</code>) to see a tampered signature actually raise <code>BadSignatureError</code>.</span>
 </div>
 <span class="task-label">Your Task</span>
 <p class="task-line">Generate a signing key named <code>signing_key</code> and its verify key named <code>verify_key</code>. Sign the bytes <code>b"transfer 10 coins"</code> into a variable named <code>signed</code>. Then verify it, storing the result in <code>verified</code>.</p>
@@ -423,10 +407,6 @@ class User(Base):
     id = Column(Integer, primary_key=True)
     name = Column(String)</code></pre>
 </div>
-<div class="note-block">
-  <span class="note-label">Note</span>
-  <span>Checked on code shape here (a real database connection is a local setup, not something this sandbox has) -- the SQLAlchemy syntax itself is real and runs identically in your own project.</span>
-</div>
 <span class="task-label">Your Task</span>
 <p class="task-line">Define a SQLAlchemy model <code>Block</code>, table name <code>"blocks"</code>, with columns <code>id</code> (<code>Integer</code>, primary key), <code>hash</code> (<code>String</code>), and <code>previous_hash</code> (<code>String</code>).</p>
 <div class="example-block">
@@ -464,9 +444,9 @@ class User(Base):
     topic: "Data Persistence",
     level: 6,
     xp: 15,
-    instructions: `<p>Most apps store state directly: a balance is a number in a row, and updating it overwrites that number. <strong>Event sourcing</strong> does something different: instead of storing the current state, you store every event that ever changed it, in order, and the current state is just whatever you get from replaying them. This is exactly the shape of the blockchain you already built in Level 5 -- it never overwrites a block, it only ever appends a new one.</p>
+    instructions: `<p>Most apps store state directly: a balance is a number in a row, and updating it overwrites that number. <strong>Event sourcing</strong> does something different: instead of storing the current state, you store every event that ever changed it, in order, and the current state is just whatever you get from replaying them. This is exactly the shape of the blockchain you already built in Level 5. It never overwrites a block, it only ever appends a new one.</p>
 <ul>
-  <li><strong>Replay:</strong> slower than reading a stored number, but nothing is ever lost -- a bug in how you compute the balance can be fixed and replayed against the same history to get the right answer, instead of the wrong number already being baked in.</li>
+  <li><strong>Replay:</strong> slower than reading a stored number, but nothing is ever lost. A bug in how you compute the balance can be fixed and replayed against the same history to get the right answer, instead of the wrong number already being baked in.</li>
 </ul>
 <div class="example-block">
   <span class="example-label">Quick Example</span>
@@ -475,7 +455,7 @@ class User(Base):
     {"type": "withdraw", "amount": 30},
 ]
 balance = sum(e["amount"] if e["type"] == "deposit" else -e["amount"] for e in events)
-print(balance)  # 70 -- computed from the timeline, not stored directly</code></pre>
+print(balance)  # 70 (computed from the timeline, not stored directly)</code></pre>
 </div>
 <span class="task-label">Your Task</span>
 <p class="task-line">Write <code>replay_balance(events)</code>, which takes a list of dicts like <code>{"type": "deposit", "amount": N}</code> or <code>{"type": "withdraw", "amount": N}</code> and returns the resulting balance, starting from <code>0</code>.</p>
@@ -503,7 +483,7 @@ print(balance)  # 70 -- computed from the timeline, not stored directly</code></
         { code: "assert replay_balance([]) == 0", message: "No events should leave a balance of 0." }
       ]
     },
-    explanation: `<p>This is pure Python, so it runs and is graded for real, unlike most of this level. The insight worth keeping: a blockchain, a bank's transaction log, and this <code>events</code> list are all the same underlying pattern -- an immutable timeline that state gets derived from.</p>`
+    explanation: `<p>This is pure Python, so it runs and is graded for real, unlike most of this level. The insight worth keeping: a blockchain, a bank's transaction log, and this <code>events</code> list are all the same underlying pattern, an immutable timeline that state gets derived from.</p>`
   },
   {
     id: 237,
@@ -514,7 +494,7 @@ print(balance)  # 70 -- computed from the timeline, not stored directly</code></
     xp: 10,
     instructions: `<p><strong>Poetry</strong> manages a Python project's dependencies and virtual environment together, tracked in a <code>pyproject.toml</code> file instead of a loose <code>requirements.txt</code>. It records the exact versions everyone on a project uses, which matters a lot in open-source work where you can't just assume everyone's environment matches.</p>
 <ul>
-  <li><strong>Version constraint:</strong> <code>^0.100.0</code> means "this version or any later compatible one," not an exact pin -- Poetry resolves the real version from that range.</li>
+  <li><strong>Version constraint:</strong> <code>^0.100.0</code> means "this version or any later compatible one," not an exact pin. Poetry resolves the real version from that range.</li>
 </ul>
 <p class="blueprint-line"><code>[tool.poetry.dependencies]</code><br><code>package = "^X.Y.Z"</code></p>
 <div class="example-block">
@@ -526,7 +506,7 @@ sqlalchemy = "^2.0.0"</code></pre>
 </div>
 <div class="note-block">
   <span class="note-label">Note</span>
-  <span>This is a config file, not runnable Python, so it's checked on shape. In your own project: <code>poetry init</code> creates this file, <code>poetry add fastapi</code> adds a line like this one for you.</span>
+  <span>In your own project, <code>poetry init</code> creates this file, and <code>poetry add fastapi</code> adds a line like this one for you.</span>
 </div>
 <span class="task-label">Your Task</span>
 <p class="task-line">Write the <code>pyproject.toml</code> dependency block for a project using Python <code>^3.11</code>, <code>fastapi</code> <code>^0.100.0</code>, and <code>pynacl</code> <code>^1.5.0</code>, as a multi-line string assigned to a variable named <code>deps</code>.</p>
@@ -551,7 +531,7 @@ sqlalchemy = "^2.0.0"</code></pre>
         { type: "matchesRegex", pattern: "pynacl\\s*=\\s*[\"']\\^1\\.5\\.0[\"']", message: "Pin pynacl to ^1.5.0." }
       ]
     },
-    explanation: `<p>Committing a <code>pyproject.toml</code> (and its lockfile) is what lets anyone clone an open-source repo and run <code>poetry install</code> to get the exact same working environment you have -- no "works on my machine" surprises.</p>`
+    explanation: `<p>Committing a <code>pyproject.toml</code> (and its lockfile) is what lets anyone clone an open-source repo and run <code>poetry install</code> to get the exact same working environment you have: no "works on my machine" surprises.</p>`
   },
   {
     id: 238,
@@ -560,9 +540,9 @@ sqlalchemy = "^2.0.0"</code></pre>
     topic: "Web3 Ecosystem",
     level: 6,
     xp: 10,
-    instructions: `<p>Ethereum and every EVM-compatible chain (Polygon, Base, Arbitrum, and most others in active use) run a shared virtual machine, the <strong>EVM</strong>, that executes smart contract code identically no matter which computer runs it. Every computer participating in the network is a <strong>node</strong>; each one re-runs every transaction itself to independently agree on the result -- the same "everyone re-checks everything" idea Level 5's <code>is_chain_valid</code> was built around, just running live across thousands of machines instead of one script.</p>
+    instructions: `<p>Ethereum and every EVM-compatible chain (Polygon, Base, Arbitrum, and most others in active use) run a shared virtual machine, the <strong>EVM</strong>, that executes smart contract code identically no matter which computer runs it. Every computer participating in the network is a <strong>node</strong>; each one re-runs every transaction itself to independently agree on the result: the same "everyone re-checks everything" idea Level 5's <code>is_chain_valid</code> was built around, just running live across thousands of machines instead of one script.</p>
 <ul>
-  <li><strong>Gas:</strong> a fee, paid in the chain's own currency, that scales with how much computation a transaction actually does -- it's what stops someone from writing an infinite loop and grinding the network to a halt for free.</li>
+  <li><strong>Gas:</strong> a fee, paid in the chain's own currency, that scales with how much computation a transaction actually does. It's what stops someone from writing an infinite loop and grinding the network to a halt for free.</li>
 </ul>
 <div class="example-block">
   <span class="example-label">Quick Example</span>
@@ -592,7 +572,7 @@ sqlalchemy = "^2.0.0"</code></pre>
         { code: "assert tx_cost(21000, 2) == 42000", message: "tx_cost(21000, 2) should be 42000." }
       ]
     },
-    explanation: `<p>21000 is the real, fixed base cost of the simplest possible Ethereum transaction (a plain transfer) -- anything a smart contract actually computes adds gas on top of that floor.</p>`
+    explanation: `<p>21000 is the real, fixed base cost of the simplest possible Ethereum transaction (a plain transfer). Anything a smart contract actually computes adds gas on top of that floor.</p>`
   },
   {
     id: 239,
@@ -601,14 +581,14 @@ sqlalchemy = "^2.0.0"</code></pre>
     topic: "Web3 Ecosystem",
     level: 6,
     xp: 15,
-    instructions: `<p><strong>Vyper</strong> is a smart contract language with deliberately Python-like syntax, designed for the EVM. It is not Python -- it doesn't run in a Python interpreter, it compiles to EVM bytecode -- but if you can already read Python, Vyper reads as familiar rather than foreign. This is the realistic path from "knows Python" to "can read a real smart contract," not writing contracts in literal Python, which isn't a thing any major chain supports.</p>
+    instructions: `<p><strong>Vyper</strong> is a smart contract language with deliberately Python-like syntax, designed for the EVM. It is not Python (it doesn't run in a Python interpreter, it compiles to EVM bytecode), but if you can already read Python, Vyper reads as familiar rather than foreign. This is the realistic path from "knows Python" to "can read a real smart contract," not writing contracts in literal Python, which isn't a thing any major chain supports.</p>
 <ul>
-  <li><strong>State variable:</strong> a contract-level variable, declared once at the top with a type, that persists on-chain between calls -- the contract's permanent storage.</li>
+  <li><strong>State variable:</strong> a contract-level variable, declared once at the top with a type, that persists on-chain between calls, the contract's permanent storage.</li>
 </ul>
 <p class="blueprint-line"><code>@external</code><br><code>def name(param: type) -> type:</code></p>
 <div class="example-block">
   <span class="example-label">Quick Example</span>
-  <pre><code># Vyper -- not Python, but readable like it
+  <pre><code># Vyper, not Python, but readable like it
 balances: public(HashMap[address, uint256])
 
 @external
@@ -617,7 +597,7 @@ def deposit():
 </div>
 <div class="note-block">
   <span class="note-label">Note</span>
-  <span>This is Vyper source, not Python -- it can't be run or graded by this sandbox at all. You're typing it to build reading familiarity, checked purely on matching the text.</span>
+  <span>This is Vyper source, not Python; it can't be run or graded by this sandbox at all. You're typing it to build reading familiarity, matched purely on the text.</span>
 </div>
 <span class="task-label">Your Task</span>
 <p class="task-line">Type the following Vyper function exactly, into a variable named <code>contract_code</code>: a state variable <code>owner: public(address)</code>, and an <code>@external</code> function <code>get_owner() -> address:</code> that returns <code>self.owner</code>.</p>
@@ -652,9 +632,9 @@ def deposit():
     topic: "Web3 Ecosystem",
     level: 6,
     xp: 15,
-    instructions: `<p><code>web3.py</code> is the standard Python library for talking to Ethereum and any EVM-compatible chain (Polygon, Base, Arbitrum, and most others in active use) -- it does not work with Bitcoin or other non-EVM chains, which use entirely different libraries. It connects to a <strong>node</strong> over <code>JSON-RPC</code> (the protocol nodes speak) and lets you read chain data or send transactions from Python.</p>
+    instructions: `<p><code>web3.py</code> is the standard Python library for talking to Ethereum and any EVM-compatible chain (Polygon, Base, Arbitrum, and most others in active use). It does not work with Bitcoin or other non-EVM chains, which use entirely different libraries. It connects to a <strong>node</strong> over <code>JSON-RPC</code> (the protocol nodes speak) and lets you read chain data or send transactions from Python.</p>
 <ul>
-  <li><strong>Provider:</strong> the connection to a specific node -- <code>Web3.HTTPProvider(url)</code> points web3.py at whichever node you want to talk to.</li>
+  <li><strong>Provider:</strong> the connection to a specific node. <code>Web3.HTTPProvider(url)</code> points web3.py at whichever node you want to talk to.</li>
 </ul>
 <p class="blueprint-line"><code>w3 = Web3(Web3.HTTPProvider(url))</code></p>
 <div class="example-block">
@@ -667,7 +647,7 @@ print(w3.from_wei(balance, "ether"))</code></pre>
 </div>
 <div class="note-block">
   <span class="note-label">Note</span>
-  <span>web3.py needs a real node to actually talk to, which this sandbox has no network access to reach, so this is checked on code shape. Run it for real locally against a public testnet to see it work.</span>
+  <span>In your own project, connect to a public testnet rather than mainnet while you're experimenting, so you're not risking real funds.</span>
 </div>
 <span class="task-label">Your Task</span>
 <p class="task-line">Create a <code>Web3</code> instance named <code>w3</code> connected to <code>"https://mainnet.example-node.io"</code> via <code>HTTPProvider</code>. Then read the balance of <code>"0xAbC1234567890000000000000000000000dEaD"</code> into a variable named <code>balance</code>.</p>
@@ -689,7 +669,7 @@ print(w3.from_wei(balance, "ether"))</code></pre>
         { type: "matchesRegex", pattern: "w3\\.eth\\.get_balance\\(", message: "Read the balance with w3.eth.get_balance()." }
       ]
     },
-    explanation: `<p><code>w3.eth.get_balance()</code> returns wei, the smallest unit (like cents to a dollar, but 18 decimal places instead of 2) -- <code>w3.from_wei(balance, "ether")</code> converts it to the human-readable number you'd actually want to display.</p>`
+    explanation: `<p><code>w3.eth.get_balance()</code> returns wei, the smallest unit (like cents to a dollar, but 18 decimal places instead of 2). <code>w3.from_wei(balance, "ether")</code> converts it to the human-readable number you'd actually want to display.</p>`
   },
   {
     id: 241,
@@ -699,7 +679,7 @@ print(w3.from_wei(balance, "ether"))</code></pre>
     topic: "Capstone",
     level: 6,
     xp: 40,
-    instructions: `<p>This is a synthesis, not a new lesson: everything here -- hashing, chaining blocks together, validating the chain -- is exactly what you already built piece by piece across Level 5. The point of this project is assembling it from memory into one compact, working system, since that's the version you'll actually build on top of in the next two projects.</p>
+    instructions: `<p>This is a synthesis, not a new lesson: everything here (hashing, chaining blocks together, validating the chain) is exactly what you already built piece by piece across Level 5. The point of this project is assembling it from memory into one compact, working system, since that's the version you'll actually build on top of in the next two projects.</p>
 <p class="blueprint-line"><code>class Block: hash, previous_hash</code><br><code>class Blockchain: chain, add_block(), is_valid()</code></p>
 <div class="example-block">
   <span class="example-label">Quick Example</span>
@@ -738,7 +718,7 @@ print(chain.is_valid())  # Output: True</code></pre>
         { code: "chain = Blockchain()\nassert chain.chain[0].data == 'Genesis' and chain.chain[0].previous_hash == '0'", message: "The chain should start with a genesis block." }
       ]
     },
-    explanation: `<p>This is the same shape as everything Level 5 built, just assembled into two classes instead of spread across many challenges. Real projects almost always structure it this way -- one class per concept, not one long script.</p>`
+    explanation: `<p>This is the same shape as everything Level 5 built, just assembled into two classes instead of spread across many challenges. Real projects almost always structure it this way: one class per concept, not one long script.</p>`
   },
   {
     id: 242,
@@ -748,7 +728,7 @@ print(chain.is_valid())  # Output: True</code></pre>
     topic: "Capstone",
     level: 6,
     xp: 40,
-    instructions: `<p>This combines two things you just built separately: the <code>Blockchain</code> class from the last project, and the FastAPI CRUD patterns from earlier in this level. Nothing new is being taught here -- this is wiring the two together, which is exactly what a real project's API layer does: expose an internal system's data and actions over HTTP.</p>
+    instructions: `<p>This combines two things you just built separately: the <code>Blockchain</code> class from the last project, and the FastAPI CRUD patterns from earlier in this level. Nothing new is being taught here. This is wiring the two together, which is exactly what a real project's API layer does: expose an internal system's data and actions over HTTP.</p>
 <p class="blueprint-line"><code>@app.get/post("/chain")</code></p>
 <div class="example-block">
   <span class="example-label">Quick Example</span>
@@ -757,10 +737,6 @@ print(chain.is_valid())  # Output: True</code></pre>
 @app.get("/chain")
 async def get_chain():
     return {"length": len(chain.chain), "valid": chain.is_valid()}</code></pre>
-</div>
-<div class="note-block">
-  <span class="note-label">Note</span>
-  <span>Checked on code shape, same as every FastAPI challenge in this level.</span>
 </div>
 <span class="task-label">Your Task</span>
 <p class="task-line">Using the <code>Block</code>/<code>Blockchain</code> classes from the last project and a module-level <code>chain = Blockchain()</code>, add a <code>GET /chain</code> route returning <code>{"length": ..., "valid": ...}</code>, and a <code>POST /blocks</code> route that takes a body field <code>data: str</code>, calls <code>chain.add_block(data)</code>, and returns <code>{"added": data}</code>.</p>
@@ -808,10 +784,6 @@ async def mint(account: str, amount: float):
     balances[account] = balances.get(account, 0) + amount
     chain.add_block(f"mint {account} {amount}")
     return {"balance": balances[account]}</code></pre>
-</div>
-<div class="note-block">
-  <span class="note-label">Note</span>
-  <span>Checked on code shape, same as every FastAPI challenge in this level.</span>
 </div>
 <span class="task-label">Your Task</span>
 <p class="task-line">Using the <code>chain</code> from the last project and a module-level <code>balances = {}</code>, add: <code>POST /mint</code> (params <code>account: str, amount: float</code>) that credits the account and logs <code>f"mint {account} {amount}"</code> as a new block; <code>POST /transfer</code> (params <code>sender: str, recipient: str, amount: float</code>) that moves the amount between accounts and logs <code>f"transfer {sender} {recipient} {amount}"</code>; and <code>GET /balance/{account}</code> returning <code>{"account": account, "balance": balances.get(account, 0)}</code>.</p>

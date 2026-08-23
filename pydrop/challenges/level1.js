@@ -6,7 +6,7 @@ window.LEVEL1 = [
     topic: "Introduction",
     level: 1,
     instructions: `<p>This level covers the building blocks every Python program is made of: variables, the core data types (strings, lists, dicts, sets, tuples), conditionals, loops, and the dot-notation used to call methods on values. It also covers reading a traceback, since that's the skill you'll lean on most once you're writing code on your own.</p>
-<p>Nothing here assumes you've programmed before. By the end, you'll be able to read a short Python script and know exactly what every line does -- and when something breaks, read the error instead of guessing.</p>`,
+<p>Nothing here assumes you've programmed before. By the end, you'll be able to read a short Python script and know exactly what every line does. And when something breaks, read the error instead of guessing.</p>`,
     starterCode: ""
   },
   {
@@ -20,7 +20,7 @@ window.LEVEL1 = [
 <p>Variables track information like a score, a username, or a total while a program runs.</p>
 <ul>
   <li><strong>Assignment operator:</strong> the <code>=</code> sign doesn't mean "equals" here, it means "store the thing on the right under the name on the left."</li>
-  <li><strong>Comment (#):</strong> anything after a <code>#</code> on a line is ignored by Python -- it's a note for whoever reads the code, not an instruction that runs.</li>
+  <li><strong>Comment (#):</strong> anything after a <code>#</code> on a line is ignored by Python. It's a note for whoever reads the code, not an instruction that runs.</li>
 </ul>
 <div class="example-block">
   <span class="example-label">Quick Example</span>
@@ -181,7 +181,7 @@ print(is_online)  # Output: True</code></pre>
     instructions: `<p>You can stick two strings together using the <code>+</code> sign. This is called <strong>concatenation</strong>: it joins them end to end rather than doing any math.</p>
 <p>It only works between strings, though. Adding a string and a number with <code>+</code> causes an error, so convert the number to text first with <code>str()</code>.</p>
 <ul>
-  <li><strong>Concatenation:</strong> <code>+</code> between two strings glues them into one, with no space added automatically -- you have to include any spacing yourself.</li>
+  <li><strong>Concatenation:</strong> <code>+</code> between two strings glues them into one, with no space added automatically. You have to include any spacing yourself.</li>
 </ul>
 <div class="note-block">
   <span class="note-label">Note</span>
@@ -228,7 +228,7 @@ print(f"{name} is {age} years old")  # Output: Alice is 30 years old</code></pre
 </div>
 <div class="note-block">
   <span class="note-label">Note</span>
-  <span>Forgetting the <code>f</code> before the quotes is a common slip -- without it, Python prints the curly braces and variable names literally instead of substituting the values.</span>
+  <span>Forgetting the <code>f</code> before the quotes is a common slip: without it, Python prints the curly braces and variable names literally instead of substituting the values.</span>
 </div>
 <span class="task-label">Your Task</span>
 <p class="task-line">Create a variable <code>message</code> using an f-string that greets someone by name and age, in the shape shown below.</p>
@@ -310,9 +310,9 @@ print(fruits[0])  # Output: apple</code></pre>
     topic: "Debugging",
     level: 1,
     xp: 10,
-    instructions: `<p>Sooner or later your code will crash, and when it does, Python prints a <strong>traceback</strong>: a report showing exactly where things went wrong. It looks intimidating, but you only need to read two parts of it -- the line pointing at your code, and the very last line.</p>
+    instructions: `<p>Sooner or later your code will crash, and when it does, Python prints a <strong>traceback</strong>: a report showing exactly where things went wrong. It looks intimidating, but you only need to read two parts of it: the line pointing at your code, and the very last line.</p>
 <ul>
-  <li><strong>Exception type:</strong> the word before the colon on the traceback's last line (like <code>IndexError</code> or <code>NameError</code>) -- it names the general category of what went wrong.</li>
+  <li><strong>Exception type:</strong> the word before the colon on the traceback's last line (like <code>IndexError</code> or <code>NameError</code>). It names the general category of what went wrong.</li>
 </ul>
 <div class="example-block">
   <span class="example-label">Quick Example</span>
@@ -326,7 +326,7 @@ print(fruits[3])
 <p><strong>Common exception types</strong></p>
 <ul>
   <li><code>IndexError</code>: asked a list for a position that doesn't exist (like index 3 in a 3-item list).</li>
-  <li><code>NameError</code>: used a variable that was never created -- almost always a typo.</li>
+  <li><code>NameError</code>: used a variable that was never created, almost always a typo.</li>
   <li><code>KeyError</code>: asked a dictionary for a key it doesn't have.</li>
 </ul>
 <div class="note-block">
@@ -341,10 +341,10 @@ print(fruits[3])
   <div class="io-row"><span class="io-key">favorite</span><code class="io-val">"cherry"</code></div>
 </div>`,
     hints: [
-      "The list only has 3 items, at indexes 0, 1, and 2 -- index 3 doesn't exist.",
+      "The list only has 3 items, at indexes 0, 1, and 2. Index 3 doesn't exist.",
       "favorite = fruits[2]"
     ],
-    starterCode: 'fruits = ["apple", "banana", "cherry"]\nfavorite = fruits[3]  # this crashes -- fix the index\n',
+    starterCode: 'fruits = ["apple", "banana", "cherry"]\nfavorite = fruits[3]  # this crashes, fix the index\n',
     solution: 'fruits = ["apple", "banana", "cherry"]\nfavorite = fruits[2]',
     validation: {
       checks: [
@@ -530,7 +530,7 @@ print(scores)  # Output: [3, 17, 42, 56, 89]</code></pre>
     validation: {
       checks: [
         { type: "matchesRegex", pattern: "scores\\.sort\\(\\s*\\)", message: "Call scores.sort() to sort the list in place." },
-        { type: "matchesRegex", pattern: "^(?!.*scores\\s*=\\s*scores\\.sort).*$", message: "Don't reassign scores to the result of sort() -- it returns None." }
+        { type: "matchesRegex", pattern: "^(?!.*scores\\s*=\\s*scores\\.sort).*$", message: "Don't reassign scores to the result of sort(). It returns None." }
       ],
       pyTests: [
         { code: "assert scores == [3, 17, 42, 56, 89]", message: "'scores' should be sorted smallest to largest: [3, 17, 42, 56, 89]." }
@@ -645,7 +645,7 @@ print(csv_line)  # Output: red, green, blue</code></pre>
     xp: 15,
     kind: "project",
     source: "Tiny Python Projects #3, \"Picnic\"",
-    instructions: `<p>This project is adapted from <em>Tiny Python Projects</em>' Picnic exercise: turning a list into a sentence a person would actually read, the way you'd say it out loud instead of just printing the raw list. It combines two things you already know -- slicing with <code>items[:-1]</code> and <code>items[-1]</code>, and joining a list of strings with <code>", ".join(...)</code> -- inside an f-string.</p>
+    instructions: `<p>This project is adapted from <em>Tiny Python Projects</em>' Picnic exercise: turning a list into a sentence a person would actually read, the way you'd say it out loud instead of just printing the raw list. It combines two things you already know (slicing with <code>items[:-1]</code> and <code>items[-1]</code>, and joining a list of strings with <code>", ".join(...)</code>) inside an f-string.</p>
 <div class="example-block">
   <span class="example-label">Quick Example</span>
   <pre><code>items = ["milk", "eggs"]
@@ -779,7 +779,7 @@ print(person["name"])  # Output: Bob</code></pre>
     instructions: `<p>Dictionaries give you three ways to look at what's inside them: <code>.keys()</code> lists every key, <code>.values()</code> lists every value, and <code>.items()</code> pairs each key with its value together.</p>
 <p>None of these hand you back a plain list, so wrap the result in <code>list()</code> if that's the format you need.</p>
 <ul>
-  <li><strong>View object:</strong> <code>.keys()</code>, <code>.values()</code>, and <code>.items()</code> return a live view, not a list -- it updates automatically if the dictionary changes, and you can't index into it directly.</li>
+  <li><strong>View object:</strong> <code>.keys()</code>, <code>.values()</code>, and <code>.items()</code> return a live view, not a list. It updates automatically if the dictionary changes, and you can't index into it directly.</li>
 </ul>
 <div class="example-block">
   <span class="example-label">Quick Example</span>
@@ -866,7 +866,7 @@ print(prices.get("mango", 0))  # Output: 0</code></pre>
     xp: 15,
     kind: "project",
     source: "Tiny Python Projects #7, \"Gashlycrumb\"",
-    instructions: `<p>A dictionary is a natural fit whenever you need to look something up by a short code, like a letter, an ID, or a country abbreviation. This project is adapted from <em>Tiny Python Projects</em>: an alphabet book where each letter maps to a line of text. It combines two things you already know -- dictionary lookups and f-strings -- with one new piece: a safe lookup that doesn't crash on a missing key.</p>
+    instructions: `<p>A dictionary is a natural fit whenever you need to look something up by a short code, like a letter, an ID, or a country abbreviation. This project is adapted from <em>Tiny Python Projects</em>: an alphabet book where each letter maps to a line of text. It combines two things you already know (dictionary lookups and f-strings) with one new piece: a safe lookup that doesn't crash on a missing key.</p>
 <p class="blueprint-line"><code>dictionary.get(key, default)</code></p>
 <div class="example-block">
   <span class="example-label">Quick Example</span>
@@ -878,7 +878,7 @@ print(line)  # Output: "is a mystery"</code></pre>
 <p><code>.get(key, default)</code> looks up <code>key</code> like <code>alphabet[key]</code> does, but returns <code>default</code> instead of crashing with a <code>KeyError</code> when the key isn't there.</p>
 <div class="note-block">
   <span class="note-label">Note</span>
-  <span>This shortened alphabet only has entries for A, B, and C -- looking up a letter like "D" is exactly what exercises the fallback, instead of crashing the program.</span>
+  <span>This shortened alphabet only has entries for A, B, and C: looking up a letter like "D" is exactly what exercises the fallback, instead of crashing the program.</span>
 </div>
 <span class="task-label">Your Task</span>
 <p class="task-line">Build a variable <code>line</code> by looking up <code>letter</code> safely in <code>alphabet</code> with <code>.get(letter, "is a mystery")</code> and combining it with <code>letter</code> itself.</p>
@@ -959,8 +959,8 @@ print(3 in unique_numbers) # Output: True</code></pre>
     instructions: `<p><code>if</code>, <code>elif</code>, and <code>else</code> let your program choose between different pieces of code depending on what's true. Python checks each condition top to bottom, and as soon as one is <code>True</code> it runs that block and skips the rest.</p>
 <p>Two rules make this work: every <code>if</code>/<code>elif</code>/<code>else</code> line ends with a colon <code>:</code>, and the lines belonging to that block are indented underneath it (4 spaces, by convention) instead of wrapped in curly braces.</p>
 <ul>
-  <li><strong>elif:</strong> short for "else if" -- only checked if every condition above it was <code>False</code>.</li>
-  <li><strong>Truthy/falsy:</strong> a condition doesn't need a comparison at all -- <code>if some_list:</code> is true whenever the list isn't empty, since empty collections, <code>0</code>, and <code>None</code> all count as false, and everything else counts as true.</li>
+  <li><strong>elif:</strong> short for "else if"; only checked if every condition above it was <code>False</code>.</li>
+  <li><strong>Truthy/falsy:</strong> a condition doesn't need a comparison at all; <code>if some_list:</code> is true whenever the list isn't empty, since empty collections, <code>0</code>, and <code>None</code> all count as false, and everything else counts as true.</li>
 </ul>
 <div class="example-block">
   <span class="example-label">Quick Example</span>
@@ -1063,7 +1063,7 @@ for animal in animals:
     xp: 10,
     instructions: `<p>A <strong>while loop</strong> keeps repeating as long as its condition stays true, checking that condition again before every pass. Unlike a for loop, nothing moves forward on its own, so you have to change something inside the loop yourself, or it runs forever.</p>
 <ul>
-  <li><strong>Condition check:</strong> Python re-checks the condition before every pass through the loop, including the very first one -- if it's already <code>False</code>, the loop body never runs at all.</li>
+  <li><strong>Condition check:</strong> Python re-checks the condition before every pass through the loop, including the very first one; if it's already <code>False</code>, the loop body never runs at all.</li>
 </ul>
 <p class="blueprint-line"><code>while condition:</code></p>
 <div class="example-block">
@@ -1110,7 +1110,7 @@ print(count)  # Output: 3</code></pre>
     xp: 15,
     kind: "project",
     source: "Tiny Python Projects #4, \"Jump the Five\"",
-    instructions: `<p>This project is adapted from <em>Tiny Python Projects</em>' Jump the Five exercise: a real substitution cipher where every digit trades places with the one five away from it (0 and 5 swap, 1 and 6 swap, and so on). It combines two things you already know -- dictionary lookups and building a string with <code>+=</code> in a loop -- with one new piece: looping over a string steps through it one character at a time, the same way a for loop steps through a list.</p>
+    instructions: `<p>This project is adapted from <em>Tiny Python Projects</em>' Jump the Five exercise: a real substitution cipher where every digit trades places with the one five away from it (0 and 5 swap, 1 and 6 swap, and so on). It combines two things you already know (dictionary lookups and building a string with <code>+=</code> in a loop) with one new piece: looping over a string steps through it one character at a time, the same way a for loop steps through a list.</p>
 <div class="example-block">
   <span class="example-label">Quick Example</span>
   <pre><code>word = "cat"
@@ -1339,7 +1339,7 @@ print(text.replace("a", "u"))  # Output: cut</code></pre>
     instructions: `<p>Turning one type of value into another is called <strong>casting</strong> in Python. <code>int()</code> and <code>float()</code> turn text into numbers, and <code>str()</code> turns a number back into text.</p>
 <p>Anything typed by a user, or read from a file, arrives as text by default, even if it looks like a number, so you have to convert it before doing any math with it.</p>
 <ul>
-  <li><strong>Casting:</strong> wrapping a value in <code>int()</code>, <code>float()</code>, or <code>str()</code> doesn't change the original variable -- it produces a new value of the requested type.</li>
+  <li><strong>Casting:</strong> wrapping a value in <code>int()</code>, <code>float()</code>, or <code>str()</code> doesn't change the original variable. It produces a new value of the requested type.</li>
 </ul>
 <p class="blueprint-line"><code>int(value)</code>&nbsp;&nbsp;/&nbsp;&nbsp;<code>float(value)</code>&nbsp;&nbsp;/&nbsp;&nbsp;<code>str(value)</code></p>
 <div class="example-block">

@@ -1,22 +1,5 @@
 /* sidebar.css -- Sidebar nav, level tree, progress widget */
 
-.sidebar-header {
-  padding: 12px 14px 8px;
-  border-bottom: 1px solid var(--border);
-}
-
-.sidebar-logo {
-  height: 32px;
-  width: auto;
-  display: block;
-  object-fit: contain;
-  transition: filter .2s;
-}
-
-[data-theme="light"] .sidebar-logo {
-  filter: brightness(0);
-}
-
 /* -------------------------------------------------------------------------
    Progress widget (streak, completion bar)
 ------------------------------------------------------------------------- */
