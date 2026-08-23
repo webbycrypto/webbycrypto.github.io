@@ -1,5 +1,15 @@
 window.LEVEL1 = [
   {
+    id: 221,
+    title: "Welcome to Level 1: Python Basics",
+    kind: "intro",
+    topic: "Introduction",
+    level: 1,
+    instructions: `<p>This level covers the building blocks every Python program is made of: variables, the core data types (strings, lists, dicts, sets, tuples), conditionals, loops, and the dot-notation used to call methods on values. It also covers reading a traceback, since that's the skill you'll lean on most once you're writing code on your own.</p>
+<p>Nothing here assumes you've programmed before. By the end, you'll be able to read a short Python script and know exactly what every line does -- and when something breaks, read the error instead of guessing.</p>`,
+    starterCode: ""
+  },
+  {
     id: 1,
     title: "Create Your First Variable",
     difficulty: "easy",

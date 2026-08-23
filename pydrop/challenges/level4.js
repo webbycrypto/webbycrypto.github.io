@@ -1,5 +1,15 @@
 window.LEVEL4 = [
   {
+    id: 224,
+    title: "Welcome to Level 4: Modern Python for Web",
+    kind: "intro",
+    topic: "Introduction",
+    level: 4,
+    instructions: `<p>This level is about writing Python that looks like real, production-shaped code: type hints, dataclasses, async/await, environment config, reading and writing real files, JSON, logging, and building actual command-line tools with <code>argparse</code>. It also covers reading Excel spreadsheets and parsing scraped HTML -- the unglamorous data-wrangling work most real Python jobs are made of.</p>
+<p>By the end, you'll be able to build a small CLI tool from scratch, one that takes real arguments, reads and writes real data, and handles its own errors -- the shape of code you'd actually find in a working project, not just a classroom exercise.</p>`,
+    starterCode: ""
+  },
+  {
     id: 61,
     title: "Type Hints: Function Parameters",
     difficulty: "easy",
@@ -1273,7 +1283,7 @@ TagPrinter().feed("&lt;p&gt;hi&lt;/p&gt;")  # Output: p</code></pre>
     id: 131,
     title: "Guided Project: Excel Spreadsheets",
     kind: "project",
-    source: "Automate the Boring Stuff with Python, ch.12, \"Working with Excel Spreadsheets\"",
+    source: "Automate the Boring Stuff with Python, ch.13, \"Working with Excel Spreadsheets\"",
     difficulty: "hard",
     topic: "Modules",
     level: 4,

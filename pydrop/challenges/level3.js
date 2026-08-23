@@ -1,5 +1,15 @@
 window.LEVEL3 = [
   {
+    id: 223,
+    title: "Welcome to Level 3: Intermediate Python",
+    kind: "intro",
+    topic: "Introduction",
+    level: 3,
+    instructions: `<p>This level is object-oriented programming: classes, <code>self</code>, inheritance, magic methods, exceptions, context managers, generators/iterators, decorators, and properties. It's the biggest shift in how you think about code so far -- instead of writing steps to run, you're designing objects that carry their own data and behavior around with them.</p>
+<p>It closes with a real project: a working Tic-Tac-Toe board with win-checking logic, built entirely from the class-design skills the level teaches. By the end, you'll be able to model a real-world thing as a Python class instead of a pile of loose variables.</p>`,
+    starterCode: ""
+  },
+  {
     id: 41,
     title: "Define a Class",
     difficulty: "easy",

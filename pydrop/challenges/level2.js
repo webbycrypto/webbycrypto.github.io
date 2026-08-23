@@ -1,5 +1,15 @@
 window.LEVEL2 = [
   {
+    id: 222,
+    title: "Welcome to Level 2: Functions & Logic",
+    kind: "intro",
+    topic: "Introduction",
+    level: 2,
+    instructions: `<p>Level 1 was about values and how to store them. This level is about turning code into reusable tools: <code>def</code>, parameters, return values, <code>*args</code>/<code>**kwargs</code>, closures, comprehensions, and regular expressions for pattern matching in text.</p>
+<p>Along the way you'll build several small, real projects adapted from published Python books -- a curse generator, a password checker, a Twelve Days of Christmas printer -- each one a payoff for the concepts right before it, not a detour from them. By the end, you'll be able to write your own functions instead of copy-pasting the same logic everywhere.</p>`,
+    starterCode: ""
+  },
+  {
     id: 109,
     title: "Regex Basics",
     difficulty: "easy",

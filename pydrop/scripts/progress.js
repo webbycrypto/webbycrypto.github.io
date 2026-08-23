@@ -125,7 +125,7 @@ const Progress = (function () {
   function _checkBadges(challengeId, difficulty, usedHint) {
     const earned = [];
     const done = state.completedChallenges;
-    const challenges = window.ALL_CHALLENGES || [];
+    const challenges = (window.ALL_CHALLENGES || []).filter(function (c) { return c.kind !== 'intro'; });
 
     // First Step
     if (done.length === 1) earned.push('first-step');
@@ -222,7 +222,7 @@ const Progress = (function () {
     const challenges = window.ALL_CHALLENGES || [];
     const levels = [1, 2, 3, 4, 5];
     return levels.map(function (lvl) {
-      const inLevel = challenges.filter(function (c) { return c.level === lvl; });
+      const inLevel = challenges.filter(function (c) { return c.level === lvl && c.kind !== 'intro'; });
       const doneInLevel = inLevel.filter(function (c) {
         return state.completedChallenges.includes(c.id);
       });
@@ -235,7 +235,7 @@ const Progress = (function () {
   }
 
   function getTotalProgress() {
-    const challenges = window.ALL_CHALLENGES || [];
+    const challenges = (window.ALL_CHALLENGES || []).filter(function (c) { return c.kind !== 'intro'; });
     return {
       completed: state.completedChallenges.length,
       total: challenges.length,

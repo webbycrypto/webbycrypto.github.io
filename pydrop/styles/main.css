@@ -307,7 +307,7 @@ select.filter-select:focus { border-color: var(--accent); }
   border: 1px solid var(--border);
   border-radius: 12px;
   width: 100%;
-  max-width: 560px;
+  max-width: 640px;
   max-height: 80vh;
   display: flex;
   flex-direction: column;
@@ -409,6 +409,89 @@ select.filter-select:focus { border-color: var(--accent); }
   margin-top: 16px;
   padding-top: 16px;
   border-top: 1px solid var(--border);
+}
+
+/* -------------------------------------------------------------------------
+   Glossary
+------------------------------------------------------------------------- */
+.glossary-search {
+  width: 100%;
+  padding: 10px 14px;
+  margin-bottom: 14px;
+  background: var(--bg-surface0);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  color: var(--text-primary);
+  font-size: 13.5px;
+}
+.glossary-search:focus { outline: none; border-color: var(--accent); }
+
+.glossary-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.glossary-entry {
+  background: var(--bg-surface0);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 12px 14px;
+}
+.glossary-term-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 4px;
+}
+.glossary-term {
+  font-family: var(--font-mono);
+  font-size: 13.5px;
+  font-weight: 700;
+  color: var(--accent-teal);
+}
+.glossary-topic-tag {
+  font-size: 10.5px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: .04em;
+  color: var(--text-faint);
+  flex-shrink: 0;
+}
+.glossary-def {
+  font-size: 13px;
+  color: var(--text-muted);
+  margin: 0 0 8px;
+}
+.glossary-example {
+  background: var(--bg-mantle);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 8px 10px;
+  margin: 0 0 8px;
+  font-size: 12px;
+  overflow-x: auto;
+}
+.glossary-source {
+  display: inline-block;
+  background: none;
+  border: none;
+  padding: 0;
+  font-size: 11.5px;
+  color: var(--accent);
+  cursor: pointer;
+  text-decoration: underline;
+}
+.glossary-source--extra {
+  color: var(--text-faint);
+  cursor: default;
+  text-decoration: none;
+}
+.glossary-empty {
+  color: var(--text-muted);
+  text-align: center;
+  padding: 20px 0;
 }
 
 /* -------------------------------------------------------------------------

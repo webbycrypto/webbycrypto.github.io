@@ -71,7 +71,7 @@ const App = (function () {
   let _running = false;
 
   function _run() {
-    if (!_currentChallenge || _running) return;
+    if (!_currentChallenge || _running || _currentChallenge.kind === 'intro') return;
     const challenge = _currentChallenge;
     const code = Editor.getValue();
     const result = Validator.validate(code, challenge.validation.checks);
@@ -128,7 +128,7 @@ const App = (function () {
   }
 
   function _reset() {
-    if (!_currentChallenge) return;
+    if (!_currentChallenge || _currentChallenge.kind === 'intro') return;
     Editor.reset(_currentChallenge);
     document.getElementById('feedback-panel').innerHTML = '';
     document.getElementById('explanation-panel').innerHTML = '';
@@ -138,14 +138,14 @@ const App = (function () {
   }
 
   function _showHint() {
-    if (!_currentChallenge) return;
+    if (!_currentChallenge || _currentChallenge.kind === 'intro') return;
     Progress.markHintUsed(_currentChallenge.id);
     const next = UI.showHint(_currentChallenge, _hintIndex);
     _hintIndex = next !== null ? next : _hintIndex;
   }
 
   function _showSolution() {
-    if (!_currentChallenge) return;
+    if (!_currentChallenge || _currentChallenge.kind === 'intro') return;
     const confirmed = confirm('Show solution? You will not earn the hint bonus for this challenge.');
     if (!confirmed) return;
     Progress.markSolutionRevealed(_currentChallenge.id);
@@ -181,6 +181,7 @@ const App = (function () {
     });
 
     document.getElementById('btn-dashboard').addEventListener('click', UI.openDashboard);
+    document.getElementById('btn-glossary').addEventListener('click', UI.openGlossary);
     document.getElementById('btn-theme').addEventListener('click', UI.toggleTheme);
     document.getElementById('btn-sidebar-toggle').addEventListener('click', UI.toggleSidebar);
 

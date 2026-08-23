@@ -17,6 +17,44 @@ const UI = (function () {
     5: 'Blockchain Fundamentals'
   };
 
+  // Common Python builtins that are genuinely useful but never come up in
+  // any lesson -- hand-written since there's no challenge to extract them
+  // from. Kept short: only the ones worth knowing, not the full builtin list.
+  const GLOSSARY_EXTRAS = [
+    {
+      term: 'eval()', definition: 'Runs a string as a Python expression and returns the result. Handy in quick scripts, risky on untrusted input.',
+      example: 'eval("2 + 3 * 4")\n# Output: 14'
+    },
+    {
+      term: 'getattr()', definition: "Reads an attribute off an object by name (as a string), with an optional fallback instead of crashing if it's missing.",
+      example: 'getattr(price, "currency", "USD")\n# Output: "USD" (if price has no .currency)'
+    },
+    {
+      term: 'hasattr()', definition: 'Checks whether an object has a given attribute, returning True/False instead of raising an error.',
+      example: 'hasattr("hello", "upper")\n# Output: True'
+    },
+    {
+      term: 'divmod()', definition: 'Returns (quotient, remainder) as a tuple in one call, instead of writing // and % separately.',
+      example: 'divmod(17, 5)\n# Output: (3, 2)'
+    },
+    {
+      term: 'pow()', definition: 'Same as ** for two arguments; a third argument does efficient modular exponentiation (pow(a, b, m) == (a ** b) % m, but fast).',
+      example: 'pow(2, 10)\n# Output: 1024'
+    },
+    {
+      term: 'abs()', definition: 'Absolute value of a number -- drops the sign.',
+      example: 'abs(-7)\n# Output: 7'
+    },
+    {
+      term: 'callable()', definition: 'True if the object can be called like a function (with parentheses), False otherwise.',
+      example: 'callable(len)\n# Output: True'
+    },
+    {
+      term: 'iter()', definition: 'Turns an iterable into an iterator you can manually advance with next() -- what a for loop does internally.',
+      example: 'it = iter([10, 20, 30])\nnext(it)\n# Output: 10'
+    }
+  ];
+
   function init() {
     _sidebar = document.getElementById('sidebar');
     _mainPanel = document.getElementById('main-panel');
@@ -47,19 +85,21 @@ const UI = (function () {
     // Level trees
     for (let lvl = 1; lvl <= 5; lvl++) {
       const levelChallenges = challenges.filter(function (c) { return c.level === lvl; });
-      const completedCount = levelChallenges.filter(function (c) {
+      const gradableInLevel = levelChallenges.filter(function (c) { return c.kind !== 'intro'; });
+      const completedCount = gradableInLevel.filter(function (c) {
         return Progress.isChallengeCompleted(c.id);
       }).length;
 
       html += '<div class="level-group">' +
         '<div class="level-header" data-level="' + lvl + '">' +
         '<span class="level-name">Level ' + lvl + ' -- ' + LEVEL_NAMES[lvl] + '</span>' +
-        '<span class="level-count">' + completedCount + '/' + levelChallenges.length + '</span>' +
+        '<span class="level-count">' + completedCount + '/' + gradableInLevel.length + '</span>' +
         '</div>';
 
       html += '<div class="challenge-list">';
       levelChallenges.forEach(function (c) {
-        const done = Progress.isChallengeCompleted(c.id);
+        const isIntro = c.kind === 'intro';
+        const done = !isIntro && Progress.isChallengeCompleted(c.id);
         const active = c.id === currentId;
         const diffClass = 'diff-' + c.difficulty;
         html += '<div class="challenge-item' +
@@ -70,7 +110,9 @@ const UI = (function () {
           '<span class="ch-title">' + escHtml(c.title) +
           (c.kind === 'project' ? ' <span class="ch-project-badge" title="Guided project">📘</span>' : '') +
           '</span>' +
-          '<span class="ch-diff-dot ' + diffClass + '" data-difficulty="' + c.difficulty + '" title="' + c.difficulty + '" aria-label="' + c.difficulty + ' difficulty"></span>' +
+          (isIntro
+            ? '<span class="ch-intro-badge" title="Level intro">📖</span>'
+            : '<span class="ch-diff-dot ' + diffClass + '" data-difficulty="' + c.difficulty + '" title="' + c.difficulty + '" aria-label="' + c.difficulty + ' difficulty"></span>') +
           '</div>';
       });
       html += '</div>';
@@ -167,9 +209,10 @@ const UI = (function () {
   }
 
   function renderChallenge(challenge) {
-    const done = Progress.isChallengeCompleted(challenge.id);
+    const isIntro = challenge.kind === 'intro';
+    const done = !isIntro && Progress.isChallengeCompleted(challenge.id);
 
-    const html = '<div class="challenge-header">' +
+    let html = '<div class="challenge-header">' +
       '<div class="challenge-meta">' +
       '<span class="topic-chip">' + escHtml(challenge.topic) + '</span>' +
       (challenge.kind === 'project' ? '<span class="project-chip">📘 Guided Project</span>' : '') +
@@ -180,8 +223,26 @@ const UI = (function () {
       '</div>' +
       '<div class="instructions">' + challenge.instructions + '</div>';
 
+    if (isIntro) {
+      const nextId = getAdjacentChallengeId(challenge.id, 1);
+      html += '<button class="btn btn-primary intro-start-btn" id="btn-intro-start"' +
+        (nextId === null ? ' disabled' : '') + '>Start Level &#8594;</button>';
+    }
+
     document.getElementById('challenge-info').innerHTML = html;
     _enhanceExampleBlocks(document.getElementById('challenge-info'));
+
+    if (isIntro) {
+      const startBtn = document.getElementById('btn-intro-start');
+      if (startBtn) {
+        startBtn.addEventListener('click', function () {
+          const nextId = getAdjacentChallengeId(challenge.id, 1);
+          if (nextId !== null) App.navigateTo(nextId);
+        });
+      }
+    }
+
+    document.getElementById('app').classList.toggle('intro-mode', isIntro);
 
     // Action bar
     document.getElementById('btn-run').classList.toggle('done', done);
@@ -343,12 +404,12 @@ const UI = (function () {
   }
 
   function getRandomChallengeId() {
-    const all = window.ALL_CHALLENGES || [];
+    const all = (window.ALL_CHALLENGES || []).filter(function (c) { return c.kind !== 'intro'; });
     return all[Math.floor(Math.random() * all.length)].id;
   }
 
   function getDailyChallenge() {
-    const all = window.ALL_CHALLENGES || [];
+    const all = (window.ALL_CHALLENGES || []).filter(function (c) { return c.kind !== 'intro'; });
     const dayIndex = Math.floor(Date.now() / 86400000) % all.length;
     return all[dayIndex].id;
   }
@@ -458,6 +519,126 @@ const UI = (function () {
   }
 
   // -----------------------------------------------------------------------
+  // Glossary
+  // -----------------------------------------------------------------------
+
+  let _glossaryData = null;
+
+  // Walks every challenge's already-written instructions HTML and pulls out
+  // its Jargon Breakdown bullets (<li><strong>Term:</strong> ...</li>) plus
+  // that challenge's Quick Example code, if it has one. No new content is
+  // written here -- this only reads what's already taught. Deduped by term
+  // name (case-insensitive), first occurrence in curriculum order wins.
+  function _buildGlossaryData() {
+    if (_glossaryData) return _glossaryData;
+
+    const seen = new Set();
+    const entries = [];
+    const scratch = document.createElement('div');
+
+    (window.ALL_CHALLENGES || []).forEach(function (c) {
+      if (c.kind === 'intro' || !c.instructions) return;
+
+      scratch.innerHTML = c.instructions;
+
+      const exampleCode = scratch.querySelector('.example-block pre code');
+      const example = exampleCode ? exampleCode.textContent.trim() : null;
+
+      scratch.querySelectorAll('li').forEach(function (li) {
+        const strong = li.querySelector('strong');
+        if (!strong || li.firstElementChild !== strong) return;
+        const term = strong.textContent.replace(/:$/, '').trim();
+        const key = term.toLowerCase();
+        if (!term || seen.has(key)) return;
+        seen.add(key);
+
+        const definition = li.textContent.slice(strong.textContent.length).replace(/^:\s*/, '').trim();
+        entries.push({
+          term: term,
+          definition: definition,
+          example: example,
+          topic: c.topic,
+          level: c.level,
+          challengeId: c.id,
+          challengeTitle: c.title
+        });
+      });
+    });
+
+    GLOSSARY_EXTRAS.forEach(function (extra) {
+      if (seen.has(extra.term.toLowerCase().replace(/\(\)$/, ''))) return;
+      entries.push({
+        term: extra.term,
+        definition: extra.definition,
+        example: extra.example,
+        topic: 'Python Reference',
+        level: null,
+        challengeId: null,
+        challengeTitle: null
+      });
+    });
+
+    entries.sort(function (a, b) { return a.term.localeCompare(b.term); });
+    _glossaryData = entries;
+    return entries;
+  }
+
+  function _renderGlossaryList(entries) {
+    if (!entries.length) return '<p class="glossary-empty">No terms match that search.</p>';
+    return entries.map(function (e) {
+      const exampleHtml = e.example
+        ? '<pre class="glossary-example"><code>' + Highlighter.highlight(e.example) + '</code></pre>'
+        : '';
+      const sourceHtml = e.challengeId !== null
+        ? '<button class="glossary-source" data-id="' + e.challengeId + '">' +
+          escHtml('Level ' + e.level + ' -- ' + e.challengeTitle) + '</button>'
+        : '<span class="glossary-source glossary-source--extra">Not covered in a lesson</span>';
+      return '<div class="glossary-entry" data-term="' + escHtml(e.term.toLowerCase()) + '" data-topic="' + escHtml(e.topic) + '">' +
+        '<div class="glossary-term-row"><code class="glossary-term">' + escHtml(e.term) + '</code>' +
+        '<span class="glossary-topic-tag">' + escHtml(e.topic) + '</span></div>' +
+        '<p class="glossary-def">' + escHtml(e.definition) + '</p>' +
+        exampleHtml +
+        sourceHtml +
+        '</div>';
+    }).join('');
+  }
+
+  function openGlossary() {
+    const entries = _buildGlossaryData();
+    const content = '<div class="glossary">' +
+      '<input type="text" id="glossary-search" class="glossary-search" placeholder="Search functions, methods, terms…" autocomplete="off">' +
+      '<div class="glossary-list" id="glossary-list">' + _renderGlossaryList(entries) + '</div>' +
+      '</div>';
+
+    showModal('Glossary', content);
+
+    setTimeout(function () {
+      const searchInput = document.getElementById('glossary-search');
+      const list = document.getElementById('glossary-list');
+      if (searchInput) {
+        searchInput.addEventListener('input', function () {
+          const q = searchInput.value.trim().toLowerCase();
+          const filtered = !q ? entries : entries.filter(function (e) {
+            return e.term.toLowerCase().includes(q) ||
+              e.definition.toLowerCase().includes(q) ||
+              e.topic.toLowerCase().includes(q);
+          });
+          list.innerHTML = _renderGlossaryList(filtered);
+        });
+        searchInput.focus();
+      }
+      if (list) {
+        list.addEventListener('click', function (e) {
+          const btn = e.target.closest('.glossary-source');
+          if (!btn || !btn.dataset.id) return;
+          closeModal();
+          App.navigateTo(parseInt(btn.dataset.id, 10));
+        });
+      }
+    }, 50);
+  }
+
+  // -----------------------------------------------------------------------
   // Modal
   // -----------------------------------------------------------------------
 
@@ -508,7 +689,7 @@ const UI = (function () {
     init, renderSidebar, renderChallenge, markChallengeDone, showFeedback, showBadges,
     showHint, filterSidebar,
     getAdjacentChallengeId, getRandomChallengeId, getDailyChallenge,
-    toggleTheme, toggleSidebar, openDashboard, showModal, closeModal, showToast,
+    toggleTheme, toggleSidebar, openDashboard, openGlossary, showModal, closeModal, showToast,
     showPyTestFeedback, showRuntimeError, showTimeout,
     setLoadingRuntime, setRunning
   };

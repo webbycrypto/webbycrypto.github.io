@@ -1,5 +1,15 @@
 window.LEVEL5 = [
   {
+    id: 225,
+    title: "Welcome to Level 5: Blockchain Fundamentals",
+    kind: "intro",
+    topic: "Introduction",
+    level: 5,
+    instructions: `<p>This level is different from everything before it: instead of general Python skills, you're using the Python you already know to build a real, working blockchain from scratch -- hashing, chaining blocks together, Merkle trees, proof of work, digital signatures, proof of stake, and Byzantine fault tolerance. Every concept is grounded in code you write and run yourself, not just definitions.</p>
+<p>Nothing here assumes you know blockchain already. By the end, you'll understand what a hash chain actually protects against, why proof of work and proof of stake exist as competing answers to the same problem, and how systems like Bitcoin and Ethereum work under the hood -- because you'll have built simplified versions of each piece yourself.</p>`,
+    starterCode: ""
+  },
+  {
     id: 200,
     title: "Hashing Basics",
     difficulty: "easy",

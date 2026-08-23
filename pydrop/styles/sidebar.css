@@ -164,3 +164,9 @@
 .diff-easy   { color: var(--accent-green); }
 .diff-medium { color: var(--accent-yellow); }
 .diff-hard   { color: var(--accent-red); }
+
+.ch-intro-badge {
+  font-size: 10px;
+  flex-shrink: 0;
+  opacity: .85;
+}

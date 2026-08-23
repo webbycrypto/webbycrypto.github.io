@@ -31,6 +31,22 @@
   #editor-col { flex: 1 1 60%; }
 }
 
+/* Level intro entries have no code to run -- hide the editor column
+   entirely and let the instructions take the full width. */
+#app.intro-mode #editor-col {
+  display: none;
+}
+#app.intro-mode #info-col {
+  flex: 1 1 auto;
+  width: 100%;
+  max-width: none;
+  border-right: none;
+}
+.intro-start-btn {
+  display: block;
+  margin: 24px 0 8px;
+}
+
 /* Challenge info + instructions */
 #challenge-info {
   padding: 16px 20px 0;
