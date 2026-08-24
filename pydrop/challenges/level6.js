@@ -534,6 +534,56 @@ sqlalchemy = "^2.0.0"</code></pre>
     explanation: `<p>Committing a <code>pyproject.toml</code> (and its lockfile) is what lets anyone clone an open-source repo and run <code>poetry install</code> to get the exact same working environment you have: no "works on my machine" surprises.</p>`
   },
   {
+    id: 244,
+    title: "Writing a Test with pytest",
+    difficulty: "medium",
+    topic: "Tooling",
+    level: 6,
+    xp: 15,
+    instructions: `<p><strong>pytest</strong> is the standard tool for testing Python code: install it (<code>pip install pytest</code>), write functions named <code>test_...</code> containing plain <code>assert</code> statements, and running <code>pytest</code> in your terminal automatically finds and runs every one of them, reporting which passed and which failed.</p>
+<ul>
+  <li><strong>Test discovery:</strong> pytest finds every function starting with <code>test_</code> in any file matching <code>test_*.py</code> or <code>*_test.py</code>, with no manual registration needed.</li>
+</ul>
+<p class="blueprint-line"><code>def test_name():</code><br><code>&nbsp;&nbsp;&nbsp;&nbsp;assert expression</code></p>
+<div class="example-block">
+  <span class="example-label">Quick Example</span>
+  <pre><code>def square(n):
+    return n * n
+
+def test_square():
+    assert square(3) == 9
+    assert square(-2) == 4</code></pre>
+</div>
+<div class="note-block">
+  <span class="note-label">Note</span>
+  <span>A test that never runs its assert can't catch anything: writing square(3) == 9 without the assert keyword just evaluates a throwaway boolean and does nothing, and pytest reports the test as passed regardless of whether the function is actually correct.</span>
+</div>
+<span class="task-label">Your Task</span>
+<p class="task-line">Write <code>celsius_to_fahrenheit(c)</code>, which returns <code>c * 9 / 5 + 32</code>. Then write <code>test_celsius_to_fahrenheit()</code>, asserting <code>celsius_to_fahrenheit(0) == 32</code> and <code>celsius_to_fahrenheit(100) == 212</code>.</p>
+<div class="example-block">
+  <span class="example-label">Example</span>
+  <div class="io-row"><span class="io-key">test_celsius_to_fahrenheit()</span><code class="io-val">runs with no error</code></div>
+</div>`,
+    hints: [
+      "def celsius_to_fahrenheit(c):\n    return c * 9 / 5 + 32",
+      "def test_celsius_to_fahrenheit():\n    assert celsius_to_fahrenheit(0) == 32\n    assert celsius_to_fahrenheit(100) == 212"
+    ],
+    starterCode: "def celsius_to_fahrenheit(c):\n    # Convert Celsius to Fahrenheit\n    pass\n\n\ndef test_celsius_to_fahrenheit():\n    # Assert celsius_to_fahrenheit(0) == 32 and celsius_to_fahrenheit(100) == 212\n    pass\n",
+    solution: "def celsius_to_fahrenheit(c):\n    return c * 9 / 5 + 32\n\n\ndef test_celsius_to_fahrenheit():\n    assert celsius_to_fahrenheit(0) == 32\n    assert celsius_to_fahrenheit(100) == 212",
+    validation: {
+      checks: [
+        { type: "hasValidDef", name: "celsius_to_fahrenheit", message: "Define celsius_to_fahrenheit(c)." },
+        { type: "hasValidDef", name: "test_celsius_to_fahrenheit", message: "Define test_celsius_to_fahrenheit()." },
+        { type: "matchesRegex", pattern: "assert\\s+celsius_to_fahrenheit", message: "Use assert inside test_celsius_to_fahrenheit to check celsius_to_fahrenheit's results." }
+      ],
+      pyTests: [
+        { code: "assert celsius_to_fahrenheit(0) == 32 and celsius_to_fahrenheit(100) == 212", message: "celsius_to_fahrenheit(0) should be 32 and celsius_to_fahrenheit(100) should be 212." },
+        { code: "test_celsius_to_fahrenheit()", message: "Calling test_celsius_to_fahrenheit() directly should not raise, confirming its assertions actually hold." }
+      ]
+    },
+    explanation: `<p>Calling <code>test_celsius_to_fahrenheit()</code> directly here works the same way pytest calls it internally: it just runs the function and treats any <code>AssertionError</code> as a failure. The only difference from real pytest is that you're calling it by hand instead of letting the <code>pytest</code> command discover it for you.</p>`
+  },
+  {
     id: 238,
     title: "How the Ethereum Virtual Machine Works",
     difficulty: "easy",
