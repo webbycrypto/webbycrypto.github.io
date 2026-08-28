@@ -1,5 +1,5 @@
 /**
- * editor.js -- Textarea-based code editor with line numbers and syntax highlighting
+ * editor.js: Textarea-based code editor with line numbers and syntax highlighting
  */
 
 const Editor = (function () {
@@ -24,7 +24,7 @@ const Editor = (function () {
   }
 
   function _handleKeydown(e) {
-    // Tab key -- insert 4 spaces
+    // Tab key: insert 4 spaces
     if (e.key === 'Tab') {
       e.preventDefault();
       const start = _textarea.selectionStart;
@@ -36,7 +36,7 @@ const Editor = (function () {
       return;
     }
 
-    // Enter key -- auto-indent
+    // Enter key: auto-indent
     if (e.key === 'Enter') {
       e.preventDefault();
       const start = _textarea.selectionStart;

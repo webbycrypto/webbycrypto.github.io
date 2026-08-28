@@ -1,5 +1,5 @@
 """
-wallet.py -- from PyDrop Level 6: "Wallet: Deriving an Address" and
+wallet.py. From PyDrop Level 6: "Wallet: Deriving an Address" and
 "Wallet: Signing a Transaction" (challenges id245, id246).
 
 A Wallet holds a real asymmetric key pair (PyNaCl) and derives a
@@ -18,7 +18,7 @@ class Wallet:
     def __init__(self):
         self.signing_key = SigningKey.generate()
         self.verify_key = self.signing_key.verify_key
-        # The address is nothing but a hash of the public key -- generate
+        # The address is nothing but a hash of the public key: generate
         # the same key pair twice and you'd get the same address both
         # times. Real chains do the same thing with a different exact
         # hash/encoding (Ethereum: last 20 bytes of keccak256(pubkey);

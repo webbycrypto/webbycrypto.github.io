@@ -1,5 +1,5 @@
 /**
- * validator.js -- Python code pattern validator
+ * validator.js: Python code pattern validator
  * Analyses code strings using regex and structural checks.
  * No Python runtime required.
  */
@@ -204,9 +204,9 @@ const Validator = (function () {
     let intro = '';
     if (partialCredit === 0) {
       const intros = [
-        "Not quite yet -- let's work through it.",
+        "Not quite yet: let's work through it.",
         "Keep going! Here is what is missing:",
-        "Almost -- just a few things to fix:"
+        "Almost there, just a few things to fix:"
       ];
       intro = intros[Math.floor(Math.random() * intros.length)];
     } else {

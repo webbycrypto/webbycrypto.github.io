@@ -1,5 +1,5 @@
 /**
- * pyworker.js -- Runs inside a dedicated module Worker. Loads the vendored
+ * pyworker.js: Runs inside a dedicated module Worker. Loads the vendored
  * Pyodide runtime once, then executes student code + pyTests in a fresh
  * namespace on every 'run' message. Never touches the DOM or main thread state.
  */

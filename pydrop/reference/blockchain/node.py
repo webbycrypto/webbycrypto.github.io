@@ -1,5 +1,5 @@
 """
-node.py -- from PyDrop Level 6's capstone: "Guided Project: Wrap It in
+node.py. From PyDrop Level 6's capstone: "Guided Project: Wrap It in
 a REST API" (id242), "Guided Project: A Stablecoin Ledger API" (id243),
 and "Guided Project: Turn Your API into a Node" (id250). Also uses
 broadcast_block from "Broadcasting a Block to Peers" (id248).

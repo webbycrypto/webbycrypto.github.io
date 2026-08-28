@@ -1,8 +1,8 @@
 """
-demo.py -- a plain script walking through the whole pipeline with no
+demo.py. A plain script walking through the whole pipeline with no
 server involved: wallets, signing, building a chain, an attack that
 gets caught, and resolving two competing chains. Run this first, with
-`python demo.py`, before touching node.py -- it's the fastest way to
+`python demo.py`, before touching node.py: it's the fastest way to
 see everything from PyDrop's Level 6 capstone actually work together.
 """
 
@@ -40,7 +40,7 @@ long_invalid.add_block("block two")
 long_invalid.chain[1].data = "tampered after the fact"  # breaks its own hash
 
 # resolve_chains expects an is_valid_fn that takes a chain (list of
-# Block objects) and returns True/False -- Blockchain.is_valid() is a
+# Block objects) and returns True/False. Blockchain.is_valid() is a
 # method on an instance, so wrap it to work on a bare list instead:
 def is_chain_list_valid(block_list):
     temp = Blockchain()
@@ -49,4 +49,4 @@ def is_chain_list_valid(block_list):
 
 
 winner = resolve_chains(short_valid.chain, long_invalid.chain, is_chain_list_valid)
-print(f"Winner has {len(winner)} block(s) -- the shorter, honest chain should win")
+print(f"Winner has {len(winner)} block(s): the shorter, honest chain should win")

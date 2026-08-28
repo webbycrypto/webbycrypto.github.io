@@ -1,5 +1,5 @@
 /**
- * app.js -- Bootstrap, global state, routing, keyboard shortcuts
+ * app.js: Bootstrap, global state, routing, keyboard shortcuts
  * Load order: all level*.js files, then validator.js, highlighter.js,
  * progress.js, editor.js, ui.js, then this file.
  */

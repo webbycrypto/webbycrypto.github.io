@@ -98,7 +98,7 @@ window.LEVEL5 = [
         { type: "matchesRegex", pattern: "@app\\.route\\(.*api/status", message: "Route to /api/status." }
       ]
     },
-    explanation: `<p><code>jsonify()</code> accepts a dictionary or keyword arguments and returns a <code>Response</code> object with the JSON body and correct headers. Never just return a raw string of JSON -- use <code>jsonify()</code>.</p>`
+    explanation: `<p><code>jsonify()</code> accepts a dictionary or keyword arguments and returns a <code>Response</code> object with the JSON body and correct headers. Never just return a raw string of JSON: use <code>jsonify()</code>.</p>`
   },
   {
     id: 85,
@@ -152,7 +152,7 @@ window.LEVEL5 = [
         { type: "matchesRegex", pattern: "@\\w+_bp\\.route|@users_bp\\.route", message: "Define a route on the blueprint." }
       ]
     },
-    explanation: `<p>Blueprints are registered on the main app with <code>app.register_blueprint(users_bp)</code>. They are the standard way to organise routes in a real Flask project -- one blueprint per feature area.</p>`
+    explanation: `<p>Blueprints are registered on the main app with <code>app.register_blueprint(users_bp)</code>. They are the standard way to organise routes in a real Flask project: one blueprint per feature area.</p>`
   },
   {
     id: 87,
@@ -229,7 +229,7 @@ window.LEVEL5 = [
         { type: "matchesRegex", pattern: "return\\s*\\{", message: "Return a dictionary (FastAPI auto-converts to JSON)." }
       ]
     },
-    explanation: `<p>FastAPI automatically serialises Python dictionaries to JSON responses. Unlike Flask, there is no need for <code>jsonify()</code> -- just return a dict. You can also return Pydantic models for type-safe responses.</p>`
+    explanation: `<p>FastAPI automatically serialises Python dictionaries to JSON responses. Unlike Flask, there is no need for <code>jsonify()</code>: just return a dict. You can also return Pydantic models for type-safe responses.</p>`
   },
   {
     id: 90,
@@ -255,7 +255,7 @@ window.LEVEL5 = [
         { type: "matchesRegex", pattern: "return.*item_id|\\{['\"]item_id['\"]", message: "Return item_id in the response dict." }
       ]
     },
-    explanation: `<p>FastAPI uses the type hint <code>int</code> to automatically validate the path parameter. If someone sends a non-integer, FastAPI returns a 422 Unprocessable Entity error automatically -- no manual validation needed.</p>`
+    explanation: `<p>FastAPI uses the type hint <code>int</code> to automatically validate the path parameter. If someone sends a non-integer, FastAPI returns a 422 Unprocessable Entity error automatically, no manual validation needed.</p>`
   },
   {
     id: 91,
@@ -360,7 +360,7 @@ window.LEVEL5 = [
         { type: "matchesRegex", pattern: "@app\\.get\\(.*users.*\\{", message: "Route to /users/{user_id}." }
       ]
     },
-    explanation: `<p><code>response_model</code> tells FastAPI to filter the response to only include fields defined in the model. This is critical for security -- you can return a full database object but only expose the safe fields.</p>`
+    explanation: `<p><code>response_model</code> tells FastAPI to filter the response to only include fields defined in the model. This is critical for security: you can return a full database object but only expose the safe fields.</p>`
   },
   {
     id: 95,
@@ -507,9 +507,9 @@ window.LEVEL5 = [
     instructions: `<p>Django's ORM lets you query the database using Python instead of SQL. Every model has a <code>objects</code> manager for queries.</p>
 <p>Write three ORM queries (as variable assignments) using the <code>Article</code> model:</p>
 <ul>
-  <li><code>all_articles</code> -- get all articles</li>
-  <li><code>published</code> -- filter articles where <code>published=True</code></li>
-  <li><code>first_article</code> -- get the article with id=1</li>
+  <li><code>all_articles</code>: get all articles</li>
+  <li><code>published</code>: filter articles where <code>published=True</code></li>
+  <li><code>first_article</code>: get the article with id=1</li>
 </ul>`,
     hints: [
       "all_articles = Article.objects.all()",

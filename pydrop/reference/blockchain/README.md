@@ -22,7 +22,7 @@ Use this two ways:
 | `wallet.py` | Key generation, address derivation, transaction signing | Wallet: Deriving an Address, Wallet: Signing a Transaction |
 | `blockchain.py` | `Block`/`Blockchain`, signature verification, `resolve_chains` | Build a Blockchain From Scratch, Resolving Competing Chains |
 | `node.py` | The FastAPI service: chain, stablecoin ledger, node/peer routes | Wrap It in a REST API, A Stablecoin Ledger API, Turn Your API into a Node |
-| `demo.py` | A plain script exercising all of the above, no server needed | -- |
+| `demo.py` | A plain script exercising all of the above, no server needed | None |
 
 The workflow below has four stages, in order: set up once, run the plain
 script to see the core logic work, run it as a single API, then run three

@@ -528,7 +528,7 @@ print(show_config(debug=True, retries=3))  # Output: 2</code></pre>
     topic: "Functions",
     level: 2,
     xp: 20,
-    instructions: `<p>A recursive function calls itself with a smaller version of the same problem, over and over, until it reaches a case simple enough to answer directly, called the base case. Every recursive function needs one, or it calls itself forever.</p>
+    instructions: `<p>Some problems are naturally defined in terms of smaller versions of themselves, like a factorial, or walking into a folder that contains more folders. A loop would need extra bookkeeping to track "where am I in this," while a <strong>recursive function</strong> calls itself with a smaller version of the same problem, over and over, until it reaches a case simple enough to answer directly, called the base case. Every recursive function needs one, or it calls itself forever.</p>
 <p>Trace <code>factorial(3)</code> to see it happen: it needs <code>3 * factorial(2)</code>, which needs <code>2 * factorial(1)</code>, which needs <code>1 * factorial(0)</code>. <code>factorial(0)</code> is the base case, so it just returns <code>1</code> without calling itself again. Then the answers unwind back up: <code>1 * 1 = 1</code>, then <code>2 * 1 = 2</code>, then <code>3 * 2 = 6</code>. Each call waits on the one below it before it can finish.</p>
 <ul>
   <li><strong>Recursive step:</strong> the part where the function calls itself again, but with a smaller or simpler version of the original problem, moving it closer to the base case.</li>
@@ -844,7 +844,7 @@ print(square(6))  # Output: 36</code></pre>
     topic: "Functions",
     level: 2,
     xp: 20,
-    instructions: `<p><code>map(func, iterable)</code> applies a function to every item in a sequence, and <code>filter(func, iterable)</code> keeps only the items where that function returns something truthy. Both hand back a lazy iterator, so you'll usually wrap the result in <code>list()</code> to see or store the actual values.</p>
+    instructions: `<p>You just saw a comprehension do this in one line. <code>map()</code> and <code>filter()</code> do the same two jobs, transform every item, or keep only some, as plain function calls instead. You'll still run into both in real code, and unlike a comprehension, either one can be handed directly to another function as an argument. <code>map(func, iterable)</code> applies a function to every item in a sequence, and <code>filter(func, iterable)</code> keeps only the items where that function returns something truthy. Both hand back a lazy iterator, so you'll usually wrap the result in <code>list()</code> to see or store the actual values.</p>
 <ul>
   <li><strong>map():</strong> transforms every item. The output has exactly the same number of items as the input, just changed.</li>
   <li><strong>filter():</strong> selects a subset of items. The output can be shorter than the input, since items that fail the check get dropped.</li>

@@ -21,7 +21,7 @@
   --font-mono: 'Cascadia Code', Consolas, 'Courier New', monospace;
 }
 
-/* Explicit content sources -- only the files that use Tailwind utility
+/* Explicit content sources: only the files that use Tailwind utility
    classes need scanning. challenges/*.js only ever uses the legacy
    semantic classes (task-label, example-block, etc.), never Tailwind
    utilities, but is included defensively per the plan. */

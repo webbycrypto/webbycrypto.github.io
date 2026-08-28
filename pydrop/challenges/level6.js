@@ -333,7 +333,7 @@ print(token)  # a different token every time, even for the same email</code></pr
     topic: "Applied Cryptography",
     level: 6,
     xp: 25,
-    instructions: `<p>Level 5's "Signing Transactions" challenge used <code>hmac</code> as a stand-in for real signatures, and said outright that real systems use <strong>asymmetric cryptography</strong> instead: a private key that only you hold, and a matching public key anyone can use to verify what you signed, without ever needing your private key. This challenge is the real thing, using <code>PyNaCl</code>, a well-established Python cryptography library.</p>
+    instructions: `<p>Level 5's "Signing Transactions" challenge used <code>hmac</code> as a stand-in for real signatures, and said outright that real systems use <strong>asymmetric cryptography</strong> instead: a private key that only you hold, and a matching public key anyone can use to verify what you signed, without ever needing your private key. It's the same idea as a wax seal on a letter, only you own the stamp that presses it, but anyone who has seen your seal before can check a new letter against it without being able to press a convincing fake themselves. This challenge is the real thing, using <code>PyNaCl</code>, a well-established Python cryptography library.</p>
 <ul>
   <li><strong>Asymmetric:</strong> signing and verifying use two different keys (private to sign, public to verify), unlike HMAC's stand-in, which used the same shared secret for both.</li>
 </ul>
@@ -531,7 +531,7 @@ except BadSignatureError:
     topic: "Data Persistence",
     level: 6,
     xp: 15,
-    instructions: `<p>An <strong>ORM</strong> (object-relational mapper) lets you define a database table as a Python class instead of writing raw SQL. <code>SQLAlchemy</code> is the standard one: each class attribute becomes a column, each instance becomes a row, and queries read like Python instead of SQL strings.</p>
+    instructions: `<p>An <strong>ORM</strong> (object-relational mapper) lets you define a database table as a Python class instead of writing raw SQL. <code>SQLAlchemy</code> is the standard one: each class attribute becomes a column, each instance becomes a row, and queries read like Python instead of SQL strings. Every model inherits from a shared <code>Base</code> class, created once with <code>declarative_base()</code>, which is how SQLAlchemy keeps track of which classes map to which tables.</p>
 <ul>
   <li><strong>Column:</strong> a typed field on the table, declared with <code>Column(Integer)</code>, <code>Column(String)</code>, etc., the same way a dataclass field declares a type.</li>
 </ul>
@@ -585,7 +585,7 @@ class User(Base):
     topic: "Data Persistence",
     level: 6,
     xp: 15,
-    instructions: `<p>Most apps store state directly: a balance is a number in a row, and updating it overwrites that number. <strong>Event sourcing</strong> does something different: instead of storing the current state, you store every event that ever changed it, in order, and the current state is just whatever you get from replaying them. This is exactly the shape of the blockchain you already built in Level 5. It never overwrites a block, it only ever appends a new one.</p>
+    instructions: `<p>Most apps store state directly: a balance is a number in a row, and updating it overwrites that number. <strong>Event sourcing</strong> does something different: instead of storing the current state, you store every event that ever changed it, in order, and the current state is just whatever you get from replaying them. A bank statement works the same way; it never edits a past line, it just lists every deposit and withdrawal, and your balance is whatever you get from adding up that list. This is exactly the shape of the blockchain you already built in Level 5. It never overwrites a block, it only ever appends a new one.</p>
 <ul>
   <li><strong>Replay:</strong> slower than reading a stored number, but nothing is ever lost. A bug in how you compute the balance can be fixed and replayed against the same history to get the right answer, instead of the wrong number already being baked in.</li>
 </ul>
@@ -733,7 +733,7 @@ def test_square():
     xp: 10,
     instructions: `<p>Ethereum and every EVM-compatible chain (Polygon, Base, Arbitrum, and most others in active use) run a shared virtual machine, the <strong>EVM</strong>, that executes smart contract code identically no matter which computer runs it. Every computer participating in the network is a <strong>node</strong>; each one re-runs every transaction itself to independently agree on the result: the same "everyone re-checks everything" idea Level 5's <code>is_chain_valid</code> was built around, just running live across thousands of machines instead of one script.</p>
 <ul>
-  <li><strong>Gas:</strong> a fee, paid in the chain's own currency, that scales with how much computation a transaction actually does. It's what stops someone from writing an infinite loop and grinding the network to a halt for free.</li>
+  <li><strong>Gas:</strong> a fee, paid in the chain's own currency, that scales with how much computation a transaction actually does, the same way an electric bill scales with how much power you actually use instead of charging a flat rate. It's what stops someone from writing an infinite loop and grinding the network to a halt for free.</li>
 </ul>
 <div class="example-block">
   <span class="example-label">Quick Example</span>
@@ -774,7 +774,7 @@ def test_square():
     xp: 15,
     instructions: `<p><strong>Vyper</strong> is a smart contract language with deliberately Python-like syntax, designed for the EVM. It is not Python (it doesn't run in a Python interpreter, it compiles to EVM bytecode), but if you can already read Python, Vyper reads as familiar rather than foreign. This is the realistic path from "knows Python" to "can read a real smart contract," not writing contracts in literal Python, which isn't a thing any major chain supports.</p>
 <ul>
-  <li><strong>State variable:</strong> a contract-level variable, declared once at the top with a type, that persists on-chain between calls, the contract's permanent storage.</li>
+  <li><strong>State variable:</strong> a contract-level variable, declared once at the top with a type, that persists on-chain between calls, the contract's permanent storage. Wrapping the type in <code>public()</code>, like <code>public(address)</code>, also auto-generates a free getter function for it, on top of any function you write yourself.</li>
 </ul>
 <p class="blueprint-line"><code>@external</code><br><code>def name(param: type) -> type:</code></p>
 <div class="example-block">
@@ -788,7 +788,7 @@ def deposit():
 </div>
 <div class="note-block">
   <span class="note-label">Note</span>
-  <span>This is Vyper source, not Python; it can't be run or graded by this sandbox at all. You're typing it to build reading familiarity, matched purely on the text.</span>
+  <span>This is Vyper source, not Python; it can't be run or graded by this sandbox at all. You're typing it to build reading familiarity, matched purely on the text. <code>@external</code> marks a function as callable from outside the contract, not just internally.</span>
 </div>
 <span class="task-label">Your Task</span>
 <p class="task-line">Type the following Vyper function exactly, into a variable named <code>contract_code</code>: a state variable <code>owner: public(address)</code>, and an <code>@external</code> function <code>get_owner() -> address:</code> that returns <code>self.owner</code>.</p>
@@ -869,7 +869,7 @@ print(w3.from_wei(balance, "ether"))</code></pre>
     topic: "Nodes & Networking",
     level: 6,
     xp: 20,
-    instructions: `<p>Everything so far has been one Python program with one chain. A real blockchain is a network of independent programs, called <strong>nodes</strong>, each running the same software and holding its own copy of the chain. When a node adds a block, it doesn't just keep that to itself: it <strong>broadcasts</strong> the block to every other node it knows about, so their copies stay in sync too.</p>
+    instructions: `<p>Everything so far has been one Python program with one chain. A real blockchain is a network of independent programs, called <strong>nodes</strong>, each running the same software and holding its own copy of the chain. When a node adds a block, it doesn't just keep that to itself: it <strong>broadcasts</strong> the block to every other node it knows about, so their copies stay in sync too. It's the same idea as sending a message to a group chat: one message goes out to everyone in it, and one person's phone being off doesn't stop it from reaching everyone else.</p>
 <ul>
   <li><strong>Peer:</strong> another node's address (a URL, when nodes talk over HTTP) that this node knows about and can send data to.</li>
 </ul>
@@ -923,7 +923,7 @@ def broadcast_block(block_data, peer_urls):
     topic: "Nodes & Networking",
     level: 6,
     xp: 25,
-    instructions: `<p>Two nodes can end up with different, both individually valid, versions of the chain, for instance if they each accepted a different block at the same position before hearing about the other one. A node needs a consistent rule for picking which version to trust, and the standard one is simple: whichever valid chain is longer wins. An invalid chain never wins, no matter how long it is.</p>
+    instructions: `<p>Two nodes can end up with different, both individually valid, versions of the chain, for instance if they each accepted a different block at the same position before hearing about the other one. A node needs a consistent rule for picking which version to trust, and the standard one is simple: whichever valid chain is longer wins. An invalid chain never wins, no matter how long it is. It's the same instinct as weighing two conflicting accounts of the same event: check that each one actually holds up before ever comparing how detailed they are.</p>
 <ul>
   <li><strong>Longest-valid-chain rule:</strong> not just "longest chain", the chain also has to actually validate. A longer chain built on fabricated blocks loses to a shorter, honest one.</li>
 </ul>

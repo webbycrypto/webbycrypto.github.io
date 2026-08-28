@@ -168,8 +168,8 @@ print(Rectangle(3, 4).area())  # Output: 12</code></pre>
     topic: "Classes",
     level: 3,
     xp: 20,
-    instructions: `<p>A <code>@classmethod</code> receives the class itself (<code>cls</code>) as its first argument instead of an instance, which makes it useful for building objects in alternative ways. A <code>@staticmethod</code> receives nothing special at all; it's just a regular function that happens to live inside the class's namespace because it's conceptually related.</p>
-<p>Below, <code>Pizza.margherita()</code> is a classmethod that builds a pizza pre-configured with toppings, without the caller needing to know the exact list. <code>is_vegetarian</code> is a staticmethod: it doesn't touch <code>self</code> or <code>cls</code> at all, it's just a helper function that logically belongs with the class.</p>
+    instructions: `<p>A <code>@classmethod</code> receives the class itself (<code>cls</code>) as its first argument instead of an instance, which makes it useful for building objects in alternative ways. It's like ordering "the Margherita" at a pizzeria: you name a preset, and the kitchen builds a whole new pizza with the toppings already decided. You never list them yourself. A <code>@staticmethod</code> receives nothing special at all, more like the pizzeria's oven-temperature chart taped to the wall: related to making pizza, kept right by the ovens, but it never builds or touches any pizza itself.</p>
+<p><code>Pizza.margherita()</code> below is that classmethod, and <code>is_vegetarian</code> is that kind of staticmethod; it doesn't touch <code>self</code> or <code>cls</code>, just a helper that belongs with the class.</p>
 <ul>
   <li><strong>cls:</strong> the class-method equivalent of <code>self</code>. It refers to the class itself, not to any one instance, so calling <code>cls(...)</code> constructs a new object of that class.</li>
 </ul>
@@ -234,7 +234,7 @@ print(Pizza.margherita().toppings)  # Output: ['tomato', 'mozzarella']</code></p
     topic: "Classes",
     level: 3,
     xp: 20,
-    instructions: `<p><strong>Inheritance</strong> lets one class (the child) automatically pick up the attributes and methods of another (the parent), by naming the parent in parentheses after the child's class name. The child can then <strong>override</strong> any method by defining its own version with the same name.</p>
+    instructions: `<p>Reach for inheritance any time two or more classes share real behavior: you write the shared part once on a parent, and only the differences on each child, instead of copying the same methods into every class. <strong>Inheritance</strong> lets one class (the child) automatically pick up the attributes and methods of another (the parent), by naming the parent in parentheses after the child's class name. It works a lot like the metaphor in its name: a child starts out with everything its parent already has, but can still develop its own version of any one thing. In code that's called <strong>overriding</strong>: the child defines its own version of a method with the same name, and Python uses that version instead of the parent's.</p>
 <p class="blueprint-line"><code>class Child(Parent):</code></p>
 <div class="example-block">
   <span class="example-label">Quick Example</span>
@@ -284,7 +284,7 @@ print(Square(4).area())  # Output: 16</code></pre>
     topic: "Classes",
     level: 3,
     xp: 20,
-    instructions: `<p><code>super()</code> gives you a handle on the parent class from inside a child class, letting you call the parent's version of a method and then add to it, rather than rewriting everything from scratch. It's most common inside <code>__init__</code>, where the child wants the parent's setup plus a bit more of its own.</p>
+    instructions: `<p><code>super()</code> gives you a handle on the parent class from inside a child class, letting you call the parent's version of a method and then add to it, rather than rewriting everything from scratch. It's most common inside <code>__init__</code>, where the child wants the parent's setup plus a bit more of its own. Think of a factory finishing a generic <code>Vehicle</code> first, wheels and all, before a specific model line like <code>Car</code> adds its own brand on top.</p>
 <div class="example-block">
   <span class="example-label">Quick Example</span>
   <pre><code>class Vehicle:
@@ -646,7 +646,7 @@ with Resource() as r:
     topic: "Generators",
     level: 3,
     xp: 20,
-    instructions: `<p>A generator function uses <code>yield</code> instead of <code>return</code>, pausing at each one rather than ending the function. Calling the function doesn't run any of its code yet; it hands back a generator object, and each call to <code>next()</code> (or each step of a <code>for</code> loop) resumes execution up to the next <code>yield</code>.</p>
+    instructions: `<p>A list comprehension builds every value up front and holds all of them in memory at once. A generator function is for when that's wasteful, especially with a huge or endless sequence, since it produces one value at a time and never stores the rest. A generator function uses <code>yield</code> instead of <code>return</code>, pausing at each one rather than ending the function. Calling the function doesn't run any of its code yet; it hands back a generator object, and each call to <code>next()</code> (or each step of a <code>for</code> loop) resumes execution up to the next <code>yield</code>.</p>
 <ul>
   <li><strong>yield:</strong> pauses the function and hands back a value, but keeps all of its local state so it can pick up right where it left off on the next call.</li>
 </ul>

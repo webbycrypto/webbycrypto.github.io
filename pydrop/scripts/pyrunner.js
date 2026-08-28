@@ -1,5 +1,5 @@
 /**
- * pyrunner.js -- Main-thread wrapper around the Pyodide worker.
+ * pyrunner.js: Main-thread wrapper around the Pyodide worker.
  * Lazily creates the worker, races each run against a timeout, and
  * recovers from hangs by discarding and recreating the worker (the only
  * option available without SharedArrayBuffer/COOP+COEP for interruption).
@@ -82,7 +82,7 @@ const PyRunner = (function () {
         type: 'worker-error',
         message: 'This page was opened directly from disk (file://). Browsers block the ' +
           'Python runtime from loading under file://. Serve the site over http:// or ' +
-          'https:// instead -- e.g. run "python -m http.server" in this folder and open ' +
+          'https:// instead: e.g. run "python -m http.server" in this folder and open ' +
           'http://localhost:8000.'
       });
     }

@@ -1,4 +1,4 @@
-/* sidebar.css -- Sidebar nav, level tree, progress widget */
+/* sidebar.css: Sidebar nav, level tree, progress widget */
 
 /* -------------------------------------------------------------------------
    Progress widget (streak, completion bar)
@@ -134,7 +134,7 @@
 }
 
 /* -------------------------------------------------------------------------
-   Difficulty indicator in sidebar -- a small color dot, not a text chip
+   Difficulty indicator in sidebar: a small color dot, not a text chip
 ------------------------------------------------------------------------- */
 .ch-diff-dot {
   width: 7px;

@@ -302,6 +302,7 @@ print(bad)
     level: 5,
     xp: 25,
     instructions: `<p>A block holds a whole batch of transactions, not one string. A <strong>Merkle tree</strong> gives that batch a single fingerprint without hashing it all as one blob: hash every transaction individually (the "leaves"), then repeatedly pair up and hash the hashes (each round halving the count) until exactly one hash remains, the <strong>Merkle root</strong>.</p>
+<p>Think of it like mixing paint two colors at a time: blend a pair into one new color, then blend pairs of those blends again, halving the pile each round, until a single color remains, the same shape as the Merkle root collapsing an entire batch into one hash. Like paint, there's no working backward from that blend to recover the two colors that made it.</p>
 <p>Because every round only combines existing hashes, changing one transaction changes its leaf hash, then its pair's hash, all the way up to the root: one root catches a change anywhere in the batch, exactly like <code>previous_hash</code> did for the chain, just one level deeper. If a round has an odd count of hashes, the standard fix (used by Bitcoin) is to duplicate the last hash so it can pair with itself.</p>
 <p class="blueprint-line"><code>compute_merkle_root(transactions) -> root_hash</code></p>
 <div class="example-block">
@@ -406,7 +407,7 @@ print(hashlib.sha256((b + a).encode()).hexdigest()[:8])
     level: 5,
     xp: 30,
     instructions: `<p>Proof of work makes producing a valid block computationally expensive, so rewriting history means redoing that work for every block after an edit. A block only counts once its hash meets a <strong>difficulty target</strong>: conventionally, some number of leading zeros. Since a block's real fields don't naturally hash to that, you add a <strong>nonce</strong>: a number that contributes nothing meaningful to the block's content but changes the hash completely every time it changes (the avalanche effect again).</p>
-<p>"Mining" means trying <code>nonce = 0, 1, 2, ...</code> until the hash happens to start with enough zeros. There's no shortcut: hashing is one-way, so there's no working backward from a wanted hash to the nonce that produces it. Each extra required zero multiplies the expected search by 16 (hex digits range over 16 values), which is the entire hard-to-find, trivial-to-check asymmetry that secures the system.</p>
+<p>"Mining" is like trying every combination on a padlock by hand, working through <code>nonce = 0, 1, 2, ...</code> one at a time until the hash happens to start with enough zeros. There's no shortcut: hashing is one-way, so there's no working backward from a wanted hash to the nonce that produces it. Each extra required zero multiplies the expected search by 16 (hex digits range over 16 values), which is the entire hard-to-find, trivial-to-check asymmetry that secures the system.</p>
 <p class="blueprint-line"><code>mine_block(index, timestamp, data, previous_hash, difficulty) -> (nonce, hash)</code></p>
 <div class="example-block">
   <span class="example-label">Quick Example</span>
@@ -736,7 +737,7 @@ print(picks[0])
     level: 5,
     xp: 30,
     instructions: `<p>Proof of work and proof of stake both pick a single winner to propose the next block. A third consensus family, used by systems like practical Byzantine Fault Tolerance (PBFT), has a known, fixed committee of nodes <strong>vote</strong> on a proposed block, which only commits if enough of them agree.</p>
-<p>"Enough" means more than <strong>two-thirds</strong> of the committee, not a plain majority: that minimum bar is called a <strong>quorum</strong>. The name comes from the "Byzantine Generals Problem": some nodes might lie or vote inconsistently, and a two-thirds threshold (rather than 50%-plus-one) is what still lets an honest majority reach correct agreement despite that.</p>
+<p>"Enough" means more than <strong>two-thirds</strong> of the committee, not a plain majority: that minimum bar is called a <strong>quorum</strong>. The name comes from the "Byzantine Generals Problem": picture generals surrounding a city, coordinating attack or retreat only through messengers who might be traitors passing false orders, so no single vote can be trusted on its own. A two-thirds threshold (rather than 50%-plus-one) is what still lets an honest majority reach correct agreement despite that.</p>
 <p class="blueprint-line"><code>has_quorum(accept_count, total_nodes) -> bool</code></p>
 <div class="example-block">
   <span class="example-label">Quick Example</span>

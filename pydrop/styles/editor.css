@@ -1,4 +1,4 @@
-/* editor.css -- Code editor, line numbers, syntax highlight overlay */
+/* editor.css: Code editor, line numbers, syntax highlight overlay */
 
 /* -------------------------------------------------------------------------
    Main panel layout
@@ -23,7 +23,7 @@
 }
 
 /* Below the two-pane breakpoint (Tailwind's lg, 1024px) #main-columns
-   drops to a stacked column -- without an explicit height split here,
+   drops to a stacked column: without an explicit height split here,
    the instructions column would size to its content and push the editor
    column down, reintroducing page-level scrolling. */
 @media (max-width: 1023px) {
@@ -31,7 +31,7 @@
   #editor-col { flex: 1 1 60%; }
 }
 
-/* Level intro entries have no code to run -- hide the editor column
+/* Level intro entries have no code to run: hide the editor column
    entirely and let the instructions take the full width. */
 #app.intro-mode #editor-col {
   display: none;
@@ -160,7 +160,7 @@
   margin-bottom: 8px;
 }
 /* Only the task's own "Example" label (the one after "Your Task") gets the
-   purple treatment -- the concept-level "Quick Example" stays plain, and
+   purple treatment: the concept-level "Quick Example" stays plain, and
    "INPUT"/"OUTPUT" underneath it stay the same muted style either way. */
 .task-label ~ .example-block .example-label {
   color: var(--accent-purple);
@@ -357,7 +357,7 @@
   font-family: var(--font-mono);
   font-size: 13px;
   line-height: 1.6;
-  color: transparent;       /* text hidden -- highlight layer shows it */
+  color: transparent;       /* text hidden: highlight layer shows it */
   caret-color: var(--text-primary);
   background: transparent;
   border: none;

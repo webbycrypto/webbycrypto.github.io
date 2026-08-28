@@ -1,5 +1,5 @@
 /**
- * highlighter.js -- Pure-JS Python syntax highlighter
+ * highlighter.js: Pure-JS Python syntax highlighter
  * No CDN, no external dependencies.
  * Tokenises Python source and wraps tokens in <span class="hl-*"> elements.
  */
@@ -52,7 +52,7 @@ const Highlighter = (function () {
 
     while (i < len) {
 
-      // Triple-quoted string (simplified -- only within a line)
+      // Triple-quoted string (simplified: only within a line)
       if ((line[i] === '"' && line[i + 1] === '"' && line[i + 2] === '"') ||
           (line[i] === "'" && line[i + 1] === "'" && line[i + 2] === "'")) {
         const q = line.slice(i, i + 3);

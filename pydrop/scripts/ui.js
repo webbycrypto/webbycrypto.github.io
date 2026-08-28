@@ -1,5 +1,5 @@
 /**
- * ui.js -- Sidebar, challenge panel, modals, toasts, search/filter, theme
+ * ui.js: Sidebar, challenge panel, modals, toasts, search/filter, theme
  */
 
 const UI = (function () {
@@ -9,7 +9,7 @@ const UI = (function () {
   let _mainPanel = null;
   let _toastContainer = null;
 
-  // Which level groups are collapsed -- tracked here since renderSidebar()
+  // Which level groups are collapsed: tracked here since renderSidebar()
   // rebuilds the sidebar's innerHTML from scratch on every navigation, which
   // would otherwise wipe out any collapse state the user just set.
   const _collapsedLevels = new Set();
@@ -25,7 +25,7 @@ const UI = (function () {
   };
 
   // Common Python builtins that are genuinely useful but never come up in
-  // any lesson -- hand-written since there's no challenge to extract them
+  // any lesson: hand-written since there's no challenge to extract them
   // from. Kept short: only the ones worth knowing, not the full builtin list.
   const GLOSSARY_EXTRAS = [
     {
@@ -274,7 +274,7 @@ const UI = (function () {
 
   // Updates just the header's "Completed" chip and the Run button's done
   // state in place, without wiping the feedback/explanation panels that
-  // were just shown -- renderChallenge() would clear those.
+  // were just shown: renderChallenge() would clear those.
   function markChallengeDone(challenge) {
     const meta = document.querySelector('.challenge-meta');
     if (meta && !meta.querySelector('.done-chip')) {
@@ -546,7 +546,7 @@ const UI = (function () {
   // Walks every challenge's already-written instructions HTML and pulls out
   // its Jargon Breakdown bullets (<li><strong>Term:</strong> ...</li>) plus
   // that challenge's Quick Example code, if it has one. No new content is
-  // written here -- this only reads what's already taught. Deduped by term
+  // written here: this only reads what's already taught. Deduped by term
   // name (case-insensitive), first occurrence in curriculum order wins.
   function _buildGlossaryData() {
     if (_glossaryData) return _glossaryData;

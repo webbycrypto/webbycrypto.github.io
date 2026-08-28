@@ -1,5 +1,5 @@
 """
-blockchain.py -- from PyDrop Level 6's capstone: "Guided Project: Build
+blockchain.py. From PyDrop Level 6's capstone: "Guided Project: Build
 a Blockchain From Scratch" (id241, revised to use real wallet-signed
 transactions) and "Resolving Competing Chains" (id249).
 

@@ -1,5 +1,5 @@
 /**
- * progress.js -- completion tracking, streaks, badges, and LocalStorage persistence
+ * progress.js: completion tracking, streaks, badges, and LocalStorage persistence
  */
 
 const Progress = (function () {
@@ -133,13 +133,13 @@ const Progress = (function () {
     // Dedicated
     if (state.streak >= 7) earned.push('dedicated');
 
-    // Pythonista -- all level 1 done
+    // Pythonista: all level 1 done
     const lvl1 = challenges.filter(function (c) { return c.level === 1; });
     if (lvl1.length > 0 && lvl1.every(function (c) { return done.includes(c.id); })) {
       earned.push('pythonista');
     }
 
-    // On a Roll -- 5 consecutive without hints (approximate: 5 recent without any hint used)
+    // On a Roll: 5 consecutive without hints (approximate: 5 recent without any hint used)
     const recentFive = done.slice(-5);
     if (recentFive.length === 5) {
       const anyHint = recentFive.some(function (id) { return state.hintsUsed.includes(id); });
