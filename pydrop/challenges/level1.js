@@ -648,7 +648,7 @@ print(csv_line)  # Output: red, green, blue</code></pre>
     xp: 15,
     kind: "project",
     source: "Tiny Python Projects #3, \"Picnic\"",
-    instructions: `<p>This project is adapted from <em>Tiny Python Projects</em>' Picnic exercise: turning a list into a sentence a person would actually read, the way you'd say it out loud instead of just printing the raw list. It combines two things you already know (slicing with <code>items[:-1]</code> and <code>items[-1]</code>, and joining a list of strings with <code>", ".join(...)</code>) inside an f-string.</p>
+    instructions: `<p>This project is adapted from <em>Tiny Python Projects</em>' Picnic exercise: turning a list into a sentence a person would actually read, the way you'd say it out loud instead of just printing the raw list. That's a common real task any time a program has to show a list back to a person, a shopping list, a confirmation message, a set of tags, instead of a person reading raw Python. It combines two things you already know (slicing with <code>items[:-1]</code> and <code>items[-1]</code>, and joining a list of strings with <code>", ".join(...)</code>) inside an f-string.</p>
 <div class="example-block">
   <span class="example-label">Quick Example</span>
   <pre><code>items = ["milk", "eggs"]
@@ -1262,7 +1262,7 @@ print(letters[::-1])  # Output: fedcba</code></pre>
 </div>
 <p><strong>New pieces in this project</strong></p>
 <ul>
-  <li><code>[::step]</code>: the third slice value skips through the sequence that many at a time; a negative step, like <code>-1</code>, walks backward and reverses it.</li>
+  <li><code>[::step]</code>: the third slice value skips through the sequence that many at a time, handy any time you need every Nth item or want to walk it in reverse. A negative step, like <code>-1</code>, walks backward and reverses it, a quick way to reverse a sequence without writing a manual loop.</li>
 </ul>
 <span class="task-label">Your Task</span>
 <p class="task-line">Create <code>first_word</code> as the first 3 characters, <code>last_word</code> as the last 4 characters, and <code>reversed_text</code> as the whole string reversed.</p>

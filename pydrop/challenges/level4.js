@@ -810,7 +810,7 @@ print(args.words)  # Output: ['are', 'you', 'a', 'mouse']</code></pre>
     topic: "CLI Tools",
     level: 4,
     xp: 25,
-    instructions: `<p>From <em>Tiny Python Projects</em>: a word counter, adapted here to read standard input rather than a file. It combines counting words with <code>.split()</code> and formatting a result with an f-string, both already familiar, with one new way of getting input into a script: reading from a pipe (<code>cat notes.txt | python wc.py</code>) instead of <code>sys.argv</code> or <code>input()</code>.</p>
+    instructions: `<p>From <em>Tiny Python Projects</em>: a word counter, adapted here to read standard input rather than a file. Reading from standard input instead of a fixed filename is what lets a script sit anywhere in a pipeline, fed by whatever another command produced, instead of only ever running on one hardcoded file. It combines counting words with <code>.split()</code> and formatting a result with an f-string, both already familiar, with one new way of getting input into a script: reading from a pipe (<code>cat notes.txt | python wc.py</code>) instead of <code>sys.argv</code> or <code>input()</code>.</p>
 <p class="blueprint-line"><code>text = sys.stdin.read()</code></p>
 <div class="example-block">
   <span class="example-label">Quick Example</span>
@@ -1235,7 +1235,7 @@ print(row["name"])  # Output: Ada</code></pre>
     xp: 30,
     kind: "project",
     source: "Automate the Boring Stuff with Python, ch.12, \"Web Scraping\"",
-    instructions: `<p>The book's version of this chapter fetches a live web page over the network; this version skips the network entirely and parses a fixed HTML string instead, so the result is exactly the same every time it runs. It combines subclassing and instance state, both already familiar from custom exception classes and dataclasses, with the standard library's <code>html.parser.HTMLParser</code>: subclass it and override its handler methods to react as it walks through the markup.</p>
+    instructions: `<p>The book's version of this chapter fetches a live web page over the network; this version skips the network entirely and parses a fixed HTML string instead, so the result is exactly the same every time it runs. HTML tags can nest, span multiple lines, and vary in spacing and quoting, which is exactly the kind of structure regex reliably gets wrong on real-world pages. It combines subclassing and instance state, both already familiar from custom exception classes and dataclasses, with the standard library's <code>html.parser.HTMLParser</code>: subclass it and override its handler methods to react as it walks through the markup correctly instead.</p>
 <p class="blueprint-line"><code>class MyParser(HTMLParser): def handle_starttag(self, tag, attrs): ...</code></p>
 <div class="example-block">
   <span class="example-label">Quick Example</span>
@@ -1288,7 +1288,7 @@ TagPrinter().feed("&lt;p&gt;hi&lt;/p&gt;")  # Output: p</code></pre>
     topic: "Modules",
     level: 4,
     xp: 30,
-    instructions: `<p>Same write-then-reopen-and-compute shape you've already used with plain text files and CSV, applied to a real binary spreadsheet format via the third-party <code>openpyxl</code> library. It handles the <code>.xlsx</code> format itself; you still supply the loop that builds rows and the one that totals them.</p>
+    instructions: `<p>Businesses hand off data as <code>.xlsx</code> constantly, and the third-party <code>openpyxl</code> library is what lets a script read, transform, and write that real binary spreadsheet format directly, without a human ever opening Excel. It's the same write-then-reopen-and-compute shape you've already used with plain text files and CSV, just applied here. <code>openpyxl</code> handles the <code>.xlsx</code> format itself; you still supply the loop that builds rows and the one that totals them.</p>
 <p class="blueprint-line"><code>ws.append(row)</code> ... <code>wb.save(filename)</code> ... <code>load_workbook(filename).active</code></p>
 <div class="example-block">
   <span class="example-label">Quick Example</span>

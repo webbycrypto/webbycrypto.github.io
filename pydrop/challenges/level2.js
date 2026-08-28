@@ -754,7 +754,7 @@ print(animal, dice)  # Output: one of cat/dog/fox, a number 1-6</code></pre>
     xp: 20,
     kind: "project",
     source: "Tiny Python Projects #10, \"Telephone\"",
-    instructions: `<p>Like the party game it's named after, this project from <em>Tiny Python Projects</em> is about a message getting slightly garbled. It combines <code>random.randint()</code> and <code>random.choice()</code> from The random Module with slicing (<code>message[:position]</code> and <code>message[position + 1:]</code> work on strings exactly the same way they do on lists) to rebuild the message around one swapped character.</p>
+    instructions: `<p>Like the party game it's named after, this project from <em>Tiny Python Projects</em> is about a message getting slightly garbled. Strings can't be edited in place, so swapping even one character means rebuilding the whole string around it: keep everything before the spot, drop in the new character, keep everything after. This project combines <code>random.randint()</code> and <code>random.choice()</code> from The random Module with slicing (<code>message[:position]</code> and <code>message[position + 1:]</code> work on strings exactly the same way they do on lists) to do exactly that.</p>
 <div class="example-block">
   <span class="example-label">Quick Example</span>
   <pre><code>word = "abcde"
@@ -1185,7 +1185,7 @@ print(run_with(str.upper, "hi"))  # Output: HI</code></pre>
     xp: 20,
     kind: "project",
     source: "Tiny Python Projects #12, \"Ransom\"",
-    instructions: `<p>A classic ransom note look mixes upper and lower case letters at random, deciding independently for every single character. This project from <em>Tiny Python Projects</em> combines <code>random.choice()</code> with <code>.join()</code>, which you used in Joining a List into a String, with one new piece: feeding <code>.join()</code> a generator expression directly, instead of building a list first.</p>
+    instructions: `<p>A classic ransom note look mixes upper and lower case letters at random, deciding independently for every single character. This project from <em>Tiny Python Projects</em> combines <code>random.choice()</code> with <code>.join()</code>, which you used in Joining a List into a String, with one new piece: feeding <code>.join()</code> a generator expression directly, instead of building a list first. Skipping that intermediate list matters more as the input grows, since nothing needs to sit fully in memory before joining.</p>
 <p class="blueprint-line"><code>"".join(expression for item in iterable)</code></p>
 <div class="example-block">
   <span class="example-label">Quick Example</span>
@@ -1432,7 +1432,7 @@ print(announce(**movie))  # Output: Arrival (2016)</code></pre>
     xp: 30,
     kind: "project",
     source: "Tiny Python Projects #13, \"Twelve Days of Christmas\"",
-    instructions: `<p>The song adds one more gift each day while repeating every gift from the days before it, counting backward, with a small grammar twist: the very last gift listed gets an "and" in front of it, except on day one, where there's only one gift and no "and" needed at all. This capstone project from <em>Tiny Python Projects</em> pulls together a function, list indexing, and a conditional, with one new piece: <code>range()</code> with a negative step, which counts backward instead of forward.</p>
+    instructions: `<p>The song adds one more gift each day while repeating every gift from the days before it, counting backward, with a small grammar twist: the very last gift listed gets an "and" in front of it, except on day one, where there's only one gift and no "and" needed at all. This capstone project from <em>Tiny Python Projects</em> pulls together a function, list indexing, and a conditional, with one new piece: <code>range()</code> with a negative step, which counts backward instead of forward, exactly what's needed here since each day's verse lists its gifts newest first, counting back down to day one.</p>
 <p class="blueprint-line"><code>range(start, stop, -1)</code></p>
 <div class="example-block">
   <span class="example-label">Quick Example</span>
