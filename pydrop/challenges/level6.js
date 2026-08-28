@@ -5,9 +5,50 @@ window.LEVEL6 = [
     kind: "intro",
     topic: "Introduction",
     level: 6,
-    instructions: `<p>Level 5 taught you how a blockchain works underneath. This level teaches the layer real projects build on top of that: web APIs (FastAPI, Pydantic), practical cryptography beyond the HMAC stand-in from Level 5, and the tools a real Python codebase depends on, like an ORM, dependency management, and enough Web3 vocabulary (the EVM, Vyper, web3.py) to read an existing project instead of starting from zero.</p>
-<p>Some of this can't run inside this browser sandbox the way earlier challenges do: FastAPI, a real database, a real blockchain node, none of those exist in here. Those challenges are checked on the shape of the code you write, not by running it, and the instructions will tell you exactly that. The plan is: write it here, understand exactly what it does, then actually run it for real in your own VS Code. By the end, you'll have built a small blockchain from scratch and wrapped a real API around it.</p>`,
+    instructions: `<p>Level 5 taught you how a blockchain works underneath. This level teaches the layer real projects build on top of that: web APIs (FastAPI, Pydantic), practical cryptography beyond the HMAC stand-in from Level 5, wallets and nodes, and the tools a real Python codebase depends on, like an ORM, dependency management, and enough Web3 vocabulary (the EVM, Vyper, web3.py) to read an existing project instead of starting from zero.</p>
+<p>Some of this can't run inside this browser sandbox the way earlier challenges do: FastAPI, a real database, a real blockchain node, none of those exist in here. Those challenges are checked on the shape of the code you write, not by running it, and the instructions will tell you exactly that. The plan is: write it here, understand exactly what it does, then actually run it for real in your own VS Code. By the end, you'll have built a small blockchain from scratch, given it real wallets and signed transactions, wrapped a real API around it, and run a couple of nodes locally to watch them stay in sync.</p>`,
     starterCode: ""
+  },
+  {
+    id: 232,
+    title: "Why Async Matters for APIs",
+    difficulty: "easy",
+    topic: "Web APIs",
+    level: 6,
+    xp: 10,
+    instructions: `<p>You've already used <code>async</code>/<code>await</code> in Level 4. Here's why API frameworks are built around it: while one request is waiting on something slow (a database query, a call to another service), an async server can start handling a different request instead of just sitting idle. A <code>def</code> route blocks; an <code>async def</code> route can yield control while it waits. Every FastAPI route in this level is written as <code>async def</code>, not plain <code>def</code>, for exactly this reason.</p>
+<ul>
+  <li><strong>Blocking:</strong> code that makes the whole program wait, doing nothing else, until a slow operation finishes.</li>
+</ul>
+<div class="example-block">
+  <span class="example-label">Quick Example</span>
+  <pre><code>@app.get("/slow")
+async def slow_route():
+    await some_slow_database_call()
+    return {"done": True}
+# other requests keep being handled while this one awaits</code></pre>
+</div>
+<span class="task-label">Your Task</span>
+<p class="task-line">Convert this blocking route into a non-blocking one: change <code>def check_status()</code> to <code>async def check_status()</code>, and change the call to <code>slow_check()</code> into <code>await slow_check()</code>.</p>
+<div class="example-block">
+  <span class="example-label">Example</span>
+  <div class="io-row"><span class="io-key">Before</span><code class="io-val">def check_status(): result = slow_check()</code></div>
+  <div class="io-row"><span class="io-key">After</span><code class="io-val">async def check_status(): result = await slow_check()</code></div>
+</div>`,
+    hints: [
+      "async def check_status():",
+      "    result = await slow_check()",
+      "    return result"
+    ],
+    starterCode: "def check_status():\n    result = slow_check()\n    return result\n",
+    solution: "async def check_status():\n    result = await slow_check()\n    return result",
+    validation: {
+      checks: [
+        { type: "hasAsync", message: "Define check_status as an async function." },
+        { type: "hasAwait", message: "Use await when calling slow_check()." }
+      ]
+    },
+    explanation: `<p>Forgetting <code>await</code> in front of an async call is a common slip. Without it, you get the coroutine object itself, not its result, and it silently never actually runs.</p>`
   },
   {
     id: 227,
@@ -240,51 +281,6 @@ class Order(BaseModel):
     explanation: `<p>42 isn't arbitrary here. It's the exact character length of a real Ethereum address (<code>0x</code> plus 40 hex characters). Constraints like this are how a real API catches "someone pasted a broken address" before it ever touches actual logic.</p>`
   },
   {
-    id: 232,
-    title: "Why Async Matters for APIs",
-    difficulty: "easy",
-    topic: "Web APIs",
-    level: 6,
-    xp: 10,
-    instructions: `<p>You've already used <code>async</code>/<code>await</code> in Level 4. Here's why API frameworks are built around it: while one request is waiting on something slow (a database query, a call to another service), an async server can start handling a different request instead of just sitting idle. A <code>def</code> route blocks; an <code>async def</code> route can yield control while it waits.</p>
-<ul>
-  <li><strong>Blocking:</strong> code that makes the whole program wait, doing nothing else, until a slow operation finishes.</li>
-</ul>
-<div class="example-block">
-  <span class="example-label">Quick Example</span>
-  <pre><code>@app.get("/slow")
-async def slow_route():
-    await some_slow_database_call()
-    return {"done": True}
-# other requests keep being handled while this one awaits</code></pre>
-</div>
-<div class="note-block">
-  <span class="note-label">Note</span>
-  <span>This is also why every FastAPI route in this level is written as async def, not plain def; it's the pattern real FastAPI code uses.</span>
-</div>
-<span class="task-label">Your Task</span>
-<p class="task-line">Convert this blocking route into a non-blocking one: change <code>def check_status()</code> to <code>async def check_status()</code>, and change the call to <code>slow_check()</code> into <code>await slow_check()</code>.</p>
-<div class="example-block">
-  <span class="example-label">Example</span>
-  <div class="io-row"><span class="io-key">Before</span><code class="io-val">def check_status(): result = slow_check()</code></div>
-  <div class="io-row"><span class="io-key">After</span><code class="io-val">async def check_status(): result = await slow_check()</code></div>
-</div>`,
-    hints: [
-      "async def check_status():",
-      "    result = await slow_check()",
-      "    return result"
-    ],
-    starterCode: "def check_status():\n    result = slow_check()\n    return result\n",
-    solution: "async def check_status():\n    result = await slow_check()\n    return result",
-    validation: {
-      checks: [
-        { type: "hasAsync", message: "Define check_status as an async function." },
-        { type: "hasAwait", message: "Use await when calling slow_check()." }
-      ]
-    },
-    explanation: `<p>Forgetting <code>await</code> in front of an async call is a common slip. Without it, you get the coroutine object itself, not its result, and it silently never actually runs.</p>`
-  },
-  {
     id: 233,
     title: "Salting and Pseudonymizing Data",
     difficulty: "medium",
@@ -382,6 +378,151 @@ verify_key.verify(signed)  # returns the message if valid, raises BadSignatureEr
       ]
     },
     explanation: `<p>Every real blockchain wallet works this way: your private key never leaves your machine, and anyone can confirm a transaction is genuinely yours using only your public key. If <code>signed</code> gets altered by even one byte, <code>verify()</code> raises an exception instead of silently accepting it.</p>`
+  },
+  {
+    id: 245,
+    title: "Wallet: Deriving an Address",
+    difficulty: "medium",
+    topic: "Wallets",
+    level: 6,
+    xp: 20,
+    instructions: `<p>The last challenge generated a key pair on its own. A real <strong>wallet</strong> wraps that key pair into something usable: it holds the keys, and it exposes an <strong>address</strong>, a short public identifier derived from the public key that other people can send value to, safe to share since it never reveals the private key.</p>
+<ul>
+  <li><strong>Address:</strong> a hash of the public key, not something separately chosen or stored. Generate the same key pair twice and you'd get the same address both times.</li>
+</ul>
+<p class="blueprint-line"><code>class Wallet:</code><br><code>&nbsp;&nbsp;&nbsp;&nbsp;signing_key, verify_key, address</code></p>
+<div class="example-block">
+  <span class="example-label">Quick Example</span>
+  <pre><code>class Wallet:
+    def __init__(self):
+        self.signing_key = SigningKey.generate()
+        self.verify_key = self.signing_key.verify_key
+        self.address = hashlib.sha256(bytes(self.verify_key)).hexdigest()[:16]</code></pre>
+</div>
+<div class="note-block">
+  <span class="note-label">Note</span>
+  <span>Real wallets derive an address this way too: Ethereum's is the last 20 bytes of a hash of the public key, Algorand's is a base32 encoding of it plus a checksum. The exact hash differs by chain; the "address is a deterministic function of the public key" idea doesn't.</span>
+</div>
+<span class="task-label">Your Task</span>
+<p class="task-line">Write a <code>Wallet</code> class. <code>__init__</code> should generate <code>self.signing_key</code> and <code>self.verify_key</code> (same as the last challenge), then set <code>self.address</code> to the first 16 characters of the SHA-256 hex digest of <code>bytes(self.verify_key)</code>.</p>
+<div class="example-block">
+  <span class="example-label">Example</span>
+  <div class="io-row"><span class="io-key">wallet = Wallet()</span><code class="io-val">wallet.address is a 16-character hex string</code></div>
+</div>`,
+    hints: [
+      "from nacl.signing import SigningKey",
+      "import hashlib",
+      "class Wallet:",
+      "    def __init__(self):",
+      "        self.signing_key = SigningKey.generate()",
+      "        self.verify_key = self.signing_key.verify_key",
+      "        self.address = hashlib.sha256(bytes(self.verify_key)).hexdigest()[:16]"
+    ],
+    starterCode: "# Define the Wallet class\n",
+    solution: "from nacl.signing import SigningKey\nimport hashlib\n\nclass Wallet:\n    def __init__(self):\n        self.signing_key = SigningKey.generate()\n        self.verify_key = self.signing_key.verify_key\n        self.address = hashlib.sha256(bytes(self.verify_key)).hexdigest()[:16]",
+    validation: {
+      checks: [
+        { type: "hasImport", module: "nacl.signing", message: "Import SigningKey from nacl.signing." },
+        { type: "hasClass", name: "Wallet", message: "Define a class named Wallet." },
+        { type: "codeContains", value: "SigningKey.generate()", message: "Generate a signing key inside __init__." },
+        { type: "matchesRegex", pattern: "self\\.address\\s*=.*hashlib\\.sha256\\(\\s*bytes\\(\\s*self\\.verify_key\\s*\\)", message: "Set self.address from hashlib.sha256(bytes(self.verify_key))." }
+      ]
+    },
+    explanation: `<p>Truncating the hash to 16 characters is a simplification for this challenge; real chains use the full hash or a fixed-length encoding of it. The important part is that the address comes entirely from the public key. Anyone who knows your address can send to it, but nobody can derive your private key from it.</p>`
+  },
+  {
+    id: 246,
+    title: "Wallet: Signing a Transaction",
+    difficulty: "hard",
+    topic: "Wallets",
+    level: 6,
+    xp: 25,
+    instructions: `<p>A wallet's whole job is signing transactions on your behalf. Instead of signing an arbitrary message like the last two challenges did, a real transaction bundles the sender, recipient, and amount into one message, signs that, and hands back everything a stranger would need to verify it: the transaction itself, the signature, and the public key to check it against.</p>
+<ul>
+  <li><strong>Detached signature:</strong> storing the signature separately from the transaction, instead of one combined blob, so a verifier can rebuild the exact same message and check the signature against it explicitly.</li>
+</ul>
+<p class="blueprint-line"><code>wallet.sign_transaction(recipient, amount) -> {"sender", "recipient", "amount", "signature", "verify_key"}</code></p>
+<div class="example-block">
+  <span class="example-label">Quick Example</span>
+  <pre><code>message = f"{sender}{recipient}{amount}".encode()
+signature = signing_key.sign(message).signature
+# stored separately from the message, so a verifier rebuilds
+# the message itself and checks the signature against it</code></pre>
+</div>
+<span class="task-label">Your Task</span>
+<p class="task-line">Add a <code>sign_transaction(self, recipient, amount)</code> method to <code>Wallet</code>. Build <code>message = f"{self.address}{recipient}{amount}".encode()</code>, sign it with <code>self.signing_key.sign(message).signature</code>, and return a dict with keys <code>"sender"</code> (<code>self.address</code>), <code>"recipient"</code>, <code>"amount"</code>, <code>"signature"</code>, and <code>"verify_key"</code> (<code>bytes(self.verify_key)</code>).</p>
+<div class="example-block">
+  <span class="example-label">Example</span>
+  <div class="io-row"><span class="io-key">wallet.sign_transaction("bob-address", 10)</span><code class="io-val">{"sender": "...", "recipient": "bob-address", "amount": 10, "signature": b"...", "verify_key": b"..."}</code></div>
+</div>`,
+    hints: [
+      "def sign_transaction(self, recipient, amount):",
+      "    message = f\"{self.address}{recipient}{amount}\".encode()",
+      "    signature = self.signing_key.sign(message).signature",
+      "    return {\"sender\": self.address, \"recipient\": recipient, \"amount\": amount, \"signature\": signature, \"verify_key\": bytes(self.verify_key)}"
+    ],
+    starterCode: "# Add sign_transaction(self, recipient, amount) to your Wallet class\n",
+    solution: "from nacl.signing import SigningKey\nimport hashlib\n\nclass Wallet:\n    def __init__(self):\n        self.signing_key = SigningKey.generate()\n        self.verify_key = self.signing_key.verify_key\n        self.address = hashlib.sha256(bytes(self.verify_key)).hexdigest()[:16]\n\n    def sign_transaction(self, recipient, amount):\n        message = f\"{self.address}{recipient}{amount}\".encode()\n        signature = self.signing_key.sign(message).signature\n        return {\"sender\": self.address, \"recipient\": recipient, \"amount\": amount, \"signature\": signature, \"verify_key\": bytes(self.verify_key)}",
+    validation: {
+      checks: [
+        { type: "matchesRegex", pattern: "def\\s+sign_transaction\\s*\\(\\s*self\\s*,\\s*recipient\\s*,\\s*amount\\s*\\)", message: "Define sign_transaction(self, recipient, amount)." },
+        { type: "matchesRegex", pattern: "self\\.signing_key\\.sign\\(", message: "Sign the message with self.signing_key.sign()." },
+        { type: "codeContains", value: "\"signature\"", message: "Include a signature key in the returned dict." },
+        { type: "codeContains", value: "\"verify_key\"", message: "Include a verify_key key in the returned dict, so a stranger can verify without asking you." }
+      ]
+    },
+    explanation: `<p>Handing back <code>verify_key</code> alongside the signature is what makes this self-contained: anyone holding this dict, a chain, a node, another wallet, can verify it themselves without ever contacting you. That's the same shape a real transaction has on Algorand or Ethereum: the data, a signature, and enough information to check it independently.</p>`
+  },
+  {
+    id: 247,
+    title: "Attack: Forging a Signature",
+    difficulty: "medium",
+    topic: "Security",
+    level: 6,
+    xp: 20,
+    instructions: `<p>Level 5's Detecting Tampering challenge showed hashing catching a changed value. This is the same idea one layer up: instead of just asking "does this data match its hash," a real attacker tries to alter a signed transaction, e.g. bumping the amount, and hopes the original signature still checks out. It doesn't, and this challenge has you watch it fail for real instead of taking that on faith.</p>
+<p class="blueprint-line"><code>VerifyKey(verify_key).verify(message, signature)</code> raises <code>BadSignatureError</code> on a mismatch</p>
+<div class="example-block">
+  <span class="example-label">Quick Example</span>
+  <pre><code>from nacl.exceptions import BadSignatureError
+
+try:
+    verify_key.verify(tampered_message, original_signature)
+    forged_successfully = True
+except BadSignatureError:
+    forged_successfully = False</code></pre>
+</div>
+<span class="task-label">Your Task</span>
+<p class="task-line">Write <code>attempt_forge(transaction)</code>, which takes a signed transaction dict (from the last challenge's shape), changes its <code>"amount"</code> to <code>999999</code>, rebuilds the message from the tampered fields, and tries to verify it against the transaction's original <code>"signature"</code> using its <code>"verify_key"</code>. Return <code>True</code> if the forgery was caught (a <code>BadSignatureError</code> was raised), <code>False</code> if it wasn't.</p>
+<div class="example-block">
+  <span class="example-label">Example</span>
+  <div class="io-row"><span class="io-key">attempt_forge(signed_transaction)</span><code class="io-val">True (the forgery was caught)</code></div>
+</div>`,
+    hints: [
+      "from nacl.signing import VerifyKey",
+      "from nacl.exceptions import BadSignatureError",
+      "def attempt_forge(transaction):",
+      "    tampered = dict(transaction)",
+      "    tampered[\"amount\"] = 999999",
+      "    message = f\"{tampered['sender']}{tampered['recipient']}{tampered['amount']}\".encode()",
+      "    verify_key = VerifyKey(transaction[\"verify_key\"])",
+      "    try:",
+      "        verify_key.verify(message, transaction[\"signature\"])",
+      "        return False",
+      "    except BadSignatureError:",
+      "        return True"
+    ],
+    starterCode: "def attempt_forge(transaction):\n    # Tamper with the amount, then try to verify the original signature against it\n    pass\n",
+    solution: "from nacl.signing import VerifyKey\nfrom nacl.exceptions import BadSignatureError\n\ndef attempt_forge(transaction):\n    tampered = dict(transaction)\n    tampered[\"amount\"] = 999999\n    message = f\"{tampered['sender']}{tampered['recipient']}{tampered['amount']}\".encode()\n    verify_key = VerifyKey(transaction[\"verify_key\"])\n    try:\n        verify_key.verify(message, transaction[\"signature\"])\n        return False\n    except BadSignatureError:\n        return True",
+    validation: {
+      checks: [
+        { type: "hasValidDef", name: "attempt_forge", message: "Define attempt_forge(transaction)." },
+        { type: "codeContains", value: "999999", message: "Tamper with the amount before re-verifying." },
+        { type: "hasException", message: "Catch BadSignatureError around the verify() call." },
+        { type: "matchesRegex", pattern: "except\\s+BadSignatureError", message: "Catch BadSignatureError specifically, not a bare except." }
+      ]
+    },
+    explanation: `<p>The signature was made over the original message (with the real amount baked in). The moment you change the amount, the message you're verifying against no longer matches what was actually signed, so PyNaCl rejects it outright. This is exactly what stops someone from intercepting a real transaction and quietly inflating the amount before it reaches a node.</p>`
   },
   {
     id: 235,
@@ -722,6 +863,114 @@ print(w3.from_wei(balance, "ether"))</code></pre>
     explanation: `<p><code>w3.eth.get_balance()</code> returns wei, the smallest unit (like cents to a dollar, but 18 decimal places instead of 2). <code>w3.from_wei(balance, "ether")</code> converts it to the human-readable number you'd actually want to display.</p>`
   },
   {
+    id: 248,
+    title: "Broadcasting a Block to Peers",
+    difficulty: "medium",
+    topic: "Nodes & Networking",
+    level: 6,
+    xp: 20,
+    instructions: `<p>Everything so far has been one Python program with one chain. A real blockchain is a network of independent programs, called <strong>nodes</strong>, each running the same software and holding its own copy of the chain. When a node adds a block, it doesn't just keep that to itself: it <strong>broadcasts</strong> the block to every other node it knows about, so their copies stay in sync too.</p>
+<ul>
+  <li><strong>Peer:</strong> another node's address (a URL, when nodes talk over HTTP) that this node knows about and can send data to.</li>
+</ul>
+<p class="blueprint-line"><code>requests.post(peer_url + "/receive_block", params=block_data)</code></p>
+<div class="example-block">
+  <span class="example-label">Quick Example</span>
+  <pre><code>import requests
+
+def broadcast_block(block_data, peer_urls):
+    for url in peer_urls:
+        try:
+            requests.post(url + "/receive_block", params=block_data, timeout=2)
+        except requests.exceptions.RequestException:
+            pass  # a peer being unreachable shouldn't stop the others</code></pre>
+</div>
+<div class="note-block">
+  <span class="note-label">Note</span>
+  <span>Checked on code shape, like the rest of this level: a real node server is something you'd run for real across multiple terminals, not inside a browser sandbox. The next few challenges build toward exactly that.</span>
+</div>
+<span class="task-label">Your Task</span>
+<p class="task-line">Write <code>broadcast_block(block_data, peer_urls)</code>, which sends a <code>POST</code> request to <code>peer_url + "/receive_block"</code> for every URL in <code>peer_urls</code>, with <code>block_data</code> passed as <code>params</code> (not <code>json</code>: every route in this level's capstone reads its POST fields as query parameters, like <code>/mint</code>'s <code>account</code> and <code>amount</code>, so the receiving end has to be sent the same way). Wrap each request in a try/except so one unreachable peer doesn't stop the rest from being notified.</p>
+<div class="example-block">
+  <span class="example-label">Example</span>
+  <div class="io-row"><span class="io-key">broadcast_block({"data": "mint alice 100"}, ["http://node-b:8000", "http://node-c:8000"])</span><code class="io-val">both peers get notified, even if one is offline</code></div>
+</div>`,
+    hints: [
+      "import requests",
+      "def broadcast_block(block_data, peer_urls):",
+      "    for url in peer_urls:",
+      "        try:",
+      "            requests.post(url + \"/receive_block\", params=block_data, timeout=2)",
+      "        except requests.exceptions.RequestException:",
+      "            pass"
+    ],
+    starterCode: "# Broadcast a block to every peer, skipping any that are unreachable\n",
+    solution: "import requests\n\ndef broadcast_block(block_data, peer_urls):\n    for url in peer_urls:\n        try:\n            requests.post(url + \"/receive_block\", params=block_data, timeout=2)\n        except requests.exceptions.RequestException:\n            pass",
+    validation: {
+      checks: [
+        { type: "hasImport", module: "requests", message: "Import the requests module." },
+        { type: "hasValidDef", name: "broadcast_block", message: "Define broadcast_block(block_data, peer_urls)." },
+        { type: "matchesRegex", pattern: "requests\\.post\\(", message: "Send each peer a POST request with requests.post()." },
+        { type: "hasException", message: "Wrap each request in a try/except so one unreachable peer doesn't stop the others." }
+      ]
+    },
+    explanation: `<p>This is the client side of node-to-node communication: your node telling everyone else's node "here's a new block." Run this for real across a few terminals on your own machine and each one becomes an actual node, sending and receiving blocks like a small real network.</p>`
+  },
+  {
+    id: 249,
+    title: "Resolving Competing Chains",
+    difficulty: "hard",
+    topic: "Nodes & Networking",
+    level: 6,
+    xp: 25,
+    instructions: `<p>Two nodes can end up with different, both individually valid, versions of the chain, for instance if they each accepted a different block at the same position before hearing about the other one. A node needs a consistent rule for picking which version to trust, and the standard one is simple: whichever valid chain is longer wins. An invalid chain never wins, no matter how long it is.</p>
+<ul>
+  <li><strong>Longest-valid-chain rule:</strong> not just "longest chain", the chain also has to actually validate. A longer chain built on fabricated blocks loses to a shorter, honest one.</li>
+</ul>
+<p class="blueprint-line"><code>resolve_chains(chain_a, chain_b, is_valid_fn) -> the winning chain</code></p>
+<div class="example-block">
+  <span class="example-label">Quick Example</span>
+  <pre><code>def resolve_chains(chain_a, chain_b, is_valid_fn):
+    valid_a = is_valid_fn(chain_a)
+    valid_b = is_valid_fn(chain_b)
+    if valid_a and not valid_b:
+        return chain_a
+    if valid_b and not valid_a:
+        return chain_b
+    return chain_a if len(chain_a) >= len(chain_b) else chain_b</code></pre>
+</div>
+<span class="task-label">Your Task</span>
+<p class="task-line">Write <code>resolve_chains(chain_a, chain_b, is_valid_fn)</code>. Check both chains with <code>is_valid_fn(chain)</code>. If only one is valid, return that one, regardless of length. If both are valid, return whichever is longer, or <code>chain_a</code> on a tie. (Assume at least one of the two chains is always valid.)</p>
+<div class="example-block">
+  <span class="example-label">Example</span>
+  <div class="io-row"><span class="io-key">Input</span><code class="io-val">chain_a has 5 blocks and is valid; chain_b has 8 blocks but fails is_valid_fn</code></div>
+  <div class="io-row"><span class="io-key">resolve_chains(chain_a, chain_b, is_valid_fn)</span><code class="io-val">chain_a (the shorter, honest one)</code></div>
+</div>`,
+    hints: [
+      "def resolve_chains(chain_a, chain_b, is_valid_fn):",
+      "    valid_a = is_valid_fn(chain_a)",
+      "    valid_b = is_valid_fn(chain_b)",
+      "    if valid_a and not valid_b: return chain_a",
+      "    if valid_b and not valid_a: return chain_b",
+      "    return chain_a if len(chain_a) >= len(chain_b) else chain_b"
+    ],
+    starterCode: "def resolve_chains(chain_a, chain_b, is_valid_fn):\n    # Prefer the valid chain; if both are valid, prefer the longer one\n    pass\n",
+    solution: "def resolve_chains(chain_a, chain_b, is_valid_fn):\n    valid_a = is_valid_fn(chain_a)\n    valid_b = is_valid_fn(chain_b)\n    if valid_a and not valid_b:\n        return chain_a\n    if valid_b and not valid_a:\n        return chain_b\n    return chain_a if len(chain_a) >= len(chain_b) else chain_b",
+    validation: {
+      checks: [
+        { type: "hasValidDef", name: "resolve_chains", message: "Define resolve_chains(chain_a, chain_b, is_valid_fn)." },
+        { type: "codeContains", value: "is_valid_fn(", message: "Call is_valid_fn() to check each chain." },
+        { type: "matchesRegex", pattern: "len\\(\\s*chain_a\\s*\\)|len\\(\\s*chain_b\\s*\\)", message: "Compare chain lengths to decide between two valid chains." }
+      ],
+      pyTests: [
+        { code: "assert resolve_chains([1,2,3], [1,2,3,4,5], lambda c: True) == [1,2,3,4,5]", message: "Between two valid chains, the longer one should win." },
+        { code: "assert resolve_chains([1,2,3], [1,2,3,4,5], lambda c: c == [1,2,3]) == [1,2,3]", message: "A shorter valid chain should beat a longer chain that fails validation." },
+        { code: "assert resolve_chains([1,2,3], [1,2,3], lambda c: True) == [1,2,3]", message: "On a tie in length, chain_a should win." }
+      ]
+    },
+    explanation: `<p>This is why rewriting an established blockchain's history is so hard in practice: an attacker's forged chain has to be both valid (every hash and signature checks out) and longer than the honest chain the rest of the network already has, and building a longer valid chain takes real, unavoidable work.</p>`
+  },
+  {
     id: 241,
     title: "Guided Project: Build a Blockchain From Scratch",
     kind: "project",
@@ -729,46 +978,48 @@ print(w3.from_wei(balance, "ether"))</code></pre>
     topic: "Capstone",
     level: 6,
     xp: 40,
-    instructions: `<p>This is a synthesis, not a new lesson: everything here (hashing, chaining blocks together, validating the chain) is exactly what you already built piece by piece across Level 5. The point of this project is assembling it from memory into one compact, working system, since that's the version you'll actually build on top of in the next two projects.</p>
+    instructions: `<p>This is a synthesis, not a new lesson: hashing, chaining blocks together, and validating the chain are exactly what you already built piece by piece across Level 5. The one new piece is wiring in the <code>Wallet</code> from a few challenges ago: a block's <code>data</code> can now be a real signed transaction, and <code>is_valid()</code> checks its signature along with the usual hash and link checks. This is the version you'll actually build on top of in the next two projects.</p>
 <p class="blueprint-line"><code>class Block: hash, previous_hash</code><br><code>class Blockchain: chain, add_block(), is_valid()</code></p>
 <div class="example-block">
   <span class="example-label">Quick Example</span>
   <pre><code>chain = Blockchain()
-chain.add_block("Pay Alice 10 coins")
-chain.add_block("Pay Bob 5 coins")
+chain.add_block(alice_wallet.sign_transaction("bob-address", 10))
+chain.add_block("Genesis note: system online")
 print(chain.is_valid())  # Output: True</code></pre>
 </div>
+<div class="note-block">
+  <span class="note-label">Note</span>
+  <span>This project used to run for real, pure Python only. Verifying a real signature needs PyNaCl, so like the rest of this level's crypto and API content, it's checked on code shape here: run it for real locally to see a forged block actually get rejected by is_valid().</span>
+</div>
 <span class="task-label">Your Task</span>
-<p class="task-line">Write a <code>Block</code> class (<code>index</code>, <code>data</code>, <code>previous_hash</code>, and a computed <code>hash</code> using SHA-256 over those three fields) and a <code>Blockchain</code> class with <code>add_block(data)</code> (appends a new block linked to the last one) and <code>is_valid()</code> (returns <code>True</code> only if every block's hash is correct and every <code>previous_hash</code> matches). Start the chain with a genesis block (<code>index=0</code>, <code>data="Genesis"</code>, <code>previous_hash="0"</code>).</p>
+<p class="task-line">Write a <code>Block</code> class (<code>index</code>, <code>data</code>, <code>previous_hash</code>, and a computed <code>hash</code> using SHA-256 over those three fields) and a <code>Blockchain</code> class with <code>add_block(data)</code> (appends a new block linked to the last one) and <code>is_valid()</code>. <code>data</code> can be a plain string, or a signed transaction dict from a <code>Wallet</code>'s <code>sign_transaction()</code>. <code>is_valid()</code> returns <code>True</code> only if every block's hash is correct, every <code>previous_hash</code> matches, <em>and</em>, for any block whose <code>data</code> is a dict containing a <code>"signature"</code>, that signature actually verifies (rebuild the message from <code>sender</code>/<code>recipient</code>/<code>amount</code> and check it with <code>VerifyKey(data["verify_key"]).verify(message, data["signature"])</code>). Start the chain with a genesis block (<code>index=0</code>, <code>data="Genesis"</code>, <code>previous_hash="0"</code>).</p>
 <div class="example-block">
   <span class="example-label">Example</span>
-  <div class="io-row"><span class="io-key">Input</span><code class="io-val">chain.add_block("Pay Alice 10 coins")</code></div>
-  <div class="io-row"><span class="io-key">chain.is_valid()</span><code class="io-val">True</code></div>
+  <div class="io-row"><span class="io-key">Input</span><code class="io-val">chain.add_block(alice_wallet.sign_transaction("bob-address", 10))</code></div>
+  <div class="io-row"><span class="io-key">chain.is_valid()</span><code class="io-val">True (or False, if that transaction's signature or any block's hash/link is broken)</code></div>
 </div>`,
     hints: [
       "class Block:\n    def __init__(self, index, data, previous_hash):\n        self.index = index\n        self.data = data\n        self.previous_hash = previous_hash\n        self.hash = self.compute_hash()",
       "    def compute_hash(self):\n        import hashlib\n        return hashlib.sha256(f\"{self.index}{self.data}{self.previous_hash}\".encode()).hexdigest()",
       "class Blockchain:\n    def __init__(self):\n        self.chain = [Block(0, \"Genesis\", \"0\")]",
       "    def add_block(self, data):\n        prev = self.chain[-1]\n        self.chain.append(Block(prev.index + 1, data, prev.hash))",
-      "    def is_valid(self):\n        for i in range(len(self.chain)):\n            b = self.chain[i]\n            if b.hash != b.compute_hash():\n                return False\n            if i > 0 and b.previous_hash != self.chain[i-1].hash:\n                return False\n        return True"
+      "In is_valid(), after the usual hash/previous_hash checks: if isinstance(block.data, dict) and \"signature\" in block.data, rebuild the message and call VerifyKey(block.data[\"verify_key\"]).verify(message, block.data[\"signature\"]) inside a try/except BadSignatureError, returning False on failure"
     ],
-    starterCode: "import hashlib\n\nclass Block:\n    # index, data, previous_hash, computed hash\n    pass\n\nclass Blockchain:\n    # chain (starting with a genesis block), add_block(), is_valid()\n    pass\n",
-    solution: 'import hashlib\n\nclass Block:\n    def __init__(self, index, data, previous_hash):\n        self.index = index\n        self.data = data\n        self.previous_hash = previous_hash\n        self.hash = self.compute_hash()\n\n    def compute_hash(self):\n        contents = f"{self.index}{self.data}{self.previous_hash}"\n        return hashlib.sha256(contents.encode()).hexdigest()\n\nclass Blockchain:\n    def __init__(self):\n        self.chain = [Block(0, "Genesis", "0")]\n\n    def add_block(self, data):\n        prev = self.chain[-1]\n        self.chain.append(Block(prev.index + 1, data, prev.hash))\n\n    def is_valid(self):\n        for i in range(len(self.chain)):\n            block = self.chain[i]\n            if block.hash != block.compute_hash():\n                return False\n            if i > 0 and block.previous_hash != self.chain[i - 1].hash:\n                return False\n        return True',
+    starterCode: "import hashlib\nfrom nacl.signing import VerifyKey\nfrom nacl.exceptions import BadSignatureError\n\nclass Block:\n    # index, data, previous_hash, computed hash\n    pass\n\nclass Blockchain:\n    # chain (starting with a genesis block), add_block(), is_valid()\n    # is_valid() should also verify any block whose data is a signed transaction\n    pass\n",
+    solution: 'import hashlib\nfrom nacl.signing import VerifyKey\nfrom nacl.exceptions import BadSignatureError\n\nclass Block:\n    def __init__(self, index, data, previous_hash):\n        self.index = index\n        self.data = data\n        self.previous_hash = previous_hash\n        self.hash = self.compute_hash()\n\n    def compute_hash(self):\n        contents = f"{self.index}{self.data}{self.previous_hash}"\n        return hashlib.sha256(contents.encode()).hexdigest()\n\nclass Blockchain:\n    def __init__(self):\n        self.chain = [Block(0, "Genesis", "0")]\n\n    def add_block(self, data):\n        prev = self.chain[-1]\n        self.chain.append(Block(prev.index + 1, data, prev.hash))\n\n    def is_valid(self):\n        for i in range(len(self.chain)):\n            block = self.chain[i]\n            if block.hash != block.compute_hash():\n                return False\n            if i > 0 and block.previous_hash != self.chain[i - 1].hash:\n                return False\n            if isinstance(block.data, dict) and "signature" in block.data:\n                message = f"{block.data[\'sender\']}{block.data[\'recipient\']}{block.data[\'amount\']}".encode()\n                verify_key = VerifyKey(block.data["verify_key"])\n                try:\n                    verify_key.verify(message, block.data["signature"])\n                except BadSignatureError:\n                    return False\n        return True',
     validation: {
       checks: [
         { type: "hasClass", name: "Block", message: "Define a Block class." },
         { type: "hasClass", name: "Blockchain", message: "Define a Blockchain class." },
         { type: "matchesRegex", pattern: "hashlib\\.sha256\\(", message: "Compute each block's hash with hashlib.sha256()." },
         { type: "matchesRegex", pattern: "def\\s+add_block", message: "Define add_block()." },
-        { type: "matchesRegex", pattern: "def\\s+is_valid", message: "Define is_valid()." }
-      ],
-      pyTests: [
-        { code: "chain = Blockchain()\nchain.add_block('Pay Alice 10 coins')\nchain.add_block('Pay Bob 5 coins')\nassert chain.is_valid() == True", message: "A freshly built chain should be valid." },
-        { code: "chain = Blockchain()\nchain.add_block('Pay Alice 10 coins')\nchain.chain[1].data = 'Pay Alice 999 coins'\nassert chain.is_valid() == False", message: "Tampering with a block's data without recomputing its hash should invalidate the chain." },
-        { code: "chain = Blockchain()\nassert chain.chain[0].data == 'Genesis' and chain.chain[0].previous_hash == '0'", message: "The chain should start with a genesis block." }
+        { type: "matchesRegex", pattern: "def\\s+is_valid", message: "Define is_valid()." },
+        { type: "hasImport", module: "nacl.signing", message: "Import VerifyKey from nacl.signing." },
+        { type: "matchesRegex", pattern: "verify_key\\.verify\\(", message: "Verify a signed transaction's signature inside is_valid()." },
+        { type: "matchesRegex", pattern: "except\\s+BadSignatureError", message: "Catch BadSignatureError around the verify() call, and return False when it's raised." }
       ]
     },
-    explanation: `<p>This is the same shape as everything Level 5 built, just assembled into two classes instead of spread across many challenges. Real projects almost always structure it this way: one class per concept, not one long script.</p>`
+    explanation: `<p>This is the same shape as everything Level 5 built, plus one more check per block: if the data is a signed transaction, its signature has to hold up too. Real projects almost always structure it this way, one class per concept, and this is the version you'll extend with a REST API and a stablecoin ledger next.</p>`
   },
   {
     id: 242,
@@ -823,7 +1074,7 @@ async def get_chain():
     topic: "Capstone",
     level: 6,
     xp: 40,
-    instructions: `<p>The final piece: extending the chain-backed API from the last project into something with a real purpose, a simplified stablecoin ledger. Every balance change gets recorded as a block (the event-sourcing idea from earlier in this level), so the full transaction history is always auditable from the chain itself, not just a single current-balance number.</p>
+    instructions: `<p>One more step: extending the chain-backed API from the last project into something with a real purpose, a simplified stablecoin ledger. Every balance change gets recorded as a block (the event-sourcing idea from earlier in this level), so the full transaction history is always auditable from the chain itself, not just a single current-balance number.</p>
 <p class="blueprint-line"><code>@app.post("/mint")</code> / <code>@app.post("/transfer")</code> / <code>@app.get("/balance/{account}")</code></p>
 <div class="example-block">
   <span class="example-label">Quick Example</span>
@@ -858,5 +1109,54 @@ async def mint(account: str, amount: float):
       ]
     },
     explanation: `<p>This is a real, if simplified, shape of a stablecoin's off-chain accounting layer: balances live in a fast lookup (the dict), while every change is also permanently logged to the chain, so the balance can always be independently reconstructed and audited from the chain alone if the dict is ever wrong.</p>`
+  },
+  {
+    id: 250,
+    title: "Guided Project: Turn Your API into a Node",
+    kind: "project",
+    difficulty: "hard",
+    topic: "Capstone",
+    level: 6,
+    xp: 50,
+    instructions: `<p>One last step: turning the API from the last two projects into an actual node, not just a service that manages a chain by itself. Two pieces were still missing: something to receive a block that another node broadcasts, and the broadcasting itself actually getting called when a block is added, instead of just sitting in <code>broadcast_block</code> unused. Add a list of known peers on top of that, and this stops being an isolated chain and starts being a node on a small network.</p>
+<p class="blueprint-line"><code>@app.post("/receive_block")</code> / <code>@app.post("/network/register")</code></p>
+<div class="example-block">
+  <span class="example-label">Quick Example</span>
+  <pre><code>peers = []
+
+@app.post("/receive_block")
+async def receive_block(data: str):
+    chain.add_block(data)
+    return {"chain_length": len(chain.chain)}</code></pre>
+</div>
+<div class="note-block">
+  <span class="note-label">Note</span>
+  <span>Checked on code shape, same as every FastAPI challenge in this level. This is the one worth actually running for real: start this same file three times on three different ports, register each one with the other two via /network/register, mint on one, and watch the other two's /chain length update after broadcast_block fires.</span>
+</div>
+<span class="task-label">Your Task</span>
+<p class="task-line">Using <code>chain</code>, <code>balances</code>, and <code>broadcast_block</code> from earlier, add a module-level <code>peers = []</code>. Add <code>POST /network/register</code> (param <code>peer_url: str</code>) that appends <code>peer_url</code> to <code>peers</code> if it isn't already there, and returns <code>{"peers": peers}</code>. Add <code>POST /receive_block</code> (param <code>data: str</code>) that calls <code>chain.add_block(data)</code> and returns <code>{"chain_length": len(chain.chain)}</code>; this is what a peer's <code>/receive_block</code> is actually listening for. Finally, update <code>mint</code> from the last project so that after <code>chain.add_block(...)</code>, it also calls <code>broadcast_block({"data": f"mint {account} {amount}"}, peers)</code>, so every registered peer actually hears about the new block.</p>
+<div class="example-block">
+  <span class="example-label">Example</span>
+  <div class="io-row"><span class="io-key">POST /network/register?peer_url=http://localhost:8001</span><code class="io-val">{"peers": ["http://localhost:8001"]}</code></div>
+  <div class="io-row"><span class="io-key">POST /mint?account=alice&amount=100 (on the node that peer is registered with)</span><code class="io-val">localhost:8001's /chain length grows by one too</code></div>
+</div>`,
+    hints: [
+      "peers = []",
+      "@app.post(\"/network/register\")\nasync def register_peer(peer_url: str):\n    if peer_url not in peers:\n        peers.append(peer_url)\n    return {\"peers\": peers}",
+      "@app.post(\"/receive_block\")\nasync def receive_block(data: str):\n    chain.add_block(data)\n    return {\"chain_length\": len(chain.chain)}",
+      "In mint, right after chain.add_block(f\"mint {account} {amount}\"): broadcast_block({\"data\": f\"mint {account} {amount}\"}, peers)"
+    ],
+    starterCode: "peers = []\n# Add POST /network/register and POST /receive_block, then update mint to broadcast\n",
+    solution: 'peers = []\n\n@app.post("/network/register")\nasync def register_peer(peer_url: str):\n    if peer_url not in peers:\n        peers.append(peer_url)\n    return {"peers": peers}\n\n@app.post("/receive_block")\nasync def receive_block(data: str):\n    chain.add_block(data)\n    return {"chain_length": len(chain.chain)}\n\n@app.post("/mint")\nasync def mint(account: str, amount: float):\n    balances[account] = balances.get(account, 0) + amount\n    chain.add_block(f"mint {account} {amount}")\n    broadcast_block({"data": f"mint {account} {amount}"}, peers)\n    return {"balance": balances[account]}',
+    validation: {
+      checks: [
+        { type: "matchesRegex", pattern: "@app\\.post\\(\\s*[\"']\\/network\\/register[\"']\\s*\\)", message: "Add a POST route at /network/register." },
+        { type: "matchesRegex", pattern: "@app\\.post\\(\\s*[\"']\\/receive_block[\"']\\s*\\)", message: "Add a POST route at /receive_block." },
+        { type: "codeContains", value: "peers.append(", message: "Append a newly registered peer to the peers list." },
+        { type: "codeContains", value: "chain.add_block(", message: "Have /receive_block actually append the incoming block with chain.add_block()." },
+        { type: "matchesRegex", pattern: "broadcast_block\\(", message: "Call broadcast_block() from inside mint, after adding the block locally." }
+      ]
+    },
+    explanation: `<p>This is what actually closes the loop: without <code>/receive_block</code>, <code>broadcast_block</code> would just be POSTing into the void, since no peer has anything listening on that path. Without wiring the call into <code>mint</code>, nothing ever gets broadcast in the first place. Between this, <code>broadcast_block</code>, and <code>resolve_chains</code> from earlier, you now have every piece a real node needs: a way to tell others about a new block, a way to receive one, and a way to decide whose version of the chain to trust when two disagree. Wiring three copies of this together on your own machine, registered with each other, is the closest this course gets to what a real blockchain network actually looks like underneath.</p>`
   }
 ];
