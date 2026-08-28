@@ -160,7 +160,7 @@ print(get_middle_name("Ada Lovelace"))  # Output: None</code></pre>
     topic: "Type Hints",
     level: 4,
     xp: 20,
-    instructions: `<p>Type hints can describe what's inside a list or dictionary, not just the container itself. <code>List[type]</code> and <code>Dict[key_type, value_type]</code> come from <code>typing</code>; Python 3.9+ also lets you write the built-in <code>list[type]</code> and <code>dict[key, value]</code> directly, no import needed.</p>
+    instructions: `<p>Catches a different class of mistake than a plain type hint can, like accidentally putting a number into a list that's supposed to hold only strings. Type hints can describe what's inside a list or dictionary, not just the container itself. <code>List[type]</code> and <code>Dict[key_type, value_type]</code> come from <code>typing</code>; Python 3.9+ also lets you write the built-in <code>list[type]</code> and <code>dict[key, value]</code> directly, no import needed.</p>
 <p class="blueprint-line"><code>def function_name(items: List[item_type]) -> Dict[key_type, value_type]:</code></p>
 <div class="example-block">
   <span class="example-label">Quick Example</span>
@@ -259,7 +259,7 @@ print(p)  # Output: Point(x=3, y=4)</code></pre>
     topic: "Dataclasses",
     level: 4,
     xp: 20,
-    instructions: `<p>Dataclass fields can have default values, exactly like function parameters, which makes them optional when you create an instance. Fields with a default have to come after any fields without one, in the order you declare them.</p>
+    instructions: `<p>Handy any time most instances share the same value for a field and only a few need something different, so callers only have to specify what's actually changing. Dataclass fields can have default values, exactly like function parameters, which makes them optional when you create an instance. Fields with a default have to come after any fields without one, in the order you declare them.</p>
 <ul>
   <li><strong>Default value:</strong> a value written as <code>field: type = value</code>, used automatically when the caller doesn't supply that argument.</li>
 </ul>
@@ -599,7 +599,7 @@ print(port)  # Output: 8000</code></pre>
     topic: "Project Structure",
     level: 4,
     xp: 20,
-    instructions: `<p>A folder becomes an importable Python package the moment it contains an <code>__init__.py</code> file. Every other <code>.py</code> file inside that folder is a module belonging to the package, and <code>__init__.py</code> itself is what runs when the package is first imported.</p>
+    instructions: `<p>Organizing related modules into a package like this is what lets you write <code>import mypkg.submodule</code> instead of juggling a folder of unrelated top-level scripts. A folder becomes an importable Python package the moment it contains an <code>__init__.py</code> file. Every other <code>.py</code> file inside that folder is a module belonging to the package, and <code>__init__.py</code> itself is what runs when the package is first imported.</p>
 <div class="example-block">
   <span class="example-label">Quick Example</span>
   <pre><code># file: mypkg/__init__.py
@@ -637,7 +637,7 @@ print(mypkg.GREETING)  # Output: hi</code></pre>
     topic: "Project Structure",
     level: 4,
     xp: 20,
-    instructions: `<p>Inside a package, relative imports reach sibling modules without spelling out the whole package path. A single leading dot <code>.</code> means "the current package"; two dots <code>..</code> means "one level up, the parent package."</p>
+    instructions: `<p>More robust than an absolute import within a package too: it doesn't break if the whole package gets renamed. Inside a package, relative imports reach sibling modules without spelling out the whole package path. A single leading dot <code>.</code> means "the current package"; two dots <code>..</code> means "one level up, the parent package."</p>
 <p><strong>Shorthand</strong></p>
 <ul>
   <li><code>from .models import User</code>: the single dot means "the module named models, in this same package."</li>
@@ -711,7 +711,7 @@ print(mypkg.GREETING)  # Output: hi</code></pre>
     topic: "CLI Tools",
     level: 4,
     xp: 15,
-    instructions: `<p>Every Python script gets called with a list of the words typed after it on the command line: <code>sys.argv</code>. <code>sys.argv[0]</code> is always the script's own name, so the actual arguments start at index <code>1</code>. Running <code>python greet.py Alice</code> gives <code>sys.argv == ["greet.py", "Alice"]</code>.</p>
+    instructions: `<p>This is how a script becomes configurable from outside itself, run differently depending on what's typed after its name, instead of hardcoding values inside it. Every Python script gets called with a list of the words typed after it on the command line: <code>sys.argv</code>. <code>sys.argv[0]</code> is always the script's own name, so the actual arguments start at index <code>1</code>. Running <code>python greet.py Alice</code> gives <code>sys.argv == ["greet.py", "Alice"]</code>.</p>
 <div class="note-block">
   <span class="note-label">Note</span>
   <span>Don't forget <code>sys.argv[0]</code> is the script's own filename, not the first real argument. That's why counting or indexing has to skip index 0.</span>
@@ -1353,7 +1353,7 @@ for name, score in ws2.iter_rows(min_row=2, values_only=True):
     topic: "Strings",
     level: 4,
     xp: 20,
-    instructions: `<p>f-strings support format specifiers after a colon inside the braces, written as <code>{value:spec}</code>. <code>.2f</code> rounds to 2 decimal places, <code>,</code> adds thousands separators, and <code>>N</code> right-aligns the result inside a field of width <code>N</code>, and you can combine several of these in one spec.</p>
+    instructions: `<p>Useful any time raw output isn't fit to show someone, like a price with 8 decimal places or a column of numbers that don't line up. f-strings support format specifiers after a colon inside the braces, written as <code>{value:spec}</code>. <code>.2f</code> rounds to 2 decimal places, <code>,</code> adds thousands separators, and <code>>N</code> right-aligns the result inside a field of width <code>N</code>, and you can combine several of these in one spec.</p>
 <ul>
   <li><strong>Format spec:</strong> the part after the colon inside <code>{value:spec}</code>, controlling how a value is rendered as text.</li>
 </ul>

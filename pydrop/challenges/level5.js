@@ -16,7 +16,7 @@ window.LEVEL5 = [
     topic: "Hashing",
     level: 5,
     xp: 15,
-    instructions: `<p>Everything in a blockchain rests on one building block: the cryptographic <strong>hash function</strong>. A hash function takes data of any size and squeezes it down to a fixed-length fingerprint. Python's <code>hashlib</code> module gives you several options, and <code>sha256</code> is the one Bitcoin itself uses.</p>
+    instructions: `<p>You'll reach for hashing any time you need to prove data hasn't been altered without keeping a full separate copy around to compare against, which is exactly what every mechanism in this level builds on. Everything in a blockchain rests on one building block: the cryptographic <strong>hash function</strong>. A hash function takes data of any size and squeezes it down to a fixed-length fingerprint. Python's <code>hashlib</code> module gives you several options, and <code>sha256</code> is the one Bitcoin itself uses.</p>
 <ul>
   <li><strong>One-way function:</strong> given the fingerprint, there's no way to work backward to find the original data, short of guessing every possible input, which for anything non-trivial would take longer than the age of the universe.</li>
   <li><strong>Deterministic behavior:</strong> the exact same input always produces the exact same fingerprint, every time, on every computer. Change even one character of the input and the fingerprint comes out completely different. There's no "close" hash for "close" data.</li>
@@ -506,7 +506,7 @@ print(nonce)
     level: 5,
     xp: 25,
     instructions: `<p>Real blockchains track <strong>state</strong> (who owns what), and every transaction changes it. This level uses the <strong>account-based model</strong> (how Ethereum works): one dictionary mapping each address to its balance, like <code>{"Alice": 100, "Bob": 50}</code>.</p>
-<p>Applying a transaction means checking the sender can cover the amount and that the amount itself is positive, then moving the balance if both hold. If either check fails, the transaction is simply rejected. The dictionary stays untouched.</p>
+<p>Applying a transaction means checking the sender can cover the amount and that the amount itself is positive, then moving the balance if both hold. Skip either check and a ledger stops meaning anything: balances could go negative, or coins could appear out of nowhere. If either check fails, the transaction is simply rejected. The dictionary stays untouched.</p>
 <p class="blueprint-line"><code>apply_transaction(balances, sender, recipient, amount) -> bool</code></p>
 <div class="example-block">
   <span class="example-label">Quick Example</span>
@@ -736,7 +736,7 @@ print(picks[0])
     topic: "Byzantine Fault Tolerance",
     level: 5,
     xp: 30,
-    instructions: `<p>Proof of work and proof of stake both pick a single winner to propose the next block. A third consensus family, used by systems like practical Byzantine Fault Tolerance (PBFT), has a known, fixed committee of nodes <strong>vote</strong> on a proposed block, which only commits if enough of them agree.</p>
+    instructions: `<p>Proof of work and proof of stake both pick a single winner to propose the next block, and both make everyone wait on that randomness. A third consensus family, used by systems like practical Byzantine Fault Tolerance (PBFT), fits when the participants are known and fixed instead of open and anonymous, like a permissioned network of banks or companies: a known, fixed committee of nodes <strong>vote</strong> on a proposed block, which only commits if enough of them agree, giving fast, final agreement with no mining and no staked coins at risk.</p>
 <p>"Enough" means more than <strong>two-thirds</strong> of the committee, not a plain majority: that minimum bar is called a <strong>quorum</strong>. The name comes from the "Byzantine Generals Problem": picture generals surrounding a city, coordinating attack or retreat only through messengers who might be traitors passing false orders, so no single vote can be trusted on its own. A two-thirds threshold (rather than 50%-plus-one) is what still lets an honest majority reach correct agreement despite that.</p>
 <p class="blueprint-line"><code>has_quorum(accept_count, total_nodes) -> bool</code></p>
 <div class="example-block">
@@ -828,7 +828,7 @@ print(cleared)
     topic: "UTXO Model",
     level: 5,
     xp: 25,
-    instructions: `<p>The account model keeps one balance number per address. Bitcoin uses something different: the <strong>UTXO model</strong> (Unspent Transaction Output). There's no balances dictionary at all. Instead the ledger tracks a pile of individual "coins," each a UTXO owned by exactly one address and worth some fixed amount, sitting there until it's spent.</p>
+    instructions: `<p>The account model keeps one balance number per address, and every transaction has to read and mutate that same shared number, which is exactly the kind of shared mutable state that gets tricky to verify and process independently at scale. Bitcoin uses something different: the <strong>UTXO model</strong> (Unspent Transaction Output), where each transaction only touches its own self-contained inputs, so a node can validate one transaction without needing a shared balance table at all. There's no balances dictionary at all. Instead the ledger tracks a pile of individual "coins," each a UTXO owned by exactly one address and worth some fixed amount, sitting there until it's spent.</p>
 <p>Think of it like a wallet of physical bills rather than a bank balance: holding a $50 bill and a $30 bill, "how much do I have" means adding up what's in the wallet, not reading one stored number. Alice's "balance" isn't stored anywhere. It's the sum of every UTXO that lists her as owner.</p>
 <p class="blueprint-line"><code>get_balance(utxo_set, owner) -> int</code></p>
 <div class="example-block">

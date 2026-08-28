@@ -100,7 +100,7 @@ async def hello():
     topic: "Web APIs",
     level: 6,
     xp: 10,
-    instructions: `<p>A route can capture part of the URL as a variable. <code>{item_id}</code> in the path becomes a real parameter in your function. FastAPI reads it straight out of the URL and converts it to whatever type you annotate.</p>
+    instructions: `<p>A route can capture part of the URL as a variable, which is how one route definition serves any item by id instead of you writing a brand new route for every possible value. <code>{item_id}</code> in the path becomes a real parameter in your function. FastAPI reads it straight out of the URL and converts it to whatever type you annotate.</p>
 <ul>
   <li><strong>Query parameter:</strong> a function parameter not present in the URL path becomes an optional <code>?key=value</code> parameter instead, like <code>/search?q=apple</code>.</li>
 </ul>
@@ -192,7 +192,7 @@ async def create_item(item: Item):
     topic: "Web APIs",
     level: 6,
     xp: 20,
-    instructions: `<p><strong>CRUD</strong> (Create, Read, Update, Delete) is the standard shape of an API that manages a resource. Each operation maps to an HTTP method: <code>POST</code> creates, <code>GET</code> reads, <code>PUT</code> updates, <code>DELETE</code> removes. Same URL, different verb, different action.</p>
+    instructions: `<p><strong>CRUD</strong> (Create, Read, Update, Delete) is the standard shape of an API that manages a resource. Structuring routes this way means anyone calling your API can guess what a route does from its HTTP method alone, instead of memorizing a different endpoint name for every action. Each operation maps to an HTTP method: <code>POST</code> creates, <code>GET</code> reads, <code>PUT</code> updates, <code>DELETE</code> removes. Same URL, different verb, different action.</p>
 <p class="blueprint-line"><code>@app.get/post/put/delete("/resource/{id}")</code></p>
 <div class="example-block">
   <span class="example-label">Quick Example</span>
@@ -681,7 +681,7 @@ sqlalchemy = "^2.0.0"</code></pre>
     topic: "Tooling",
     level: 6,
     xp: 15,
-    instructions: `<p><strong>pytest</strong> is the standard tool for testing Python code: install it (<code>pip install pytest</code>), write functions named <code>test_...</code> containing plain <code>assert</code> statements, and running <code>pytest</code> in your terminal automatically finds and runs every one of them, reporting which passed and which failed.</p>
+    instructions: `<p><strong>pytest</strong> is the standard tool for testing Python code. Writing tests like this means you can change code later and immediately know, by rerunning them, whether you broke something, instead of finding out from a user. Install it (<code>pip install pytest</code>), write functions named <code>test_...</code> containing plain <code>assert</code> statements, and running <code>pytest</code> in your terminal automatically finds and runs every one of them, reporting which passed and which failed.</p>
 <ul>
   <li><strong>Test discovery:</strong> pytest finds every function starting with <code>test_</code> in any file matching <code>test_*.py</code> or <code>*_test.py</code>, with no manual registration needed.</li>
 </ul>
