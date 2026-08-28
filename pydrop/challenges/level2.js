@@ -214,7 +214,7 @@ print(shout())  # Output: HEY!</code></pre>
     topic: "Functions",
     level: 2,
     xp: 10,
-    instructions: `<p>Parameters are inputs to your function, listed inside the parentheses. Whatever values you pass in when you call the function get matched up with those parameter names in order, so the function can use them in its calculations.</p>
+    instructions: `<p>Parameters are what let the same function work on any input, not just the specific value you originally wrote it for. They're inputs to your function, listed inside the parentheses. Whatever values you pass in when you call the function get matched up with those parameter names in order, so the function can use them in its calculations.</p>
 <ul>
   <li><strong>Parameter:</strong> the placeholder name written in the function's own definition, like <code>a</code> in <code>def add(a, b):</code>.</li>
   <li><strong>Argument:</strong> the actual value handed over at the call site, like the <code>2</code> in <code>add(2, 3)</code>. It gets matched to <code>a</code> by position.</li>
@@ -307,7 +307,7 @@ print(result)  # Output: 27</code></pre>
     topic: "Functions",
     level: 2,
     xp: 10,
-    instructions: `<p>You can give a parameter a default value, which makes it optional when calling the function. Leave it out and Python uses the default; pass something and it overrides it.</p>
+    instructions: `<p>Handy any time most callers want the same value and only a few need something different, so they don't have to type it out every single time. You can give a parameter a default value, which makes it optional when calling the function. Leave it out and Python uses the default; pass something and it overrides it.</p>
 <ul>
   <li><strong>Default value:</strong> written as <code>name=value</code> in the function's own parentheses. It's used only when the caller doesn't supply that argument.</li>
 </ul>
@@ -357,7 +357,7 @@ print(power(5, 3))  # Output: 125</code></pre>
     topic: "Functions",
     level: 2,
     xp: 10,
-    instructions: `<p>Python functions can return more than one value at once by returning a tuple, separating the values with a comma. The caller can then unpack them straight into separate variables in a single line.</p>
+    instructions: `<p>Useful any time a function's natural answer is more than one related value, like a coordinate pair or a minimum and a maximum, without needing a separate class or dict just to hold them. Python functions can return more than one value at once by returning a tuple, separating the values with a comma. The caller can then unpack them straight into separate variables in a single line.</p>
 <ul>
   <li><strong>Tuple packing:</strong> <code>return a, b</code> bundles both values into a single tuple <code>(a, b)</code> behind the scenes. The commas are what create it, not the parentheses.</li>
 </ul>
@@ -628,7 +628,7 @@ print(lengths)  # Output: [2, 6, 2]</code></pre>
     topic: "Comprehensions",
     level: 2,
     xp: 20,
-    instructions: `<p>Dictionary comprehensions are the dictionary equivalent of list comprehensions, building a dict in one line using <code>{key: value for item in iterable}</code>. The colon separates what becomes the key from what becomes the value.</p>
+    instructions: `<p>The same conciseness win as a list comprehension, now for building a dict instead of a list. Dictionary comprehensions are the dictionary equivalent of list comprehensions, building a dict in one line using <code>{key: value for item in iterable}</code>. The colon separates what becomes the key from what becomes the value.</p>
 <p class="blueprint-line"><code>{key_expr: value_expr for item in iterable}</code></p>
 <div class="example-block">
   <span class="example-label">Quick Example</span>
@@ -892,7 +892,7 @@ print(long_names)  # Output: ['ana']</code></pre>
     topic: "Functions",
     level: 2,
     xp: 20,
-    instructions: `<p>Functions can be defined inside other functions, and the inner one keeps access to variables from the outer function's scope even after the outer function has finished running. This pattern is called a <strong>closure</strong>: the inner function "remembers" the environment it was created in.</p>
+    instructions: `<p>Useful any time you want to build a specialized version of a function on the fly, like a discount calculator that always applies its own rate, without writing a separate function for every rate you'd need. Functions can be defined inside other functions, and the inner one keeps access to variables from the outer function's scope even after the outer function has finished running. This pattern is called a <strong>closure</strong>: the inner function "remembers" the environment it was created in.</p>
 <p>Call <code>make_multiplier(3)</code> and you get back a brand-new function that always multiplies by 3: the <code>3</code> is baked in, not re-passed every time. That's why the example below has two sets of parentheses: <code>make_multiplier(3)</code> runs first and hands back the <code>multiply</code> function, then <code>(4)</code> calls that returned function.</p>
 <p>You could also save the first call in a variable, like <code>triple = make_multiplier(3)</code>, then call <code>triple(4)</code>, <code>triple(10)</code>, and so on: it'll still remember <code>factor = 3</code> every time.</p>
 <ul>
@@ -947,7 +947,7 @@ print(hi("Sam"))  # Output: Hi, Sam!</code></pre>
     topic: "Functions",
     level: 2,
     xp: 20,
-    instructions: `<p>Variables created inside a function are local by default, meaning they only exist while that function runs and can't be seen outside it. To reach out and modify a variable defined at the top level instead, you declare it with the <code>global</code> keyword inside the function first.</p>
+    instructions: `<p>Occasionally a function genuinely needs to update state that lives outside it and is shared with other functions, like a running total or a counter. Variables created inside a function are local by default, meaning they only exist while that function runs and can't be seen outside it. To reach out and modify a variable defined at the top level instead, you declare it with the <code>global</code> keyword inside the function first.</p>
 <ul>
   <li><strong>global:</strong> a declaration telling Python "this name refers to the top-level variable, not a new local one," which lets the function reassign it.</li>
 </ul>
@@ -1102,7 +1102,7 @@ print(original)                # Output: ['book']</code></pre>
     topic: "Functions",
     level: 2,
     xp: 20,
-    instructions: `<p>A <strong>higher-order function</strong> takes another function as a parameter, or returns one. <code>sorted()</code> is a common example: pass it a <code>key</code> function and it calls that function on each item to decide the sort order, instead of comparing the items directly.</p>
+    instructions: `<p>This lets you customize what a function does without rewriting it, by handing it a different function to call. A <strong>higher-order function</strong> takes another function as a parameter, or returns one. <code>sorted()</code> is a common example: pass it a <code>key</code> function and it calls that function on each item to decide the sort order, instead of comparing the items directly.</p>
 <p class="blueprint-line"><code>sorted(iterable, key=function)</code></p>
 <div class="example-block">
   <span class="example-label">Quick Example</span>
@@ -1142,7 +1142,7 @@ print(by_age)  # Output: [('Ana', 25), ('Cy', 33), ('Bo', 40)]</code></pre>
     topic: "Functions",
     level: 2,
     xp: 20,
-    instructions: `<p>Functions are first-class objects in Python, meaning you can pass them around just like a number or a string: store them in a variable, put them in a list, or hand them to another function as an argument.</p>
+    instructions: `<p>This is what makes patterns like callbacks possible, and it's the foundation decorators (a feature you'll meet in a later level) are built on. Functions are first-class objects in Python, meaning you can pass them around just like a number or a string: store them in a variable, put them in a list, or hand them to another function as an argument.</p>
 <div class="example-block">
   <span class="example-label">Quick Example</span>
   <pre><code>def run_with(func, value):

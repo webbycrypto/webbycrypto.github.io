@@ -59,7 +59,7 @@ print(answer)  # Output: 42</code></pre>
     topic: "Variables",
     level: 1,
     xp: 10,
-    instructions: `<p>A <strong>string</strong> is text, wrapped in quotes so Python knows where it starts and ends.</p>
+    instructions: `<p>Strings are how you work with anything textual in a program: a name, a message, a label. A <strong>string</strong> is text, wrapped in quotes so Python knows where it starts and ends.</p>
 <p>Single and double quotes work identically; pick whichever's easier to read (double quotes are handy when your text has an apostrophe in it).</p>
 <ul>
   <li><strong>Quotes:</strong> anything between matching <code>'</code> or <code>"</code> marks is text, not code, so Python doesn't try to run it or do math with it.</li>
@@ -99,7 +99,7 @@ print(greeting)  # Output: Hello, World!</code></pre>
     topic: "Variables",
     level: 1,
     xp: 10,
-    instructions: `<p>Python has two everyday number types. A whole number like <code>5</code> is an <strong>int</strong>; a number with a decimal point like <code>3.14</code> is a <strong>float</strong>. Python figures out which one you meant just from how you type it.</p>
+    instructions: `<p>Use an int for whole-number counts, a float for anything that needs a fraction, like a price or a measurement. Python has two everyday number types. A whole number like <code>5</code> is an <strong>int</strong>; a number with a decimal point like <code>3.14</code> is a <strong>float</strong>. Python figures out which one you meant just from how you type it.</p>
 <p>Mixing an int and a float in a calculation always gives you a float back.</p>
 <ul>
   <li><strong>float:</strong> a number with a decimal point, like <code>9.99</code>, even if the digits after the dot are just <code>0</code>.</li>
@@ -138,7 +138,7 @@ print(type(price))  # Output: &lt;class 'float'&gt;</code></pre>
     topic: "Variables",
     level: 1,
     xp: 10,
-    instructions: `<p>A <strong>boolean</strong> is a value that can only be <code>True</code> or <code>False</code>, always capitalized in Python. Comparing two things, like checking if one number is bigger than another, always produces a boolean answer.</p>
+    instructions: `<p>You'll use booleans everywhere a program needs a yes/no answer: conditions, comparisons, and flags that track whether something is on or off. A <strong>boolean</strong> is a value that can only be <code>True</code> or <code>False</code>, always capitalized in Python. Comparing two things, like checking if one number is bigger than another, always produces a boolean answer.</p>
 <ul>
   <li><strong>Capitalization:</strong> it's <code>True</code> and <code>False</code>, not <code>true</code> and <code>false</code>. Python treats the lowercase versions as undefined names, not booleans.</li>
 </ul>
@@ -178,7 +178,7 @@ print(is_online)  # Output: True</code></pre>
     topic: "Strings",
     level: 1,
     xp: 10,
-    instructions: `<p>You can stick two strings together using the <code>+</code> sign. This is called <strong>concatenation</strong>: it joins them end to end rather than doing any math.</p>
+    instructions: `<p>Useful any time you need to build one piece of text out of separate values, like combining a name and a greeting. You can stick two strings together using the <code>+</code> sign. This is called <strong>concatenation</strong>: it joins them end to end rather than doing any math.</p>
 <p>It only works between strings, though. Adding a string and a number with <code>+</code> causes an error, so convert the number to text first with <code>str()</code>.</p>
 <ul>
   <li><strong>Concatenation:</strong> <code>+</code> between two strings glues them into one, with no space added automatically. You have to include any spacing yourself.</li>
@@ -363,7 +363,7 @@ print(fruits[3])
     topic: "Lists",
     level: 1,
     xp: 10,
-    instructions: `<p>In Python, every value you work with, such as ints, strings, and lists, is called an <strong>object</strong>. An object is a bundle of data plus a set of built-in actions it knows how to perform on itself, called <strong>methods</strong>, the same way a trained dog already knows how to sit or fetch on its own: you just give the command.</p>
+    instructions: `<p>Recognizing which one you're looking at matters once you start reading other people's code, since it tells you exactly how to call it: with a dot, or without one. In Python, every value you work with, such as ints, strings, and lists, is called an <strong>object</strong>. An object is a bundle of data plus a set of built-in actions it knows how to perform on itself, called <strong>methods</strong>, the same way a trained dog already knows how to sit or fetch on its own: you just give the command.</p>
 <p>A method is just a function that belongs to a specific object. You call it with a dot: <code>object.method()</code> instead of <code>function(object)</code>.</p>
 <ul>
   <li><strong>Method:</strong> an action that belongs to a specific object, called with a dot, like the dog performing a trick it already knows. A plain function, like <code>len()</code>, is a separate, general-purpose tool you apply to whatever you hand it, closer to using an outside tool on the object rather than the object acting on its own.</li>
@@ -502,7 +502,7 @@ print(queue)        # Output: ['ticket2', 'ticket3']</code></pre>
     topic: "Lists",
     level: 1,
     xp: 10,
-    instructions: `<p><code>sort()</code> rearranges a list into order, smallest to largest by default, changing the list itself instead of giving you a new one back. Numbers sort numerically, strings sort alphabetically, and you can pass <code>reverse=True</code> for largest to smallest instead.</p>
+    instructions: `<p>Useful any time the order things are stored in isn't the order you want to show or use them in, like turning raw scores into a ranked leaderboard. <code>sort()</code> rearranges a list into order, smallest to largest by default, changing the list itself instead of giving you a new one back. Numbers sort numerically, strings sort alphabetically, and you can pass <code>reverse=True</code> for largest to smallest instead.</p>
 <ul>
   <li><strong>In place, returns None:</strong> <code>sort()</code> rearranges the existing list and hands back nothing useful, so assigning its result wipes your data out.</li>
 </ul>
@@ -548,7 +548,7 @@ print(scores)  # Output: [3, 17, 42, 56, 89]</code></pre>
     topic: "Lists",
     level: 1,
     xp: 10,
-    instructions: `<p>Slicing lets you pull out a chunk of a list by giving a start and a stop position inside square brackets, written as <code>list[start:stop]</code>. The stop position is never included, so <code>list[1:4]</code> grabs indices 1 through 3. Negative numbers count backward from the end of the list.</p>
+    instructions: `<p>Useful any time you only need part of a sequence, like the first few results or everything but the last item. Slicing lets you pull out a chunk of a list by giving a start and a stop position inside square brackets, written as <code>list[start:stop]</code>. The stop position is never included, so <code>list[1:4]</code> grabs indices 1 through 3. Negative numbers count backward from the end of the list.</p>
 <ul>
   <li><strong>Omitted boundaries:</strong> leaving a side of the colon blank means "all the way to the start" or "all the way to the end."</li>
 </ul>
@@ -779,7 +779,7 @@ print(person["name"])  # Output: Bob</code></pre>
     topic: "Dictionaries",
     level: 1,
     xp: 10,
-    instructions: `<p>Dictionaries give you three ways to look at what's inside them: <code>.keys()</code> lists every key, <code>.values()</code> lists every value, and <code>.items()</code> pairs each key with its value together.</p>
+    instructions: `<p>Handy any time you need to loop over every key, every value, or both together, instead of looking things up one at a time. Dictionaries give you three ways to look at what's inside them: <code>.keys()</code> lists every key, <code>.values()</code> lists every value, and <code>.items()</code> pairs each key with its value together.</p>
 <p>None of these hand you back a plain list, so wrap the result in <code>list()</code> if that's the format you need.</p>
 <ul>
   <li><strong>View object:</strong> <code>.keys()</code>, <code>.values()</code>, and <code>.items()</code> return a live view, not a list. It updates automatically if the dictionary changes, and you can't index into it directly.</li>
@@ -1201,7 +1201,7 @@ print(matrix[1][1])  # Output: 5</code></pre>
     topic: "Strings",
     level: 1,
     xp: 10,
-    instructions: `<p>Strings come with built-in methods for working with text, and every one of them returns a brand new string instead of changing the original, since strings can't be changed once created. <code>.upper()</code> makes everything uppercase, <code>.strip()</code> removes extra spaces from the start and end, and <code>.split()</code> breaks a string apart into a list of pieces.</p>
+    instructions: `<p>Handy for cleaning up messy text, like trimming whitespace a user typed by accident, before comparing or storing it. Strings come with built-in methods for working with text, and every one of them returns a brand new string instead of changing the original, since strings can't be changed once created. <code>.upper()</code> makes everything uppercase, <code>.strip()</code> removes extra spaces from the start and end, and <code>.split()</code> breaks a string apart into a list of pieces.</p>
 <div class="example-block">
   <span class="example-label">Quick Example</span>
   <pre><code>raw = "  hello world  "

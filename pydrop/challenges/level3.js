@@ -16,7 +16,7 @@ window.LEVEL3 = [
     topic: "Classes",
     level: 3,
     xp: 10,
-    instructions: `<p>A <strong>class</strong> is a blueprint for creating objects: it groups together the data an object holds and the behavior it can perform. You define a class with the <code>class</code> keyword, and any function defined inside it becomes a <strong>method</strong> that instances of the class can call.</p>
+    instructions: `<p>Modeling something as a class keeps its data and the actions that make sense for it together in one place, instead of passing loose variables between separate functions. A <strong>class</strong> is a blueprint for creating objects: it groups together the data an object holds and the behavior it can perform. You define a class with the <code>class</code> keyword, and any function defined inside it becomes a <strong>method</strong> that instances of the class can call.</p>
 <p>Every method you write inside a class needs <code>self</code> as its first parameter. When you call <code>my_dog.speak()</code>, Python automatically passes <code>my_dog</code> in as <code>self</code> behind the scenes. That's how the method knows which specific object it's working with. You never type <code>self</code> yourself when calling the method, only when defining it.</p>
 <ul>
   <li><strong>Class:</strong> the blueprint, defined once with <code>class</code>. Calling it like a function, e.g. <code>Dog()</code>, builds one actual object from it.</li>
@@ -741,7 +741,7 @@ print(list(gen))  # Output: ['HI', 'HEY', 'HELLO']</code></pre>
     topic: "Iterators",
     level: 3,
     xp: 30,
-    instructions: `<p>An <strong>iterator</strong> implements two methods: <code>__iter__</code> (which just returns itself) and <code>__next__</code> (which returns the next value, or raises <code>StopIteration</code> once there's nothing left). Any object with both methods can be used directly in a <code>for</code> loop, the same as a list or a range.</p>
+    instructions: `<p>The same memory-saving, one-value-at-a-time idea a generator function gives you, but as a full class: useful when you need more state or extra methods than a single generator function can hold. An <strong>iterator</strong> implements two methods: <code>__iter__</code> (which just returns itself) and <code>__next__</code> (which returns the next value, or raises <code>StopIteration</code> once there's nothing left). Any object with both methods can be used directly in a <code>for</code> loop, the same as a list or a range.</p>
 <p class="blueprint-line"><code>def __iter__(self):</code><br><code>def __next__(self):</code></p>
 <div class="example-block">
   <span class="example-label">Quick Example</span>
