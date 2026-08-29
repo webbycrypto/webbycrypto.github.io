@@ -281,162 +281,16 @@ class Order(BaseModel):
     explanation: `<p>42 isn't arbitrary here. It's the exact character length of a real Ethereum address (<code>0x</code> plus 40 hex characters). Constraints like this are how a real API catches "someone pasted a broken address" before it ever touches actual logic.</p>`
   },
   {
-    id: 251,
-    title: "Rendering Your First Template",
-    difficulty: "easy",
-    topic: "Templating",
-    level: 6,
-    xp: 15,
-    instructions: `<p>Building HTML by concatenating strings by hand gets messy fast, and mixing raw HTML into your Python logic makes both harder to read and reuse. A <strong>template engine</strong> solves this by keeping the HTML in its own string (or file), with placeholders for the parts that change, then filling those in with real data when it's rendered. <strong>Jinja2</strong> is the standard template engine behind Python's major web frameworks: FastAPI, Flask, and Django (which ships an almost identical syntax of its own).</p>
-<ul>
-  <li><strong>Expression:</strong> <code>{{ expression }}</code> inside a template gets replaced with whatever that expression evaluates to when the template is rendered.</li>
-  <li><strong>Filter:</strong> transforms a value before it's inserted, written after a pipe: <code>{{ value | filter_name }}</code>. <code>upper</code> uppercases a string, and <code>default(fallback)</code> supplies a fallback specifically when a variable was never passed to <code>.render()</code> at all, not just when it happens to be empty or zero. Filters can be chained: <code>{{ name | trim | upper }}</code>.</li>
-</ul>
-<p class="blueprint-line"><code>Template(text).render(**values)</code></p>
-<div class="example-block">
-  <span class="example-label">Quick Example</span>
-  <pre><code>from jinja2 import Template
-
-t = Template("Hello, {{ name | upper }}!")
-print(t.render(name="Ada"))  # Output: Hello, ADA!</code></pre>
-</div>
-<span class="task-label">Your Task</span>
-<p class="task-line">Using <code>template_text</code> below, create a <code>Template</code>, render it with <code>username="David"</code> and <code>unread_count=3</code> (leave <code>nickname</code> unset on purpose, so <code>default(...)</code> kicks in), and store the result in <code>output</code>.</p>
-<div class="example-block">
-  <span class="example-label">Example</span>
-  <div class="io-row"><span class="io-key">Input</span><code class="io-val">template_text = "Welcome, {{ username | upper }}! You have {{ unread_count }} unread messages. Nickname: {{ nickname | default('none set') }}."</code></div>
-  <div class="io-row"><span class="io-key">output</span><code class="io-val">"Welcome, DAVID! You have 3 unread messages. Nickname: none set."</code></div>
-</div>`,
-    hints: [
-      "from jinja2 import Template",
-      "t = Template(template_text)",
-      "output = t.render(username=\"David\", unread_count=3)  # nickname stays unset, so default() fills in"
-    ],
-    starterCode: "from jinja2 import Template\n\ntemplate_text = \"Welcome, {{ username | upper }}! You have {{ unread_count }} unread messages. Nickname: {{ nickname | default('none set') }}.\"\n# Render template_text with username=\"David\" and unread_count=3\n",
-    solution: "from jinja2 import Template\n\ntemplate_text = \"Welcome, {{ username | upper }}! You have {{ unread_count }} unread messages. Nickname: {{ nickname | default('none set') }}.\"\nt = Template(template_text)\noutput = t.render(username=\"David\", unread_count=3)",
-    validation: {
-      checks: [
-        { type: "hasImport", module: "jinja2", message: "Import Template from jinja2." },
-        { type: "matchesRegex", pattern: "Template\\(\\s*template_text\\s*\\)", message: "Create a Template from template_text." },
-        { type: "matchesRegex", pattern: "\\.render\\(", message: "Render the template with .render()." },
-        { type: "matchesRegex", pattern: "username\\s*=\\s*[\"']David[\"']", message: "Pass username=\"David\" to .render()." },
-        { type: "matchesRegex", pattern: "unread_count\\s*=\\s*3", message: "Pass unread_count=3 to .render()." },
-        { type: "matchesRegex", pattern: "\\|\\s*upper", message: "Apply the upper filter to username in template_text." },
-        { type: "matchesRegex", pattern: "\\|\\s*default\\(", message: "Apply the default(...) filter to nickname in template_text." }
-      ]
-    },
-    explanation: `<p>Every keyword argument passed to <code>.render()</code> becomes available inside the template by that same name. Get a name wrong on either side and Jinja doesn't raise an error: a missing variable just renders as an empty string, which is worth remembering the first time a value seems to silently vanish from the output. <code>default(...)</code> is the one exception: leave <code>nickname</code> out of <code>.render()</code> entirely and you get "none set" instead of a blank, since <code>default</code> specifically checks for a variable that was never provided, not one that's merely falsy.</p>`
-  },
-  {
-    id: 252,
-    title: "Loops and Conditionals in Templates",
-    difficulty: "medium",
-    topic: "Templating",
-    level: 6,
-    xp: 20,
-    instructions: `<p>A static placeholder only gets you so far. Real templates need to repeat a piece of markup once per item in a list, and show different content depending on a condition, exactly what <code>{% for %}</code> and <code>{% if %}</code> do inside a Jinja template: full control-flow tags, not just value substitution.</p>
-<ul>
-  <li><strong>Tag syntax:</strong> control-flow constructs use <code>{% %}</code> instead of <code>{{ }}</code>, and unlike Python, need an explicit <code>{% endfor %}</code> / <code>{% endif %}</code> to close them, since a template has no indentation to mark where a block ends.</li>
-</ul>
-<p class="blueprint-line"><code>{% for item in items %}...{% endfor %}</code> &nbsp;/&nbsp; <code>{% if condition %}...{% else %}...{% endif %}</code></p>
-<div class="example-block">
-  <span class="example-label">Quick Example</span>
-  <pre><code>from jinja2 import Template
-
-t = Template("{% for n in nums %}{{ n }}, {% endfor %}")
-print(t.render(nums=[1, 2, 3]))  # Output: 1, 2, 3,</code></pre>
-</div>
-<div class="note-block">
-  <span class="note-label">Note</span>
-  <span>Jinja reaches into a plain dict with dot notation, like <code>task.title</code>, the same way it would reach into an object's attribute. It tries both automatically, since a template author usually doesn't care about that distinction.</span>
-</div>
-<span class="task-label">Your Task</span>
-<p class="task-line">Build <code>template_text</code> as a Jinja template that loops over <code>tasks</code> (a list of dicts with <code>title</code> and <code>done</code> keys), printing one line per task as <code>"- {title} ({status})\\n"</code>, where <code>status</code> is <code>"done"</code> if <code>task.done</code> is true, otherwise <code>"pending"</code>. Render it with <code>tasks</code> and store the result in <code>output</code>.</p>
-<div class="example-block">
-  <span class="example-label">Example</span>
-  <div class="io-row"><span class="io-key">Input</span><code class="io-val">tasks = [{"title": "Buy milk", "done": False}, {"title": "Write report", "done": True}]</code></div>
-  <div class="io-row"><span class="io-key">output</span><code class="io-val">"- Buy milk (pending)\\n- Write report (done)\\n"</code></div>
-</div>`,
-    hints: [
-      "template_text = \"{% for t in tasks %}- {{ t.title }} ({% if t.done %}done{% else %}pending{% endif %})\\n{% endfor %}\"",
-      "Close every {% for %} and {% if %} with its matching {% endfor %} / {% endif %}",
-      "output = Template(template_text).render(tasks=tasks)"
-    ],
-    starterCode: "from jinja2 import Template\n\ntasks = [\n    {\"title\": \"Buy milk\", \"done\": False},\n    {\"title\": \"Write report\", \"done\": True}\n]\n# Build template_text with a for loop and an if/else, then render it\n",
-    solution: "from jinja2 import Template\n\ntasks = [\n    {\"title\": \"Buy milk\", \"done\": False},\n    {\"title\": \"Write report\", \"done\": True}\n]\ntemplate_text = \"{% for t in tasks %}- {{ t.title }} ({% if t.done %}done{% else %}pending{% endif %})\\n{% endfor %}\"\noutput = Template(template_text).render(tasks=tasks)",
-    validation: {
-      checks: [
-        { type: "matchesRegex", pattern: "\\{%\\s*for\\s+\\w+\\s+in\\s+tasks\\s*%\\}", message: "Loop over tasks with {% for t in tasks %}." },
-        { type: "matchesRegex", pattern: "\\{%\\s*endfor\\s*%\\}", message: "Close the loop with {% endfor %}." },
-        { type: "matchesRegex", pattern: "\\{%\\s*if\\s+.*\\.done\\s*%\\}", message: "Check task.done with {% if %}." },
-        { type: "matchesRegex", pattern: "\\{%\\s*else\\s*%\\}", message: "Provide a {% else %} branch for the pending case." },
-        { type: "matchesRegex", pattern: "\\.render\\(\\s*tasks\\s*=\\s*tasks\\s*\\)", message: "Render the template with tasks=tasks." }
-      ]
-    },
-    explanation: `<p>Notice the loop body prints one line per task with no Python-level list-building at all: Jinja walks <code>tasks</code> itself and repeats everything between <code>{% for %}</code> and <code>{% endfor %}</code> once per item, substituting <code>t</code> fresh each time. That's the whole appeal of a template engine over building the same HTML with string concatenation in a Python loop: the repeating structure lives right next to the markup it produces.</p>`
-  },
-  {
-    id: 253,
-    title: "Guided Project: Build a Profile Page",
-    kind: "project",
-    difficulty: "hard",
-    topic: "Templating",
-    level: 6,
-    xp: 35,
-    instructions: `<p>This is the moment to write a real template mostly on your own: everything here (variable interpolation, a filter, a loop, a conditional) is stuff you already used in the last two challenges, combined into one actual HTML page instead of a one-line snippet. The one new piece is <code>.render(**profile)</code>: unpacking a dict directly into keyword arguments with <code>**</code>, from Unpacking with *, instead of typing out every field by hand.</p>
-<p>Plain <code>Template(text)</code>, the class every challenge here has used, does <strong>not</strong> escape HTML automatically. If <code>bio</code> came from a real signup form and someone typed actual markup into it, that markup would render as-is instead of as harmless visible text. Piping a value through Jinja's <code>escape</code> filter converts characters like <code>&lt;</code>, <code>&gt;</code>, and <code>&amp;</code> into their safe HTML-entity form, so they always display as text, never as markup. You escape <code>bio</code> unconditionally below, not because this particular sample is dangerous, but because you can't know in advance what a real user will type into it.</p>
-<p class="blueprint-line"><code>template.render(**data_dict)</code></p>
-<div class="example-block">
-  <span class="example-label">Quick Example</span>
-  <pre><code>data = {"name": "Ada", "age": 36}
-Template("{{ name }} is {{ age }}").render(**data)
-# Output: "Ada is 36", same as render(name="Ada", age=36)
-
-Template("{{ note | escape }}").render(note="5 & 10")
-# escape() turns & into its safe entity form so it always displays
-# as text, the same idea applies to &lt; and &gt;</code></pre>
-</div>
-<span class="task-label">Your Task</span>
-<p class="task-line">Given <code>profile</code> (a dict with <code>name</code>, <code>bio</code>, <code>skills</code> (a list), and <code>is_premium</code>), write <code>template_text</code> as an HTML page: an <code>&lt;h1&gt;</code> with the name, a <code>&lt;p&gt;</code> with <code>bio</code> piped through the <code>escape</code> filter (<code>{{ bio | escape }}</code>), a <code>&lt;ul&gt;</code> with one <code>&lt;li&gt;</code> per skill, and, only if <code>is_premium</code> is true, a <code>&lt;p class="badge"&gt;Premium Member&lt;/p&gt;</code> at the end. Render it with <code>**profile</code> and store the result in <code>page_html</code>.</p>
-<div class="example-block">
-  <span class="example-label">Example</span>
-  <div class="io-row"><span class="io-key">Input</span><code class="io-val">profile = {"name": "Ava Chen", "bio": "Backend developer.", "skills": ["Python", "SQL"], "is_premium": True}</code></div>
-  <div class="io-row"><span class="io-key">page_html</span><code class="io-val">"&lt;h1&gt;Ava Chen&lt;/h1&gt;&lt;p&gt;Backend developer.&lt;/p&gt;&lt;ul&gt;&lt;li&gt;Python&lt;/li&gt;&lt;li&gt;SQL&lt;/li&gt;&lt;/ul&gt;&lt;p class=\"badge\"&gt;Premium Member&lt;/p&gt;"</code></div>
-</div>
-<div class="note-block">
-  <span class="note-label">Note</span>
-  <span>Checked on the shape of the template you write, the same as the rest of this level's Jinja and FastAPI content: the required tags and structure, not the exact rendered whitespace.</span>
-</div>`,
-    hints: [
-      "template_text = \"<h1>{{ name }}</h1><p>{{ bio | escape }}</p><ul>{% for skill in skills %}<li>{{ skill }}</li>{% endfor %}</ul>{% if is_premium %}<p class=\\\"badge\\\">Premium Member</p>{% endif %}\"",
-      "page_html = Template(template_text).render(**profile)"
-    ],
-    starterCode: "from jinja2 import Template\n\nprofile = {\n    \"name\": \"Ava Chen\",\n    \"bio\": \"Backend developer who likes distributed systems.\",\n    \"skills\": [\"Python\", \"SQL\", \"Docker\"],\n    \"is_premium\": True\n}\n# Write template_text as a full HTML page, then render it with **profile\n",
-    solution: "from jinja2 import Template\n\nprofile = {\n    \"name\": \"Ava Chen\",\n    \"bio\": \"Backend developer who likes distributed systems.\",\n    \"skills\": [\"Python\", \"SQL\", \"Docker\"],\n    \"is_premium\": True\n}\ntemplate_text = \"<h1>{{ name }}</h1><p>{{ bio | escape }}</p><ul>{% for skill in skills %}<li>{{ skill }}</li>{% endfor %}</ul>{% if is_premium %}<p class=\\\"badge\\\">Premium Member</p>{% endif %}\"\npage_html = Template(template_text).render(**profile)",
-    validation: {
-      checks: [
-        { type: "hasImport", module: "jinja2", message: "Import Template from jinja2." },
-        { type: "codeContains", value: "<h1>", message: "Include an <h1> tag for the name." },
-        { type: "matchesRegex", pattern: "\\{\\{\\s*name\\s*\\}\\}", message: "Interpolate {{ name }} somewhere in the template." },
-        { type: "matchesRegex", pattern: "\\{\\{\\s*bio\\s*\\|\\s*escape\\s*\\}\\}", message: "Pipe bio through the escape filter: {{ bio | escape }}." },
-        { type: "matchesRegex", pattern: "\\{%\\s*for\\s+skill\\s+in\\s+skills\\s*%\\}", message: "Loop over skills with {% for skill in skills %}." },
-        { type: "matchesRegex", pattern: "\\{%\\s*if\\s+is_premium\\s*%\\}", message: "Guard the premium badge with {% if is_premium %}." },
-        { type: "matchesRegex", pattern: "\\.render\\(\\s*\\*\\*profile\\s*\\)", message: "Render the template by unpacking profile with **profile." }
-      ]
-    },
-    explanation: `<p>This is the actual day-to-day shape of writing a Jinja template: mostly literal HTML, with a few well-placed tags marking exactly where it needs to flex. <code>**profile</code> means the <code>.render()</code> call itself never needs editing when a new field gets added to <code>profile</code> elsewhere in the app: every key in the dict becomes an available template variable automatically, even though you'd still edit the template to actually display a new one. Escaping <code>bio</code> here is the manual version of something the next challenge's Jinja setup does for you by default.</p>`
-  },
-  {
     id: 254,
     title: "Rendering Templates from FastAPI",
     difficulty: "medium",
     topic: "Templating",
     level: 6,
     xp: 20,
-    instructions: `<p>Every FastAPI route so far in this level has returned JSON. Serving an actual HTML page instead means rendering a Jinja template and handing back the result as an <code>HTMLResponse</code>, and <code>Jinja2Templates</code> is the FastAPI helper that does that step for you. This is exactly what your last two challenges were building toward: the same <code>Template</code>/<code>.render()</code> machinery, now wired into a real route.</p>
+    instructions: `<p>Every FastAPI route so far in this level has returned JSON. Serving an actual HTML page instead means rendering a Jinja template and handing back the result as an <code>HTMLResponse</code>, and <code>Jinja2Templates</code> is the FastAPI helper that does that step for you. This is exactly what Level 4's Jinja challenges were building toward: the same <code>Template</code>/<code>.render()</code> machinery, now wired into a real route.</p>
 <ul>
   <li><strong>Jinja2Templates:</strong> points at a directory of template files and returns a <code>TemplateResponse</code> (an <code>HTMLResponse</code> under the hood) instead of you constructing one by hand.</li>
-  <li><strong>Autoescape:</strong> unlike the plain <code>Template(text)</code> you used in the last two challenges, <code>Jinja2Templates</code> turns on HTML escaping by default for every <code>.html</code> template. Every <code>{{ value }}</code> gets escaped automatically, the same protection you applied by hand with <code>| escape</code> in Build a Profile Page, without you having to remember it per field. The one time to override it is <code>{{ value | safe }}</code>, and only for HTML you generated and trust yourself.</li>
+  <li><strong>Autoescape:</strong> unlike the plain <code>Template(text)</code> you used back in Level 4, <code>Jinja2Templates</code> turns on HTML escaping by default for every <code>.html</code> template. Every <code>{{ value }}</code> gets escaped automatically, the same protection you applied by hand with <code>| escape</code> in Level 4's Build a Profile Page, without you having to remember it per field. The one time to override it is <code>{{ value | safe }}</code>, and only for HTML you generated and trust yourself.</li>
 </ul>
 <p class="blueprint-line"><code>templates.TemplateResponse(request, "name.html", {...context})</code></p>
 <div class="example-block">
@@ -479,57 +333,6 @@ async def hello(request: Request, name: str):
       ]
     },
     explanation: `<p>The <code>request</code> parameter looks unused, but <code>TemplateResponse</code> needs it internally. Everything else is the same shape as every other FastAPI route in this level: a decorator, a function, and a return value, just returning rendered HTML this time instead of a dict that becomes JSON. That autoescape default is exactly why real Jinja setups feel safer by default than the bare <code>Template()</code> you started with: the protection is on unless a specific value opts out with <code>| safe</code>, instead of every field needing <code>| escape</code> remembered by hand.</p>`
-  },
-  {
-    id: 255,
-    title: "Template Inheritance",
-    difficulty: "medium",
-    topic: "Templating",
-    level: 6,
-    xp: 20,
-    instructions: `<p>A lot of real pages share the same shell (doctype, head, nav, footer) with only one section actually different per page. Copy that shell into every template and a small fix, a typo in the nav, a new footer link, means editing every single file it was copied into. <strong>Template inheritance</strong> solves this: a base template defines the shared structure with one or more named <code>{% block %}</code> placeholders, and a child template <code>{% extends %}</code> it, filling in only the blocks that differ.</p>
-<ul>
-  <li><strong>DictLoader:</strong> a real project loads templates from files on disk with <code>FileSystemLoader</code>, but <code>DictLoader</code> lets you define several named templates directly in a Python dict instead, useful anywhere you don't want a real templates/ folder, like here.</li>
-</ul>
-<p class="blueprint-line"><code>{% extends "base.html" %}</code> &nbsp;/&nbsp; <code>{% block name %}...{% endblock %}</code></p>
-<div class="example-block">
-  <span class="example-label">Quick Example</span>
-  <pre><code>from jinja2 import Environment, DictLoader
-
-env = Environment(loader=DictLoader({
-    "base.html": "&lt;body&gt;{% block content %}default{% endblock %}&lt;/body&gt;",
-    "child.html": "{% extends 'base.html' %}{% block content %}Hi{% endblock %}"
-}))
-print(env.get_template("child.html").render())
-# Output: &lt;body&gt;Hi&lt;/body&gt;</code></pre>
-</div>
-<div class="note-block">
-  <span class="note-label">Note</span>
-  <span>A block a child template never overrides falls back to whatever default content the base template gave it, "default" in the example above. A child only has to override the blocks it actually wants to change.</span>
-</div>
-<span class="task-label">Your Task</span>
-<p class="task-line">Using the <code>templates</code> dict below (a <code>"base.html"</code> that wraps a <code>content</code> block in <code>&lt;html&gt;&lt;body&gt;...&lt;/body&gt;&lt;/html&gt;</code>, and a <code>"child.html"</code> that extends it), build an <code>Environment</code> with a <code>DictLoader</code>, load <code>"child.html"</code> with <code>.get_template()</code>, render it with <code>name="David"</code>, and store the result in <code>output</code>.</p>
-<div class="example-block">
-  <span class="example-label">Example</span>
-  <div class="io-row"><span class="io-key">output</span><code class="io-val">"&lt;html&gt;&lt;body&gt;Hello, David!&lt;/body&gt;&lt;/html&gt;"</code></div>
-</div>`,
-    hints: [
-      "from jinja2 import Environment, DictLoader",
-      "env = Environment(loader=DictLoader(templates))",
-      "t = env.get_template(\"child.html\")",
-      "output = t.render(name=\"David\")"
-    ],
-    starterCode: "from jinja2 import Environment, DictLoader\n\ntemplates = {\n    \"base.html\": \"<html><body>{% block content %}default{% endblock %}</body></html>\",\n    \"child.html\": \"{% extends 'base.html' %}{% block content %}Hello, {{ name }}!{% endblock %}\"\n}\n# Build an Environment with a DictLoader, then render child.html with name=\"David\"\n",
-    solution: "from jinja2 import Environment, DictLoader\n\ntemplates = {\n    \"base.html\": \"<html><body>{% block content %}default{% endblock %}</body></html>\",\n    \"child.html\": \"{% extends 'base.html' %}{% block content %}Hello, {{ name }}!{% endblock %}\"\n}\nenv = Environment(loader=DictLoader(templates))\nt = env.get_template(\"child.html\")\noutput = t.render(name=\"David\")",
-    validation: {
-      checks: [
-        { type: "hasImport", module: "jinja2", message: "Import Environment and DictLoader from jinja2." },
-        { type: "matchesRegex", pattern: "Environment\\(\\s*loader\\s*=\\s*DictLoader\\(", message: "Build an Environment with loader=DictLoader(...)." },
-        { type: "matchesRegex", pattern: "\\.get_template\\(\\s*[\"']child\\.html[\"']\\s*\\)", message: "Load child.html with .get_template()." },
-        { type: "matchesRegex", pattern: "\\.render\\(\\s*name\\s*=\\s*[\"']David[\"']\\s*\\)", message: "Render it with name=\"David\"." }
-      ]
-    },
-    explanation: `<p>Notice <code>child.html</code> never mentions <code>&lt;html&gt;</code> or <code>&lt;body&gt;</code> at all: <code>{% extends %}</code> pulls in the entire shape of <code>base.html</code>, and only the named block gets swapped in. Add a second page tomorrow that needs the exact same shell, and it's another small child template, not another full copy of the layout. This is exactly how a real multi-page site built on <code>Jinja2Templates</code> avoids maintaining ten near-identical copies of the same header and footer.</p>`
   },
   {
     id: 233,
