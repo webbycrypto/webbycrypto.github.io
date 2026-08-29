@@ -481,6 +481,57 @@ async def hello(request: Request, name: str):
     explanation: `<p>The <code>request</code> parameter looks unused, but <code>TemplateResponse</code> needs it internally. Everything else is the same shape as every other FastAPI route in this level: a decorator, a function, and a return value, just returning rendered HTML this time instead of a dict that becomes JSON. That autoescape default is exactly why real Jinja setups feel safer by default than the bare <code>Template()</code> you started with: the protection is on unless a specific value opts out with <code>| safe</code>, instead of every field needing <code>| escape</code> remembered by hand.</p>`
   },
   {
+    id: 255,
+    title: "Template Inheritance",
+    difficulty: "medium",
+    topic: "Templating",
+    level: 6,
+    xp: 20,
+    instructions: `<p>A lot of real pages share the same shell (doctype, head, nav, footer) with only one section actually different per page. Copy that shell into every template and a small fix, a typo in the nav, a new footer link, means editing every single file it was copied into. <strong>Template inheritance</strong> solves this: a base template defines the shared structure with one or more named <code>{% block %}</code> placeholders, and a child template <code>{% extends %}</code> it, filling in only the blocks that differ.</p>
+<ul>
+  <li><strong>DictLoader:</strong> a real project loads templates from files on disk with <code>FileSystemLoader</code>, but <code>DictLoader</code> lets you define several named templates directly in a Python dict instead, useful anywhere you don't want a real templates/ folder, like here.</li>
+</ul>
+<p class="blueprint-line"><code>{% extends "base.html" %}</code> &nbsp;/&nbsp; <code>{% block name %}...{% endblock %}</code></p>
+<div class="example-block">
+  <span class="example-label">Quick Example</span>
+  <pre><code>from jinja2 import Environment, DictLoader
+
+env = Environment(loader=DictLoader({
+    "base.html": "&lt;body&gt;{% block content %}default{% endblock %}&lt;/body&gt;",
+    "child.html": "{% extends 'base.html' %}{% block content %}Hi{% endblock %}"
+}))
+print(env.get_template("child.html").render())
+# Output: &lt;body&gt;Hi&lt;/body&gt;</code></pre>
+</div>
+<div class="note-block">
+  <span class="note-label">Note</span>
+  <span>A block a child template never overrides falls back to whatever default content the base template gave it, "default" in the example above. A child only has to override the blocks it actually wants to change.</span>
+</div>
+<span class="task-label">Your Task</span>
+<p class="task-line">Using the <code>templates</code> dict below (a <code>"base.html"</code> that wraps a <code>content</code> block in <code>&lt;html&gt;&lt;body&gt;...&lt;/body&gt;&lt;/html&gt;</code>, and a <code>"child.html"</code> that extends it), build an <code>Environment</code> with a <code>DictLoader</code>, load <code>"child.html"</code> with <code>.get_template()</code>, render it with <code>name="David"</code>, and store the result in <code>output</code>.</p>
+<div class="example-block">
+  <span class="example-label">Example</span>
+  <div class="io-row"><span class="io-key">output</span><code class="io-val">"&lt;html&gt;&lt;body&gt;Hello, David!&lt;/body&gt;&lt;/html&gt;"</code></div>
+</div>`,
+    hints: [
+      "from jinja2 import Environment, DictLoader",
+      "env = Environment(loader=DictLoader(templates))",
+      "t = env.get_template(\"child.html\")",
+      "output = t.render(name=\"David\")"
+    ],
+    starterCode: "from jinja2 import Environment, DictLoader\n\ntemplates = {\n    \"base.html\": \"<html><body>{% block content %}default{% endblock %}</body></html>\",\n    \"child.html\": \"{% extends 'base.html' %}{% block content %}Hello, {{ name }}!{% endblock %}\"\n}\n# Build an Environment with a DictLoader, then render child.html with name=\"David\"\n",
+    solution: "from jinja2 import Environment, DictLoader\n\ntemplates = {\n    \"base.html\": \"<html><body>{% block content %}default{% endblock %}</body></html>\",\n    \"child.html\": \"{% extends 'base.html' %}{% block content %}Hello, {{ name }}!{% endblock %}\"\n}\nenv = Environment(loader=DictLoader(templates))\nt = env.get_template(\"child.html\")\noutput = t.render(name=\"David\")",
+    validation: {
+      checks: [
+        { type: "hasImport", module: "jinja2", message: "Import Environment and DictLoader from jinja2." },
+        { type: "matchesRegex", pattern: "Environment\\(\\s*loader\\s*=\\s*DictLoader\\(", message: "Build an Environment with loader=DictLoader(...)." },
+        { type: "matchesRegex", pattern: "\\.get_template\\(\\s*[\"']child\\.html[\"']\\s*\\)", message: "Load child.html with .get_template()." },
+        { type: "matchesRegex", pattern: "\\.render\\(\\s*name\\s*=\\s*[\"']David[\"']\\s*\\)", message: "Render it with name=\"David\"." }
+      ]
+    },
+    explanation: `<p>Notice <code>child.html</code> never mentions <code>&lt;html&gt;</code> or <code>&lt;body&gt;</code> at all: <code>{% extends %}</code> pulls in the entire shape of <code>base.html</code>, and only the named block gets swapped in. Add a second page tomorrow that needs the exact same shell, and it's another small child template, not another full copy of the layout. This is exactly how a real multi-page site built on <code>Jinja2Templates</code> avoids maintaining ten near-identical copies of the same header and footer.</p>`
+  },
+  {
     id: 233,
     title: "Salting and Pseudonymizing Data",
     difficulty: "medium",
