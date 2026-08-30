@@ -149,16 +149,15 @@ body {
 /* -------------------------------------------------------------------------
    Scrollbar styling
 ------------------------------------------------------------------------- */
-::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+/* Scroll stays functional; the bar itself is hidden. */
+* {
+  scrollbar-width: none;        /* Firefox */
+  -ms-overflow-style: none;     /* legacy Edge/IE */
 }
-::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb {
-  background: var(--bg-surface1);
-  border-radius: 3px;
+::-webkit-scrollbar {           /* WebKit / Chromium */
+  width: 0;
+  height: 0;
 }
-::-webkit-scrollbar-thumb:hover { background: var(--bg-surface2); }
 
 /* -------------------------------------------------------------------------
    Buttons
