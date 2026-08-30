@@ -290,39 +290,42 @@ class Order(BaseModel):
     instructions: `<p>Building HTML by concatenating strings by hand gets messy fast, and mixing raw HTML into your Python logic makes both harder to read and reuse. A <strong>template engine</strong> solves this by keeping the HTML in its own string (or file), with placeholders for the parts that change, then filling those in with real data when it's rendered. <strong>Jinja2</strong> is the standard template engine behind Python's major web frameworks: FastAPI, Flask, and Django (which ships an almost identical syntax of its own).</p>
 <ul>
   <li><strong>Expression:</strong> <code>{{ expression }}</code> inside a template gets replaced with whatever that expression evaluates to when the template is rendered.</li>
+  <li><strong>Filter:</strong> transforms a value before it's inserted, written after a pipe: <code>{{ value | filter_name }}</code>. <code>upper</code> uppercases a string, and <code>default(fallback)</code> supplies a fallback specifically when a variable was never passed to <code>.render()</code> at all, not just when it happens to be empty or zero. Filters can be chained: <code>{{ name | trim | upper }}</code>.</li>
 </ul>
 <p class="blueprint-line"><code>Template(text).render(**values)</code></p>
 <div class="example-block">
   <span class="example-label">Quick Example</span>
   <pre><code>from jinja2 import Template
 
-t = Template("Hello, {{ name }}!")
-print(t.render(name="Ada"))  # Output: Hello, Ada!</code></pre>
+t = Template("Hello, {{ name | upper }}!")
+print(t.render(name="Ada"))  # Output: Hello, ADA!</code></pre>
 </div>
 <span class="task-label">Your Task</span>
-<p class="task-line">Using <code>template_text</code> below, create a <code>Template</code>, render it with <code>username="David"</code> and <code>unread_count=3</code>, and store the result in <code>output</code>.</p>
+<p class="task-line">Using <code>template_text</code> below, create a <code>Template</code>, render it with <code>username="David"</code> and <code>unread_count=3</code> (leave <code>nickname</code> unset on purpose, so <code>default(...)</code> kicks in), and store the result in <code>output</code>.</p>
 <div class="example-block">
   <span class="example-label">Example</span>
-  <div class="io-row"><span class="io-key">Input</span><code class="io-val">template_text = "Welcome, {{ username }}! You have {{ unread_count }} unread messages."</code></div>
-  <div class="io-row"><span class="io-key">output</span><code class="io-val">"Welcome, David! You have 3 unread messages."</code></div>
+  <div class="io-row"><span class="io-key">Input</span><code class="io-val">template_text = "Welcome, {{ username | upper }}! You have {{ unread_count }} unread messages. Nickname: {{ nickname | default('none set') }}."</code></div>
+  <div class="io-row"><span class="io-key">output</span><code class="io-val">"Welcome, DAVID! You have 3 unread messages. Nickname: none set."</code></div>
 </div>`,
     hints: [
       "from jinja2 import Template",
       "t = Template(template_text)",
-      "output = t.render(username=\"David\", unread_count=3)"
+      "output = t.render(username=\"David\", unread_count=3)  # nickname stays unset, so default() fills in"
     ],
-    starterCode: "from jinja2 import Template\n\ntemplate_text = \"Welcome, {{ username }}! You have {{ unread_count }} unread messages.\"\n# Render template_text with username=\"David\" and unread_count=3\n",
-    solution: "from jinja2 import Template\n\ntemplate_text = \"Welcome, {{ username }}! You have {{ unread_count }} unread messages.\"\nt = Template(template_text)\noutput = t.render(username=\"David\", unread_count=3)",
+    starterCode: "from jinja2 import Template\n\ntemplate_text = \"Welcome, {{ username | upper }}! You have {{ unread_count }} unread messages. Nickname: {{ nickname | default('none set') }}.\"\n# Render template_text with username=\"David\" and unread_count=3\n",
+    solution: "from jinja2 import Template\n\ntemplate_text = \"Welcome, {{ username | upper }}! You have {{ unread_count }} unread messages. Nickname: {{ nickname | default('none set') }}.\"\nt = Template(template_text)\noutput = t.render(username=\"David\", unread_count=3)",
     validation: {
       checks: [
         { type: "hasImport", module: "jinja2", message: "Import Template from jinja2." },
         { type: "matchesRegex", pattern: "Template\\(\\s*template_text\\s*\\)", message: "Create a Template from template_text." },
         { type: "matchesRegex", pattern: "\\.render\\(", message: "Render the template with .render()." },
         { type: "matchesRegex", pattern: "username\\s*=\\s*[\"']David[\"']", message: "Pass username=\"David\" to .render()." },
-        { type: "matchesRegex", pattern: "unread_count\\s*=\\s*3", message: "Pass unread_count=3 to .render()." }
+        { type: "matchesRegex", pattern: "unread_count\\s*=\\s*3", message: "Pass unread_count=3 to .render()." },
+        { type: "matchesRegex", pattern: "\\|\\s*upper", message: "Apply the upper filter to username in template_text." },
+        { type: "matchesRegex", pattern: "\\|\\s*default\\(", message: "Apply the default(...) filter to nickname in template_text." }
       ]
     },
-    explanation: `<p>Every keyword argument passed to <code>.render()</code> becomes available inside the template by that same name. Get a name wrong on either side and Jinja doesn't raise an error: a missing variable just renders as an empty string, which is worth remembering the first time a value seems to silently vanish from the output.</p>`
+    explanation: `<p>Every keyword argument passed to <code>.render()</code> becomes available inside the template by that same name. Get a name wrong on either side and Jinja doesn't raise an error: a missing variable just renders as an empty string, which is worth remembering the first time a value seems to silently vanish from the output. <code>default(...)</code> is the one exception: leave <code>nickname</code> out of <code>.render()</code> entirely and you get "none set" instead of a blank, since <code>default</code> specifically checks for a variable that was never provided, not one that's merely falsy.</p>`
   },
   {
     id: 252,
