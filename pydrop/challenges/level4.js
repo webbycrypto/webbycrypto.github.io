@@ -5,8 +5,8 @@ window.LEVEL4 = [
     kind: "intro",
     topic: "Introduction",
     level: 4,
-    instructions: `<p>This level is about writing Python that looks like real, production-shaped code: type hints, dataclasses, async/await, environment config, reading and writing real files, JSON, logging, and building actual command-line tools with <code>argparse</code>. It also covers reading Excel spreadsheets, parsing scraped HTML, and rendering HTML pages yourself with Jinja2, the templating engine behind FastAPI, Flask, and Django: the unglamorous data-wrangling and page-building work most real Python jobs are made of.</p>
-<p>By the end, you'll be able to build a small CLI tool from scratch, one that takes real arguments, reads and writes real data, and handles its own errors, and you'll be able to write and render your own HTML templates: the shape of code you'd actually find in a working project, not just a classroom exercise.</p>`,
+    instructions: `<p>This level is about writing Python that looks like real, production-shaped code: type hints, dataclasses, async and await, environment config, logging, reading and writing real files, JSON, and building command-line tools with <code>argparse</code>. It covers the unglamorous data-wrangling most Python jobs are made of, reading Excel spreadsheets and parsing scraped HTML, and then it steps up to the web: a real HTTP API built with FastAPI and Pydantic, packaged and tested like a real project, plus your own HTML pages rendered with Jinja2, the templating engine behind FastAPI, Flask, and Django.</p>
+<p>By the end, you'll be able to build a small CLI tool from scratch, one that takes real arguments, reads and writes real data, and handles its own errors, and you'll be able to stand up a web service that validates every request and renders real pages: the shape of code you'd actually find in a working project, not just a classroom exercise.</p>`,
     starterCode: ""
   },
   {
@@ -421,433 +421,64 @@ print(c.engine.horsepower)  # Output: 120</code></pre>
     explanation: `<p><code>c.address.city</code> reads exactly like the sentence describing the data: the customer's address's city. Nesting dataclasses this way also means each level gets its own <code>__init__</code>, <code>__repr__</code>, and <code>__eq__</code> for free, generated independently.</p>`
   },
   {
-    id: 68,
-    title: "async def and await",
-    difficulty: "medium",
-    topic: "Async",
-    level: 4,
-    xp: 20,
-    instructions: `<p>Calling an <code>async</code> function doesn't run its body immediately; it hands back a coroutine object that has to be driven to completion, usually with <code>await</code>.</p>
-<p>Think of a food court with five separate counters instead of one line: ordering noodles and then standing there staring at that counter until it's ready is "blocking," and nobody else gets served. Async is ordering, then wandering off to another counter while the noodles cook: <code>await</code> is that "wandering off" moment, letting Python make progress elsewhere ("non-blocking") instead of freezing everything for one slow operation.</p>
-<p class="blueprint-line"><code>async def function_name(param):</code><br><code>&nbsp;&nbsp;&nbsp;&nbsp;result = await some_slow_operation()</code></p>
-<div class="example-block">
-  <span class="example-label">Quick Example</span>
-  <pre><code>import asyncio
-
-async def order_noodles():
-    await asyncio.sleep(0)
-    return "noodles ready"
-
-print(asyncio.run(order_noodles()))  # Output: noodles ready</code></pre>
-</div>
-<span class="task-label">Your Task</span>
-<p class="task-line">Define an <code>async</code> function <code>fetch_data</code> that takes a <code>url: str</code> parameter. Inside, simulate an async operation by doing <code>await asyncio.sleep(0)</code> (import asyncio), then return the string <code>f"Data from {url}"</code>.</p>
-<div class="example-block">
-  <span class="example-label">Example</span>
-  <div class="io-row"><span class="io-key">fetch_data("http://x")</span><code class="io-val">resolves to "Data from http://x"</code></div>
-</div>`,
-    hints: [
-      "import asyncio",
-      "async def fetch_data(url: str):",
-      "    await asyncio.sleep(0)",
-      "    return f\"Data from {url}\""
-    ],
-    starterCode: "# Define an async fetch_data function\n",
-    solution: 'import asyncio\n\nasync def fetch_data(url: str):\n    await asyncio.sleep(0)\n    return f"Data from {url}"',
-    validation: {
-      checks: [
-        { type: "hasAsync", message: "Define the function with 'async def'." },
-        { type: "hasAwait", message: "Use 'await' inside the async function." },
-        { type: "hasValidDef", name: "fetch_data", message: "Name the function 'fetch_data' with a colon: async def fetch_data(url: str):" },
-        { type: "hasImport", module: "asyncio", message: "Import asyncio." }
-      ],
-      pyTests: [
-        { code: "def __run(coro):\n    while True:\n        try:\n            coro.send(None)\n        except StopIteration as e:\n            return e.value\nassert __run(fetch_data('http://x')) == 'Data from http://x'", message: "fetch_data('http://x') should eventually resolve to 'Data from http://x'." }
-      ]
-    },
-    explanation: `<p><code>async def</code> defines a coroutine. It does not run immediately. You need to <code>await</code> it or run it with <code>asyncio.run()</code>. FastAPI uses async functions for non-blocking request handling.</p>`
-  },
-  {
-    id: 69,
-    title: "asyncio.gather() Pattern",
+    id: 80,
+    title: "Typed Dataclass with field()",
     difficulty: "hard",
-    topic: "Async",
+    topic: "Dataclasses",
     level: 4,
     xp: 30,
-    instructions: `<p><code>asyncio.gather()</code> takes several coroutines and runs them concurrently, waiting until all of them finish before handing back their results in the same order you gave them. This is far faster than awaiting each one in turn when they're all independent, I/O-bound operations like network requests.</p>
-<p class="blueprint-line"><code>results = await asyncio.gather(*coroutine_list)</code></p>
-<div class="example-block">
-  <span class="example-label">Quick Example</span>
-  <pre><code>import asyncio
-
-async def square(n):
-    await asyncio.sleep(0)
-    return n * n
-
-async def main():
-    return await asyncio.gather(square(2), square(3))
-
-print(asyncio.run(main()))  # Output: [4, 9]</code></pre>
-</div>
-<span class="task-label">Your Task</span>
-<p class="task-line">Define an async function <code>fetch_all</code> that takes a list of URLs <code>urls: list</code>. Use <code>asyncio.gather()</code> to concurrently call a pre-existing <code>fetch_data(url)</code> for each URL, and return the results as a list.</p>
-<div class="example-block">
-  <span class="example-label">Example</span>
-  <div class="io-row"><span class="io-key">fetch_all(["a", "b"])</span><code class="io-val">resolves to ["Data from a", "Data from b"]</code></div>
-</div>
-<div class="note-block">
-  <span class="note-label">Note</span>
-  <span>This one is checked on its code shape rather than actually run here, since asyncio.gather() needs a real running event loop to demonstrate concurrent scheduling.</span>
-</div>`,
-    hints: [
-      "async def fetch_all(urls: list):",
-      "    tasks = [fetch_data(url) for url in urls]",
-      "    return await asyncio.gather(*tasks)"
-    ],
-    starterCode: "import asyncio\n\nasync def fetch_data(url):\n    await asyncio.sleep(0)\n    return f\"Data from {url}\"\n\n# Define fetch_all using asyncio.gather\n",
-    solution: "import asyncio\n\nasync def fetch_data(url):\n    await asyncio.sleep(0)\n    return f\"Data from {url}\"\n\nasync def fetch_all(urls: list):\n    tasks = [fetch_data(url) for url in urls]\n    return await asyncio.gather(*tasks)",
-    validation: {
-      checks: [
-        { type: "hasValidDef", name: "fetch_all", message: "Define a function named 'fetch_all' with a colon: async def fetch_all(...):" },
-        { type: "hasAsync", message: "Define fetch_all as async." },
-        { type: "matchesRegex", pattern: "asyncio\\.gather", message: "Use asyncio.gather() to run tasks concurrently." },
-        { type: "matchesRegex", pattern: "\\*tasks|\\*\\[", message: "Unpack the tasks into asyncio.gather()." }
-      ]
-    },
-    explanation: `<p><code>asyncio.gather(*coroutines)</code> returns results in the same order the coroutines were passed in, even though they may finish in a different order. If any one of them raises, by default <code>gather()</code> propagates that exception once every task has completed.</p>`
-  },
-  {
-    id: 70,
-    title: "Environment Variables",
-    difficulty: "easy",
-    topic: "Config",
-    level: 4,
-    xp: 10,
-    instructions: `<p>Environment variables store configuration outside your code entirely, which keeps sensitive values like passwords and API keys out of source control. Read them with <code>os.environ.get(key, default)</code> rather than square brackets, so a missing variable falls back to a sensible default instead of crashing the program.</p>
-<div class="example-block">
-  <span class="example-label">Quick Example</span>
-  <pre><code>import os
-
-port = os.environ.get("PORT", "8000")
-print(port)  # Output: 8000</code></pre>
-</div>
-<div class="note-block">
-  <span class="note-label">Note</span>
-  <span>Reading with square brackets, <code>os.environ["PORT"]</code>, raises a <code>KeyError</code> the instant the variable is missing. <code>.get()</code> with a default avoids that entirely.</span>
-</div>
-<span class="task-label">Your Task</span>
-<p class="task-line">Import <code>os</code>. Create a variable <code>db_url</code> that reads the environment variable <code>"DATABASE_URL"</code>, with a fallback default of <code>"sqlite:///app.db"</code>.</p>
-<div class="example-block">
-  <span class="example-label">Example</span>
-  <div class="io-row"><span class="io-key">DATABASE_URL unset</span><code class="io-val">db_url = "sqlite:///app.db"</code></div>
-</div>`,
-    hints: [
-      "import os",
-      "db_url = os.environ.get(\"DATABASE_URL\", \"sqlite:///app.db\")"
-    ],
-    starterCode: "# Import os and read DATABASE_URL env var\n",
-    solution: 'import os\ndb_url = os.environ.get("DATABASE_URL", "sqlite:///app.db")',
-    validation: {
-      checks: [
-        { type: "hasImport", module: "os", message: "Import the os module." },
-        { type: "matchesRegex", pattern: "os\\.environ\\.get\\(", message: "Use os.environ.get() to read the variable." },
-        { type: "codeContains", value: "DATABASE_URL", message: "Read the DATABASE_URL variable." },
-        { type: "codeContains", value: "db_url", message: "Store the result in 'db_url'." }
-      ],
-      pyTests: [
-        { code: "assert db_url == 'sqlite:///app.db'", message: "'db_url' should fall back to 'sqlite:///app.db' since DATABASE_URL isn't set." }
-      ]
-    },
-    explanation: `<p>Always use <code>os.environ.get(key, default)</code> rather than <code>os.environ[key]</code>. The latter raises a <code>KeyError</code> if the variable is not set. In production, environment variables store secrets like database passwords and API keys.</p>`
-  },
-  {
-    id: 71,
-    title: ".env File Pattern",
-    difficulty: "easy",
-    topic: "Config",
-    level: 4,
-    xp: 10,
-    instructions: `<p>A <code>.env</code> file stores environment variables locally in a simple <code>KEY=value</code> format, so developers don't have to set them by hand every time. The third-party <code>python-dotenv</code> library reads that file and copies its values into <code>os.environ</code>, right where <code>os.environ.get()</code> can find them.</p>
-<p class="blueprint-line"><code>load_dotenv()</code><br><code>value = os.environ.get("KEY", default)</code></p>
-<span class="task-label">Your Task</span>
-<p class="task-line">Write the code that would load a <code>.env</code> file using <code>python-dotenv</code>. Import <code>load_dotenv</code> from <code>dotenv</code> and call it. Then read <code>SECRET_KEY</code> from environment variables into a variable named <code>secret</code>, with default <code>"dev-secret"</code>.</p>
-<div class="note-block">
-  <span class="note-label">Note</span>
-  <span>python-dotenv is a third-party package, so this one is checked on its code shape rather than actually run here.</span>
-</div>`,
-    hints: [
-      "from dotenv import load_dotenv",
-      "load_dotenv()",
-      "import os",
-      "secret = os.environ.get(\"SECRET_KEY\", \"dev-secret\")"
-    ],
-    starterCode: "# Load .env file and read SECRET_KEY\n",
-    solution: 'from dotenv import load_dotenv\nimport os\n\nload_dotenv()\nsecret = os.environ.get("SECRET_KEY", "dev-secret")',
-    validation: {
-      checks: [
-        { type: "matchesRegex", pattern: "from\\s+dotenv\\s+import|import\\s+dotenv", message: "Import from dotenv." },
-        { type: "codeContains", value: "load_dotenv()", message: "Call load_dotenv() to load the .env file." },
-        { type: "codeContains", value: "SECRET_KEY", message: "Read the SECRET_KEY variable." }
-      ]
-    },
-    explanation: `<p><code>load_dotenv()</code> reads your <code>.env</code> file and sets the variables in <code>os.environ</code>. The <code>.env</code> file should never be committed to version control. Add it to <code>.gitignore</code>.</p>`
-  },
-  {
-    id: 72,
-    title: "Python Package Structure",
-    difficulty: "medium",
-    topic: "Project Structure",
-    level: 4,
-    xp: 20,
-    instructions: `<p>Organizing related modules into a package like this is what lets you write <code>import mypkg.submodule</code> instead of juggling a folder of unrelated top-level scripts. A folder becomes an importable Python package the moment it contains an <code>__init__.py</code> file. Every other <code>.py</code> file inside that folder is a module belonging to the package, and <code>__init__.py</code> itself is what runs when the package is first imported.</p>
-<div class="example-block">
-  <span class="example-label">Quick Example</span>
-  <pre><code># file: mypkg/__init__.py
-GREETING = "hi"
-
-# elsewhere:
-import mypkg
-print(mypkg.GREETING)  # Output: hi</code></pre>
-</div>
-<span class="task-label">Your Task</span>
-<p class="task-line">Write a minimal <code>__init__.py</code> for a package named <code>myapp</code>. It should define a variable <code>VERSION = "1.0.0"</code> and import the <code>create_app</code> function from a sibling module <code>.core</code> (relative import).</p>
-<div class="note-block">
-  <span class="note-label">Note</span>
-  <span>This one is checked on its code shape rather than actually run here, since relative imports only work inside a real package directory.</span>
-</div>`,
-    hints: [
-      "VERSION = \"1.0.0\"",
-      "from .core import create_app"
-    ],
-    starterCode: "# Write the contents of myapp/__init__.py\n",
-    solution: 'VERSION = "1.0.0"\nfrom .core import create_app',
-    validation: {
-      checks: [
-        { type: "matchesRegex", pattern: "VERSION\\s*=\\s*['\"]1\\.0\\.0['\"]", message: "Define VERSION = \"1.0.0\"." },
-        { type: "matchesRegex", pattern: "from\\s+\\.\\w+\\s+import|from\\s+\\.\\s+import", message: "Use a relative import (starting with a dot)." },
-        { type: "matchesRegex", pattern: "from\\s+\\.\\w+\\s+import.*create_app", message: "Import create_app via a relative import statement." }
-      ]
-    },
-    explanation: `<p>Relative imports (starting with <code>.</code>) are for imports within the same package. <code>from .core import create_app</code> means "from the <code>core</code> module in the same package as this file."</p>`
-  },
-  {
-    id: 73,
-    title: "Relative Imports",
-    difficulty: "medium",
-    topic: "Project Structure",
-    level: 4,
-    xp: 20,
-    instructions: `<p>More robust than an absolute import within a package too: it doesn't break if the whole package gets renamed. Inside a package, relative imports reach sibling modules without spelling out the whole package path. A single leading dot <code>.</code> means "the current package"; two dots <code>..</code> means "one level up, the parent package."</p>
-<p><strong>Shorthand</strong></p>
+    instructions: `<p>A mutable object like a list can't be used directly as a dataclass default; Python would create it once and share that exact same list across every instance. <code>field(default_factory=list)</code> solves this by calling <code>list()</code> fresh for each new instance instead.</p>
 <ul>
-  <li><code>from .models import User</code>: the single dot means "the module named models, in this same package."</li>
-  <li><code>from ..utils import helper</code>: two dots means "go up one package level, then look for utils."</li>
+  <li><strong>field(default_factory=list):</strong> tells a dataclass to call <code>list()</code> fresh for every new instance, instead of building one shared list at class-definition time.</li>
 </ul>
-<span class="task-label">Your Task</span>
-<p class="task-line">Write an import statement that imports <code>User</code> from the <code>models</code> module in the same package (single dot relative import), and also imports <code>get_db</code> from a <code>database</code> module in the same package.</p>
-<div class="note-block">
-  <span class="note-label">Note</span>
-  <span>This one is checked on its code shape rather than actually run here, since relative imports only work inside a real package directory.</span>
-</div>`,
-    hints: [
-      "from .models import User",
-      "from .database import get_db"
-    ],
-    starterCode: "# Write two relative imports from the same package\n",
-    solution: "from .models import User\nfrom .database import get_db",
-    validation: {
-      checks: [
-        { type: "matchesRegex", pattern: "from\\s+\\.models\\s+import\\s+User", message: "Import User from .models." },
-        { type: "matchesRegex", pattern: "from\\s+\\.database\\s+import\\s+get_db", message: "Import get_db from .database." }
-      ]
-    },
-    explanation: `<p>Relative imports are more robust than absolute imports within a package. They do not break if the package is renamed. FastAPI and Django projects use them extensively to import between route files, models, and services.</p>`
-  },
-  {
-    id: 74,
-    title: "requirements.txt Format",
-    difficulty: "easy",
-    topic: "Project Structure",
-    level: 4,
-    xp: 10,
-    instructions: `<p>A <code>requirements.txt</code> file lists the packages a project depends on, one per line, each optionally pinned to a version. Anyone (or any deployment system) can then recreate the exact same set of dependencies with a single install command.</p>
-<p><strong>Shorthand</strong></p>
-<ul>
-  <li><code>package==1.2.3</code> pins to that exact version.</li>
-  <li><code>package>=1.2.3</code> requires at least that version.</li>
-  <li><code>package</code> alone means any version is acceptable.</li>
-</ul>
-<span class="task-label">Your Task</span>
-<p class="task-line">Write a valid <code>requirements.txt</code> that includes: <code>fastapi</code> version <code>0.104.1</code> (exact), <code>uvicorn</code> version at least <code>0.24.0</code> (use <code>>=</code>), and <code>pydantic</code> with no version constraint.</p>
-<div class="example-block">
-  <span class="example-label">Example</span>
-  <div class="io-row"><span class="io-key">Output</span><code class="io-val">fastapi==0.104.1<br>uvicorn>=0.24.0<br>pydantic</code></div>
-</div>`,
-    hints: [
-      "fastapi==0.104.1",
-      "uvicorn>=0.24.0",
-      "pydantic"
-    ],
-    starterCode: "# Write the requirements.txt content as Python comments or strings\nrequirements = \"\"\"\n# Add your packages here\n\"\"\"\n",
-    solution: 'requirements = """\nfastapi==0.104.1\nuvicorn>=0.24.0\npydantic\n"""',
-    validation: {
-      checks: [
-        { type: "matchesRegex", pattern: "fastapi==0\\.104\\.1|fastapi==", message: "Specify fastapi with an exact version (==)." },
-        { type: "matchesRegex", pattern: "uvicorn>=", message: "Specify uvicorn with a minimum version (>=)." },
-        { type: "codeContains", value: "pydantic", message: "Include pydantic without a version constraint." }
-      ],
-      pyTests: [
-        { code: "assert 'fastapi==0.104.1' in requirements", message: "requirements should contain 'fastapi==0.104.1'." },
-        { code: "assert 'uvicorn>=0.24.0' in requirements", message: "requirements should contain 'uvicorn>=0.24.0'." },
-        { code: "assert 'pydantic' in requirements", message: "requirements should contain 'pydantic'." }
-      ]
-    },
-    explanation: `<p>Version specifiers: <code>==</code> pins to an exact version, <code>>=</code> requires at least that version, <code>~=</code> allows patch updates. Pinning all versions in production ensures reproducible deployments.</p>`
-  },
-  {
-    id: 128,
-    title: "Command-Line Arguments",
-    difficulty: "easy",
-    topic: "CLI Tools",
-    level: 4,
-    xp: 15,
-    instructions: `<p>This is how a script becomes configurable from outside itself, run differently depending on what's typed after its name, instead of hardcoding values inside it. Every Python script gets called with a list of the words typed after it on the command line: <code>sys.argv</code>. <code>sys.argv[0]</code> is always the script's own name, so the actual arguments start at index <code>1</code>. Running <code>python greet.py Alice</code> gives <code>sys.argv == ["greet.py", "Alice"]</code>.</p>
-<div class="note-block">
-  <span class="note-label">Note</span>
-  <span>Don't forget <code>sys.argv[0]</code> is the script's own filename, not the first real argument. That's why counting or indexing has to skip index 0.</span>
-</div>
-<span class="task-label">Your Task</span>
-<p class="task-line">Using <code>sys.argv</code>, create <code>first_arg</code> as the first argument passed in (not the script name), and <code>arg_count</code> as how many arguments were passed (also not counting the script name).</p>
-<div class="example-block">
-  <span class="example-label">Example</span>
-  <div class="io-row"><span class="io-key">Command</span><code class="io-val">python greet.py apple banana</code></div>
-  <div class="io-row"><span class="io-key">first_arg</span><code class="io-val">"apple"</code></div>
-  <div class="io-row"><span class="io-key">arg_count</span><code class="io-val">2</code></div>
-</div>`,
-    hints: [
-      "first_arg = sys.argv[1]",
-      "arg_count = len(sys.argv) - 1"
-    ],
-    starterCode: "import sys\n\n# Create first_arg and arg_count from sys.argv\n",
-    solution: "import sys\n\nfirst_arg = sys.argv[1]\narg_count = len(sys.argv) - 1",
-    validation: {
-      checks: [
-        { type: "hasImport", module: "sys", message: "Import the sys module." },
-        { type: "matchesRegex", pattern: "sys\\.argv\\s*\\[\\s*1\\s*\\]", message: "Read the first argument with sys.argv[1]." },
-        { type: "matchesRegex", pattern: "len\\s*\\(\\s*sys\\.argv\\s*\\)", message: "Use len(sys.argv) to count arguments." }
-      ],
-      argv: ["apple", "banana"],
-      pyTests: [
-        { code: "assert first_arg == 'apple'", message: "'first_arg' should be the first command-line argument, 'apple'." },
-        { code: "assert arg_count == 2", message: "'arg_count' should be 2 (not counting the script name)." }
-      ]
-    },
-    explanation: `<p><code>sys.argv</code> is how a script sees what was typed after its name. Every CLI tool, from a two-line script to full frameworks like <code>argparse</code>, ultimately reads from this same list. <code>argparse</code> just parses it for you instead of you indexing it by hand.</p>`
-  },
-  {
-    id: 129,
-    title: "Guided Project: Howler",
-    kind: "project",
-    source: "Tiny Python Projects #5, \"Howler: Working with Command-Line Arguments\"",
-    difficulty: "medium",
-    topic: "CLI Tools",
-    level: 4,
-    xp: 25,
-    instructions: `<p><code>argparse</code> builds a proper command-line interface for a script: define what arguments it accepts, and it handles reading the terminal input, converting types, and producing a <code>--help</code> message for free. This project pulls together two things you already know (joining a list into a string with <code>" ".join(...)</code> and <code>.upper()</code> for case conversion) and wires them up to real command-line input for the first time.</p>
-<p class="blueprint-line"><code>parser.add_argument(name, nargs='*')</code></p>
+<p class="blueprint-line"><code>field_name: list = field(default_factory=list)</code></p>
 <div class="example-block">
   <span class="example-label">Quick Example</span>
-  <pre><code>parser = argparse.ArgumentParser()
-parser.add_argument("words", nargs="*")
-args = parser.parse_args()
-# Running: python howler.py are you a mouse
-print(args.words)  # Output: ['are', 'you', 'a', 'mouse']</code></pre>
-</div>
-<p><strong>New pieces in this project</strong></p>
-<ul>
-  <li><code>ArgumentParser()</code>: builds the object that knows how to read and validate command-line input.</li>
-  <li><code>nargs='*'</code>: tells that argument to collect zero or more words into a list, instead of expecting exactly one value.</li>
-  <li><code>parse_args()</code>: actually reads the terminal input and returns it as an object with one attribute per argument (<code>args.words</code>).</li>
-</ul>
-<div class="note-block">
-  <span class="note-label">Note</span>
-  <span>Since <code>nargs='*'</code> collects the words into a list, you'll need <code>" ".join(...)</code> before you can call <code>.upper()</code> on the result. You can't uppercase a list directly.</span>
-</div>
-<span class="task-label">Your Task</span>
-<p class="task-line">Build a script that "howls" whatever words are passed on the command line. Set up an <code>ArgumentParser</code> with one positional argument <code>words</code> using <code>nargs='*'</code>, join the collected words into a single phrase, and print it in uppercase.</p>
-<div class="example-block">
-  <span class="example-label">Example</span>
-  <div class="io-row"><span class="io-key">Command</span><code class="io-val">python howler.py are you a mouse</code></div>
-  <div class="io-row"><span class="io-key">Output</span><code class="io-val">ARE YOU A MOUSE</code></div>
-</div>`,
-    hints: [
-      "parser.add_argument('words', nargs='*')",
-      "args = parser.parse_args()",
-      "phrase = ' '.join(args.words)",
-      "print(phrase.upper())"
-    ],
-    starterCode: "import argparse\n\nparser = argparse.ArgumentParser()\n# Add a 'words' positional argument that collects zero or more values\n\nargs = parser.parse_args()\n# Join args.words into a phrase and print it uppercased\n",
-    solution: "import argparse\n\nparser = argparse.ArgumentParser()\nparser.add_argument('words', nargs='*', help='words to howl')\nargs = parser.parse_args()\n\nphrase = ' '.join(args.words)\nprint(phrase.upper())",
-    validation: {
-      checks: [
-        { type: "hasImport", module: "argparse", message: "Import the argparse module." },
-        { type: "matchesRegex", pattern: "add_argument\\s*\\(\\s*['\"]words['\"]\\s*,\\s*nargs\\s*=\\s*['\"]\\*['\"]", message: "Add a 'words' positional argument with nargs='*'." },
-        { type: "matchesRegex", pattern: "\\.upper\\(\\)", message: "Print the phrase in uppercase with .upper()." }
-      ],
-      argv: ["are", "you", "a", "mouse"],
-      pyTests: [
-        { code: "assert stdout_output == 'ARE YOU A MOUSE\\n'", message: "Running with 'are you a mouse' should print 'ARE YOU A MOUSE'." }
-      ]
-    },
-    explanation: `<p>This is the real shape of most command-line tools: <code>argparse</code> declares the interface, <code>parse_args()</code> reads <code>sys.argv</code> and validates it against that declaration, and the rest of the script just uses the resulting <code>args</code> object. It scales to flags, defaults, and types far better than indexing <code>sys.argv</code> by hand.</p>`
-  },
-  {
-    id: 130,
-    title: "Guided Project: Word Count",
-    kind: "project",
-    source: "Tiny Python Projects #6, \"Words Count: Reading Files and Command-Line Arguments\"",
-    difficulty: "medium",
-    topic: "CLI Tools",
-    level: 4,
-    xp: 25,
-    instructions: `<p>From <em>Tiny Python Projects</em>: a word counter, adapted here to read standard input rather than a file. Reading from standard input instead of a fixed filename is what lets a script sit anywhere in a pipeline, fed by whatever another command produced, instead of only ever running on one hardcoded file. It combines counting words with <code>.split()</code> and formatting a result with an f-string, both already familiar, with one new way of getting input into a script: reading from a pipe (<code>cat notes.txt | python wc.py</code>) instead of <code>sys.argv</code> or <code>input()</code>.</p>
-<p class="blueprint-line"><code>text = sys.stdin.read()</code></p>
-<div class="example-block">
-  <span class="example-label">Quick Example</span>
-  <pre><code>import sys
+  <pre><code>from dataclasses import dataclass, field
 
-text = sys.stdin.read()
-print(len(text.split()))  # Output: word count of whatever was piped in</code></pre>
+@dataclass
+class Cart:
+    items: list = field(default_factory=list)
+
+a = Cart()
+b = Cart()
+a.items.append("apple")
+print(b.items)  # Output: []</code></pre>
 </div>
-<p><strong>New pieces in this project</strong></p>
-<ul>
-  <li><code>sys.stdin.read()</code>: reads everything available on standard input as one string, so a script can be fed piped text instead of typed arguments.</li>
-</ul>
+<div class="note-block">
+  <span class="note-label">Note</span>
+  <span>Writing <code>members: list = []</code> directly looks like it should work, but Python builds that <code>[]</code> exactly once, when the class is defined, and every instance would then share that same list. <code>field(default_factory=list)</code> is the workaround.</span>
+</div>
 <span class="task-label">Your Task</span>
-<p class="task-line">Read all of standard input, count how many words it contains (splitting on whitespace), and print <code>"There are {n} words in the input."</code> with the count filled in.</p>
+<p class="task-line">Import <code>dataclass</code> and <code>field</code> from <code>dataclasses</code>. Define a <code>@dataclass</code> class <code>Team</code> with a <code>name: str</code> field and a <code>members: list</code> field that defaults to an empty list using <code>field(default_factory=list)</code>.</p>
 <div class="example-block">
   <span class="example-label">Example</span>
-  <div class="io-row"><span class="io-key">Input</span><code class="io-val">the quick brown fox jumps over the lazy dog</code></div>
-  <div class="io-row"><span class="io-key">Output</span><code class="io-val">There are 9 words in the input.</code></div>
+  <div class="io-row"><span class="io-key">Team("Red").members</span><code class="io-val">[]</code></div>
+</div>
+<div class="note-block">
+  <span class="note-label">Note</span>
+  <span>Two separate Team instances should never share the same members list. Appending to one team's members shouldn't affect another team created afterward.</span>
 </div>`,
     hints: [
-      "text = sys.stdin.read()",
-      "word_count = len(text.split())",
-      "print(f\"There are {word_count} words in the input.\")"
+      "from dataclasses import dataclass, field",
+      "@dataclass",
+      "class Team:",
+      "    name: str",
+      "    members: list = field(default_factory=list)"
     ],
-    starterCode: "import sys\n\ntext = sys.stdin.read()\n# Count the words and print the sentence\n",
-    solution: "import sys\n\ntext = sys.stdin.read()\nword_count = len(text.split())\nprint(f\"There are {word_count} words in the input.\")",
+    starterCode: "# Define Team dataclass with a mutable default field\n",
+    solution: "from dataclasses import dataclass, field\n\n@dataclass\nclass Team:\n    name: str\n    members: list = field(default_factory=list)",
     validation: {
       checks: [
-        { type: "matchesRegex", pattern: "sys\\.stdin\\.read\\(\\)", message: "Read standard input with sys.stdin.read()." },
-        { type: "matchesRegex", pattern: "\\.split\\(\\)", message: "Split the text into words with .split()." }
+        { type: "matchesRegex", pattern: "from\\s+dataclasses\\s+import.*field", message: "Import field from dataclasses." },
+        { type: "hasDataclass", message: "Apply the @dataclass decorator." },
+        { type: "matchesRegex", pattern: "members\\s*:\\s*list\\s*=\\s*field\\s*\\(\\s*default_factory\\s*=\\s*list\\s*\\)", message: "Declare 'members: list = field(default_factory=list)' specifically." }
       ],
-      stdin: "the quick brown fox jumps over the lazy dog\n",
       pyTests: [
-        { code: "assert stdout_output == 'There are 9 words in the input.\\n'", message: "For the sample input, output should be 'There are 9 words in the input.'" }
+        { code: "t1 = Team('Red')\nt2 = Team('Blue')\nt1.members.append('Alice')\nassert t2.members == []", message: "Each Team's 'members' list should be independent, not shared between instances." }
       ]
     },
-    explanation: `<p>Reading from standard input instead of a fixed filename is what makes a script composable with other command-line tools: it can sit anywhere in a pipeline, fed by whatever came before it.</p>`
+    explanation: `<p>Never use a mutable object (list, dict, set) as a direct default in a dataclass or function. It would be shared across all instances. <code>field(default_factory=list)</code> creates a fresh empty list for each new instance.</p>`
   },
   {
     id: 75,
@@ -1175,6 +806,102 @@ print((logs / "run.log").read_text())  # Output: started</code></pre>
     explanation: `<p><code>exist_ok=True</code> matters here: without it, calling <code>.mkdir()</code> on a directory that's already there raises <code>FileExistsError</code>, which is rarely what you want when the goal is just "make sure this directory exists."</p>`
   },
   {
+    id: 127,
+    title: "Time and Dates",
+    difficulty: "medium",
+    topic: "Modules",
+    level: 4,
+    xp: 20,
+    instructions: `<p>The <code>datetime</code> module's <code>date</code> objects represent a calendar day, and subtracting one from another gives you a <code>timedelta</code> whose <code>.days</code> attribute is the number of days between them, handling month lengths and leap years correctly without you ever counting by hand. <code>.strftime()</code> turns a date into a formatted string using the same directive codes (<code>%Y</code>, <code>%B</code>, <code>%d</code>, and so on) as most other languages.</p>
+<div class="example-block">
+  <span class="example-label">Quick Example</span>
+  <pre><code>from datetime import date
+
+a = date(2024, 6, 1)
+b = date(2024, 6, 10)
+print((b - a).days)  # Output: 9</code></pre>
+</div>
+<p><strong>Shorthand</strong></p>
+<ul>
+  <li><code>%Y</code> four-digit year, <code>%B</code> full month name, <code>%d</code> zero-padded day (e.g. <code>"%B %d, %Y"</code> -> "June 01, 2024").</li>
+</ul>
+<span class="task-label">Your Task</span>
+<p class="task-line">Given <code>start</code> and <code>end</code>, create <code>days_between</code> as the number of days between them, and <code>formatted</code> as <code>start</code> written out as <code>"Month DD, YYYY"</code>.</p>
+<div class="example-block">
+  <span class="example-label">Example</span>
+  <div class="io-row"><span class="io-key">Input</span><code class="io-val">start = date(2024, 1, 1)<br>end = date(2024, 3, 15)</code></div>
+  <div class="io-row"><span class="io-key">days_between</span><code class="io-val">74</code></div>
+  <div class="io-row"><span class="io-key">formatted</span><code class="io-val">"January 01, 2024"</code></div>
+</div>`,
+    hints: [
+      "days_between = (end - start).days",
+      "formatted = start.strftime(\"%B %d, %Y\")"
+    ],
+    starterCode: "from datetime import date\n\nstart = date(2024, 1, 1)\nend = date(2024, 3, 15)\n# Create days_between and formatted\n",
+    solution: 'from datetime import date\n\nstart = date(2024, 1, 1)\nend = date(2024, 3, 15)\ndays_between = (end - start).days\nformatted = start.strftime("%B %d, %Y")',
+    validation: {
+      checks: [
+        { type: "matchesRegex", pattern: "\\(\\s*end\\s*-\\s*start\\s*\\)\\.days", message: "Compute the difference with (end - start).days." },
+        { type: "matchesRegex", pattern: "\\.strftime\\(", message: "Format the date with .strftime()." }
+      ],
+      pyTests: [
+        { code: "assert days_between == 74", message: "'days_between' should be 74." },
+        { code: "assert formatted == 'January 01, 2024'", message: "'formatted' should be \"January 01, 2024\"." }
+      ]
+    },
+    explanation: `<p>Subtracting two <code>date</code> objects gives a <code>timedelta</code>, not a plain number, since a duration is its own kind of thing (it also has <code>.seconds</code> for time-of-day differences on <code>datetime</code> objects). <code>.days</code> pulls out the whole-day count you usually want.</p>`
+  },
+  {
+    id: 79,
+    title: "f-String Format Spec",
+    difficulty: "medium",
+    topic: "Strings",
+    level: 4,
+    xp: 20,
+    instructions: `<p>Useful any time raw output isn't fit to show someone, like a price with 8 decimal places or a column of numbers that don't line up. f-strings support format specifiers after a colon inside the braces, written as <code>{value:spec}</code>. <code>.2f</code> rounds to 2 decimal places, <code>,</code> adds thousands separators, and <code>>N</code> right-aligns the result inside a field of width <code>N</code>, and you can combine several of these in one spec.</p>
+<ul>
+  <li><strong>Format spec:</strong> the part after the colon inside <code>{value:spec}</code>, controlling how a value is rendered as text.</li>
+</ul>
+<p class="blueprint-line"><code>f"{value:spec}"</code></p>
+<div class="example-block">
+  <span class="example-label">Quick Example</span>
+  <pre><code>total = 9821.5
+print(f"{total:,.2f}")  # Output: 9,821.50</code></pre>
+</div>
+<p><strong>Shorthand</strong></p>
+<ul>
+  <li><code>:.2f</code> rounds a float to 2 decimal places (e.g. <code>3.14159</code> -> <code>3.14</code>).</li>
+  <li><code>:,</code> adds thousands separators (e.g. <code>1000000</code> -> <code>1,000,000</code>).</li>
+  <li><code>:>10</code> right-aligns the value inside a 10-character-wide field.</li>
+</ul>
+<span class="task-label">Your Task</span>
+<p class="task-line">Given <code>amount</code>, create <code>money</code> formatted with 2 decimal places and a comma thousands separator, and <code>padded</code> right-aligned in a 20-character field.</p>
+<div class="example-block">
+  <span class="example-label">Example</span>
+  <div class="io-row"><span class="io-key">Input</span><code class="io-val">amount = 1234567.891</code></div>
+  <div class="io-row"><span class="io-key">money</span><code class="io-val">"1,234,567.89"</code></div>
+</div>`,
+    hints: [
+      "money = f\"{amount:,.2f}\"",
+      "padded = f\"{amount:>20}\""
+    ],
+    starterCode: "amount = 1234567.891\n# Create money and padded formatted strings\n",
+    solution: 'amount = 1234567.891\nmoney = f"{amount:,.2f}"\npadded = f"{amount:>20}"',
+    validation: {
+      checks: [
+        { type: "matchesRegex", pattern: "money\\s*=.*f.*amount|money\\s*=.*f['\"].*\\{.*amount", message: "Assign 'money' using an f-string with 'amount'." },
+        { type: "matchesRegex", pattern: "f['\"].*:,.2f|\\{.*:,.2f\\}", message: "Use ,.2f format spec for money formatting." },
+        { type: "matchesRegex", pattern: "padded\\s*=.*f.*amount|padded\\s*=.*f['\"].*\\{.*amount", message: "Assign 'padded' using an f-string with 'amount'." },
+        { type: "matchesRegex", pattern: "f['\"].*:>\\d+|\\{.*:>\\d+\\}", message: "Use >N format spec for right-alignment." }
+      ],
+      pyTests: [
+        { code: "assert money == '1,234,567.89'", message: "'money' should be \"1,234,567.89\"." },
+        { code: "assert len(padded) == 20 and padded.strip() == '1234567.891'", message: "'padded' should be amount right-aligned in a 20-character field." }
+      ]
+    },
+    explanation: `<p>Format specs follow the mini language: <code>[fill][align][sign][#][0][width][grouping][.precision][type]</code>. You will use <code>:.2f</code> for currency and <code>:>N</code> for column alignment constantly in web applications that format data for display.</p>`
+  },
+  {
     id: 125,
     title: "Guided Project: Word of the Day",
     difficulty: "medium",
@@ -1225,59 +952,6 @@ print(row["name"])  # Output: Ada</code></pre>
       ]
     },
     explanation: `<p><code>io.StringIO</code> wraps a plain string so it behaves like an open file, which is exactly what <code>csv.DictReader</code> expects. This trick works with any function that wants a file object, letting you feed it in-memory text without ever touching the real filesystem.</p>`
-  },
-  {
-    id: 126,
-    title: "Guided Project: Web Scraping",
-    difficulty: "hard",
-    topic: "Modules",
-    level: 4,
-    xp: 30,
-    kind: "project",
-    source: "Automate the Boring Stuff with Python, ch.12, \"Web Scraping\"",
-    instructions: `<p>The book's version of this chapter fetches a live web page over the network; this version skips the network entirely and parses a fixed HTML string instead, so the result is exactly the same every time it runs. HTML tags can nest, span multiple lines, and vary in spacing and quoting, which is exactly the kind of structure regex reliably gets wrong on real-world pages. It combines subclassing and instance state, both already familiar from custom exception classes and dataclasses, with the standard library's <code>html.parser.HTMLParser</code>: subclass it and override its handler methods to react as it walks through the markup correctly instead.</p>
-<p class="blueprint-line"><code>class MyParser(HTMLParser): def handle_starttag(self, tag, attrs): ...</code></p>
-<div class="example-block">
-  <span class="example-label">Quick Example</span>
-  <pre><code>from html.parser import HTMLParser
-
-class TagPrinter(HTMLParser):
-    def handle_starttag(self, tag, attrs):
-        print(tag)
-
-TagPrinter().feed("&lt;p&gt;hi&lt;/p&gt;")  # Output: p</code></pre>
-</div>
-<p><strong>New pieces in this project</strong></p>
-<ul>
-  <li><code>HTMLParser</code>: calls <code>handle_starttag</code> on every opening tag, <code>handle_endtag</code> on every closing tag, and <code>handle_data</code> on the text between them, as it walks through markup fed to it.</li>
-  <li><code>.feed(html)</code>: runs the parser over a string of HTML, triggering the handler methods above.</li>
-</ul>
-<span class="task-label">Your Task</span>
-<p class="task-line">Define a class <code>ListParser(HTMLParser)</code> that collects the text inside every <code>&lt;li&gt;</code> tag into <code>self.items</code>. Feed it <code>html_content</code> and store the result in <code>items</code>.</p>
-<div class="example-block">
-  <span class="example-label">Example</span>
-  <div class="io-row"><span class="io-key">Input</span><code class="io-val">"&lt;ul&gt;&lt;li&gt;Apples&lt;/li&gt;&lt;li&gt;Bananas&lt;/li&gt;&lt;/ul&gt;"</code></div>
-  <div class="io-row"><span class="io-key">items</span><code class="io-val">["Apples", "Bananas"]</code></div>
-</div>`,
-    hints: [
-      "In handle_starttag, set self.in_li = True when tag == \"li\"",
-      "In handle_endtag, set self.in_li = False when tag == \"li\"",
-      "In handle_data, if self.in_li: self.items.append(data)"
-    ],
-    starterCode: 'from html.parser import HTMLParser\n\nhtml_content = "<ul><li>Apples</li><li>Bananas</li><li>Cherries</li></ul>"\n\n# Define ListParser, then parse html_content into items\n',
-    solution: 'from html.parser import HTMLParser\n\nhtml_content = "<ul><li>Apples</li><li>Bananas</li><li>Cherries</li></ul>"\n\nclass ListParser(HTMLParser):\n    def __init__(self):\n        super().__init__()\n        self.items = []\n        self.in_li = False\n\n    def handle_starttag(self, tag, attrs):\n        if tag == "li":\n            self.in_li = True\n\n    def handle_endtag(self, tag):\n        if tag == "li":\n            self.in_li = False\n\n    def handle_data(self, data):\n        if self.in_li:\n            self.items.append(data)\n\nparser = ListParser()\nparser.feed(html_content)\nitems = parser.items',
-    validation: {
-      checks: [
-        { type: "matchesRegex", pattern: "class\\s+ListParser\\s*\\(\\s*HTMLParser\\s*\\)", message: "Define ListParser as a subclass of HTMLParser." },
-        { type: "matchesRegex", pattern: "def\\s+handle_starttag", message: "Override handle_starttag." },
-        { type: "matchesRegex", pattern: "def\\s+handle_data", message: "Override handle_data." },
-        { type: "matchesRegex", pattern: "\\.feed\\(", message: "Call .feed() to run the parser over html_content." }
-      ],
-      pyTests: [
-        { code: "assert items == ['Apples', 'Bananas', 'Cherries']", message: "'items' should be ['Apples', 'Bananas', 'Cherries']." }
-      ]
-    },
-    explanation: `<p><code>HTMLParser</code> calls your methods as it walks through the markup: <code>handle_starttag</code> on every opening tag, <code>handle_endtag</code> on every closing tag, and <code>handle_data</code> on the text between them. Tracking a simple <code>self.in_li</code> flag is enough to know whether the text you're currently seeing is inside the tag you care about.</p>`
   },
   {
     id: 131,
@@ -1347,160 +1021,855 @@ for name, score in ws2.iter_rows(min_row=2, values_only=True):
     explanation: `<p>This is the same read-then-compute shape as parsing a CSV, just against a real binary spreadsheet format instead of plain text. Businesses hand off data as <code>.xlsx</code> constantly, and <code>openpyxl</code> means a script can read it, transform it, and write a new one without a human ever opening Excel.</p>`
   },
   {
-    id: 79,
-    title: "f-String Format Spec",
-    difficulty: "medium",
-    topic: "Strings",
-    level: 4,
-    xp: 20,
-    instructions: `<p>Useful any time raw output isn't fit to show someone, like a price with 8 decimal places or a column of numbers that don't line up. f-strings support format specifiers after a colon inside the braces, written as <code>{value:spec}</code>. <code>.2f</code> rounds to 2 decimal places, <code>,</code> adds thousands separators, and <code>>N</code> right-aligns the result inside a field of width <code>N</code>, and you can combine several of these in one spec.</p>
-<ul>
-  <li><strong>Format spec:</strong> the part after the colon inside <code>{value:spec}</code>, controlling how a value is rendered as text.</li>
-</ul>
-<p class="blueprint-line"><code>f"{value:spec}"</code></p>
-<div class="example-block">
-  <span class="example-label">Quick Example</span>
-  <pre><code>total = 9821.5
-print(f"{total:,.2f}")  # Output: 9,821.50</code></pre>
-</div>
-<p><strong>Shorthand</strong></p>
-<ul>
-  <li><code>:.2f</code> rounds a float to 2 decimal places (e.g. <code>3.14159</code> -> <code>3.14</code>).</li>
-  <li><code>:,</code> adds thousands separators (e.g. <code>1000000</code> -> <code>1,000,000</code>).</li>
-  <li><code>:>10</code> right-aligns the value inside a 10-character-wide field.</li>
-</ul>
-<span class="task-label">Your Task</span>
-<p class="task-line">Given <code>amount</code>, create <code>money</code> formatted with 2 decimal places and a comma thousands separator, and <code>padded</code> right-aligned in a 20-character field.</p>
-<div class="example-block">
-  <span class="example-label">Example</span>
-  <div class="io-row"><span class="io-key">Input</span><code class="io-val">amount = 1234567.891</code></div>
-  <div class="io-row"><span class="io-key">money</span><code class="io-val">"1,234,567.89"</code></div>
-</div>`,
-    hints: [
-      "money = f\"{amount:,.2f}\"",
-      "padded = f\"{amount:>20}\""
-    ],
-    starterCode: "amount = 1234567.891\n# Create money and padded formatted strings\n",
-    solution: 'amount = 1234567.891\nmoney = f"{amount:,.2f}"\npadded = f"{amount:>20}"',
-    validation: {
-      checks: [
-        { type: "matchesRegex", pattern: "money\\s*=.*f.*amount|money\\s*=.*f['\"].*\\{.*amount", message: "Assign 'money' using an f-string with 'amount'." },
-        { type: "matchesRegex", pattern: "f['\"].*:,.2f|\\{.*:,.2f\\}", message: "Use ,.2f format spec for money formatting." },
-        { type: "matchesRegex", pattern: "padded\\s*=.*f.*amount|padded\\s*=.*f['\"].*\\{.*amount", message: "Assign 'padded' using an f-string with 'amount'." },
-        { type: "matchesRegex", pattern: "f['\"].*:>\\d+|\\{.*:>\\d+\\}", message: "Use >N format spec for right-alignment." }
-      ],
-      pyTests: [
-        { code: "assert money == '1,234,567.89'", message: "'money' should be \"1,234,567.89\"." },
-        { code: "assert len(padded) == 20 and padded.strip() == '1234567.891'", message: "'padded' should be amount right-aligned in a 20-character field." }
-      ]
-    },
-    explanation: `<p>Format specs follow the mini language: <code>[fill][align][sign][#][0][width][grouping][.precision][type]</code>. You will use <code>:.2f</code> for currency and <code>:>N</code> for column alignment constantly in web applications that format data for display.</p>`
-  },
-  {
-    id: 80,
-    title: "Typed Dataclass with field()",
+    id: 126,
+    title: "Guided Project: Web Scraping",
     difficulty: "hard",
-    topic: "Dataclasses",
-    level: 4,
-    xp: 30,
-    instructions: `<p>A mutable object like a list can't be used directly as a dataclass default; Python would create it once and share that exact same list across every instance. <code>field(default_factory=list)</code> solves this by calling <code>list()</code> fresh for each new instance instead.</p>
-<ul>
-  <li><strong>field(default_factory=list):</strong> tells a dataclass to call <code>list()</code> fresh for every new instance, instead of building one shared list at class-definition time.</li>
-</ul>
-<p class="blueprint-line"><code>field_name: list = field(default_factory=list)</code></p>
-<div class="example-block">
-  <span class="example-label">Quick Example</span>
-  <pre><code>from dataclasses import dataclass, field
-
-@dataclass
-class Cart:
-    items: list = field(default_factory=list)
-
-a = Cart()
-b = Cart()
-a.items.append("apple")
-print(b.items)  # Output: []</code></pre>
-</div>
-<div class="note-block">
-  <span class="note-label">Note</span>
-  <span>Writing <code>members: list = []</code> directly looks like it should work, but Python builds that <code>[]</code> exactly once, when the class is defined, and every instance would then share that same list. <code>field(default_factory=list)</code> is the workaround.</span>
-</div>
-<span class="task-label">Your Task</span>
-<p class="task-line">Import <code>dataclass</code> and <code>field</code> from <code>dataclasses</code>. Define a <code>@dataclass</code> class <code>Team</code> with a <code>name: str</code> field and a <code>members: list</code> field that defaults to an empty list using <code>field(default_factory=list)</code>.</p>
-<div class="example-block">
-  <span class="example-label">Example</span>
-  <div class="io-row"><span class="io-key">Team("Red").members</span><code class="io-val">[]</code></div>
-</div>
-<div class="note-block">
-  <span class="note-label">Note</span>
-  <span>Two separate Team instances should never share the same members list. Appending to one team's members shouldn't affect another team created afterward.</span>
-</div>`,
-    hints: [
-      "from dataclasses import dataclass, field",
-      "@dataclass",
-      "class Team:",
-      "    name: str",
-      "    members: list = field(default_factory=list)"
-    ],
-    starterCode: "# Define Team dataclass with a mutable default field\n",
-    solution: "from dataclasses import dataclass, field\n\n@dataclass\nclass Team:\n    name: str\n    members: list = field(default_factory=list)",
-    validation: {
-      checks: [
-        { type: "matchesRegex", pattern: "from\\s+dataclasses\\s+import.*field", message: "Import field from dataclasses." },
-        { type: "hasDataclass", message: "Apply the @dataclass decorator." },
-        { type: "matchesRegex", pattern: "members\\s*:\\s*list\\s*=\\s*field\\s*\\(\\s*default_factory\\s*=\\s*list\\s*\\)", message: "Declare 'members: list = field(default_factory=list)' specifically." }
-      ],
-      pyTests: [
-        { code: "t1 = Team('Red')\nt2 = Team('Blue')\nt1.members.append('Alice')\nassert t2.members == []", message: "Each Team's 'members' list should be independent, not shared between instances." }
-      ]
-    },
-    explanation: `<p>Never use a mutable object (list, dict, set) as a direct default in a dataclass or function. It would be shared across all instances. <code>field(default_factory=list)</code> creates a fresh empty list for each new instance.</p>`
-  },
-  {
-    id: 127,
-    title: "Time and Dates",
-    difficulty: "medium",
     topic: "Modules",
     level: 4,
-    xp: 20,
-    instructions: `<p>The <code>datetime</code> module's <code>date</code> objects represent a calendar day, and subtracting one from another gives you a <code>timedelta</code> whose <code>.days</code> attribute is the number of days between them, handling month lengths and leap years correctly without you ever counting by hand. <code>.strftime()</code> turns a date into a formatted string using the same directive codes (<code>%Y</code>, <code>%B</code>, <code>%d</code>, and so on) as most other languages.</p>
+    xp: 30,
+    kind: "project",
+    source: "Automate the Boring Stuff with Python, ch.12, \"Web Scraping\"",
+    instructions: `<p>The book's version of this chapter fetches a live web page over the network; this version skips the network entirely and parses a fixed HTML string instead, so the result is exactly the same every time it runs. HTML tags can nest, span multiple lines, and vary in spacing and quoting, which is exactly the kind of structure regex reliably gets wrong on real-world pages. It combines subclassing and instance state, both already familiar from custom exception classes and dataclasses, with the standard library's <code>html.parser.HTMLParser</code>: subclass it and override its handler methods to react as it walks through the markup correctly instead.</p>
+<p class="blueprint-line"><code>class MyParser(HTMLParser): def handle_starttag(self, tag, attrs): ...</code></p>
 <div class="example-block">
   <span class="example-label">Quick Example</span>
-  <pre><code>from datetime import date
+  <pre><code>from html.parser import HTMLParser
 
-a = date(2024, 6, 1)
-b = date(2024, 6, 10)
-print((b - a).days)  # Output: 9</code></pre>
+class TagPrinter(HTMLParser):
+    def handle_starttag(self, tag, attrs):
+        print(tag)
+
+TagPrinter().feed("&lt;p&gt;hi&lt;/p&gt;")  # Output: p</code></pre>
 </div>
-<p><strong>Shorthand</strong></p>
+<p><strong>New pieces in this project</strong></p>
 <ul>
-  <li><code>%Y</code> four-digit year, <code>%B</code> full month name, <code>%d</code> zero-padded day (e.g. <code>"%B %d, %Y"</code> -> "June 01, 2024").</li>
+  <li><code>HTMLParser</code>: calls <code>handle_starttag</code> on every opening tag, <code>handle_endtag</code> on every closing tag, and <code>handle_data</code> on the text between them, as it walks through markup fed to it.</li>
+  <li><code>.feed(html)</code>: runs the parser over a string of HTML, triggering the handler methods above.</li>
 </ul>
 <span class="task-label">Your Task</span>
-<p class="task-line">Given <code>start</code> and <code>end</code>, create <code>days_between</code> as the number of days between them, and <code>formatted</code> as <code>start</code> written out as <code>"Month DD, YYYY"</code>.</p>
+<p class="task-line">Define a class <code>ListParser(HTMLParser)</code> that collects the text inside every <code>&lt;li&gt;</code> tag into <code>self.items</code>. Feed it <code>html_content</code> and store the result in <code>items</code>.</p>
 <div class="example-block">
   <span class="example-label">Example</span>
-  <div class="io-row"><span class="io-key">Input</span><code class="io-val">start = date(2024, 1, 1)<br>end = date(2024, 3, 15)</code></div>
-  <div class="io-row"><span class="io-key">days_between</span><code class="io-val">74</code></div>
-  <div class="io-row"><span class="io-key">formatted</span><code class="io-val">"January 01, 2024"</code></div>
+  <div class="io-row"><span class="io-key">Input</span><code class="io-val">"&lt;ul&gt;&lt;li&gt;Apples&lt;/li&gt;&lt;li&gt;Bananas&lt;/li&gt;&lt;/ul&gt;"</code></div>
+  <div class="io-row"><span class="io-key">items</span><code class="io-val">["Apples", "Bananas"]</code></div>
 </div>`,
     hints: [
-      "days_between = (end - start).days",
-      "formatted = start.strftime(\"%B %d, %Y\")"
+      "In handle_starttag, set self.in_li = True when tag == \"li\"",
+      "In handle_endtag, set self.in_li = False when tag == \"li\"",
+      "In handle_data, if self.in_li: self.items.append(data)"
     ],
-    starterCode: "from datetime import date\n\nstart = date(2024, 1, 1)\nend = date(2024, 3, 15)\n# Create days_between and formatted\n",
-    solution: 'from datetime import date\n\nstart = date(2024, 1, 1)\nend = date(2024, 3, 15)\ndays_between = (end - start).days\nformatted = start.strftime("%B %d, %Y")',
+    starterCode: 'from html.parser import HTMLParser\n\nhtml_content = "<ul><li>Apples</li><li>Bananas</li><li>Cherries</li></ul>"\n\n# Define ListParser, then parse html_content into items\n',
+    solution: 'from html.parser import HTMLParser\n\nhtml_content = "<ul><li>Apples</li><li>Bananas</li><li>Cherries</li></ul>"\n\nclass ListParser(HTMLParser):\n    def __init__(self):\n        super().__init__()\n        self.items = []\n        self.in_li = False\n\n    def handle_starttag(self, tag, attrs):\n        if tag == "li":\n            self.in_li = True\n\n    def handle_endtag(self, tag):\n        if tag == "li":\n            self.in_li = False\n\n    def handle_data(self, data):\n        if self.in_li:\n            self.items.append(data)\n\nparser = ListParser()\nparser.feed(html_content)\nitems = parser.items',
     validation: {
       checks: [
-        { type: "matchesRegex", pattern: "\\(\\s*end\\s*-\\s*start\\s*\\)\\.days", message: "Compute the difference with (end - start).days." },
-        { type: "matchesRegex", pattern: "\\.strftime\\(", message: "Format the date with .strftime()." }
+        { type: "matchesRegex", pattern: "class\\s+ListParser\\s*\\(\\s*HTMLParser\\s*\\)", message: "Define ListParser as a subclass of HTMLParser." },
+        { type: "matchesRegex", pattern: "def\\s+handle_starttag", message: "Override handle_starttag." },
+        { type: "matchesRegex", pattern: "def\\s+handle_data", message: "Override handle_data." },
+        { type: "matchesRegex", pattern: "\\.feed\\(", message: "Call .feed() to run the parser over html_content." }
       ],
       pyTests: [
-        { code: "assert days_between == 74", message: "'days_between' should be 74." },
-        { code: "assert formatted == 'January 01, 2024'", message: "'formatted' should be \"January 01, 2024\"." }
+        { code: "assert items == ['Apples', 'Bananas', 'Cherries']", message: "'items' should be ['Apples', 'Bananas', 'Cherries']." }
       ]
     },
-    explanation: `<p>Subtracting two <code>date</code> objects gives a <code>timedelta</code>, not a plain number, since a duration is its own kind of thing (it also has <code>.seconds</code> for time-of-day differences on <code>datetime</code> objects). <code>.days</code> pulls out the whole-day count you usually want.</p>`
+    explanation: `<p><code>HTMLParser</code> calls your methods as it walks through the markup: <code>handle_starttag</code> on every opening tag, <code>handle_endtag</code> on every closing tag, and <code>handle_data</code> on the text between them. Tracking a simple <code>self.in_li</code> flag is enough to know whether the text you're currently seeing is inside the tag you care about.</p>`
+  },
+  {
+    id: 128,
+    title: "Command-Line Arguments",
+    difficulty: "easy",
+    topic: "CLI Tools",
+    level: 4,
+    xp: 15,
+    instructions: `<p>This is how a script becomes configurable from outside itself, run differently depending on what's typed after its name, instead of hardcoding values inside it. Every Python script gets called with a list of the words typed after it on the command line: <code>sys.argv</code>. <code>sys.argv[0]</code> is always the script's own name, so the actual arguments start at index <code>1</code>. Running <code>python greet.py Alice</code> gives <code>sys.argv == ["greet.py", "Alice"]</code>.</p>
+<div class="note-block">
+  <span class="note-label">Note</span>
+  <span>Don't forget <code>sys.argv[0]</code> is the script's own filename, not the first real argument. That's why counting or indexing has to skip index 0.</span>
+</div>
+<span class="task-label">Your Task</span>
+<p class="task-line">Using <code>sys.argv</code>, create <code>first_arg</code> as the first argument passed in (not the script name), and <code>arg_count</code> as how many arguments were passed (also not counting the script name).</p>
+<div class="example-block">
+  <span class="example-label">Example</span>
+  <div class="io-row"><span class="io-key">Command</span><code class="io-val">python greet.py apple banana</code></div>
+  <div class="io-row"><span class="io-key">first_arg</span><code class="io-val">"apple"</code></div>
+  <div class="io-row"><span class="io-key">arg_count</span><code class="io-val">2</code></div>
+</div>`,
+    hints: [
+      "first_arg = sys.argv[1]",
+      "arg_count = len(sys.argv) - 1"
+    ],
+    starterCode: "import sys\n\n# Create first_arg and arg_count from sys.argv\n",
+    solution: "import sys\n\nfirst_arg = sys.argv[1]\narg_count = len(sys.argv) - 1",
+    validation: {
+      checks: [
+        { type: "hasImport", module: "sys", message: "Import the sys module." },
+        { type: "matchesRegex", pattern: "sys\\.argv\\s*\\[\\s*1\\s*\\]", message: "Read the first argument with sys.argv[1]." },
+        { type: "matchesRegex", pattern: "len\\s*\\(\\s*sys\\.argv\\s*\\)", message: "Use len(sys.argv) to count arguments." }
+      ],
+      argv: ["apple", "banana"],
+      pyTests: [
+        { code: "assert first_arg == 'apple'", message: "'first_arg' should be the first command-line argument, 'apple'." },
+        { code: "assert arg_count == 2", message: "'arg_count' should be 2 (not counting the script name)." }
+      ]
+    },
+    explanation: `<p><code>sys.argv</code> is how a script sees what was typed after its name. Every CLI tool, from a two-line script to full frameworks like <code>argparse</code>, ultimately reads from this same list. <code>argparse</code> just parses it for you instead of you indexing it by hand.</p>`
+  },
+  {
+    id: 129,
+    title: "Guided Project: Howler",
+    kind: "project",
+    source: "Tiny Python Projects #5, \"Howler: Working with Command-Line Arguments\"",
+    difficulty: "medium",
+    topic: "CLI Tools",
+    level: 4,
+    xp: 25,
+    instructions: `<p><code>argparse</code> builds a proper command-line interface for a script: define what arguments it accepts, and it handles reading the terminal input, converting types, and producing a <code>--help</code> message for free. This project pulls together two things you already know (joining a list into a string with <code>" ".join(...)</code> and <code>.upper()</code> for case conversion) and wires them up to real command-line input for the first time.</p>
+<p class="blueprint-line"><code>parser.add_argument(name, nargs='*')</code></p>
+<div class="example-block">
+  <span class="example-label">Quick Example</span>
+  <pre><code>parser = argparse.ArgumentParser()
+parser.add_argument("words", nargs="*")
+args = parser.parse_args()
+# Running: python howler.py are you a mouse
+print(args.words)  # Output: ['are', 'you', 'a', 'mouse']</code></pre>
+</div>
+<p><strong>New pieces in this project</strong></p>
+<ul>
+  <li><code>ArgumentParser()</code>: builds the object that knows how to read and validate command-line input.</li>
+  <li><code>nargs='*'</code>: tells that argument to collect zero or more words into a list, instead of expecting exactly one value.</li>
+  <li><code>parse_args()</code>: actually reads the terminal input and returns it as an object with one attribute per argument (<code>args.words</code>).</li>
+</ul>
+<div class="note-block">
+  <span class="note-label">Note</span>
+  <span>Since <code>nargs='*'</code> collects the words into a list, you'll need <code>" ".join(...)</code> before you can call <code>.upper()</code> on the result. You can't uppercase a list directly.</span>
+</div>
+<span class="task-label">Your Task</span>
+<p class="task-line">Build a script that "howls" whatever words are passed on the command line. Set up an <code>ArgumentParser</code> with one positional argument <code>words</code> using <code>nargs='*'</code>, join the collected words into a single phrase, and print it in uppercase.</p>
+<div class="example-block">
+  <span class="example-label">Example</span>
+  <div class="io-row"><span class="io-key">Command</span><code class="io-val">python howler.py are you a mouse</code></div>
+  <div class="io-row"><span class="io-key">Output</span><code class="io-val">ARE YOU A MOUSE</code></div>
+</div>`,
+    hints: [
+      "parser.add_argument('words', nargs='*')",
+      "args = parser.parse_args()",
+      "phrase = ' '.join(args.words)",
+      "print(phrase.upper())"
+    ],
+    starterCode: "import argparse\n\nparser = argparse.ArgumentParser()\n# Add a 'words' positional argument that collects zero or more values\n\nargs = parser.parse_args()\n# Join args.words into a phrase and print it uppercased\n",
+    solution: "import argparse\n\nparser = argparse.ArgumentParser()\nparser.add_argument('words', nargs='*', help='words to howl')\nargs = parser.parse_args()\n\nphrase = ' '.join(args.words)\nprint(phrase.upper())",
+    validation: {
+      checks: [
+        { type: "hasImport", module: "argparse", message: "Import the argparse module." },
+        { type: "matchesRegex", pattern: "add_argument\\s*\\(\\s*['\"]words['\"]\\s*,\\s*nargs\\s*=\\s*['\"]\\*['\"]", message: "Add a 'words' positional argument with nargs='*'." },
+        { type: "matchesRegex", pattern: "\\.upper\\(\\)", message: "Print the phrase in uppercase with .upper()." }
+      ],
+      argv: ["are", "you", "a", "mouse"],
+      pyTests: [
+        { code: "assert stdout_output == 'ARE YOU A MOUSE\\n'", message: "Running with 'are you a mouse' should print 'ARE YOU A MOUSE'." }
+      ]
+    },
+    explanation: `<p>This is the real shape of most command-line tools: <code>argparse</code> declares the interface, <code>parse_args()</code> reads <code>sys.argv</code> and validates it against that declaration, and the rest of the script just uses the resulting <code>args</code> object. It scales to flags, defaults, and types far better than indexing <code>sys.argv</code> by hand.</p>`
+  },
+  {
+    id: 130,
+    title: "Guided Project: Word Count",
+    kind: "project",
+    source: "Tiny Python Projects #6, \"Words Count: Reading Files and Command-Line Arguments\"",
+    difficulty: "medium",
+    topic: "CLI Tools",
+    level: 4,
+    xp: 25,
+    instructions: `<p>From <em>Tiny Python Projects</em>: a word counter, adapted here to read standard input rather than a file. Reading from standard input instead of a fixed filename is what lets a script sit anywhere in a pipeline, fed by whatever another command produced, instead of only ever running on one hardcoded file. It combines counting words with <code>.split()</code> and formatting a result with an f-string, both already familiar, with one new way of getting input into a script: reading from a pipe (<code>cat notes.txt | python wc.py</code>) instead of <code>sys.argv</code> or <code>input()</code>.</p>
+<p class="blueprint-line"><code>text = sys.stdin.read()</code></p>
+<div class="example-block">
+  <span class="example-label">Quick Example</span>
+  <pre><code>import sys
+
+text = sys.stdin.read()
+print(len(text.split()))  # Output: word count of whatever was piped in</code></pre>
+</div>
+<p><strong>New pieces in this project</strong></p>
+<ul>
+  <li><code>sys.stdin.read()</code>: reads everything available on standard input as one string, so a script can be fed piped text instead of typed arguments.</li>
+</ul>
+<span class="task-label">Your Task</span>
+<p class="task-line">Read all of standard input, count how many words it contains (splitting on whitespace), and print <code>"There are {n} words in the input."</code> with the count filled in.</p>
+<div class="example-block">
+  <span class="example-label">Example</span>
+  <div class="io-row"><span class="io-key">Input</span><code class="io-val">the quick brown fox jumps over the lazy dog</code></div>
+  <div class="io-row"><span class="io-key">Output</span><code class="io-val">There are 9 words in the input.</code></div>
+</div>`,
+    hints: [
+      "text = sys.stdin.read()",
+      "word_count = len(text.split())",
+      "print(f\"There are {word_count} words in the input.\")"
+    ],
+    starterCode: "import sys\n\ntext = sys.stdin.read()\n# Count the words and print the sentence\n",
+    solution: "import sys\n\ntext = sys.stdin.read()\nword_count = len(text.split())\nprint(f\"There are {word_count} words in the input.\")",
+    validation: {
+      checks: [
+        { type: "matchesRegex", pattern: "sys\\.stdin\\.read\\(\\)", message: "Read standard input with sys.stdin.read()." },
+        { type: "matchesRegex", pattern: "\\.split\\(\\)", message: "Split the text into words with .split()." }
+      ],
+      stdin: "the quick brown fox jumps over the lazy dog\n",
+      pyTests: [
+        { code: "assert stdout_output == 'There are 9 words in the input.\\n'", message: "For the sample input, output should be 'There are 9 words in the input.'" }
+      ]
+    },
+    explanation: `<p>Reading from standard input instead of a fixed filename is what makes a script composable with other command-line tools: it can sit anywhere in a pipeline, fed by whatever came before it.</p>`
+  },
+  {
+    id: 70,
+    title: "Environment Variables",
+    difficulty: "easy",
+    topic: "Config",
+    level: 4,
+    xp: 10,
+    instructions: `<p>Environment variables store configuration outside your code entirely, which keeps sensitive values like passwords and API keys out of source control. Read them with <code>os.environ.get(key, default)</code> rather than square brackets, so a missing variable falls back to a sensible default instead of crashing the program.</p>
+<div class="example-block">
+  <span class="example-label">Quick Example</span>
+  <pre><code>import os
+
+port = os.environ.get("PORT", "8000")
+print(port)  # Output: 8000</code></pre>
+</div>
+<div class="note-block">
+  <span class="note-label">Note</span>
+  <span>Reading with square brackets, <code>os.environ["PORT"]</code>, raises a <code>KeyError</code> the instant the variable is missing. <code>.get()</code> with a default avoids that entirely.</span>
+</div>
+<span class="task-label">Your Task</span>
+<p class="task-line">Import <code>os</code>. Create a variable <code>db_url</code> that reads the environment variable <code>"DATABASE_URL"</code>, with a fallback default of <code>"sqlite:///app.db"</code>.</p>
+<div class="example-block">
+  <span class="example-label">Example</span>
+  <div class="io-row"><span class="io-key">DATABASE_URL unset</span><code class="io-val">db_url = "sqlite:///app.db"</code></div>
+</div>`,
+    hints: [
+      "import os",
+      "db_url = os.environ.get(\"DATABASE_URL\", \"sqlite:///app.db\")"
+    ],
+    starterCode: "# Import os and read DATABASE_URL env var\n",
+    solution: 'import os\ndb_url = os.environ.get("DATABASE_URL", "sqlite:///app.db")',
+    validation: {
+      checks: [
+        { type: "hasImport", module: "os", message: "Import the os module." },
+        { type: "matchesRegex", pattern: "os\\.environ\\.get\\(", message: "Use os.environ.get() to read the variable." },
+        { type: "codeContains", value: "DATABASE_URL", message: "Read the DATABASE_URL variable." },
+        { type: "codeContains", value: "db_url", message: "Store the result in 'db_url'." }
+      ],
+      pyTests: [
+        { code: "assert db_url == 'sqlite:///app.db'", message: "'db_url' should fall back to 'sqlite:///app.db' since DATABASE_URL isn't set." }
+      ]
+    },
+    explanation: `<p>Always use <code>os.environ.get(key, default)</code> rather than <code>os.environ[key]</code>. The latter raises a <code>KeyError</code> if the variable is not set. In production, environment variables store secrets like database passwords and API keys.</p>`
+  },
+  {
+    id: 71,
+    title: ".env File Pattern",
+    difficulty: "easy",
+    topic: "Config",
+    level: 4,
+    xp: 10,
+    instructions: `<p>A <code>.env</code> file stores environment variables locally in a simple <code>KEY=value</code> format, so developers don't have to set them by hand every time. The third-party <code>python-dotenv</code> library reads that file and copies its values into <code>os.environ</code>, right where <code>os.environ.get()</code> can find them.</p>
+<p class="blueprint-line"><code>load_dotenv()</code><br><code>value = os.environ.get("KEY", default)</code></p>
+<span class="task-label">Your Task</span>
+<p class="task-line">Write the code that would load a <code>.env</code> file using <code>python-dotenv</code>. Import <code>load_dotenv</code> from <code>dotenv</code> and call it. Then read <code>SECRET_KEY</code> from environment variables into a variable named <code>secret</code>, with default <code>"dev-secret"</code>.</p>
+<div class="note-block">
+  <span class="note-label">Note</span>
+  <span>python-dotenv is a third-party package, so this one is checked on its code shape rather than actually run here.</span>
+</div>`,
+    hints: [
+      "from dotenv import load_dotenv",
+      "load_dotenv()",
+      "import os",
+      "secret = os.environ.get(\"SECRET_KEY\", \"dev-secret\")"
+    ],
+    starterCode: "# Load .env file and read SECRET_KEY\n",
+    solution: 'from dotenv import load_dotenv\nimport os\n\nload_dotenv()\nsecret = os.environ.get("SECRET_KEY", "dev-secret")',
+    validation: {
+      checks: [
+        { type: "matchesRegex", pattern: "from\\s+dotenv\\s+import|import\\s+dotenv", message: "Import from dotenv." },
+        { type: "codeContains", value: "load_dotenv()", message: "Call load_dotenv() to load the .env file." },
+        { type: "codeContains", value: "SECRET_KEY", message: "Read the SECRET_KEY variable." }
+      ]
+    },
+    explanation: `<p><code>load_dotenv()</code> reads your <code>.env</code> file and sets the variables in <code>os.environ</code>. The <code>.env</code> file should never be committed to version control. Add it to <code>.gitignore</code>.</p>`
+  },
+  {
+    id: 72,
+    title: "Python Package Structure",
+    difficulty: "medium",
+    topic: "Project Structure",
+    level: 4,
+    xp: 20,
+    instructions: `<p>Organizing related modules into a package like this is what lets you write <code>import mypkg.submodule</code> instead of juggling a folder of unrelated top-level scripts. A folder becomes an importable Python package the moment it contains an <code>__init__.py</code> file. Every other <code>.py</code> file inside that folder is a module belonging to the package, and <code>__init__.py</code> itself is what runs when the package is first imported.</p>
+<div class="example-block">
+  <span class="example-label">Quick Example</span>
+  <pre><code># file: mypkg/__init__.py
+GREETING = "hi"
+
+# elsewhere:
+import mypkg
+print(mypkg.GREETING)  # Output: hi</code></pre>
+</div>
+<span class="task-label">Your Task</span>
+<p class="task-line">Write a minimal <code>__init__.py</code> for a package named <code>myapp</code>. It should define a variable <code>VERSION = "1.0.0"</code> and import the <code>create_app</code> function from a sibling module <code>.core</code> (relative import).</p>
+<div class="note-block">
+  <span class="note-label">Note</span>
+  <span>This one is checked on its code shape rather than actually run here, since relative imports only work inside a real package directory.</span>
+</div>`,
+    hints: [
+      "VERSION = \"1.0.0\"",
+      "from .core import create_app"
+    ],
+    starterCode: "# Write the contents of myapp/__init__.py\n",
+    solution: 'VERSION = "1.0.0"\nfrom .core import create_app',
+    validation: {
+      checks: [
+        { type: "matchesRegex", pattern: "VERSION\\s*=\\s*['\"]1\\.0\\.0['\"]", message: "Define VERSION = \"1.0.0\"." },
+        { type: "matchesRegex", pattern: "from\\s+\\.\\w+\\s+import|from\\s+\\.\\s+import", message: "Use a relative import (starting with a dot)." },
+        { type: "matchesRegex", pattern: "from\\s+\\.\\w+\\s+import.*create_app", message: "Import create_app via a relative import statement." }
+      ]
+    },
+    explanation: `<p>Relative imports (starting with <code>.</code>) are for imports within the same package. <code>from .core import create_app</code> means "from the <code>core</code> module in the same package as this file."</p>`
+  },
+  {
+    id: 73,
+    title: "Relative Imports",
+    difficulty: "medium",
+    topic: "Project Structure",
+    level: 4,
+    xp: 20,
+    instructions: `<p>More robust than an absolute import within a package too: it doesn't break if the whole package gets renamed. Inside a package, relative imports reach sibling modules without spelling out the whole package path. A single leading dot <code>.</code> means "the current package"; two dots <code>..</code> means "one level up, the parent package."</p>
+<p><strong>Shorthand</strong></p>
+<ul>
+  <li><code>from .models import User</code>: the single dot means "the module named models, in this same package."</li>
+  <li><code>from ..utils import helper</code>: two dots means "go up one package level, then look for utils."</li>
+</ul>
+<span class="task-label">Your Task</span>
+<p class="task-line">Write an import statement that imports <code>User</code> from the <code>models</code> module in the same package (single dot relative import), and also imports <code>get_db</code> from a <code>database</code> module in the same package.</p>
+<div class="note-block">
+  <span class="note-label">Note</span>
+  <span>This one is checked on its code shape rather than actually run here, since relative imports only work inside a real package directory.</span>
+</div>`,
+    hints: [
+      "from .models import User",
+      "from .database import get_db"
+    ],
+    starterCode: "# Write two relative imports from the same package\n",
+    solution: "from .models import User\nfrom .database import get_db",
+    validation: {
+      checks: [
+        { type: "matchesRegex", pattern: "from\\s+\\.models\\s+import\\s+User", message: "Import User from .models." },
+        { type: "matchesRegex", pattern: "from\\s+\\.database\\s+import\\s+get_db", message: "Import get_db from .database." }
+      ]
+    },
+    explanation: `<p>Relative imports are more robust than absolute imports within a package. They do not break if the package is renamed. FastAPI and Django projects use them extensively to import between route files, models, and services.</p>`
+  },
+  {
+    id: 74,
+    title: "requirements.txt Format",
+    difficulty: "easy",
+    topic: "Project Structure",
+    level: 4,
+    xp: 10,
+    instructions: `<p>A <code>requirements.txt</code> file lists the packages a project depends on, one per line, each optionally pinned to a version. Anyone (or any deployment system) can then recreate the exact same set of dependencies with a single install command.</p>
+<p><strong>Shorthand</strong></p>
+<ul>
+  <li><code>package==1.2.3</code> pins to that exact version.</li>
+  <li><code>package>=1.2.3</code> requires at least that version.</li>
+  <li><code>package</code> alone means any version is acceptable.</li>
+</ul>
+<span class="task-label">Your Task</span>
+<p class="task-line">Write a valid <code>requirements.txt</code> that includes: <code>fastapi</code> version <code>0.104.1</code> (exact), <code>uvicorn</code> version at least <code>0.24.0</code> (use <code>>=</code>), and <code>pydantic</code> with no version constraint.</p>
+<div class="example-block">
+  <span class="example-label">Example</span>
+  <div class="io-row"><span class="io-key">Output</span><code class="io-val">fastapi==0.104.1<br>uvicorn>=0.24.0<br>pydantic</code></div>
+</div>`,
+    hints: [
+      "fastapi==0.104.1",
+      "uvicorn>=0.24.0",
+      "pydantic"
+    ],
+    starterCode: "# Write the requirements.txt content as Python comments or strings\nrequirements = \"\"\"\n# Add your packages here\n\"\"\"\n",
+    solution: 'requirements = """\nfastapi==0.104.1\nuvicorn>=0.24.0\npydantic\n"""',
+    validation: {
+      checks: [
+        { type: "matchesRegex", pattern: "fastapi==0\\.104\\.1|fastapi==", message: "Specify fastapi with an exact version (==)." },
+        { type: "matchesRegex", pattern: "uvicorn>=", message: "Specify uvicorn with a minimum version (>=)." },
+        { type: "codeContains", value: "pydantic", message: "Include pydantic without a version constraint." }
+      ],
+      pyTests: [
+        { code: "assert 'fastapi==0.104.1' in requirements", message: "requirements should contain 'fastapi==0.104.1'." },
+        { code: "assert 'uvicorn>=0.24.0' in requirements", message: "requirements should contain 'uvicorn>=0.24.0'." },
+        { code: "assert 'pydantic' in requirements", message: "requirements should contain 'pydantic'." }
+      ]
+    },
+    explanation: `<p>Version specifiers: <code>==</code> pins to an exact version, <code>>=</code> requires at least that version, <code>~=</code> allows patch updates. Pinning all versions in production ensures reproducible deployments.</p>`
+  },
+  {
+    id: 237,
+    title: "Managing Dependencies with Poetry",
+    difficulty: "easy",
+    topic: "Tooling",
+    level: 4,
+    xp: 10,
+    instructions: `<p><strong>Poetry</strong> manages a Python project's dependencies and virtual environment together, tracked in a <code>pyproject.toml</code> file instead of a loose <code>requirements.txt</code>. It records the exact versions everyone on a project uses, which matters a lot in open-source work where you can't just assume everyone's environment matches.</p>
+<ul>
+  <li><strong>Version constraint:</strong> <code>^0.100.0</code> means "this version or any later compatible one," not an exact pin. Poetry resolves the real version from that range.</li>
+</ul>
+<p class="blueprint-line"><code>[tool.poetry.dependencies]</code><br><code>package = "^X.Y.Z"</code></p>
+<div class="example-block">
+  <span class="example-label">Quick Example</span>
+  <pre><code>[tool.poetry.dependencies]
+python = "^3.11"
+fastapi = "^0.100.0"
+sqlalchemy = "^2.0.0"</code></pre>
+</div>
+<div class="note-block">
+  <span class="note-label">Note</span>
+  <span>In your own project, <code>poetry init</code> creates this file, and <code>poetry add fastapi</code> adds a line like this one for you.</span>
+</div>
+<span class="task-label">Your Task</span>
+<p class="task-line">Write the <code>pyproject.toml</code> dependency block for a project using Python <code>^3.11</code>, <code>fastapi</code> <code>^0.100.0</code>, and <code>pynacl</code> <code>^1.5.0</code>, as a multi-line string assigned to a variable named <code>deps</code>.</p>
+<div class="example-block">
+  <span class="example-label">Example</span>
+  <div class="io-row"><span class="io-key">deps</span><code class="io-val">"[tool.poetry.dependencies]\\npython = \\"^3.11\\"\\n..."</code></div>
+</div>`,
+    hints: [
+      'deps = """[tool.poetry.dependencies]',
+      'python = "^3.11"',
+      'fastapi = "^0.100.0"',
+      'pynacl = "^1.5.0"',
+      '"""'
+    ],
+    starterCode: "# Assign the pyproject.toml dependency block to deps\n",
+    solution: 'deps = """[tool.poetry.dependencies]\npython = "^3.11"\nfastapi = "^0.100.0"\npynacl = "^1.5.0"\n"""',
+    validation: {
+      checks: [
+        { type: "codeContains", value: "[tool.poetry.dependencies]", message: "Include the [tool.poetry.dependencies] section header." },
+        { type: "matchesRegex", pattern: "python\\s*=\\s*[\"']\\^3\\.11[\"']", message: "Pin python to ^3.11." },
+        { type: "matchesRegex", pattern: "fastapi\\s*=\\s*[\"']\\^0\\.100\\.0[\"']", message: "Pin fastapi to ^0.100.0." },
+        { type: "matchesRegex", pattern: "pynacl\\s*=\\s*[\"']\\^1\\.5\\.0[\"']", message: "Pin pynacl to ^1.5.0." }
+      ]
+    },
+    explanation: `<p>Committing a <code>pyproject.toml</code> (and its lockfile) is what lets anyone clone an open-source repo and run <code>poetry install</code> to get the exact same working environment you have: no "works on my machine" surprises.</p>`
+  },
+  {
+    id: 244,
+    title: "Writing a Test with pytest",
+    difficulty: "medium",
+    topic: "Tooling",
+    level: 4,
+    xp: 15,
+    instructions: `<p><strong>pytest</strong> is the standard tool for testing Python code. Writing tests like this means you can change code later and immediately know, by rerunning them, whether you broke something, instead of finding out from a user. Install it (<code>pip install pytest</code>), write functions named <code>test_...</code> containing plain <code>assert</code> statements, and running <code>pytest</code> in your terminal automatically finds and runs every one of them, reporting which passed and which failed.</p>
+<ul>
+  <li><strong>Test discovery:</strong> pytest finds every function starting with <code>test_</code> in any file matching <code>test_*.py</code> or <code>*_test.py</code>, with no manual registration needed.</li>
+</ul>
+<p class="blueprint-line"><code>def test_name():</code><br><code>&nbsp;&nbsp;&nbsp;&nbsp;assert expression</code></p>
+<div class="example-block">
+  <span class="example-label">Quick Example</span>
+  <pre><code>def square(n):
+    return n * n
+
+def test_square():
+    assert square(3) == 9
+    assert square(-2) == 4</code></pre>
+</div>
+<div class="note-block">
+  <span class="note-label">Note</span>
+  <span>A test that never runs its assert can't catch anything: writing square(3) == 9 without the assert keyword just evaluates a throwaway boolean and does nothing, and pytest reports the test as passed regardless of whether the function is actually correct.</span>
+</div>
+<span class="task-label">Your Task</span>
+<p class="task-line">Write <code>celsius_to_fahrenheit(c)</code>, which returns <code>c * 9 / 5 + 32</code>. Then write <code>test_celsius_to_fahrenheit()</code>, asserting <code>celsius_to_fahrenheit(0) == 32</code> and <code>celsius_to_fahrenheit(100) == 212</code>.</p>
+<div class="example-block">
+  <span class="example-label">Example</span>
+  <div class="io-row"><span class="io-key">test_celsius_to_fahrenheit()</span><code class="io-val">runs with no error</code></div>
+</div>`,
+    hints: [
+      "def celsius_to_fahrenheit(c):\n    return c * 9 / 5 + 32",
+      "def test_celsius_to_fahrenheit():\n    assert celsius_to_fahrenheit(0) == 32\n    assert celsius_to_fahrenheit(100) == 212"
+    ],
+    starterCode: "def celsius_to_fahrenheit(c):\n    # Convert Celsius to Fahrenheit\n    pass\n\n\ndef test_celsius_to_fahrenheit():\n    # Assert celsius_to_fahrenheit(0) == 32 and celsius_to_fahrenheit(100) == 212\n    pass\n",
+    solution: "def celsius_to_fahrenheit(c):\n    return c * 9 / 5 + 32\n\n\ndef test_celsius_to_fahrenheit():\n    assert celsius_to_fahrenheit(0) == 32\n    assert celsius_to_fahrenheit(100) == 212",
+    validation: {
+      checks: [
+        { type: "hasValidDef", name: "celsius_to_fahrenheit", message: "Define celsius_to_fahrenheit(c)." },
+        { type: "hasValidDef", name: "test_celsius_to_fahrenheit", message: "Define test_celsius_to_fahrenheit()." },
+        { type: "matchesRegex", pattern: "assert\\s+celsius_to_fahrenheit", message: "Use assert inside test_celsius_to_fahrenheit to check celsius_to_fahrenheit's results." }
+      ],
+      pyTests: [
+        { code: "assert celsius_to_fahrenheit(0) == 32 and celsius_to_fahrenheit(100) == 212", message: "celsius_to_fahrenheit(0) should be 32 and celsius_to_fahrenheit(100) should be 212." },
+        { code: "test_celsius_to_fahrenheit()", message: "Calling test_celsius_to_fahrenheit() directly should not raise, confirming its assertions actually hold." }
+      ]
+    },
+    explanation: `<p>Calling <code>test_celsius_to_fahrenheit()</code> directly here works the same way pytest calls it internally: it just runs the function and treats any <code>AssertionError</code> as a failure. The only difference from real pytest is that you're calling it by hand instead of letting the <code>pytest</code> command discover it for you.</p>`
+  },
+  {
+    id: 68,
+    title: "async def and await",
+    difficulty: "medium",
+    topic: "Async",
+    level: 4,
+    xp: 20,
+    instructions: `<p>Calling an <code>async</code> function doesn't run its body immediately; it hands back a coroutine object that has to be driven to completion, usually with <code>await</code>.</p>
+<p>Think of a food court with five separate counters instead of one line: ordering noodles and then standing there staring at that counter until it's ready is "blocking," and nobody else gets served. Async is ordering, then wandering off to another counter while the noodles cook: <code>await</code> is that "wandering off" moment, letting Python make progress elsewhere ("non-blocking") instead of freezing everything for one slow operation.</p>
+<p class="blueprint-line"><code>async def function_name(param):</code><br><code>&nbsp;&nbsp;&nbsp;&nbsp;result = await some_slow_operation()</code></p>
+<div class="example-block">
+  <span class="example-label">Quick Example</span>
+  <pre><code>import asyncio
+
+async def order_noodles():
+    await asyncio.sleep(0)
+    return "noodles ready"
+
+print(asyncio.run(order_noodles()))  # Output: noodles ready</code></pre>
+</div>
+<span class="task-label">Your Task</span>
+<p class="task-line">Define an <code>async</code> function <code>fetch_data</code> that takes a <code>url: str</code> parameter. Inside, simulate an async operation by doing <code>await asyncio.sleep(0)</code> (import asyncio), then return the string <code>f"Data from {url}"</code>.</p>
+<div class="example-block">
+  <span class="example-label">Example</span>
+  <div class="io-row"><span class="io-key">fetch_data("http://x")</span><code class="io-val">resolves to "Data from http://x"</code></div>
+</div>`,
+    hints: [
+      "import asyncio",
+      "async def fetch_data(url: str):",
+      "    await asyncio.sleep(0)",
+      "    return f\"Data from {url}\""
+    ],
+    starterCode: "# Define an async fetch_data function\n",
+    solution: 'import asyncio\n\nasync def fetch_data(url: str):\n    await asyncio.sleep(0)\n    return f"Data from {url}"',
+    validation: {
+      checks: [
+        { type: "hasAsync", message: "Define the function with 'async def'." },
+        { type: "hasAwait", message: "Use 'await' inside the async function." },
+        { type: "hasValidDef", name: "fetch_data", message: "Name the function 'fetch_data' with a colon: async def fetch_data(url: str):" },
+        { type: "hasImport", module: "asyncio", message: "Import asyncio." }
+      ],
+      pyTests: [
+        { code: "def __run(coro):\n    while True:\n        try:\n            coro.send(None)\n        except StopIteration as e:\n            return e.value\nassert __run(fetch_data('http://x')) == 'Data from http://x'", message: "fetch_data('http://x') should eventually resolve to 'Data from http://x'." }
+      ]
+    },
+    explanation: `<p><code>async def</code> defines a coroutine. It does not run immediately. You need to <code>await</code> it or run it with <code>asyncio.run()</code>. FastAPI uses async functions for non-blocking request handling.</p>`
+  },
+  {
+    id: 69,
+    title: "asyncio.gather() Pattern",
+    difficulty: "hard",
+    topic: "Async",
+    level: 4,
+    xp: 30,
+    instructions: `<p><code>asyncio.gather()</code> takes several coroutines and runs them concurrently, waiting until all of them finish before handing back their results in the same order you gave them. This is far faster than awaiting each one in turn when they're all independent, I/O-bound operations like network requests.</p>
+<p class="blueprint-line"><code>results = await asyncio.gather(*coroutine_list)</code></p>
+<div class="example-block">
+  <span class="example-label">Quick Example</span>
+  <pre><code>import asyncio
+
+async def square(n):
+    await asyncio.sleep(0)
+    return n * n
+
+async def main():
+    return await asyncio.gather(square(2), square(3))
+
+print(asyncio.run(main()))  # Output: [4, 9]</code></pre>
+</div>
+<span class="task-label">Your Task</span>
+<p class="task-line">Define an async function <code>fetch_all</code> that takes a list of URLs <code>urls: list</code>. Use <code>asyncio.gather()</code> to concurrently call a pre-existing <code>fetch_data(url)</code> for each URL, and return the results as a list.</p>
+<div class="example-block">
+  <span class="example-label">Example</span>
+  <div class="io-row"><span class="io-key">fetch_all(["a", "b"])</span><code class="io-val">resolves to ["Data from a", "Data from b"]</code></div>
+</div>
+<div class="note-block">
+  <span class="note-label">Note</span>
+  <span>This one is checked on its code shape rather than actually run here, since asyncio.gather() needs a real running event loop to demonstrate concurrent scheduling.</span>
+</div>`,
+    hints: [
+      "async def fetch_all(urls: list):",
+      "    tasks = [fetch_data(url) for url in urls]",
+      "    return await asyncio.gather(*tasks)"
+    ],
+    starterCode: "import asyncio\n\nasync def fetch_data(url):\n    await asyncio.sleep(0)\n    return f\"Data from {url}\"\n\n# Define fetch_all using asyncio.gather\n",
+    solution: "import asyncio\n\nasync def fetch_data(url):\n    await asyncio.sleep(0)\n    return f\"Data from {url}\"\n\nasync def fetch_all(urls: list):\n    tasks = [fetch_data(url) for url in urls]\n    return await asyncio.gather(*tasks)",
+    validation: {
+      checks: [
+        { type: "hasValidDef", name: "fetch_all", message: "Define a function named 'fetch_all' with a colon: async def fetch_all(...):" },
+        { type: "hasAsync", message: "Define fetch_all as async." },
+        { type: "matchesRegex", pattern: "asyncio\\.gather", message: "Use asyncio.gather() to run tasks concurrently." },
+        { type: "matchesRegex", pattern: "\\*tasks|\\*\\[", message: "Unpack the tasks into asyncio.gather()." }
+      ]
+    },
+    explanation: `<p><code>asyncio.gather(*coroutines)</code> returns results in the same order the coroutines were passed in, even though they may finish in a different order. If any one of them raises, by default <code>gather()</code> propagates that exception once every task has completed.</p>`
+  },
+  {
+    id: 232,
+    title: "Why Async Matters for APIs",
+    difficulty: "easy",
+    topic: "Web APIs",
+    level: 4,
+    xp: 10,
+    instructions: `<p>You've already used <code>async</code>/<code>await</code> earlier in this level. Here's why API frameworks are built around it: while one request is waiting on something slow (a database query, a call to another service), an async server can start handling a different request instead of just sitting idle. A <code>def</code> route blocks; an <code>async def</code> route can yield control while it waits. Every FastAPI route in this level is written as <code>async def</code>, not plain <code>def</code>, for exactly this reason.</p>
+<ul>
+  <li><strong>Blocking:</strong> code that makes the whole program wait, doing nothing else, until a slow operation finishes.</li>
+</ul>
+<div class="example-block">
+  <span class="example-label">Quick Example</span>
+  <pre><code>@app.get("/slow")
+async def slow_route():
+    await some_slow_database_call()
+    return {"done": True}
+# other requests keep being handled while this one awaits</code></pre>
+</div>
+<span class="task-label">Your Task</span>
+<p class="task-line">Convert this blocking route into a non-blocking one: change <code>def check_status()</code> to <code>async def check_status()</code>, and change the call to <code>slow_check()</code> into <code>await slow_check()</code>.</p>
+<div class="example-block">
+  <span class="example-label">Example</span>
+  <div class="io-row"><span class="io-key">Before</span><code class="io-val">def check_status(): result = slow_check()</code></div>
+  <div class="io-row"><span class="io-key">After</span><code class="io-val">async def check_status(): result = await slow_check()</code></div>
+</div>`,
+    hints: [
+      "async def check_status():",
+      "    result = await slow_check()",
+      "    return result"
+    ],
+    starterCode: "def check_status():\n    result = slow_check()\n    return result\n",
+    solution: "async def check_status():\n    result = await slow_check()\n    return result",
+    validation: {
+      checks: [
+        { type: "hasAsync", message: "Define check_status as an async function." },
+        { type: "hasAwait", message: "Use await when calling slow_check()." }
+      ]
+    },
+    explanation: `<p>Forgetting <code>await</code> in front of an async call is a common slip. Without it, you get the coroutine object itself, not its result, and it silently never actually runs.</p>`
+  },
+  {
+    id: 227,
+    title: "Building Your First Endpoint",
+    difficulty: "easy",
+    topic: "Web APIs",
+    level: 4,
+    xp: 10,
+    instructions: `<p>An <strong>API</strong> (application programming interface) lets other programs talk to yours over the network: a request comes in, your code runs, a response goes out. <strong>FastAPI</strong> is a Python framework for building one: you write a normal Python function, decorate it with the HTTP method and URL path it should answer, and FastAPI handles the rest.</p>
+<p class="blueprint-line"><code>@app.get("/path")</code><br><code>async def handler(): ...</code></p>
+<div class="example-block">
+  <span class="example-label">Quick Example</span>
+  <pre><code>from fastapi import FastAPI
+
+app = FastAPI()
+
+@app.get("/hello")
+async def hello():
+    return {"message": "hi"}</code></pre>
+</div>
+<span class="task-label">Your Task</span>
+<p class="task-line">Create a FastAPI app named <code>app</code>. Add a <code>GET</code> route at <code>/status</code> that returns <code>{"status": "ok"}</code>.</p>
+<div class="example-block">
+  <span class="example-label">Example</span>
+  <div class="io-row"><span class="io-key">GET /status</span><code class="io-val">{"status": "ok"}</code></div>
+</div>`,
+    hints: [
+      "from fastapi import FastAPI",
+      "app = FastAPI()",
+      "@app.get(\"/status\")",
+      "async def status(): return {\"status\": \"ok\"}"
+    ],
+    starterCode: "# Create a FastAPI app with a GET /status route\n",
+    solution: 'from fastapi import FastAPI\n\napp = FastAPI()\n\n@app.get("/status")\nasync def status():\n    return {"status": "ok"}',
+    validation: {
+      checks: [
+        { type: "hasImport", module: "fastapi", message: "Import FastAPI from the fastapi module." },
+        { type: "codeContains", value: "FastAPI()", message: "Create an app with FastAPI()." },
+        { type: "matchesRegex", pattern: "@app\\.get\\(\\s*[\"']\\/status[\"']\\s*\\)", message: "Add a GET route at /status." },
+        { type: "hasAsync", message: "Define the route handler as an async function." }
+      ]
+    },
+    explanation: `<p>The decorator <code>@app.get("/status")</code> is what actually registers the route. Without it, <code>status()</code> is just a normal function FastAPI knows nothing about. The function's return value gets automatically converted to JSON for you.</p>`
+  },
+  {
+    id: 228,
+    title: "Path and Query Parameters",
+    difficulty: "easy",
+    topic: "Web APIs",
+    level: 4,
+    xp: 10,
+    instructions: `<p>A route can capture part of the URL as a variable, which is how one route definition serves any item by id instead of you writing a brand new route for every possible value. <code>{item_id}</code> in the path becomes a real parameter in your function. FastAPI reads it straight out of the URL and converts it to whatever type you annotate.</p>
+<ul>
+  <li><strong>Query parameter:</strong> a function parameter not present in the URL path becomes an optional <code>?key=value</code> parameter instead, like <code>/search?q=apple</code>.</li>
+</ul>
+<p class="blueprint-line"><code>@app.get("/items/{item_id}")</code><br><code>async def handler(item_id: int, q: str = None): ...</code></p>
+<div class="example-block">
+  <span class="example-label">Quick Example</span>
+  <pre><code>@app.get("/items/{item_id}")
+async def read_item(item_id: int, q: str = None):
+    return {"item_id": item_id, "q": q}
+# GET /items/5?q=blue -> {"item_id": 5, "q": "blue"}</code></pre>
+</div>
+<span class="task-label">Your Task</span>
+<p class="task-line">Add a <code>GET</code> route <code>/users/{user_id}</code> that takes <code>user_id</code> (an <code>int</code>) from the path and an optional query parameter <code>active</code> (a <code>bool</code>, default <code>True</code>), returning both as a dict.</p>
+<div class="example-block">
+  <span class="example-label">Example</span>
+  <div class="io-row"><span class="io-key">GET /users/7?active=false</span><code class="io-val">{"user_id": 7, "active": false}</code></div>
+</div>`,
+    hints: [
+      "@app.get(\"/users/{user_id}\")",
+      "async def get_user(user_id: int, active: bool = True):",
+      "    return {\"user_id\": user_id, \"active\": active}"
+    ],
+    starterCode: 'from fastapi import FastAPI\n\napp = FastAPI()\n# Add the /users/{user_id} route\n',
+    solution: 'from fastapi import FastAPI\n\napp = FastAPI()\n\n@app.get("/users/{user_id}")\nasync def get_user(user_id: int, active: bool = True):\n    return {"user_id": user_id, "active": active}',
+    validation: {
+      checks: [
+        { type: "matchesRegex", pattern: "@app\\.get\\(\\s*[\"']\\/users\\/\\{user_id\\}[\"']\\s*\\)", message: "Add a GET route at /users/{user_id}." },
+        { type: "matchesRegex", pattern: "user_id\\s*:\\s*int", message: "Type-hint user_id as int." },
+        { type: "matchesRegex", pattern: "active\\s*:\\s*bool\\s*=\\s*True", message: "Type-hint active as bool with a default of True." }
+      ]
+    },
+    explanation: `<p>FastAPI decides path vs. query parameter purely from whether the name appears in <code>{}</code> in the path string. Everything else in the function signature that isn't in the path becomes a query parameter automatically.</p>`
+  },
+  {
+    id: 229,
+    title: "Request Bodies with Pydantic",
+    difficulty: "medium",
+    topic: "Web APIs",
+    level: 4,
+    xp: 15,
+    instructions: `<p>GET requests read data from the URL; <code>POST</code> requests usually carry data in the request body, as JSON. A <strong>Pydantic model</strong> describes the exact shape that JSON should have. FastAPI parses the incoming body into it automatically, and rejects the request before your function even runs if the data doesn't match.</p>
+<ul>
+  <li><strong>BaseModel:</strong> the Pydantic class you inherit from to define a data shape. Each attribute becomes a required field with a type.</li>
+</ul>
+<p class="blueprint-line"><code>class Model(BaseModel):</code><br><code>&nbsp;&nbsp;&nbsp;&nbsp;field: type</code></p>
+<div class="example-block">
+  <span class="example-label">Quick Example</span>
+  <pre><code>from pydantic import BaseModel
+
+class Item(BaseModel):
+    name: str
+    price: float
+
+@app.post("/items")
+async def create_item(item: Item):
+    return {"created": item.name}</code></pre>
+</div>
+<span class="task-label">Your Task</span>
+<p class="task-line">Define a Pydantic model <code>Transaction</code> with fields <code>sender: str</code>, <code>recipient: str</code>, and <code>amount: float</code>. Add a <code>POST</code> route <code>/transactions</code> that accepts a <code>Transaction</code> and returns <code>{"received": True}</code>.</p>
+<div class="example-block">
+  <span class="example-label">Example</span>
+  <div class="io-row"><span class="io-key">POST /transactions body</span><code class="io-val">{"sender": "Alice", "recipient": "Bob", "amount": 10.0}</code></div>
+  <div class="io-row"><span class="io-key">Output</span><code class="io-val">{"received": true}</code></div>
+</div>`,
+    hints: [
+      "from pydantic import BaseModel",
+      "class Transaction(BaseModel):",
+      "    sender: str",
+      "    recipient: str",
+      "    amount: float",
+      "@app.post(\"/transactions\")\nasync def create_transaction(tx: Transaction):\n    return {\"received\": True}"
+    ],
+    starterCode: 'from fastapi import FastAPI\n\napp = FastAPI()\n# Define Transaction and add the POST /transactions route\n',
+    solution: 'from fastapi import FastAPI\nfrom pydantic import BaseModel\n\napp = FastAPI()\n\nclass Transaction(BaseModel):\n    sender: str\n    recipient: str\n    amount: float\n\n@app.post("/transactions")\nasync def create_transaction(tx: Transaction):\n    return {"received": True}',
+    validation: {
+      checks: [
+        { type: "hasImport", module: "pydantic", message: "Import BaseModel from pydantic." },
+        { type: "hasClass", name: "Transaction", message: "Define a class named Transaction." },
+        { type: "matchesRegex", pattern: "class\\s+Transaction\\s*\\(\\s*BaseModel\\s*\\)", message: "Transaction should inherit from BaseModel." },
+        { type: "matchesRegex", pattern: "@app\\.post\\(\\s*[\"']\\/transactions[\"']\\s*\\)", message: "Add a POST route at /transactions." }
+      ]
+    },
+    explanation: `<p>The type annotation on the route parameter (<code>tx: Transaction</code>) is what tells FastAPI to parse the request body as JSON and validate it against that model, the same mechanism that makes path/query parameters work, applied to the body instead.</p>`
+  },
+  {
+    id: 230,
+    title: "Full CRUD with FastAPI",
+    difficulty: "medium",
+    topic: "Web APIs",
+    level: 4,
+    xp: 20,
+    instructions: `<p><strong>CRUD</strong> (Create, Read, Update, Delete) is the standard shape of an API that manages a resource. Structuring routes this way means anyone calling your API can guess what a route does from its HTTP method alone, instead of memorizing a different endpoint name for every action. Each operation maps to an HTTP method: <code>POST</code> creates, <code>GET</code> reads, <code>PUT</code> updates, <code>DELETE</code> removes. Same URL, different verb, different action.</p>
+<p class="blueprint-line"><code>@app.get/post/put/delete("/resource/{id}")</code></p>
+<div class="example-block">
+  <span class="example-label">Quick Example</span>
+  <pre><code>notes = {}
+
+@app.put("/notes/{note_id}")
+async def update_note(note_id: int, text: str):
+    notes[note_id] = text
+    return {"updated": note_id}
+
+@app.delete("/notes/{note_id}")
+async def delete_note(note_id: int):
+    del notes[note_id]
+    return {"deleted": note_id}</code></pre>
+</div>
+<div class="note-block">
+  <span class="note-label">Note</span>
+  <span>A dict standing in for a real database is fine here; a real one (SQLAlchemy) is covered in Level 6.</span>
+</div>
+<span class="task-label">Your Task</span>
+<p class="task-line">Using a module-level dict <code>ledger = {}</code>, add four routes on <code>/balances/{account}</code>: <code>POST</code> sets the balance to a given <code>amount: float</code>, <code>GET</code> returns it, <code>PUT</code> updates it to a new <code>amount: float</code>, and <code>DELETE</code> removes the account, each returning <code>{"account": account}</code>.</p>
+<div class="example-block">
+  <span class="example-label">Example</span>
+  <div class="io-row"><span class="io-key">POST /balances/alice?amount=100</span><code class="io-val">{"account": "alice"}</code></div>
+</div>`,
+    hints: [
+      "ledger = {}",
+      "@app.post(\"/balances/{account}\")\nasync def set_balance(account: str, amount: float):\n    ledger[account] = amount\n    return {\"account\": account}",
+      "Repeat the same shape for @app.get, @app.put, and @app.delete on the same path.",
+      "@app.delete(\"/balances/{account}\")\nasync def remove_balance(account: str):\n    del ledger[account]\n    return {\"account\": account}"
+    ],
+    starterCode: 'from fastapi import FastAPI\n\napp = FastAPI()\nledger = {}\n# Add POST, GET, PUT, DELETE routes on /balances/{account}\n',
+    solution: 'from fastapi import FastAPI\n\napp = FastAPI()\nledger = {}\n\n@app.post("/balances/{account}")\nasync def set_balance(account: str, amount: float):\n    ledger[account] = amount\n    return {"account": account}\n\n@app.get("/balances/{account}")\nasync def get_balance(account: str):\n    return {"account": account, "amount": ledger.get(account)}\n\n@app.put("/balances/{account}")\nasync def update_balance(account: str, amount: float):\n    ledger[account] = amount\n    return {"account": account}\n\n@app.delete("/balances/{account}")\nasync def remove_balance(account: str):\n    del ledger[account]\n    return {"account": account}',
+    validation: {
+      checks: [
+        { type: "matchesRegex", pattern: "@app\\.post\\(\\s*[\"']\\/balances\\/\\{account\\}[\"']\\s*\\)", message: "Add a POST route on /balances/{account}." },
+        { type: "matchesRegex", pattern: "@app\\.get\\(\\s*[\"']\\/balances\\/\\{account\\}[\"']\\s*\\)", message: "Add a GET route on /balances/{account}." },
+        { type: "matchesRegex", pattern: "@app\\.put\\(\\s*[\"']\\/balances\\/\\{account\\}[\"']\\s*\\)", message: "Add a PUT route on /balances/{account}." },
+        { type: "matchesRegex", pattern: "@app\\.delete\\(\\s*[\"']\\/balances\\/\\{account\\}[\"']\\s*\\)", message: "Add a DELETE route on /balances/{account}." }
+      ]
+    },
+    explanation: `<p>This exact pattern (one resource, four verbs) is the backbone of most real APIs, including the ones that sit in front of real blockchains: a wallet balance, an NFT record, a transaction log, all managed through the same GET/POST/PUT/DELETE shape.</p>`
+  },
+  {
+    id: 231,
+    title: "Automatic Validation with Pydantic",
+    difficulty: "medium",
+    topic: "Web APIs",
+    level: 4,
+    xp: 15,
+    instructions: `<p>A plain type hint like <code>amount: float</code> only checks the type. <strong>Pydantic's <code>Field()</code></strong> adds real constraints (minimum values, string length, patterns) so malformed data gets rejected automatically before it ever reaches your ledger.</p>
+<ul>
+  <li><strong>Field constraint:</strong> a rule attached to a model field (like <code>gt=0</code>, "greater than zero") that Pydantic enforces on every request, not something you check by hand.</li>
+</ul>
+<p class="blueprint-line"><code>field: type = Field(gt=0)</code></p>
+<div class="example-block">
+  <span class="example-label">Quick Example</span>
+  <pre><code>from pydantic import BaseModel, Field
+
+class Order(BaseModel):
+    quantity: int = Field(gt=0)
+    symbol: str = Field(min_length=1, max_length=5)</code></pre>
+</div>
+<span class="task-label">Your Task</span>
+<p class="task-line">Define a Pydantic model <code>Transfer</code> with <code>amount: float</code> constrained to be greater than <code>0</code> (using <code>Field(gt=0)</code>), and <code>to_address: str</code> constrained to a minimum length of <code>1</code> and maximum length of <code>42</code>.</p>
+<div class="example-block">
+  <span class="example-label">Example</span>
+  <div class="io-row"><span class="io-key">Input</span><code class="io-val">amount = -5</code></div>
+  <div class="io-row"><span class="io-key">Result</span><code class="io-val">request rejected automatically: amount must be greater than 0</code></div>
+</div>`,
+    hints: [
+      "from pydantic import BaseModel, Field",
+      "class Transfer(BaseModel):",
+      "    amount: float = Field(gt=0)",
+      "    to_address: str = Field(min_length=1, max_length=42)"
+    ],
+    starterCode: "# Define Transfer with constrained fields\n",
+    solution: 'from pydantic import BaseModel, Field\n\nclass Transfer(BaseModel):\n    amount: float = Field(gt=0)\n    to_address: str = Field(min_length=1, max_length=42)',
+    validation: {
+      checks: [
+        { type: "hasImport", module: "pydantic", message: "Import BaseModel and Field from pydantic." },
+        { type: "matchesRegex", pattern: "amount\\s*:\\s*float\\s*=\\s*Field\\(\\s*gt\\s*=\\s*0\\s*\\)", message: "Constrain amount with Field(gt=0)." },
+        { type: "matchesRegex", pattern: "to_address\\s*:\\s*str\\s*=\\s*Field\\(\\s*min_length\\s*=\\s*1\\s*,\\s*max_length\\s*=\\s*42\\s*\\)", message: "Constrain to_address with Field(min_length=1, max_length=42)." }
+      ]
+    },
+    explanation: `<p>42 isn't arbitrary here. It's the exact character length of a real Ethereum address (<code>0x</code> plus 40 hex characters). Constraints like this are how a real API catches "someone pasted a broken address" before it ever touches actual logic.</p>`
   },
   {
     id: 251,
@@ -1698,5 +2067,59 @@ print(env.get_template("child.html").render())
       ]
     },
     explanation: `<p>Notice <code>child.html</code> never mentions <code>&lt;html&gt;</code> or <code>&lt;body&gt;</code> at all: <code>{% extends %}</code> pulls in the entire shape of <code>base.html</code>, and only the named block gets swapped in. Add a second page tomorrow that needs the exact same shell, and it's another small child template, not another full copy of the layout. This is exactly how a real multi-page site built on Jinja avoids maintaining ten near-identical copies of the same header and footer.</p>`
+  },
+  {
+    id: 254,
+    title: "Rendering Templates from FastAPI",
+    difficulty: "medium",
+    topic: "Templating",
+    level: 4,
+    xp: 20,
+    instructions: `<p>Every FastAPI route so far in this level has returned JSON. Serving an actual HTML page instead means rendering a Jinja template and handing back the result as an <code>HTMLResponse</code>, and <code>Jinja2Templates</code> is the FastAPI helper that does that step for you. This is exactly what the earlier Jinja challenges were building toward: the same <code>Template</code>/<code>.render()</code> machinery, now wired into a real route.</p>
+<ul>
+  <li><strong>Jinja2Templates:</strong> points at a directory of template files and returns a <code>TemplateResponse</code> (an <code>HTMLResponse</code> under the hood) instead of you constructing one by hand.</li>
+  <li><strong>Autoescape:</strong> unlike the plain <code>Template(text)</code> you used earlier in this level, <code>Jinja2Templates</code> turns on HTML escaping by default for every <code>.html</code> template. Every <code>{{ value }}</code> gets escaped automatically, the same protection you applied by hand with <code>| escape</code> in the Build a Profile Page project, without you having to remember it per field. The one time to override it is <code>{{ value | safe }}</code>, and only for HTML you generated and trust yourself.</li>
+</ul>
+<p class="blueprint-line"><code>templates.TemplateResponse(request, "name.html", {...context})</code></p>
+<div class="example-block">
+  <span class="example-label">Quick Example</span>
+  <pre><code>from fastapi.templating import Jinja2Templates
+
+templates = Jinja2Templates(directory="templates")
+
+@app.get("/hello/{name}")
+async def hello(request: Request, name: str):
+    return templates.TemplateResponse(
+        request, "hello.html", {"name": name}
+    )</code></pre>
+</div>
+<div class="note-block">
+  <span class="note-label">Note</span>
+  <span>Checked on code shape, like the rest of this level's FastAPI content: there's no real templates/ directory or running server in this sandbox to render against.</span>
+</div>
+<span class="task-label">Your Task</span>
+<p class="task-line">Create a <code>Jinja2Templates</code> instance named <code>templates</code> pointed at directory <code>"templates"</code>. Add a <code>GET</code> route <code>/profile/{username}</code> that takes <code>request: Request</code> and <code>username: str</code>, and returns <code>templates.TemplateResponse(request, "profile.html", {"username": username})</code>.</p>
+<div class="example-block">
+  <span class="example-label">Example</span>
+  <div class="io-row"><span class="io-key">GET /profile/david</span><code class="io-val">renders profile.html with username="david"</code></div>
+</div>`,
+    hints: [
+      "from fastapi import FastAPI, Request",
+      "from fastapi.templating import Jinja2Templates",
+      "templates = Jinja2Templates(directory=\"templates\")",
+      "@app.get(\"/profile/{username}\")\nasync def profile(request: Request, username: str):\n    return templates.TemplateResponse(request, \"profile.html\", {\"username\": username})"
+    ],
+    starterCode: "from fastapi import FastAPI\n\napp = FastAPI()\n# Set up Jinja2Templates and add the /profile/{username} route\n",
+    solution: "from fastapi import FastAPI, Request\nfrom fastapi.templating import Jinja2Templates\n\napp = FastAPI()\ntemplates = Jinja2Templates(directory=\"templates\")\n\n@app.get(\"/profile/{username}\")\nasync def profile(request: Request, username: str):\n    return templates.TemplateResponse(request, \"profile.html\", {\"username\": username})",
+    validation: {
+      checks: [
+        { type: "hasImport", module: "fastapi.templating", message: "Import Jinja2Templates from fastapi.templating." },
+        { type: "matchesRegex", pattern: "templates\\s*=\\s*Jinja2Templates\\(\\s*directory\\s*=\\s*[\"']templates[\"']\\s*\\)", message: "Create templates = Jinja2Templates(directory=\"templates\")." },
+        { type: "matchesRegex", pattern: "@app\\.get\\(\\s*[\"']\\/profile\\/\\{username\\}[\"']\\s*\\)", message: "Add a GET route at /profile/{username}." },
+        { type: "matchesRegex", pattern: "request\\s*:\\s*Request", message: "Take request: Request as a parameter." },
+        { type: "matchesRegex", pattern: "templates\\.TemplateResponse\\(", message: "Return templates.TemplateResponse(...)." }
+      ]
+    },
+    explanation: `<p>The <code>request</code> parameter looks unused, but <code>TemplateResponse</code> needs it internally. Everything else is the same shape as every other FastAPI route in this level: a decorator, a function, and a return value, just returning rendered HTML this time instead of a dict that becomes JSON. That autoescape default is exactly why real Jinja setups feel safer by default than the bare <code>Template()</code> you started with: the protection is on unless a specific value opts out with <code>| safe</code>, instead of every field needing <code>| escape</code> remembered by hand.</p>`
   }
 ];
