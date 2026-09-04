@@ -254,6 +254,62 @@ except BadSignatureError:
     explanation: `<p>The signature was made over the original message (with the real amount baked in). The moment you change the amount, the message you're verifying against no longer matches what was actually signed, so PyNaCl rejects it outright. This is exactly what stops someone from intercepting a real transaction and quietly inflating the amount before it reaches a node.</p>`
   },
   {
+    id: 256,
+    title: "The Mempool: Pending Transactions",
+    difficulty: "medium",
+    topic: "Mempool",
+    level: 6,
+    xp: 20,
+    instructions: `<p>A node doesn't drop a transaction into a block the instant it arrives. Validly signed but not-yet-confirmed transactions wait in the <strong>mempool</strong> (memory pool): a holding area the node keeps in memory. When the node builds a block it pulls a batch out of the mempool, and once those transactions land in a block they leave the pool. The mempool is also the one gate a transaction passes before it is allowed to wait anywhere: a bad signature is rejected on arrival, so a forged transaction never even reaches a block.</p>
+<ul>
+  <li><strong>Unconfirmed:</strong> a transaction that is validly signed and accepted by nodes, but not yet included in any block, so it could still be dropped or reordered.</li>
+</ul>
+<p class="blueprint-line"><code>Mempool: pending, add(transaction) -> bool, collect(limit) -> list</code></p>
+<div class="example-block">
+  <span class="example-label">Quick Example</span>
+  <pre><code>message = f"{tx['sender']}{tx['recipient']}{tx['amount']}".encode()
+try:
+    VerifyKey(tx["verify_key"]).verify(message, tx["signature"])
+    self.pending.append(tx)   # signature holds up, let it wait
+except BadSignatureError:
+    return False              # forged, never queue it</code></pre>
+</div>
+<div class="note-block">
+  <span class="note-label">Note</span>
+  <span>Checked on code shape, like the rest of this level's crypto: PyNaCl is not in the browser sandbox. Run it locally to watch a forged transaction get turned away at add().</span>
+</div>
+<span class="task-label">Your Task</span>
+<p class="task-line">Write a <code>Mempool</code> class. <code>__init__</code> sets <code>self.pending = []</code>. <code>add(self, transaction)</code> rebuilds <code>message = f"{transaction['sender']}{transaction['recipient']}{transaction['amount']}".encode()</code> and verifies it with <code>VerifyKey(transaction["verify_key"]).verify(message, transaction["signature"])</code>: on success it appends the transaction to <code>self.pending</code> and returns <code>True</code>, and on <code>BadSignatureError</code> it returns <code>False</code> without queuing anything. <code>collect(self, limit)</code> removes up to <code>limit</code> transactions from the front of <code>self.pending</code> and returns them as a list, ready to go into a block.</p>
+<div class="example-block">
+  <span class="example-label">Example</span>
+  <div class="io-row"><span class="io-key">mp.add(alice.sign_transaction("bob", 10))</span><code class="io-val">True</code></div>
+  <div class="io-row"><span class="io-key">mp.add(forged_tx)</span><code class="io-val">False  (nothing added to pending)</code></div>
+  <div class="io-row"><span class="io-key">mp.collect(5)</span><code class="io-val">[tx, ...]  and those are gone from mp.pending</code></div>
+</div>`,
+    hints: [
+      "from nacl.signing import VerifyKey",
+      "from nacl.exceptions import BadSignatureError",
+      "class Mempool:\n    def __init__(self):\n        self.pending = []",
+      "    def add(self, transaction):\n        message = f\"{transaction['sender']}{transaction['recipient']}{transaction['amount']}\".encode()\n        try:\n            VerifyKey(transaction[\"verify_key\"]).verify(message, transaction[\"signature\"])\n        except BadSignatureError:\n            return False\n        self.pending.append(transaction)\n        return True",
+      "    def collect(self, limit):\n        batch = self.pending[:limit]\n        self.pending = self.pending[limit:]\n        return batch"
+    ],
+    starterCode: "from nacl.signing import VerifyKey\nfrom nacl.exceptions import BadSignatureError\n\nclass Mempool:\n    # pending list; add(transaction) -> bool (verify signature first); collect(limit) -> list\n    pass\n",
+    solution: "from nacl.signing import VerifyKey\nfrom nacl.exceptions import BadSignatureError\n\nclass Mempool:\n    def __init__(self):\n        self.pending = []\n\n    def add(self, transaction):\n        message = f\"{transaction['sender']}{transaction['recipient']}{transaction['amount']}\".encode()\n        try:\n            VerifyKey(transaction[\"verify_key\"]).verify(message, transaction[\"signature\"])\n        except BadSignatureError:\n            return False\n        self.pending.append(transaction)\n        return True\n\n    def collect(self, limit):\n        batch = self.pending[:limit]\n        self.pending = self.pending[limit:]\n        return batch",
+    validation: {
+      checks: [
+        { type: "hasClass", name: "Mempool", message: "Define a Mempool class." },
+        { type: "hasImport", module: "nacl.signing", message: "Import VerifyKey from nacl.signing." },
+        { type: "matchesRegex", pattern: "self\\.pending\\s*=\\s*\\[\\s*\\]", message: "Start with an empty self.pending list in __init__." },
+        { type: "matchesRegex", pattern: "def\\s+add\\s*\\(\\s*self\\s*,\\s*transaction\\s*\\)", message: "Define add(self, transaction)." },
+        { type: "matchesRegex", pattern: "\\.verify\\s*\\(", message: "Verify the transaction's signature inside add() before queuing it." },
+        { type: "matchesRegex", pattern: "except\\s+BadSignatureError", message: "Return False on BadSignatureError instead of queuing a forged transaction." },
+        { type: "matchesRegex", pattern: "self\\.pending\\.append\\(", message: "Append accepted transactions to self.pending." },
+        { type: "matchesRegex", pattern: "def\\s+collect\\s*\\(\\s*self\\s*,\\s*limit\\s*\\)", message: "Define collect(self, limit)." }
+      ]
+    },
+    explanation: `<p>Two things make this a mempool and not just a list. First, <code>add()</code> is a gate: verification happens here, once, so everything sitting in <code>pending</code> is already known-good and a block builder never has to re-check it. Second, <code>collect()</code> both reads and removes, because a transaction should only ever be mined once; leaving it in the pool would let a second block include it again. Real nodes add two things on top of this: they gossip their pending transactions to peers so the whole network converges on the same set, and <code>collect()</code> takes the highest-fee transactions first rather than the oldest. The shape is exactly what you just wrote.</p>`
+  },
+  {
     id: 235,
     title: "Modeling Data with an ORM",
     difficulty: "medium",
