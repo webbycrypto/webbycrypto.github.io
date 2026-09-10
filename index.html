@@ -4,9 +4,9 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Webby / Developer, Marketer &amp; UX Designer</title>
+    <title>Webby, Blockchain Developer &amp; Marketer</title>
     <meta name="description"
-        content="Webby: developer, marketer and UX designer building blockchain products. Smart contracts, payments, trust infrastructure, and the growth behind them." />
+        content="Webby: developer, marketer and UX designer building blockchain products. Payments, data integrity, and the growth behind them." />
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -19,25 +19,21 @@
             color-scheme: light;
 
             --bg: #FFFFFF;
-            --surface: #F5F3EF;
-            --ink: #171512;
-            --muted: #6B6660;
-            --line: rgba(23, 21, 18, 0.14);
-            --accent: #F2690F;
-            --accent-soft: rgba(242, 105, 15, 0.13);
-            --tan: #C99A66;
+            --orange: #F2690F;
+            --dark: #121110;
+            --dark-ink: #F3EFE5;
+            --dark-muted: #979183;
+            --page-ink: #141312;
+            --page-muted: #5B584F;
 
             --display: "Space Grotesk", "Inter", system-ui, sans-serif;
             --sans: "Inter", system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
             --mono: "Space Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
 
-            --step-hero: clamp(2.7rem, 6.4vw, 5.25rem);
-            --step-h2: clamp(1.9rem, 4vw, 3rem);
-            --step-h3: clamp(1.3rem, 2.2vw, 1.65rem);
-
-            --gutter: clamp(20px, 5vw, 64px);
-            --section-gap: clamp(84px, 13vw, 172px);
-            --maxw: 1160px;
+            --radius: 26px;
+            --radius-sm: 15px;
+            --gap: 12px;
+            --maxw: 1180px;
         }
 
         * {
@@ -51,10 +47,10 @@
         body {
             margin: 0;
             background: var(--bg);
-            color: var(--ink);
+            color: var(--page-ink);
             font-family: var(--sans);
             font-size: 1.0625rem;
-            line-height: 1.65;
+            line-height: 1.6;
             -webkit-font-smoothing: antialiased;
             text-rendering: optimizeLegibility;
         }
@@ -73,112 +69,168 @@
             display: none !important;
         }
 
-        .wrap {
+        .container {
             max-width: var(--maxw);
             margin: 0 auto;
-            padding-inline: var(--gutter);
+            padding-inline: clamp(12px, 3vw, 22px);
+        }
+
+        section[id] {
+            scroll-margin-top: 84px;
+        }
+
+        /* ---------- bento grid ---------- */
+        .bento {
+            display: grid;
+            grid-template-columns: repeat(12, 1fr);
+            gap: var(--gap);
+        }
+
+        .bento + .bento {
+            margin-top: clamp(30px, 5vw, 56px);
+        }
+
+        /* ---------- card variants ---------- */
+        .card {
+            --c-ink: #141312;
+            --c-muted: #57534B;
+            --c-line: rgba(20, 19, 18, 0.12);
+            --c-accent: #C6540A;
+
+            background: #FFFFFF;
+            color: var(--c-ink);
+            border: 1px solid rgba(20, 19, 18, 0.11);
+            border-radius: var(--radius);
+            padding: clamp(22px, 3.4vw, 40px);
+        }
+
+        .card--dark {
+            --c-ink: #F3EFE5;
+            --c-muted: #979183;
+            --c-line: rgba(255, 255, 255, 0.15);
+            --c-accent: #F2690F;
+
+            background: var(--dark);
+            border-color: transparent;
+        }
+
+        .card--orange {
+            --c-ink: #1A0C02;
+            --c-muted: rgba(26, 12, 2, 0.68);
+            --c-line: rgba(26, 12, 2, 0.24);
+            --c-accent: #1A0C02;
+
+            background: var(--orange);
+            border-color: transparent;
         }
 
         /* ---------- header ---------- */
         .site-header {
-            position: sticky;
-            top: 0;
-            z-index: 20;
-            background: color-mix(in srgb, var(--bg) 86%, transparent);
-            backdrop-filter: blur(10px);
-            border-bottom: 1px solid var(--line);
+            max-width: var(--maxw);
+            margin: 0 auto;
+            padding: clamp(16px, 3vw, 24px) clamp(12px, 3vw, 22px) 0;
         }
 
-        .site-header .wrap {
+        .header-card {
             display: flex;
             align-items: center;
             justify-content: space-between;
-            gap: 18px;
-            padding-block: 13px;
+            gap: 16px;
+            padding: 4px 2px;
         }
 
         .brand {
             display: flex;
             align-items: center;
-            gap: 11px;
+            gap: 10px;
             font-family: var(--display);
             font-weight: 500;
-            font-size: 1.15rem;
-            letter-spacing: -0.01em;
+            font-size: 1.05rem;
+            color: var(--page-ink);
         }
 
         .brand img {
-            width: 30px;
-            height: 30px;
+            width: 28px;
+            height: 28px;
             border-radius: 50%;
             background: #000;
         }
 
-        .site-nav {
+        .nav {
             display: flex;
-            gap: clamp(12px, 3vw, 32px);
+            gap: clamp(10px, 2.6vw, 26px);
             font-family: var(--mono);
-            font-size: 0.76rem;
-            letter-spacing: 0.04em;
+            font-size: 0.72rem;
+            letter-spacing: 0.05em;
             text-transform: uppercase;
-            color: var(--muted);
+            color: var(--page-muted);
         }
 
-        .site-nav a:hover {
-            color: var(--ink);
+        .nav a:hover {
+            color: var(--orange);
+        }
+
+        /* ---------- main ---------- */
+        main {
+            max-width: var(--maxw);
+            margin: 0 auto;
+            padding: clamp(16px, 3vw, 24px) clamp(12px, 3vw, 22px) 0;
         }
 
         /* ---------- hero ---------- */
-        .hero {
-            padding-top: clamp(60px, 11vw, 124px);
-            padding-bottom: var(--section-gap);
+        .hero-main {
+            grid-column: span 8;
+            display: flex;
+            flex-direction: column;
+            gap: clamp(16px, 2.4vw, 26px);
         }
 
-        .eyebrow {
-            font-family: var(--mono);
-            font-size: 0.76rem;
-            letter-spacing: 0.08em;
-            text-transform: uppercase;
-            color: var(--muted);
-            margin-bottom: clamp(24px, 5vw, 40px);
+        .hero-side {
+            grid-column: span 4;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 14px;
         }
 
-        .hero h1 {
+        .section-title {
+            grid-column: 1 / -1;
+            margin: 0 0 4px;
             font-family: var(--display);
             font-weight: 500;
-            font-size: var(--step-hero);
-            line-height: 1.08;
+            font-size: clamp(1.4rem, 2.6vw, 2rem);
+            letter-spacing: -0.015em;
+            color: var(--page-ink);
+        }
+
+        .hero-main h1 {
+            font-family: var(--display);
+            font-weight: 500;
+            font-size: clamp(2rem, 4.6vw, 3.55rem);
+            line-height: 1.07;
             letter-spacing: -0.02em;
             margin: 0;
-            max-width: 19ch;
         }
 
-        .hero h1 em {
-            font-style: normal;
-            color: var(--accent);
+        .hero-main h1 .hl {
+            color: var(--c-accent);
         }
 
-        .hero-sub {
-            margin: clamp(26px, 5vw, 40px) 0 0;
-            max-width: 54ch;
-            font-size: 1.125rem;
-            color: var(--muted);
-        }
-
-        .hero-meta {
-            margin-top: clamp(30px, 6vw, 46px);
-            display: flex;
-            flex-wrap: wrap;
-            align-items: center;
-            gap: 12px 26px;
-            font-size: 0.9rem;
+        .lead {
+            margin: 0;
+            color: var(--c-muted);
+            font-size: clamp(1rem, 1.5vw, 1.15rem);
+            max-width: 46ch;
         }
 
         .status {
+            margin: 4px 0 0;
+            font-family: var(--mono);
+            font-size: 0.8rem;
+            color: var(--c-ink);
             display: inline-flex;
             align-items: center;
             gap: 9px;
-            color: var(--muted);
         }
 
         .status::before {
@@ -186,197 +238,222 @@
             width: 8px;
             height: 8px;
             border-radius: 50%;
-            background: var(--accent);
-            box-shadow: 0 0 0 4px var(--accent-soft);
+            background: var(--c-accent);
         }
 
-        .hero-links {
+        .avatar {
+            width: clamp(88px, 12vw, 122px);
+            aspect-ratio: 1;
+            border-radius: 50%;
+            background: #000;
+            box-shadow: 0 0 0 1px var(--c-line);
+        }
+
+        .hero-side-name {
+            font-family: var(--display);
+            font-weight: 500;
+            font-size: clamp(1.4rem, 2.3vw, 1.85rem);
+        }
+
+        .hero-side-role {
+            margin-top: -4px;
+            font-size: 0.94rem;
+            color: var(--c-ink);
+        }
+
+        .hero-side-tag {
+            font-family: var(--mono);
+            font-size: 0.73rem;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+            color: var(--c-muted);
+        }
+
+        .hero-side-links {
+            margin-top: auto;
             display: flex;
-            gap: 22px;
+            flex-wrap: wrap;
+            gap: 8px 18px;
+            font-family: var(--mono);
+            font-size: 0.8rem;
         }
 
-        .hero-links a {
-            border-bottom: 1px solid var(--line);
+        .hero-side-links a {
+            color: var(--c-ink);
+            border-bottom: 1px solid var(--c-line);
             padding-bottom: 2px;
         }
 
-        .hero-links a:hover {
-            border-color: var(--accent);
-            color: var(--accent);
-        }
-
-        /* ---------- section scaffolding ---------- */
-        .block {
-            padding-bottom: var(--section-gap);
+        .hero-side-links a:hover {
+            opacity: 0.6;
         }
 
         /* ---------- about ---------- */
-        .about-grid {
+        .about-card {
+            grid-column: span 12;
+        }
+
+        .about-inner {
             display: grid;
-            grid-template-columns: minmax(0, 1fr);
-            gap: clamp(28px, 5vw, 56px);
+            gap: clamp(20px, 4vw, 46px);
         }
 
         @media (min-width: 820px) {
-            .about-grid {
-                grid-template-columns: 0.85fr 1.15fr;
+            .about-inner {
+                grid-template-columns: 0.8fr 1.2fr;
             }
         }
 
-        .portrait {
-            width: clamp(128px, 24vw, 184px);
-            aspect-ratio: 1;
-            border-radius: 50%;
-            border: 1px solid var(--line);
-            background: #000;
-            margin-bottom: clamp(20px, 4vw, 30px);
-        }
-
-        .about-aside h2 {
+        .about-card h2 {
             font-family: var(--display);
             font-weight: 500;
-            font-size: var(--step-h2);
-            line-height: 1.14;
-            letter-spacing: -0.015em;
+            font-size: clamp(2rem, 4.4vw, 3.15rem);
+            line-height: 1.08;
+            letter-spacing: -0.02em;
             margin: 0;
         }
 
-        .about-body p {
-            margin: 0 0 1.1em;
+        .about-lede {
+            margin: clamp(12px, 1.8vw, 18px) 0 0;
+            font-size: clamp(1rem, 1.4vw, 1.1rem);
+            color: var(--c-muted);
+        }
+
+        .about-text p {
+            margin: 0 0 0.9em;
+            color: #DBD6CA;
             max-width: 60ch;
         }
 
-        .about-body p:last-of-type {
+        .about-text p:last-of-type {
             margin-bottom: 0;
         }
 
         .skills {
             list-style: none;
             padding: 0;
-            margin: clamp(24px, 4vw, 34px) 0 0;
+            margin: clamp(18px, 3vw, 26px) 0 0;
             display: flex;
             flex-wrap: wrap;
-            gap: 9px;
+            gap: 8px;
         }
 
         .skills li {
             font-family: var(--mono);
-            font-size: 0.76rem;
-            letter-spacing: 0.01em;
-            color: var(--muted);
-            border: 1px solid var(--line);
+            font-size: 0.74rem;
+            color: var(--c-muted);
+            border: 1px solid var(--c-line);
             border-radius: 999px;
             padding: 6px 12px;
         }
 
-        /* ---------- work / projects ---------- */
+        /* ---------- work ---------- */
         .filters {
+            grid-column: 1 / -1;
             display: flex;
             flex-wrap: wrap;
-            gap: 8px 10px;
-            margin-bottom: clamp(34px, 6vw, 56px);
+            gap: 8px;
         }
 
         .filters button {
             font-family: var(--mono);
-            font-size: 0.76rem;
-            letter-spacing: 0.03em;
+            font-size: 0.74rem;
+            letter-spacing: 0.04em;
             text-transform: uppercase;
-            color: var(--muted);
-            background: none;
-            border: 1px solid var(--line);
+            color: var(--page-muted);
+            background: transparent;
+            border: 1px solid rgba(20, 19, 18, 0.22);
             border-radius: 999px;
-            padding: 8px 15px;
+            padding: 10px 17px;
             cursor: pointer;
-            transition: color .2s, border-color .2s, background .2s;
+            transition: color .2s, background .2s, border-color .2s;
         }
 
         .filters button:hover {
-            color: var(--ink);
-            border-color: var(--muted);
+            color: var(--page-ink);
+            border-color: var(--page-ink);
         }
 
         .filters button.active {
-            color: #17130C;
-            background: var(--accent);
-            border-color: var(--accent);
-        }
-
-        .work-grid {
-            display: grid;
-            grid-template-columns: minmax(0, 1fr);
-            gap: clamp(40px, 6vw, 68px) clamp(28px, 4vw, 52px);
-        }
-
-        @media (min-width: 720px) {
-            .work-grid {
-                grid-template-columns: repeat(2, minmax(0, 1fr));
-            }
+            background: var(--orange);
+            border-color: var(--orange);
+            color: #1A0C02;
         }
 
         .project {
+            grid-column: span 4;
+            padding: 12px;
             display: flex;
             flex-direction: column;
+            gap: 12px;
+            transition: transform .3s cubic-bezier(.2, .6, 0, 1);
         }
 
-        .project .thumb {
-            aspect-ratio: 4 / 3;
-            background: var(--surface);
-            border: 1px solid var(--line);
-            border-radius: 8px;
+        .project:hover {
+            transform: translateY(-3px);
+        }
+
+        .project .media {
+            aspect-ratio: 16 / 10;
+            border-radius: var(--radius-sm);
             overflow: hidden;
+            background: #FFFFFF;
         }
 
-        .project .thumb img {
+        .project .media img {
             width: 100%;
             height: 100%;
             object-fit: cover;
             transition: transform .5s cubic-bezier(.2, .6, 0, 1);
         }
 
-        .project .thumb.thumb--full {
-            aspect-ratio: 9 / 5;
-            background: #fff;
+        .project .media img.fit {
+            object-fit: contain;
+            padding: 10px;
         }
 
-        .project:hover .thumb img {
+        .project:hover .media img {
             transform: scale(1.03);
         }
 
+        .project .body {
+            display: flex;
+            flex-direction: column;
+            gap: 7px;
+            padding: 2px 6px 8px;
+        }
+
         .project .meta {
-            margin-top: 18px;
             font-family: var(--mono);
-            font-size: 0.72rem;
+            font-size: 0.68rem;
             letter-spacing: 0.05em;
             text-transform: uppercase;
-            color: var(--muted);
+            color: var(--c-muted);
         }
 
         .project h3 {
             font-family: var(--display);
             font-weight: 500;
-            font-size: var(--step-h3);
-            line-height: 1.22;
+            font-size: clamp(1.1rem, 1.8vw, 1.4rem);
             letter-spacing: -0.01em;
-            margin: 9px 0 0;
+            margin: 0;
         }
 
         .project p {
-            margin: 8px 0 0;
-            color: var(--muted);
-            font-size: 0.96rem;
-            max-width: 40ch;
+            margin: 0;
+            font-size: 0.9rem;
+            line-height: 1.5;
+            color: var(--c-muted);
         }
 
         .project .go {
-            margin-top: 14px;
+            margin-top: 2px;
             font-family: var(--mono);
-            font-size: 0.78rem;
-            letter-spacing: 0.02em;
+            font-size: 0.75rem;
+            color: var(--c-ink);
             display: inline-flex;
             align-items: center;
-            gap: 7px;
-            color: var(--ink);
+            gap: 6px;
         }
 
         .project .go::after {
@@ -385,135 +462,164 @@
         }
 
         .project:hover .go {
-            color: var(--accent);
+            color: var(--c-accent);
         }
 
         .project:hover .go::after {
-            transform: translateX(4px);
+            transform: translateX(3px);
         }
 
         /* ---------- nfts ---------- */
-        .nft-grid {
-            display: grid;
-            grid-template-columns: repeat(2, minmax(0, 1fr));
-            gap: clamp(18px, 3vw, 30px);
-        }
-
-        @media (min-width: 720px) {
-            .nft-grid {
-                grid-template-columns: repeat(3, minmax(0, 1fr));
-            }
-        }
-
         .nft {
-            display: block;
+            grid-column: span 4;
+            padding: 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            transition: transform .3s cubic-bezier(.2, .6, 0, 1);
         }
 
-        .nft .frame {
+        .nft:hover {
+            transform: translateY(-3px);
+        }
+
+        .nft .media {
             aspect-ratio: 1 / 1;
-            border: 1px solid var(--line);
-            border-radius: 8px;
+            border-radius: var(--radius-sm);
             overflow: hidden;
-            background: var(--surface);
+            background: #FFFFFF;
         }
 
-        .nft .frame img {
+        .nft .media img {
             width: 100%;
             height: 100%;
             object-fit: cover;
             transition: transform .5s cubic-bezier(.2, .6, 0, 1);
         }
 
-        .nft:hover .frame img {
+        .nft:hover .media img {
             transform: scale(1.04);
         }
 
         .nft .cap {
             display: flex;
             justify-content: space-between;
-            gap: 12px;
-            margin-top: 13px;
-            font-size: 0.86rem;
+            gap: 10px;
+            padding: 0 6px 6px;
+            font-family: var(--mono);
+            font-size: 0.8rem;
+            color: var(--c-ink);
         }
 
         .nft .cap span:last-child {
-            color: var(--muted);
+            color: var(--c-muted);
         }
 
         /* ---------- contact ---------- */
-        .contact h2 {
+        .contact-card {
+            grid-column: span 12;
+        }
+
+        .contact-card h2 {
             font-family: var(--display);
             font-weight: 500;
-            font-size: var(--step-h2);
-            line-height: 1.16;
-            letter-spacing: -0.015em;
-            margin: 0 0 clamp(28px, 5vw, 44px);
-            max-width: 18ch;
-        }
-
-        .contact h2 em {
-            font-style: normal;
-            color: var(--accent);
-        }
-
-        .contact-list {
-            border-top: 1px solid var(--line);
+            font-size: clamp(1.8rem, 4vw, 3rem);
+            line-height: 1.08;
+            letter-spacing: -0.02em;
+            margin: 0 0 clamp(20px, 3vw, 32px);
         }
 
         .contact-list a {
             display: flex;
-            align-items: baseline;
             justify-content: space-between;
-            gap: 20px;
-            padding: 20px 4px;
-            border-bottom: 1px solid var(--line);
-            transition: padding-left .25s, color .25s;
+            align-items: baseline;
+            gap: 16px;
+            padding: 16px 2px;
+            border-top: 1px solid var(--c-line);
+            font-family: var(--mono);
+            color: var(--c-ink);
+            transition: padding-left .25s;
+        }
+
+        .contact-list a:last-child {
+            border-bottom: 1px solid var(--c-line);
         }
 
         .contact-list a:hover {
-            padding-left: 12px;
-            color: var(--accent);
+            padding-left: 10px;
         }
 
         .contact-list .k {
-            font-family: var(--mono);
             font-size: 0.74rem;
-            letter-spacing: 0.05em;
+            letter-spacing: 0.06em;
             text-transform: uppercase;
-            color: var(--muted);
+            opacity: 0.7;
         }
 
         .contact-list .v {
-            font-family: var(--mono);
             font-size: 1rem;
         }
 
         /* ---------- footer ---------- */
         .site-footer {
-            border-top: 1px solid var(--line);
-        }
-
-        .site-footer .wrap {
+            max-width: var(--maxw);
+            margin: clamp(26px, 5vw, 48px) auto 0;
+            padding: 22px clamp(12px, 3vw, 22px) 40px;
             display: flex;
             flex-wrap: wrap;
             justify-content: space-between;
             gap: 10px;
-            padding-block: 26px;
             font-family: var(--mono);
-            font-size: 0.76rem;
-            color: var(--muted);
+            font-size: 0.74rem;
+            color: var(--page-muted);
         }
 
         /* ---------- reveal ---------- */
         .reveal {
             opacity: 0;
-            transform: translateY(14px);
-            transition: opacity .7s cubic-bezier(.2, .6, 0, 1), transform .7s cubic-bezier(.2, .6, 0, 1);
+            transform: translateY(12px);
+            transition: opacity .6s cubic-bezier(.2, .6, 0, 1), transform .6s cubic-bezier(.2, .6, 0, 1);
         }
 
         .reveal.in {
             opacity: 1;
             transform: none;
+        }
+
+        /* ---------- responsive ---------- */
+        @media (max-width: 900px) {
+            .bento {
+                grid-template-columns: repeat(6, 1fr);
+            }
+
+            .hero-main,
+            .hero-side,
+            .about-card,
+            .contact-card {
+                grid-column: 1 / -1;
+            }
+
+            .project {
+                grid-column: span 3;
+            }
+
+            .nft {
+                grid-column: span 2;
+            }
+        }
+
+        @media (max-width: 620px) {
+            .bento {
+                grid-template-columns: 1fr;
+            }
+
+            .bento > * {
+                grid-column: auto;
+            }
+
+            .nft .cap {
+                font-size: 0.75rem;
+            }
         }
 
         @media (prefers-reduced-motion: reduce) {
@@ -528,8 +634,10 @@
                 transition: none;
             }
 
-            .project .thumb img,
-            .nft .frame img,
+            .project,
+            .nft,
+            .project .media img,
+            .nft .media img,
             .contact-list a,
             .project .go::after {
                 transition: none;
@@ -541,12 +649,12 @@
 <body>
 
     <header class="site-header">
-        <div class="wrap">
+        <div class="header-card">
             <a class="brand" href="#top">
                 <img src="/images/webby.png" alt="">
                 Webby
             </a>
-            <nav class="site-nav">
+            <nav class="nav">
                 <a href="#about">About</a>
                 <a href="#work">Work</a>
                 <a href="#nfts">NFTs</a>
@@ -557,159 +665,171 @@
 
     <main id="top">
 
-        <section class="hero">
-            <div class="wrap">
-                <p class="eyebrow reveal">Developer, Marketer &amp; UX Designer &nbsp;/&nbsp; Web3</p>
-                <h1 class="reveal">
-                    I design, build, and market <em>blockchain&nbsp;products</em>.
-                </h1>
-                <p class="hero-sub reveal">
-                    A running showcase of the products, tools, and NFT collections I work on,
-                    from first idea through development, UX, launch, and growth.
+        <section class="bento">
+            <div class="card hero-main reveal">
+                <h1>Designing, building, and marketing <span class="hl">blockchain products</span>.</h1>
+                <p class="lead">
+                    A running showcase of blockchain products, tools, and NFT collections, taken from
+                    first idea through development, UX, launch, and growth.
                 </p>
-                <div class="hero-meta reveal">
-                    <span class="status">Available for freelance &amp; collaborations</span>
-                    <span class="hero-links">
-                        <a href="https://github.com/webbycrypto">GitHub</a>
-                        <a href="https://x.com/webbyH401">X / Twitter</a>
-                    </span>
+                <p class="status">Available for freelance &amp; collaborations</p>
+            </div>
+
+            <div class="card card--orange hero-side reveal">
+                <img class="avatar" src="/images/webby.png" alt="Webby">
+                <div class="hero-side-name">Webby</div>
+                <div class="hero-side-role">Developer, Marketer &amp; UX Designer</div>
+                <div class="hero-side-tag">Web3 &middot; XRPL &middot; Algorand</div>
+                <div class="hero-side-links">
+                    <a href="https://github.com/webbycrypto">GitHub</a>
+                    <a href="https://x.com/webbyH401">X / Twitter</a>
                 </div>
             </div>
         </section>
 
-        <section class="block" id="about">
-            <div class="wrap">
-                <div class="about-grid">
-                    <div class="about-aside reveal">
-                        <img class="portrait" src="/images/webby.png" alt="Webby">
-                        <h2>I take blockchain products from idea to launch.</h2>
+        <section class="bento" id="about">
+            <div class="card card--dark about-card reveal">
+                <div class="about-inner">
+                    <div>
+                        <h2>Taking blockchain products from idea to launch.</h2>
+                        <p class="about-lede">Design, build, launch, and the growth after.</p>
                     </div>
-                    <div class="about-body reveal">
+                    <div class="about-text">
                         <p>
-                            I go by Webby. I design, build, and market blockchain products: trust and
-                            payment infrastructure, smart contracts, and tools that help people learn to code.
-                            I work mainly across XRPL and Algorand.
+                            I'm Webby, a full-stack developer and marketer for blockchain products. My
+                            own projects span payments, data integrity, and developer education, mostly
+                            on XRPL and Algorand.
                         </p>
                         <p>
-                            My work covers the whole path from idea to launch: shipping the product,
-                            designing the UX, writing the docs, and running the growth.
+                            Solo means I handle the whole build: the API, the UX, the copy, and the
+                            growth after launch. I care most about UX, products that feel simple and
+                            obvious to use.
                         </p>
                         <ul class="skills">
-                            <li>Smart Contracts</li>
-                            <li>XRPL</li>
+                            <li>AI</li>
                             <li>Algorand</li>
-                            <li>Python</li>
-                            <li>FastAPI</li>
-                            <li>UX</li>
                             <li>Analytics</li>
+                            <li>FastAPI</li>
                             <li>Growth Marketing</li>
+                            <li>NFT</li>
+                            <li>Python</li>
+                            <li>Smart Contracts</li>
+                            <li>Stellar</li>
+                            <li>UX</li>
+                            <li>x402</li>
+                            <li>XRPL</li>
                         </ul>
                     </div>
                 </div>
             </div>
         </section>
 
-        <section class="block" id="work">
-            <div class="wrap">
+        <section class="bento" id="work">
 
-                <div class="filters reveal">
-                    <button type="button" data-filter="all" class="active">All</button>
-                    <button type="button" data-filter="products">Products</button>
-                    <button type="button" data-filter="tools">Tools &amp; Learning</button>
-                    <button type="button" data-filter="tokens">Tokens</button>
-                </div>
-
-                <div class="work-grid">
-
-                    <a class="project reveal" data-cat="products" href="https://bryktopay.com">
-                        <div class="thumb thumb--full"><img src="/images/brykto.png" alt="Brykto"></div>
-                        <div class="meta">Product &middot; Payments</div>
-                        <h3>Brykto</h3>
-                        <p>Digital-currency payments for independent sellers. Take money by QR code or
-                            link, straight to your wallet, with no transaction fees. Runs on Stellar and
-                            the XRP Ledger.</p>
-                        <span class="go">Visit site</span>
-                    </a>
-
-                    <a class="project reveal" data-cat="products" href="https://github.com/webbycrypto/sacrohash">
-                        <div class="thumb thumb--full"><img src="/images/sacrohash.png" alt="SacroHash"></div>
-                        <div class="meta">Product &middot; Data integrity</div>
-                        <h3>SacroHash</h3>
-                        <p>Tamper-evident verification for official statistics. Publishers anchor a
-                            fingerprint of each data release on-chain, so anyone can check that a file is
-                            unchanged and from the real publisher. Built on Algorand and XRPL EVM.</p>
-                        <span class="go">View on GitHub</span>
-                    </a>
-
-                    <a class="project reveal" data-cat="tools" href="/pydrop/">
-                        <div class="thumb"><img src="/images/pydrop.png" alt="Python Practice"></div>
-                        <div class="meta">Tool &middot; Learning</div>
-                        <h3>Python Practice</h3>
-                        <p>Practice Python with ease. Built for people who struggle to focus.</p>
-                        <span class="go">Open</span>
-                    </a>
-
-                    <a class="project reveal" data-cat="tools" href="/dropacademy/">
-                        <div class="thumb"><img src="/images/dropacad.png" alt="DropAcademy"></div>
-                        <div class="meta">Tool &middot; Learning</div>
-                        <h3>DropAcademy</h3>
-                        <p>Build a to-do app in Flask, FastAPI and Django, with blockchain, AI, and Stripe
-                            integration.</p>
-                        <span class="go">Open</span>
-                    </a>
-
-                    <a class="project reveal" data-cat="tools" href="/clarity/">
-                        <div class="thumb"><img src="https://pbs.twimg.com/media/HIZZEykW4AIHTly?format=png&name=small"
-                                alt="Clarity Act Tracker"></div>
-                        <div class="meta">Tool &middot; Tracker</div>
-                        <h3>Clarity Act Tracker</h3>
-                        <p>Follow the progress of the Clarity Act at a glance.</p>
-                        <span class="go">Open</span>
-                    </a>
-
-                    <a class="project reveal" data-cat="tokens" href="/griffy/">
-                        <div class="thumb"><img src="https://pbs.twimg.com/media/HH-scUEXMAEZc0A?format=jpg&name=medium"
-                                alt="GRIFFY"></div>
-                        <div class="meta">Token &middot; Memecoin</div>
-                        <h3>GRIFFY</h3>
-                        <p>A memecoin for traders, crypto folks, and dog lovers.</p>
-                        <span class="go">Open</span>
-                    </a>
-
-                </div>
+            <div class="filters reveal">
+                <button type="button" data-filter="all" class="active">All</button>
+                <button type="button" data-filter="products">Products</button>
+                <button type="button" data-filter="tools">Tools &amp; Learning</button>
+                <button type="button" data-filter="tokens">Tokens</button>
             </div>
+
+            <a class="card project reveal" data-cat="products" href="https://bryktopay.com">
+                <div class="media"><img src="/images/brykto.png" alt="Brykto" class="fit"></div>
+                <div class="body">
+                    <div class="meta">Product &middot; Payments</div>
+                    <h3>Brykto</h3>
+                    <p>Digital-currency payments for independent sellers. Take money by QR code or link,
+                        straight to your wallet, with no transaction fees. Runs on Stellar and the XRP
+                        Ledger.</p>
+                    <span class="go">Visit site</span>
+                </div>
+            </a>
+
+            <a class="card project reveal" data-cat="products" href="https://github.com/webbycrypto/sacrohash">
+                <div class="media"><img src="/images/sacrohash.png" alt="SacroHash" class="fit"></div>
+                <div class="body">
+                    <div class="meta">Product &middot; Data integrity</div>
+                    <h3>SacroHash</h3>
+                    <p>Tamper-evident verification for official statistics. Publishers anchor a fingerprint
+                        of each data release on-chain, so anyone can check that a file is unchanged and
+                        from the real publisher. Built on Algorand and XRPL EVM.</p>
+                    <span class="go">View on GitHub</span>
+                </div>
+            </a>
+
+            <a class="card project reveal" data-cat="tools" href="/pydrop/">
+                <div class="media"><img src="/images/pydrop.png" alt="Python Practice"></div>
+                <div class="body">
+                    <div class="meta">Tool &middot; Learning</div>
+                    <h3>Python Practice</h3>
+                    <p>Practice Python with ease. Built for people who struggle to focus.</p>
+                    <span class="go">Open</span>
+                </div>
+            </a>
+
+            <a class="card project reveal" data-cat="tools" href="/dropacademy/">
+                <div class="media"><img src="/images/dropacad.png" alt="DropAcademy"></div>
+                <div class="body">
+                    <div class="meta">Tool &middot; Learning</div>
+                    <h3>DropAcademy</h3>
+                    <p>Build a to-do app in Flask, FastAPI and Django, with blockchain, AI, and Stripe
+                        integration.</p>
+                    <span class="go">Open</span>
+                </div>
+            </a>
+
+            <a class="card project reveal" data-cat="tools" href="/clarity/">
+                <div class="media"><img src="https://pbs.twimg.com/media/HIZZEykW4AIHTly?format=png&name=small"
+                        alt="Clarity Act Tracker"></div>
+                <div class="body">
+                    <div class="meta">Tool &middot; Tracker</div>
+                    <h3>Clarity Act Tracker</h3>
+                    <p>Follow the progress of the Clarity Act at a glance.</p>
+                    <span class="go">Open</span>
+                </div>
+            </a>
+
+            <a class="card project reveal" data-cat="tokens" href="/griffy/">
+                <div class="media"><img src="https://pbs.twimg.com/media/HH-scUEXMAEZc0A?format=jpg&name=medium"
+                        alt="GRIFFY"></div>
+                <div class="body">
+                    <div class="meta">Token &middot; Memecoin</div>
+                    <h3>GRIFFY</h3>
+                    <p>A memecoin for traders, crypto folks, and dog lovers.</p>
+                    <span class="go">Open</span>
+                </div>
+            </a>
+
         </section>
 
-        <section class="block" id="nfts">
-            <div class="wrap">
-                <div class="nft-grid">
+        <section class="bento" id="nfts">
 
-                    <a class="nft reveal" href="https://xrp.cafe/collection/griffy30-109">
-                        <div class="frame"><img src="https://pbs.twimg.com/media/HIBAECiXYAEJw3c?format=jpg&name=large"
-                                alt="GRIFFY collection"></div>
-                        <div class="cap"><span>GRIFFY</span><span>Floor 1 XRP</span></div>
-                    </a>
+            <h2 class="section-title reveal">NFT Projects</h2>
 
-                    <a class="nft reveal" href="https://xrp.cafe/collection/usa250">
-                        <div class="frame"><img src="https://pbs.twimg.com/media/HIEQi3FW0AAY8JO?format=jpg&name=large"
-                                alt="USA250 Figures collection"></div>
-                        <div class="cap"><span>USA250: Figures</span><span>Floor 5 XRP</span></div>
-                    </a>
+            <a class="card nft reveal" href="https://xrp.cafe/collection/griffy30-109">
+                <div class="media"><img src="https://pbs.twimg.com/media/HIBAECiXYAEJw3c?format=jpg&name=large"
+                        alt="GRIFFY collection"></div>
+                <div class="cap"><span>GRIFFY</span><span>Floor 1 XRP</span></div>
+            </a>
 
-                    <a class="nft reveal" href="https://xrp.cafe/collection/great-american-city-usa250">
-                        <div class="frame"><img src="https://pbs.twimg.com/media/HIaczaPXEAAg_ad?format=jpg&name=small"
-                                alt="Great American Cities collection"></div>
-                        <div class="cap"><span>Great American Cities</span><span>Floor 2 XRP</span></div>
-                    </a>
+            <a class="card nft reveal" href="https://xrp.cafe/collection/usa250">
+                <div class="media"><img src="https://pbs.twimg.com/media/HIEQi3FW0AAY8JO?format=jpg&name=large"
+                        alt="USA250 Figures collection"></div>
+                <div class="cap"><span>USA250: Figures</span><span>Floor 5 XRP</span></div>
+            </a>
 
-                </div>
-            </div>
+            <a class="card nft reveal" href="https://xrp.cafe/collection/great-american-city-usa250">
+                <div class="media"><img src="https://pbs.twimg.com/media/HIaczaPXEAAg_ad?format=jpg&name=small"
+                        alt="Great American Cities collection"></div>
+                <div class="cap"><span>Great American Cities</span><span>Floor 2 XRP</span></div>
+            </a>
+
         </section>
 
-        <section class="block contact" id="contact">
-            <div class="wrap">
-                <h2 class="reveal">Let&rsquo;s build <em>something</em>.</h2>
-                <div class="contact-list reveal">
+        <section class="bento" id="contact">
+            <div class="card card--orange contact-card reveal">
+                <h2>Let&rsquo;s build something.</h2>
+                <div class="contact-list">
                     <a href="https://github.com/webbycrypto">
                         <span class="k">GitHub</span>
                         <span class="v">github.com/webbycrypto</span>
@@ -718,9 +838,9 @@
                         <span class="k">X / Twitter</span>
                         <span class="v">@webbyH401</span>
                     </a>
-                    <a href="mailto:your@email.com">
+                    <a href="mailto:proofdropapp@gmail.com">
                         <span class="k">Email</span>
-                        <span class="v">your@email.com</span>
+                        <span class="v">proofdropapp@gmail.com</span>
                     </a>
                 </div>
             </div>
@@ -729,10 +849,8 @@
     </main>
 
     <footer class="site-footer">
-        <div class="wrap">
-            <span>&copy; 2026 webbycrypto</span>
-            <span>Built by hand.</span>
-        </div>
+        <span>&copy; 2026 webbycrypto</span>
+        <span>Built by hand.</span>
     </footer>
 
     <script>
