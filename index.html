@@ -838,9 +838,9 @@
                         <span class="k">X / Twitter</span>
                         <span class="v">@webbyH401</span>
                     </a>
-                    <a href="mailto:proofdropapp@gmail.com">
+                    <a class="js-email" href="#contact">
                         <span class="k">Email</span>
-                        <span class="v">proofdropapp@gmail.com</span>
+                        <span class="v">proofdropapp [at] gmail [dot] com</span>
                     </a>
                 </div>
             </div>
@@ -855,6 +855,15 @@
 
     <script>
         (function () {
+            // email (assembled at runtime so it is not in the static markup)
+            var em = document.querySelector('.js-email');
+            if (em) {
+                var addr = 'moc.liamg@ppapordfoorp'.split('').reverse().join('');
+                em.setAttribute('href', 'mailto:' + addr);
+                var v = em.querySelector('.v');
+                if (v) v.textContent = addr;
+            }
+
             // project filter
             var tabs = document.querySelectorAll('.filters button');
             var items = document.querySelectorAll('.project[data-cat]');
