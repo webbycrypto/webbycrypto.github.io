@@ -1,1 +1,9 @@
 pydrop/tools/
+
+# Python bytecode cache -- regenerated automatically, never needed in source control
+__pycache__/
+*.pyc
+
+# Obsidian's own vault config (themes, plugin state) -- local editor preference,
+# not project content
+.obsidian/

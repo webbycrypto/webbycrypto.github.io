@@ -17,7 +17,11 @@ const App = (function () {
       window.LEVEL3 || [],
       window.LEVEL4 || [],
       window.LEVEL5 || [],
-      window.LEVEL6 || []
+      window.LEVEL6 || [],
+      window.LEVEL7 || [],
+      window.LEVEL8 || [],
+      window.LEVEL9 || [],
+      window.LEVEL10 || []
     );
 
     // Load progress from localStorage

@@ -1,0 +1,39 @@
+# Tool use (function calling), for real
+
+[← Back to Week 6 (AI track): Low-scaffolding build](../README.md)
+
+## The core misconception to clear up first
+
+Here's the single most important sentence in this note: **the model does not run your code.** Claude cannot open a file on your computer, cannot query a database, cannot call a function you wrote. It has never been able to, and giving it "tools" doesn't change that.
+
+What actually happens is closer to this: you describe some functions to Claude (a name, a description of what each one does, and what arguments it takes) as part of your API request. When Claude decides one of those functions would help answer the current question, it doesn't run the function, it sends back a structured message that says, in effect, "please call the function named `search_notes` with the argument `query="wifi password"`." That message is real, well-defined data (not something you have to parse out of prose), but it's still just a request. YOUR code is the one that actually runs the real Python function, gets a real result, and sends that result back to Claude in the next request. Only then does Claude continue, now with that real result in front of it.
+
+A useful analogy: imagine a very capable research assistant who has no internet access and can't leave their desk. You've told them "if you need to check something in the client files, just write down exactly what you want looked up, and I'll go look it up and bring you the answer." The assistant can request lookups all day, drafting notes like "please check whether client #4021 has an active contract," but they never touch the filing cabinet themselves. You do. Tool use is that arrangement, formalized as an API.
+
+## The actual shape of the mechanism
+
+Concretely, across one full round trip:
+
+1. Your request includes a `tools` list. Each tool is described with a `name`, a `description` (plain English, telling Claude what the tool does and, implicitly, when it's appropriate to use it), and an `input_schema` (a JSON Schema object describing what arguments the tool takes, and which are required).
+2. If Claude decides a tool would help, the response comes back with `stop_reason` equal to `"tool_use"`, and `response.content` contains one or more blocks of type `"tool_use"`. Each of those blocks has an `id` (a unique identifier for this specific call), a `name` (which tool it wants), and an `input` (a dictionary of arguments, already parsed from JSON for you by the SDK).
+3. Your code looks at `block.name`, finds the matching real Python function, and calls it with `block.input`'s values as arguments. This is a real function call in your own program. Nothing about it is automatic; you write the `if block.name == "search_notes": ...` logic yourself, or use a small dispatch dictionary.
+4. You send the actual result back as a new message, with `role: "user"`, whose content is a list containing a `tool_result` block: `{"type": "tool_result", "tool_use_id": block.id, "content": <the real result, as a string or content blocks>}`. The `tool_use_id` has to match the `id` from step 2 exactly; it's how Claude knows which of its requests this result answers, especially when more than one tool was requested in the same turn.
+5. You send this new message, along with the full conversation history (as always, the API is stateless: see Week 5's multi-turn exercise if that sentence doesn't immediately make sense), back to `messages.create()`. Claude now has the real result and continues from there, either producing a final text answer, or requesting another tool call.
+
+That's the whole mechanism. It's a loop: keep calling `messages.create()`, checking `stop_reason`, running any requested tools, and sending results back, until `stop_reason` comes back as `"end_turn"` (Claude is done) instead of `"tool_use"` (Claude wants to call something else).
+
+## Why this matters, beyond being a neat feature
+
+A model that can only produce text is fundamentally limited to describing things, in prose, based on training data and whatever's in the prompt. Tool use is what lets a model take real actions and get real, current information: check today's actual state of something, run a real calculation, look something up in a specific database, instead of guessing based on statistically likely-sounding text. This is the difference between "an AI that talks about your notes folder" (Week 5, where YOUR code searched the notes and handed Claude the result directly) and "an AI that can decide for itself when it needs to search your notes folder, and does" (this week). The retrieval logic doesn't fundamentally change. What changes is who's driving: last week, your `main()` function decided when to search. This week, Claude decides, based on the conversation, whether a search is warranted at all.
+
+## What "chaining" actually means here
+
+Week 6's goal specifically asks for two tools, chained: the output of one can decide whether the other gets called. Concretely, imagine a `search_notes(query)` tool and a second tool that needs a specific filename to operate on, say one that reports a note's word count and last-modified date. Those two tools are chained when the SECOND tool's use genuinely depends on what the FIRST one returned: if `search_notes` found a matching note, the second tool gets called with that note's real filename; if `search_notes` found nothing, there is no valid filename to hand the second tool, and it should not be called at all.
+
+Here's the part beginners consistently get wrong: chaining is not something you write as a single "if this then that" line of Python that only fires once. It's the natural, repeated shape of the loop from the previous section. After you send tool 1's result back, Claude gets another full turn, sees that result, and decides FOR ITSELF whether a second tool call is worth making, exactly the same way it decided to call the first tool. Your job is to make sure your loop actually keeps running, and that the SECOND tool is still listed in `tools` on every request in the loop, not just the first one. If you only pass `tools=[search_notes_tool]` on the first call, and then hand-write a completely different, tool-less second request afterward, Claude never gets the chance to decide anything about a second tool. It's not "not chaining correctly," it's not chaining at all.
+
+The other thing worth being explicit about: chaining needs explicit state tracking, not hoping the model remembers. The API has no memory between requests (again: Week 5). If your loop resends an incomplete history, say, you accidentally drop the `tool_result` for one of two tool calls Claude made in the same turn, the very next request will come back with an error, because the API can see that a `tool_use` block from the previous assistant turn has no matching `tool_result`. This is not a rare edge case; it's the single most common bug in a first tool-use loop. If more than one `tool_use` block appears in a single assistant turn (parallel tool calls, which the API allows by default), collect ALL of their results and send them together, in one single `user` message, not split across multiple requests.
+
+## Where to look for the exact shapes
+
+This document deliberately hasn't shown you a complete working loop; that's for you to build this week (see `project/README.md` for the goal and constraints, and a bare-syntax reminder, not a solution). When you're in Anthropic's API documentation, the sections to look for are: how tools are defined in a request (the `tools` parameter, and its `input_schema` field, which is standard JSON Schema), what a `tool_use` content block looks like in a response, and how a `tool_result` content block is structured when you send it back. If you get stuck on the exact field names, the official docs are the authority here, not memory of how some other framework does it.

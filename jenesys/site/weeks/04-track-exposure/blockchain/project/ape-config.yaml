@@ -1,0 +1,10 @@
+# Minimal Ape project configuration. Ape works with sensible defaults (a
+# contracts/ folder for Solidity source and a scripts/ folder for runnable
+# scripts) without needing much here.
+#
+# On purpose, this file does not contain your RPC URL or any account
+# credentials. Which network to connect to is chosen at the command line
+# with --network instead (see project/README.md), specifically so that a
+# URL containing your personal node provider key never ends up committed to
+# a shared, git-tracked file.
+name: jenesys-greeter

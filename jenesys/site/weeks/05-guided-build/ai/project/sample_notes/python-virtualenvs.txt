@@ -1,0 +1,10 @@
+Python Virtual Environments Cheat Sheet
+
+A virtual environment keeps one project's installed packages separate from every other project's, so upgrading a library for Project A doesn't silently break Project B.
+
+Create one with: python -m venv .venv
+
+Activate it on Windows with: .venv\Scripts\activate
+Activate it on Mac or Linux with: source .venv/bin/activate
+
+Once activated, pip install and python commands only affect this environment. Deactivate with: deactivate

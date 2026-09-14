@@ -21,7 +21,11 @@ const UI = (function () {
     3: 'Intermediate Python',
     4: 'Modern Python for Web',
     5: 'Blockchain Fundamentals',
-    6: 'Applied Python for Blockchain'
+    6: 'Applied Python for Blockchain',
+    7: 'Writing Smart Contracts',
+    8: 'Tokens and Applied Solidity',
+    9: 'Contract Security',
+    10: 'Smart Contract Engineering'
   };
 
   // Common Python builtins that are genuinely useful but never come up in
@@ -83,7 +87,7 @@ const UI = (function () {
       _collapsedLevelsInitialized = true;
       const activeChallenge = challenges.find(function (c) { return c.id === currentId; });
       const activeLevel = activeChallenge ? activeChallenge.level : 1;
-      for (let lvl = 1; lvl <= 6; lvl++) {
+      for (let lvl = 1; lvl <= 10; lvl++) {
         if (lvl !== activeLevel) _collapsedLevels.add(lvl);
       }
     }
@@ -99,7 +103,7 @@ const UI = (function () {
       '</div>';
 
     // Level trees
-    for (let lvl = 1; lvl <= 6; lvl++) {
+    for (let lvl = 1; lvl <= 10; lvl++) {
       const levelChallenges = challenges.filter(function (c) { return c.level === lvl; });
       const gradableInLevel = levelChallenges.filter(function (c) { return c.kind !== 'intro'; });
       const completedCount = gradableInLevel.filter(function (c) {

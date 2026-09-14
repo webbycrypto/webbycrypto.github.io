@@ -1,0 +1,147 @@
+/*!
+ * jenesys custom.css
+ *
+ * Styling for the manual progress-tracking feature layered on top of the
+ * harvested pydata-sphinx-theme assets:
+ *   - dimmed + checkmarked sidebar entries once a page (or every real page
+ *     nested under a Week/Track/"Notes" grouping) is marked complete
+ *   - the ".mark-complete-btn" learners click on each content page
+ *
+ * Colors are expressed as custom properties with sensible (light) defaults
+ * on :root, overridden under html[data-theme="dark"] to match the theme's
+ * own light/dark mechanism (it toggles data-theme on <html>; see
+ * pydata-sphinx-theme.js, which this file does not touch).
+ */
+
+:root {
+  --jenesys-complete-fg: rgba(48, 54, 61, 0.58);
+  --jenesys-complete-check: #217a3e;
+
+  --jenesys-btn-bg: #ffffff;
+  --jenesys-btn-border: #c9ccd1;
+  --jenesys-btn-fg: #14181f;
+  --jenesys-btn-hover-bg: #eef0f3;
+  --jenesys-btn-focus-ring: #2b7fff;
+
+  --jenesys-btn-done-bg: #e6f4ea;
+  --jenesys-btn-done-border: #2f7d4f;
+  --jenesys-btn-done-fg: #1e5631;
+  --jenesys-btn-done-hover-bg: #d9ede0;
+}
+
+html[data-theme="dark"] {
+  --jenesys-complete-fg: rgba(210, 214, 220, 0.55);
+  --jenesys-complete-check: #5fbf82;
+
+  --jenesys-btn-bg: #23262d;
+  --jenesys-btn-border: #454a54;
+  --jenesys-btn-fg: #e8eaed;
+  --jenesys-btn-hover-bg: #2d3138;
+  --jenesys-btn-focus-ring: #6ea8fe;
+
+  --jenesys-btn-done-bg: rgba(47, 125, 79, 0.22);
+  --jenesys-btn-done-border: #5fbf82;
+  --jenesys-btn-done-fg: #a7e3bd;
+  --jenesys-btn-done-hover-bg: rgba(47, 125, 79, 0.32);
+}
+
+/* ---------------------------------------------------------------------- */
+/* Sidebar: align group-label captions with real page links                */
+/* ---------------------------------------------------------------------- */
+
+/*
+ * The theme's own nav.bd-links li>a{padding:.25rem .65rem} rule only
+ * targets real links; a group node's <p class="caption"> (e.g. "AI",
+ * "Blockchain", "Project") has no such rule and renders flush left,
+ * out of step with its sibling links like "Setup" or "Foundations I".
+ * Match the same padding so every top-level entry lines up.
+ */
+nav.bd-links li > p.caption {
+  padding: .25rem .65rem;
+}
+
+/* ---------------------------------------------------------------------- */
+/* Sidebar: gray out completed pages/groups                               */
+/* ---------------------------------------------------------------------- */
+
+/*
+ * Real page entries: the theme hoists the link out as a direct child of the
+ * <li>, e.g. <li data-node-id="..." data-page-id="..."><a class="reference
+ * internal" href="...">Title</a> ... </li>
+ */
+li[data-node-id].jenesys-completed > a.reference {
+  color: var(--jenesys-complete-fg) !important;
+  font-weight: normal;
+}
+
+/*
+ * Pure group/label entries (no page of their own): the visible text is a
+ * plain <p class="caption"> direct child of the <li>, e.g.
+ * <li data-node-id="..."><p class="caption" role="heading">Title</p>
+ * <ul>...</ul></li>
+ */
+li[data-node-id].jenesys-completed > p.caption {
+  color: var(--jenesys-complete-fg) !important;
+  font-weight: normal;
+}
+
+/*
+ * Small checkmark so completion reads even where the dimmed color alone is
+ * hard to distinguish. Kept as a subtle progress cue, not an error/warning
+ * indicator.
+ */
+li[data-node-id].jenesys-completed > a.reference::after,
+li[data-node-id].jenesys-completed > p.caption::after {
+  content: " \2713";
+  display: inline-block;
+  margin-left: 0.35em;
+  color: var(--jenesys-complete-check);
+  font-weight: 700;
+}
+
+/* ---------------------------------------------------------------------- */
+/* "Mark complete" button                                                 */
+/* ---------------------------------------------------------------------- */
+
+.mark-complete-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4em;
+  font: inherit;
+  font-size: 0.9rem;
+  font-weight: 600;
+  line-height: 1.2;
+  padding: 0.5em 1.1em;
+  margin: 0.25em 0 1.5em;
+  border: 1px solid var(--jenesys-btn-border);
+  border-radius: 6px;
+  background-color: var(--jenesys-btn-bg);
+  color: var(--jenesys-btn-fg);
+  cursor: pointer;
+  transition: background-color 0.15s ease, border-color 0.15s ease,
+    color 0.15s ease;
+}
+
+.mark-complete-btn:hover {
+  background-color: var(--jenesys-btn-hover-bg);
+}
+
+.mark-complete-btn:focus-visible {
+  outline: 2px solid var(--jenesys-btn-focus-ring);
+  outline-offset: 2px;
+}
+
+.mark-complete-btn.is-complete {
+  background-color: var(--jenesys-btn-done-bg);
+  border-color: var(--jenesys-btn-done-border);
+  color: var(--jenesys-btn-done-fg);
+}
+
+.mark-complete-btn.is-complete:hover {
+  background-color: var(--jenesys-btn-done-hover-bg);
+}
+
+.mark-complete-btn.is-complete::before {
+  content: "\2713";
+  font-weight: 700;
+}

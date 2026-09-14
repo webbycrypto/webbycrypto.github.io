@@ -1,0 +1,7 @@
+Home Wifi Setup
+
+Our router is the black box in the office closet, on the shelf above the modem. The wifi name is "HomeNet-5G" and the password is written on the sticker on the bottom of the router.
+
+If the internet drops, the fastest fix is usually to unplug the router, wait 10 seconds, and plug it back in. Wait about 2 minutes for it to fully reboot before testing anything.
+
+If unplugging doesn't help, check that the modem's lights are solid green, not blinking orange. Blinking orange on the modem usually means an outage on the provider's side, not something wrong with the router.
