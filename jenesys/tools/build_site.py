@@ -421,6 +421,10 @@ ASSET_PATHS = {
     "fontawesome_js": "assets/scripts/fontawesome.js",
     "nav_descendants_js": "assets/nav-descendants.js",
     "progress_js": "assets/progress.js",
+    "logo_light": "assets/logo-light.png",
+    "logo_dark": "assets/logo-dark.png",
+    "icon_light": "assets/icon-light.png",
+    "icon_dark": "assets/icon-dark.png",
 }
 
 
@@ -493,7 +497,8 @@ def render_page(out_relpath, title, body_html, headings, nav_node):
         <div class="col-lg-3 navbar-header-items__start">
           <div class="navbar-item">
             <a class="navbar-brand logo" href="{home_href}">
-              <p class="title logo__title">{SITE_TITLE}</p>
+              <img class="logo__image only-light" src="{assets['logo_light']}" alt="{SITE_TITLE}" />
+              <img class="logo__image only-dark" src="{assets['logo_dark']}" alt="{SITE_TITLE}" />
             </a>
           </div>
         </div>
@@ -540,6 +545,8 @@ def render_page(out_relpath, title, body_html, headings, nav_node):
     <noscript>
       <style>.pst-js-only {{ display: none !important; }}</style>
     </noscript>
+    <link rel="icon" type="image/png" href="{assets['icon_light']}" media="(prefers-color-scheme: light)" />
+    <link rel="icon" type="image/png" href="{assets['icon_dark']}" media="(prefers-color-scheme: dark)" />
     <link href="{assets['theme_css']}" rel="stylesheet" />
     <link href="{assets['pst_css']}" rel="stylesheet" />
     <link rel="stylesheet" type="text/css" href="{assets['pygments_css']}" />
