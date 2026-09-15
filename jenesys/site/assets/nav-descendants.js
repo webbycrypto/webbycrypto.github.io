@@ -413,5 +413,31 @@ window.JENESYS_NAV_DESCENDANTS = {
     "weeks/08-capstone/blockchain/acceptance-gate.html",
     "weeks/08-capstone/blockchain/token-issuance.html",
     "weeks/08-capstone/rubric.html"
+  ],
+  "weeks/09-going-further/index.html": [
+    "weeks/09-going-further/index.html"
+  ],
+  "weeks/09-going-further/notes/01-classes.html": [
+    "weeks/09-going-further/notes/01-classes.html"
+  ],
+  "weeks/09-going-further/notes/02-type-hints.html": [
+    "weeks/09-going-further/notes/02-type-hints.html"
+  ],
+  "weeks/09-going-further/notes/03-dataclasses.html": [
+    "weeks/09-going-further/notes/03-dataclasses.html"
+  ],
+  "weeks/09-going-further/exercises/index.html": [
+    "weeks/09-going-further/exercises/index.html"
+  ],
+  "weeks/09-going-further/project/index.html": [
+    "weeks/09-going-further/project/index.html"
+  ],
+  "going-further": [
+    "weeks/09-going-further/index.html",
+    "weeks/09-going-further/notes/01-classes.html",
+    "weeks/09-going-further/notes/02-type-hints.html",
+    "weeks/09-going-further/notes/03-dataclasses.html",
+    "weeks/09-going-further/exercises/index.html",
+    "weeks/09-going-further/project/index.html"
   ]
 };

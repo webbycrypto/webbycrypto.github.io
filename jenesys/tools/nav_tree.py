@@ -278,4 +278,14 @@ NAV_TREE = [
         ]),
         page(f"{WEEKS}/08-capstone/rubric.md"),
     ]),
+    group("Going further", [
+        page(f"{WEEKS}/09-going-further/README.md", sidebar_title="Overview"),
+        *notes(
+            f"{WEEKS}/09-going-further/notes/01-classes.md",
+            f"{WEEKS}/09-going-further/notes/02-type-hints.md",
+            f"{WEEKS}/09-going-further/notes/03-dataclasses.md",
+        ),
+        page(f"{WEEKS}/09-going-further/exercises/README.md", sidebar_title="Exercises"),
+        page(f"{WEEKS}/09-going-further/project/README.md", sidebar_title="Project: validate with pydantic"),
+    ]),
 ]
