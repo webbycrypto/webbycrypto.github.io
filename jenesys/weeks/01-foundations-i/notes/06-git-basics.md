@@ -2,6 +2,31 @@
 
 [← Back to Week 1: Foundations I](../README.md)
 
+## TL;DR
+
+Git keeps a saved history of your project, so you can see what changed, undo mistakes, and try risky ideas without breaking what already works. This page covers the core commands: starting a repo, saving checkpoints, checking your status, branching, and syncing with GitHub.
+
+- `git init` turns the current folder into a repository, so git starts tracking its history from that point on.
+- `git add filename` stages a change (marks it ready to save), and `git commit -m "message"` seals everything staged as a permanent, named checkpoint.
+- `git status` shows what's staged, what's changed but not staged, and what git isn't tracking yet. Run it often, especially before adding or committing.
+- `git branch new-feature` creates an independent line of work, and `git checkout new-feature` (or `git switch`) switches to it, leaving `main` untouched.
+- `git push` sends your local commits up to a remote like GitHub, and `git pull` brings down commits you don't have locally yet.
+
+```
+git init                                       # turns this folder into a repo git tracks
+
+git add script.py                              # stages the change, ready to be saved
+git commit -m "Add total price calculation"    # seals staged changes as a checkpoint
+
+git status                                      # shows staged, unstaged, and untracked files
+
+git branch add-discount                         # creates an independent line of work
+git checkout add-discount                       # switches to it, main stays untouched
+
+git push                                        # sends local commits up to GitHub
+git pull                                        # brings down commits you don't have yet
+```
+
 ## Why version control exists
 
 Before you learn a single git command, it's worth understanding the actual problem git solves, because the commands make a lot more sense once you know why they exist.

@@ -2,6 +2,31 @@
 
 [← Back to Week 2: Foundations II and first project](../README.md)
 
+## TL;DR
+
+This page separates a bug from an expected failure case, and shows how to catch errors and respond with the right HTTP status code instead of crashing or returning misleading data.
+
+- A bug is a mistake in your own code that needs fixing. An expected failure case, like a client asking for a note that doesn't exist, is normal and needs to be handled on purpose, not prevented.
+- `try`/`except` lets you catch a specific kind of error and respond instead of crashing. Catch the exact exception you expect, not a bare `except`, or you can hide real bugs behind a false sense of "handled."
+- HTTP status codes tell the client what happened without it needing to read a message: `200` success, `201` created, `400` bad request, `404` not found, `500` server error.
+- Instead of letting a function fall through with no `return` (which silently gives back `None`), return the error as JSON together with the right status code, so the client gets back a clear, structured answer.
+
+```python
+@app.route("/customers/<int:customer_id>")
+def get_customer(customer_id):
+    try:
+        with open("customers.json") as file:
+            customers = json.load(file)
+    except FileNotFoundError:
+        return jsonify({"error": "No customer data on disk"}), 500
+
+    for customer in customers:
+        if customer["id"] == customer_id:
+            return jsonify(customer)
+
+    return jsonify({"error": f"No customer with id {customer_id}"}), 404
+```
+
 ## Two very different kinds of "something went wrong"
 
 Not every unexpected situation in a program is the same kind of problem, and it's worth separating them clearly before writing any error-handling code.

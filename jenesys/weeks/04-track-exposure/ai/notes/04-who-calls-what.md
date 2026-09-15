@@ -2,6 +2,15 @@
 
 [← Back to Week 4: Track exposure](../../README.md)
 
+## TL;DR
+
+This page explains the difference between this week's setup (you call the model) and Week 6's tool use (the model can ask your code to call a function), so the vocabulary isn't a mystery later.
+
+- This week, the flow only goes one direction: your code sends a request, the model sends text back, and that's it. The model can't take any action on its own.
+- Starting Week 6, you'll describe functions your own code can run, like looking up a city's weather, and the model can reply asking to call one of them.
+- The model never actually runs code itself. It only asks; your code decides whether to really call the function, runs it, and sends the result back to the model in the next request.
+- This matters because every real action a model-powered program takes, like sending an email or a blockchain transaction, is still a line of your own code that you wrote and are responsible for. The model proposes, your code disposes.
+
 Everything you build this week follows one simple shape: your code sends text, the model sends text back. That's it. No exceptions this week. But it's worth understanding, even briefly, the shape of what comes next in Week 6, because the vocabulary ("tool use," "function calling," "agents") gets thrown around constantly in AI marketing, usually without anyone explaining what it actually means underneath.
 
 ## This week: you call the model

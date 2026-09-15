@@ -2,6 +2,34 @@
 
 [← Back to Week 3: Foundations consolidation](../README.md)
 
+## TL;DR
+
+This page covers when a single file has grown into more than one job, and how to split it into more than one file without changing what the code does.
+
+- The signal to split isn't a line count. It's that a file needs "and" to describe what it does, like "routes and storage," instead of one clean job.
+- If a file still does just one coherent job, leave it as one file. Splitting it anyway just adds files and imports for no benefit.
+- When a file does start doing more than one job, pull one concern into its own file, commonly separating how data is stored from how requests are handled.
+- Splitting only moves code to a new file. You `import` the pulled-out functions back into the original file and call them exactly as before; nothing about what they do changes.
+
+```python
+# storage.py -- one job: how quiz scores are stored
+def load_scores():
+    ...
+
+def save_scores(scores):
+    ...
+
+# app.py -- one job: handling requests, not how storage works
+from storage import load_scores, save_scores
+
+@app.route("/scores", methods=["POST"])
+def add_score():
+    scores = load_scores()
+    scores.append(request.get_json())
+    save_scores(scores)          # app.py doesn't need to know how this works
+    return jsonify(scores), 201
+```
+
 Everything in [`../../02-foundations-ii/notes/06-organizing-your-code.md`](../../02-foundations-ii/notes/06-organizing-your-code.md) still applies exactly as written: one job per function, extract repeated logic instead of copying it, name things so you don't have to reread them to know what they do, group related code together. Reread it if it's fuzzy; this note assumes it, rather than repeating it.
 
 There's one genuinely new idea for this week: what happens when "grouping related things together" inside a single file stops being enough, and the right move is splitting that file into more than one.

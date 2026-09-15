@@ -2,6 +2,32 @@
 
 [← Back to Week 6 (AI track): Low-scaffolding build](../README.md)
 
+## TL;DR
+
+This page explains how to report a failed or nonsensical tool call honestly, and why faking a normal-looking result is its own kind of hallucination.
+
+- A tool call can fail two different ways: your code raises a real exception (a timeout, a missing file), or the call runs fine but the request itself doesn't make sense. Both need real handling.
+- When something goes wrong, catch it and send back a `tool_result` with `is_error: True` and an honest, specific description of what happened.
+- Never invent a normal-looking result to cover for a failure. That turns "the lookup broke" into "the lookup ran and found this," and Claude has no way to tell the difference, it will treat the fake result as fact.
+- Check that the model's final answer to the person actually reflects a failure when one happened. Don't let a confident-sounding answer paper over a tool that didn't really work.
+
+```python
+try:
+    price = get_stock_price(ticker)
+    tool_result = {"type": "tool_result", "tool_use_id": block.id, "content": str(price)}
+except requests.exceptions.Timeout as e:
+    tool_result = {
+        "type": "tool_result",
+        "tool_use_id": block.id,
+        "content": f"Tool error: price lookup timed out ({e}). No price was retrieved.",
+        "is_error": True,                            # tells Claude honestly that this one failed
+    }
+    # never do this instead: content = "0.00"  -- that reports a broken lookup as if it had actually succeeded
+
+if tool_result.get("is_error"):
+    print("Heads up: I couldn't get a real price, so I can't answer that yet.")  # the human sees the real failure too
+```
+
 ## Two different things that can go wrong
 
 Once your code is actually calling real functions based on what the model asks for, there are two genuinely different categories of "something went wrong," and it's worth being precise about which one you're dealing with, because the right response differs:

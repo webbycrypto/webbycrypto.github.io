@@ -2,6 +2,45 @@
 
 [← Back to Week 2: Foundations II and first project](../README.md)
 
+## TL;DR
+
+This page covers how to organize a growing Flask app so it stays easy to read and change, using the one-sentence test, spotting repeated logic, clear names, and grouping related code together.
+
+- If you can't describe what a function does in one plain sentence without using "and," it's doing too much and should probably be split into two functions.
+- When the same check or calculation shows up in more than one place, pull it out into its own function instead of retyping it. Otherwise a later fix might only reach some of the copies.
+- Give functions names that describe what they return or do, like `get_valid_price`, instead of vague ones like `helper` or `process`, so you don't have to reread the body every time you call it.
+- Group related code together, like defining a shared helper once near the routes that use it, so a reader knows where to look for the logic that matters.
+
+```python
+def get_valid_price(data):
+    """Return the price as a float, or None if it's missing or not a number."""
+    price = data.get("price")
+    if price is None:
+        return None
+    try:
+        return float(price)
+    except ValueError:
+        return None
+
+
+@app.route("/orders", methods=["POST"])
+def create_order():
+    data = request.get_json()
+    price = get_valid_price(data)
+    if price is None:
+        return jsonify({"error": "price is required"}), 400
+    # ... create the order using price ...
+
+
+@app.route("/orders/<int:order_id>", methods=["PUT"])
+def update_order(order_id):
+    data = request.get_json()
+    price = get_valid_price(data)
+    if price is None:
+        return jsonify({"error": "price is required"}), 400
+    # ... update the order using price ...
+```
+
 Everything you've written before this week was small enough that organization barely mattered. A handful of loops and functions in one file, read top to bottom, is fine. `app.py` for this week's project is longer than anything you've written so far, with several routes and helper functions in play at once, and that's exactly the size where sloppy organization starts costing you real time, not just looking untidy.
 
 This note is about a skill separate from "does it run": can someone (including you, in three weeks) open this file and understand what it does without re-reading every line first.

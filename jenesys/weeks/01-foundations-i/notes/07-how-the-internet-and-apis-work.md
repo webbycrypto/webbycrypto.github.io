@@ -2,6 +2,25 @@
 
 [← Back to Week 1: Foundations I](../README.md)
 
+## TL;DR
+
+Most of what you do online follows the same pattern: a client asks for something, and a server sends back a response. This page covers URLs and HTTP, what an API actually is, and how JSON data maps onto a Python dictionary.
+
+- A URL tells the client which server to talk to, and what it's asking for at that server.
+- Sending a GET request is the client asking the server for something (a POST would be creating something new). The response comes back with a status code, like `200` for OK or `404` for not found.
+- An API hands back structured data meant to be used by code, instead of a page laid out for a human to look at.
+- That data usually comes back as JSON, and Python turns it into a dictionary automatically, so you read a value by its key.
+
+```python
+url = "https://api.example.com/users/7"   # the URL: which server, and what to ask for
+
+response = requests.get(url)               # GET = "give me this," the client's request
+print(response.status_code)                # 200 means OK, 404 would mean not found
+
+data = response.json()                     # an API hands back structured data, not a page for a human
+print(data["name"])                         # JSON keys work just like a Python dictionary
+```
+
 ## Client and server: ordering at a counter
 
 Picture ordering food at a counter. You (the customer) walk up and place an order: "one coffee, medium, oat milk." The person behind the counter (the kitchen) doesn't know what you want until you ask, prepares exactly what you asked for, and hands it back to you. You don't need to know how the espresso machine works internally; you just need to know how to place an order and what you'll get back.

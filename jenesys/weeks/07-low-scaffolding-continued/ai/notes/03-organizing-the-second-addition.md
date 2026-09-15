@@ -2,6 +2,37 @@
 
 [← Back to Week 7 (AI track): Low-scaffolding build, continued](../README.md)
 
+## TL;DR
+
+By this week, `notes_assistant.py` covers retrieval, talking to Claude, tool-calling, and now persistence, all in one place. This page covers how to decide, as a whole, whether any of that deserves its own file.
+
+- By this week your file covers several different things: retrieval, talking to Claude, tool-calling, and persistence. Ask the "is this one job" question once about the whole file, not concern by concern.
+- Persistence has its own failure modes, like a corrupted save file, that retrieval and talking-to-Claude don't share. That makes it a reasonable candidate for its own file.
+- Only split a concern out if it's genuinely separate and changes for its own reasons. Don't split just because more files looks more organized, and don't force two concerns apart if they're still genuinely tangled together.
+- Whatever you decide, be ready to explain it with a specific reason tied to your actual code, not because splitting is "supposed to" happen.
+
+```python
+# storage.py -- its own concern: reading and writing conversation history
+def save_history(messages, path="history.json"):
+    with open(path, "w") as f:
+        json.dump(messages, f)
+
+def load_history(path="history.json"):
+    if not os.path.exists(path):
+        return []
+    try:
+        with open(path) as f:
+            return json.load(f)
+    except json.JSONDecodeError:
+        return []          # its own failure mode: a corrupted save file
+
+# notes_assistant.py -- imports the one concern it needs, nothing else moved out
+from storage import save_history, load_history
+
+messages = load_history()
+# talking to Claude and calling tools stay here, together, not split further
+```
+
 By this week, `notes_assistant.py` has grown across three straight weeks: retrieval, talking to Claude, tool-calling (Week 6), and now persistence, plus a second, different chained-tool scenario. That's a lot of concerns to keep asking the one-sentence organization question about one at a time, so this week, ask it once, about the whole file as it now stands, rather than concern by concern.
 
 ## Persistence is genuinely its own thing, again

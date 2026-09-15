@@ -2,6 +2,35 @@
 
 [← Back to Week 1: Foundations I](../README.md)
 
+## TL;DR
+
+A conditional lets your code check something and run different code depending on whether it's true or false. This page covers the if/elif/else structure, how indentation and comparisons work, and how to combine or evaluate conditions.
+
+- `if`, `elif` ("else if"), and `else` let you check a condition and branch into exactly one path; only the first true condition's block runs.
+- Indentation, not curly braces, is what tells Python which lines belong inside each branch. Get it wrong, and Python either throws an error or runs the wrong block.
+- Comparison operators like `==`, `>`, and `<` each produce `True` or `False`. `==` checks equality, `=` assigns a value, don't mix them up.
+- `and` needs every condition to be true, `or` needs just one, and `not` flips a `True`/`False` value.
+- Python also treats some values, like an empty string `""`, `0`, or `None`, as automatically false in a condition, even without an explicit comparison.
+
+```python
+books_checked_out = 2
+is_member = True
+username = ""
+
+if books_checked_out > 5:                 # if/elif/else: check a condition, run one path
+    print("Checkout limit reached.")
+elif books_checked_out > 0:               # indentation (not braces) marks what's "inside" this branch
+    print("Some books are checked out.")
+else:
+    print("No books checked out.")
+
+if books_checked_out > 0 and is_member:   # ">" and "and" both produce True/False
+    print("Enjoy your books.")
+
+if not username:                          # "" is falsy, so "not username" is True here
+    print("Please enter a username.")
+```
+
 ## What a conditional actually is
 
 Every program you've used makes decisions. A streaming app decides whether to show a "resume watching" button based on whether you've started a show. A banking app decides whether to let a withdrawal go through based on your balance. A conditional is how you write "if this is true, do this, otherwise do that" in code.

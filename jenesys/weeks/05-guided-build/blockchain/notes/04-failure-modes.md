@@ -2,6 +2,27 @@
 
 [← Back to Week 5 (Blockchain track): Guided build](../README.md)
 
+## TL;DR
+
+This page covers three specific, nameable contract bugs and the habit that prevents each one.
+
+- Every state-changing function needs an explicit, correct check on who can call it. Don't assume a neighboring function's protection covers this one too.
+- If a function sends funds (or otherwise hands control to another contract) before it finishes updating its own state, an attacker's contract can call back in while your records still look unchanged, and drain more than it should. That's reentrancy.
+- The fix is checks, then effects, then interactions: confirm the conditions first, update your own state second, and only make the external call last, once nothing stale is left for anyone to exploit.
+- Solidity 0.8+ automatically reverts a transaction if arithmetic would overflow or underflow (like a subtraction dropping below zero), instead of silently wrapping around, unless you deliberately opt out with `unchecked`.
+
+```solidity
+function withdraw(uint256 amount) external onlyRegisteredUser {       // access check: who can call this at all
+    require(balances[msg.sender] >= amount, "insufficient balance");  // check: confirm the conditions first
+
+    balances[msg.sender] -= amount;  // effect: state updated before any external call (also where Solidity 0.8+
+                                      // auto-reverts if this ever underflowed past zero)
+
+    (bool sent, ) = msg.sender.call{value: amount}("");  // interaction: happens last, so a reentrant callback
+    require(sent, "transfer failed");                    // from msg.sender would already see the reduced balance
+}
+```
+
 ## Why this note exists before you write anything complex
 
 It would be easy to treat smart contract security as an advanced topic to worry about later, once the "real" skills are in place. That ordering is backwards, and this program deliberately avoids it. A contract's mistakes are not like a typical Python script's mistakes: there's usually no way to patch a deployed contract, no way to roll back a transaction that already went through, and the thing being protected is often, in a real deployment, actual money. Once you understand what these three failure modes actually are, in plain language, you'll notice you're already watching for them every time you write a function, the same automatic way you already watch for an off-by-one error in a loop. That's the goal: a habit, not a scary warning label.

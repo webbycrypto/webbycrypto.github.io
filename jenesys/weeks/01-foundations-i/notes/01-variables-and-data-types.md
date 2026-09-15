@@ -2,6 +2,32 @@
 
 [← Back to Week 1: Foundations I](../README.md)
 
+## TL;DR
+
+A variable is a name you attach to a value so you can reuse it later. This page covers how assignment (`=`) works, the basic data types, and how to combine text and variables without Python complaining.
+
+- A variable stores a value under a name you can reuse later, like a labeled box holding whatever you put inside it. Every value also has a type, such as text (`str`), a whole number (`int`), a decimal number (`float`), or `True`/`False` (`bool`).
+- `=` is not a math equals sign, it's an assignment: it takes the value on the right and stores it under the name on the left, and you can reassign the same name to a new value later.
+- Python won't silently combine incompatible types, like text and a number, with `+`. It raises an error instead of guessing what you meant.
+- Convert a value on purpose with `str()`, or use an f-string (a string with an `f` right before the opening quote) to combine text and variables without doing that conversion by hand.
+- Anything after a `#` is a comment. Python ignores it completely, it's only there to help a human reading the code later.
+
+```python
+item_name = "coffee"    # str: text
+quantity = 2              # int: a whole number
+unit_price = 3.5           # float: a decimal number
+is_member = True            # bool: True or False
+
+quantity = quantity + 1     # "=" stores a new value under the same name, it isn't checking equality
+
+# quantity + " items" would crash here: Python won't add a number and text together
+order_note = str(quantity) + " items of " + item_name   # convert on purpose with str()
+order_note = f"{quantity} items of {item_name}"           # an f-string does the same thing, more cleanly
+
+# this comment is ignored by Python entirely; it's a note for whoever reads the code later
+print(order_note)
+```
+
 ## What a variable actually is
 
 A variable is a name you give to a piece of information so you can use that information again later without retyping it. Think of it like a labeled box: you put something inside the box, you write a label on the outside so you know what's in it, and from then on you can refer to the box by its label instead of describing the contents every time.

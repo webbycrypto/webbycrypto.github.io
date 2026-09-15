@@ -2,6 +2,15 @@
 
 [← Back to Week 4: Track exposure](../../README.md)
 
+## TL;DR
+
+This page explains what actually happens when your code talks to a hosted AI model, and why it behaves the way it does.
+
+- "AI" in a product is just a program (the model) that takes text in and produces text out, running on someone else's expensive hardware that you rent access to over the internet. That's what "hosted" means.
+- Talking to a hosted model API is the same request/response pattern from Week 1: your code sends text, the provider's server runs it through the model, and sends text back.
+- Normally this costs money per request. Groq's free tier is a deliberate, temporary exception just for this week.
+- The model has no memory between separate requests. If you want it to remember earlier messages, your own code has to resend the whole conversation every time.
+
 "AI" gets talked about like it's magic living inside an app. It isn't. When you use a chatbot, a coding assistant, or any product with an "AI" label, somewhere underneath there is a running program (the model) that takes text in and produces text out. That program is enormous: modern language models are made of hundreds of billions of numbers (called parameters) that all need to be loaded into very expensive, specialized computer chips (GPUs) at the same time to produce a single response. Your laptop cannot run one of these. Almost nobody's laptop can.
 
 So companies like Groq and Anthropic run the model on their own large computers, all day, every day, and let other people's code talk to it over the internet. That's what "hosted" means: the model is hosted somewhere else, on someone else's hardware, and you rent access to it by the request. This is no different in spirit from a company hosting a database or a website for you instead of you running a server in your bedroom. You're borrowing someone else's expensive infrastructure instead of buying it yourself. This week's code talks to Groq specifically, because its free tier needs no billing setup at all; starting Week 5 you'll talk to Anthropic instead, in exactly the same spirit, just with a different company on the other end and a real bill attached.

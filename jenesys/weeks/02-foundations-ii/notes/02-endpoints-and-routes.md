@@ -2,6 +2,46 @@
 
 [← Back to Week 2: Foundations II and first project](../README.md)
 
+## TL;DR
+
+This page covers what an endpoint is, how one route can handle more than one HTTP method, and how to read data coming in through a URL or a request body.
+
+- An endpoint is one specific URL path plus one specific HTTP method. The same path can mean two different things depending on the method, like GET (read) versus POST (create).
+- Add `methods=[...]` to `@app.route(...)` to make a path respond to something other than GET, its default.
+- `jsonify(...)` converts a Python list or dictionary into a proper JSON response, and `request.get_json()` does the reverse, reading the JSON body a client sent in.
+- Returning `(body, status_code)`, like `jsonify(new_task), 201`, lets you send back a specific status code instead of Flask's default `200`.
+- A path parameter like `<int:task_id>` captures part of the URL as a variable and converts it to the type you asked for, here an `int` instead of a plain string.
+- If a lookup function falls through without hitting a `return`, it silently gives back `None`, which is the exact gap the next note fixes with proper error handling.
+
+```python
+from flask import Flask, request, jsonify
+
+app = Flask(__name__)
+
+tasks = [
+    {"id": 1, "title": "Write report"},
+]
+
+
+@app.route("/tasks", methods=["GET"])
+def list_tasks():
+    return jsonify(tasks)
+
+
+@app.route("/tasks", methods=["POST"])
+def create_task():
+    new_task = request.get_json()
+    tasks.append(new_task)
+    return jsonify(new_task), 201
+
+
+@app.route("/tasks/<int:task_id>")
+def get_task(task_id):
+    for task in tasks:
+        if task["id"] == task_id:
+            return jsonify(task)
+```
+
 ## What an endpoint is
 
 An **endpoint** is a specific, named place in your API that a client can send a request to, to get a specific kind of result. If an API is a menu (the analogy from Week 1's notes), an endpoint is one line item on that menu: "GET `/notes` gives you the full list of notes," "POST `/notes` creates a new one." Each endpoint is defined by two things together: a URL path (like `/notes`) and an HTTP method (like GET or POST). The same path can mean two different things depending on the method: GET `/notes` (read the list) and POST `/notes` (create a new entry) are two separate endpoints that happen to share a path.

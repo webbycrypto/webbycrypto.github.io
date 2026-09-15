@@ -2,6 +2,41 @@
 
 [← Back to Week 5 (Blockchain track): Guided build](../README.md)
 
+## TL;DR
+
+This page explains how a contract decides who is allowed to call which of its functions, and what that protection does and doesn't cover.
+
+- Every function call carries `msg.sender`, the address that actually sent it. The network verifies this before your code ever runs, so you can trust it like a real ID check, not like a header a caller could fake.
+- A `modifier` (like `onlyOwner`) lets you write an access check once and attach it to every function that needs it, instead of retyping the same `require` in each one.
+- That check only stops the wrong caller. It does nothing to stop the right caller (the owner) from calling a function with a careless or bad value.
+- Missing the check on even one sensitive function is just as exploitable as having no access control at all, especially for a function added later that never got the modifier copied over.
+
+```solidity
+contract Vault {
+    address public owner;
+
+    modifier onlyOwner() {
+        require(msg.sender == owner, "Vault: not the owner");  // msg.sender is already verified by the network
+        _;
+    }
+
+    constructor() {
+        owner = msg.sender;
+    }
+
+    function setLimit(uint256 newLimit) external onlyOwner {  // reuses the same lock instead of retyping the check
+        limit = newLimit;  // onlyOwner stops the wrong caller, but not a careless value from the right one
+    }
+
+    function pause() external {  // added later, in a hurry: forgot to attach onlyOwner
+        paused = true;           // anyone at all can call this, which defeats the lock above
+    }
+
+    uint256 public limit;
+    bool public paused;
+}
+```
+
 ## The problem this solves
 
 Anyone with the network's RPC endpoint (which, on a public testnet, is anyone at all) can attempt to call any function on `AssetRegistry`. The contract does not run on your machine, behind your firewall, reachable only by people you trust. It runs on a public network, and its functions are, by default, callable by anybody who sends a correctly formatted transaction.

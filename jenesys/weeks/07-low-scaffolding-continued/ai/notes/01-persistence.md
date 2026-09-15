@@ -2,6 +2,40 @@
 
 [← Back to Week 7 (AI track): Low-scaffolding build, continued](../README.md)
 
+## TL;DR
+
+Everything your Notes Assistant remembers currently lives in memory and disappears the moment the program exits. This page covers saving that conversation, tool calls included, to a file, and reading it back in safely.
+
+- If the history file doesn't exist yet, that's just the first run. Start with an empty list, don't treat it as an error.
+- If the file exists but isn't valid JSON (say, a previous run crashed mid-write), don't let that crash your program either. Say so, and start fresh.
+- Save the model's response with `.to_dict()["content"]`, not just its plain text. That keeps the actual tool_use and tool_result blocks, so a later run still knows what tools were really called.
+- Write the whole message list back to the file before the program ends, so the next run can load it and pick up where you left off.
+
+```python
+import json, os
+
+HISTORY_FILE = "history.json"
+
+def load_history():
+    if not os.path.exists(HISTORY_FILE):
+        return []                                  # first run ever, not an error
+    try:
+        with open(HISTORY_FILE) as f:
+            return json.load(f)
+    except json.JSONDecodeError:
+        print("History file was unreadable, starting fresh.")
+        return []                                  # say so, don't silently guess
+
+messages = load_history()
+messages.append({"role": "user", "content": "What's in my wifi note?"})
+
+response = client.messages.create(model=MODEL, messages=messages, tools=tools)
+messages.append({"role": "assistant", "content": response.to_dict()["content"]})  # tool blocks kept, JSON-safe
+
+with open(HISTORY_FILE, "w") as f:
+    json.dump(messages, f)
+```
+
 ## What's actually missing right now
 
 Everything your Notes Assistant has done since Week 5 lives in one place: the `messages` list inside `main()`, sitting in your computer's memory (RAM) while the program runs. The moment you quit the program, whether on purpose or because your laptop restarted, that list is gone. Run the program again and Claude starts from a completely blank conversation. It has no idea what you asked yesterday, what tools got called, or what your search tool found the last time you asked about your wifi note.

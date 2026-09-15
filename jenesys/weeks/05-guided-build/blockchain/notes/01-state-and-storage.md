@@ -2,6 +2,42 @@
 
 [← Back to Week 5 (Blockchain track): Guided build](../README.md)
 
+## TL;DR
+
+This page explains what it means for a smart contract to "remember" data between calls, and why that memory costs money.
+
+- A contract's state variables are declared outside any function, and once you write to one, that value becomes part of the network's permanent record, not just something your current script remembers.
+- Writing to a state variable costs gas, because every node on the network has to store and keep that change forever. Just reading state back (a view call) is free.
+- Solidity copies a value out of permanent "storage" into cheap, temporary "memory" while a function runs, so you're not repeatedly touching the expensive permanent copy.
+- A mapping has no idea of a "missing" key. Every possible key already has a default value, so if you need to tell "never set" apart from "set to the zero value," you need your own explicit flag for that.
+- Marking a state variable `public` gives you a free, ready-made function to read it from outside, without writing one yourself.
+
+```solidity
+contract Library {
+    address public librarian;              // state variable: part of the network's permanent record, not a script's memory
+
+    struct Loan {
+        uint256 dueDate;
+        bool active;
+    }
+
+    mapping(address => Loan) public loans;  // public state variable
+
+    function checkOut(address borrower, uint256 dueDate) external {
+        loans[borrower] = Loan(dueDate, true);  // writing state costs gas, every node stores this forever
+    }
+
+    function isOverdue(address borrower) external view returns (bool) {
+        Loan memory l = loans[borrower];        // memory: a cheap, temporary copy, pulled out of permanent storage
+        if (!l.active) return false;            // active tells "never checked out" apart from "checked out, dueDate 0"
+        return block.timestamp > l.dueDate;      // just reading state (a view call) costs no gas
+    }
+}
+
+// loans(someAddress) already works from outside, for free -- Solidity generated
+// that getter automatically the moment `loans` was declared public.
+```
+
 ## The problem this solves
 
 In every Python script you've written so far, variables live in memory for as long as the script is running, and vanish the instant it ends. If you want a value to survive between runs, you write it to a file or a database yourself. That's such a normal fact of programming that it's easy to forget it's a choice, not a law of nature.

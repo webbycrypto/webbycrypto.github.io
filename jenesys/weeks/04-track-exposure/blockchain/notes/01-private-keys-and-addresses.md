@@ -2,6 +2,16 @@
 
 [← Back to Week 4: Track exposure](../../README.md)
 
+## TL;DR
+
+This page explains what a private key and an address actually are, and why keeping a private key secret matters so much.
+
+- A private key is just a huge, randomly generated number. Software can create one instantly; there's no special file or hardware involved.
+- Math lets you go one way only: from a private key you can compute a matching public key and address, but never the other way around. That one-way relationship is why the system works without a company managing it.
+- Whoever holds a private key has complete control over that account. There's no password reset and no recovery if it's lost or stolen.
+- Your address is safe to share publicly, like a mailbox address anyone can look up. Your private key has to stay secret, like the only key that opens that mailbox.
+- This program only ever uses testnet accounts holding worthless test funds, so if you make a mistake with a private key while learning, it costs you nothing.
+
 ## What a private key actually is
 
 A private key is just a very large, randomly generated number. That's it at its core: a number, usually written out as a long string of hexadecimal characters (letters and digits) like `0x4c0883a69102937d6231471b5dbb6204fe5129617082792ae468d01a3f362318`. There's no file format, no special hardware, no physical object required to have one. Software can generate one instantly by asking your computer for a large amount of randomness.

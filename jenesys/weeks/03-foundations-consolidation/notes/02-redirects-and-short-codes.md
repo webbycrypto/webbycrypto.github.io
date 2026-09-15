@@ -2,6 +2,43 @@
 
 [← Back to Week 3: Foundations consolidation](../README.md)
 
+## TL;DR
+
+This page covers what a link shortener does and the two new mechanics it needs: HTTP redirects and generating short codes.
+
+- A link shortener just stores a mapping: a short code like `ab12` points to one long URL.
+- You generate the short code yourself, commonly with random letters and digits, and check whether that code is already taken before accepting it, since two different long URLs should never share a code.
+- The mapping itself is just data, so you persist it to a JSON file the exact same way you persisted notes in Week 2.
+- Visiting the short link doesn't show the destination page directly. The server sends back a redirect response (a status code plus a `Location` header), and the browser follows it automatically. If the code isn't in your mapping, that's an expected failure, not a bug, so return a proper 404 instead of crashing.
+
+```python
+import random
+import string
+
+links = load_links()   # short_code -> long_url, same JSON pattern as Week 2
+
+def make_short_code():
+    code = "".join(random.choices(string.ascii_lowercase + string.digits, k=6))
+    while code in links:           # don't reuse a code that's already taken
+        code = "".join(random.choices(string.ascii_lowercase + string.digits, k=6))
+    return code
+
+@app.route("/shorten", methods=["POST"])
+def shorten():
+    long_url = request.get_json()["url"]
+    code = make_short_code()
+    links[code] = long_url
+    save_links(links)              # persisted to JSON, just like notes were
+    return jsonify({"short_code": code}), 201
+
+@app.route("/<code>")
+def visit_short_link(code):
+    long_url = links.get(code)
+    if long_url is None:
+        return jsonify({"error": f"No link with code {code}"}), 404
+    return redirect(long_url)      # browser follows this automatically
+```
+
 This is the one genuinely new idea this week's project needs. Everything else is Week 2's material, reapplied (see `01-what-carries-over.md`).
 
 ## What a link shortener actually does

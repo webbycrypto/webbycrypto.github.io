@@ -2,6 +2,27 @@
 
 [← Back to Week 6 (Blockchain track): Low-scaffolding build](../README.md)
 
+## TL;DR
+
+A managed key is a private key a service holds and uses on its own, with no human approving each transaction. This page covers how to keep that key safe once that check is gone.
+
+- Read the key from an environment variable at runtime. Never write it as a literal string in your code, and never commit it to git, not even briefly.
+- Give each environment (testnet, production) its own key, with a variable name that makes clear which one it is.
+- Once you have the account, only print or log its public address. Printing the whole account object can reveal more than you intend.
+- The stakes are low on testnet, but this exact pattern, key from environment, never in code, is what a real backend uses to protect funds that matter.
+
+```python
+import os
+from eth_account import Account
+
+# Never hardcode a key -- read it from the environment instead
+private_key = os.environ["TESTNET_PRIVATE_KEY"]   # name says which environment this is
+account = Account.from_key(private_key)
+
+print(account.address)   # safe to show, this is meant to be public
+# print(account)          # avoid this -- can reveal more than you intend
+```
+
 ## What changed between Week 5 and this week
 
 Look back at how signing actually happened in Week 5. `deploy.py` called `accounts.load("testnet-deployer")`, which unlocked an encrypted keyfile by prompting *you*, a human sitting at a terminal, for a passphrase. `interact.py` read a private key from an environment variable you set yourself, in your own shell, right before running the script once, by hand. Either way, a person was present, deliberately choosing to trigger that one signature, at that one moment.

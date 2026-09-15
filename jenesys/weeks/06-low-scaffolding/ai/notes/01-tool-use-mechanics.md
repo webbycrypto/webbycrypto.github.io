@@ -2,6 +2,36 @@
 
 [← Back to Week 6 (AI track): Low-scaffolding build](../README.md)
 
+## TL;DR
+
+This page explains the actual mechanics behind "tool use": what Claude sends you, what your code has to do with it, and how a loop turns that into a conversation.
+
+- This is a loop: you keep calling the API and checking `stop_reason` until it comes back `"end_turn"` instead of `"tool_use"`.
+- Claude cannot run your code. When it wants a tool, it sends back a `tool_use` block naming the tool and its arguments. Your own code is what actually finds and runs the matching Python function.
+- You send the real result back as a `tool_result` block, matched to Claude's original request by its `tool_use_id`.
+- If Claude asks for more than one tool in the same turn, collect all of their results and send them back together in one message, not split across separate requests.
+- The tools list needs to be included on every request in the loop, not just the first one, or Claude never gets the chance to ask for a second tool.
+
+```python
+response = client.messages.create(model=MODEL, tools=tools, messages=messages)
+
+while response.stop_reason == "tool_use":          # keep going until Claude is actually done, not just once
+    tool_results = []
+    for block in response.content:
+        if block.type == "tool_use":
+            if block.name == "get_weather":         # Claude only asked for this; YOUR code runs it for real
+                result = get_weather(block.input["city"])
+            tool_results.append({
+                "type": "tool_result",
+                "tool_use_id": block.id,             # ties this result back to Claude's specific request
+                "content": result,
+            })
+
+    messages.append({"role": "assistant", "content": response.content})
+    messages.append({"role": "user", "content": tool_results})  # every result from this turn, sent back together
+    response = client.messages.create(model=MODEL, tools=tools, messages=messages)  # tools listed again, every time
+```
+
 ## The core misconception to clear up first
 
 Here's the single most important sentence in this note: **the model does not run your code.** Claude cannot open a file on your computer, cannot query a database, cannot call a function you wrote. It has never been able to, and giving it "tools" doesn't change that.

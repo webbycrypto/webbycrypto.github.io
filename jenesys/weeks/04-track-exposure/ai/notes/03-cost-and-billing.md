@@ -2,6 +2,16 @@
 
 [← Back to Week 4: Track exposure](../../README.md)
 
+## TL;DR
+
+This page explains what billing actually looks like once you're on a paid provider starting Week 5, since this week's free tier is the exception, not the norm.
+
+- This week's chatbot is free because of Groq's free tier. Starting Week 5, using a paid provider like Anthropic means every request is metered and billed.
+- Paid usage is pay-per-token, not a flat subscription. You prepay some credit, and each request quietly subtracts a small amount from it, priced per million tokens since a single request only uses a tiny fraction of that.
+- Bigger, more capable models cost more per token, and generating text (output) costs more than reading text you send in (input).
+- A single typical exchange costs well under a cent, even on the most expensive model, which is why a small amount of credit is enough to get through this program.
+- Treat your API key like a password, and set a spending limit in the provider's dashboard, so a bug like an infinite loop can't run up a surprise bill.
+
 ## This week is free. That's the exception, not the rule.
 
 Groq's free tier is why this week's chatbot doesn't cost you anything to run. That's deliberate: it lets you learn the mechanics of a hosted API with zero setup friction and zero risk of an unexpected bill. It is not how most of this program, or most of the industry, actually works. Starting Week 5, once you're using Anthropic's API for real, every request is metered and billed. This note explains that normal case now, so it isn't a surprise later.

@@ -2,6 +2,17 @@
 
 [← Back to Week 3: Foundations consolidation](../README.md)
 
+## TL;DR
+
+This page is a pointer, not new material: it lists which Week 2 skills carry straight into this week's project unchanged, and names the one new idea covered separately.
+
+- Flask basics (routes, path parameters, `jsonify()`, reading a request body) work exactly the same as they did in Week 2.
+- Saving and loading data as JSON files uses the same `load_...()`/`save_...()` pattern as before. Only what you're storing is different.
+- Error handling still means catching expected failures, like a missing id, and returning an honest status code, instead of letting the program crash.
+- Debugging still means reading the full error message, forming a specific guess about the cause, and testing that guess directly.
+- Organizing your code (one job per function, grouping related code together) still applies, but now it's on you to do it without being reminded.
+- The one genuinely new idea this week, covered in the next note, is what a link shortener does with redirects and short codes.
+
 Everything you need for this week's project, apart from one new idea (covered in `02-redirects-and-short-codes.md`), was already covered in Week 2. This note is deliberately short: it's a pointer back, not a re-teaching. If any of the following feels shaky rather than just "a little fuzzy," that's worth actually going back and rereading the linked note in full, rather than pushing forward and hoping it comes back to you.
 
 **Flask itself:** creating an app, defining routes with `@app.route(...)`, specifying `methods=[...]`, path parameters like `<int:some_id>`, `jsonify()` for responses, `request.get_json()` for reading a request body. All of this is exactly the same regardless of what the app is actually for. See [`../../02-foundations-ii/notes/01-web-frameworks.md`](../../02-foundations-ii/notes/01-web-frameworks.md) and [`../../02-foundations-ii/notes/02-endpoints-and-routes.md`](../../02-foundations-ii/notes/02-endpoints-and-routes.md).

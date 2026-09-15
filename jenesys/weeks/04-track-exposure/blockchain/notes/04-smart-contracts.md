@@ -2,6 +2,33 @@
 
 [← Back to Week 4: Track exposure](../../README.md)
 
+## TL;DR
+
+This page explains what a smart contract actually is: a small program living at its own address on the blockchain that runs the same logic for everyone and, once deployed, can never be changed.
+
+- Its address isn't controlled by a private key. It's controlled entirely by whatever code was deployed to it.
+- It has storage, its own permanent slice of data on the blockchain, that its code reads and updates.
+- Calling a function that changes stored data means sending a transaction, which costs gas. Calling a function that only reads data is free.
+- Once deployed, the code runs exactly as written, forever. There's no "push an update" button like a normal app, so a bug you ship stays shipped.
+- Smart contracts are written in a different language, usually Solidity, because Python cannot run directly on a blockchain.
+
+```solidity
+contract GreetingBoard {
+    // lives at its own address once deployed -- no private key controls it, only this code does
+    string public greeting;   // storage: a permanent slice of data only this contract's code can change
+
+    function setGreeting(string memory newGreeting) public {
+        greeting = newGreeting;   // changes storage -- calling this needs a transaction, and costs gas
+    }
+
+    function getGreeting() public view returns (string memory) {
+        return greeting;          // only reads storage -- calling this is free, no transaction needed
+    }
+}
+// once deployed, this exact code runs forever: no edits, no "push an update" like a normal web app
+// written in Solidity, the one new language this week -- Python can't run directly on a blockchain
+```
+
 A smart contract is a small program that lives on the blockchain itself, at its own address, that anyone can call by sending it a transaction. That's the plain-language definition; the rest of this note is about making that actually mean something instead of just sounding impressive.
 
 ## A vending machine, not a legal document

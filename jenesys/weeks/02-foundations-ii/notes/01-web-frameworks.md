@@ -2,6 +2,30 @@
 
 [← Back to Week 2: Foundations II and first project](../README.md)
 
+## TL;DR
+
+This page explains what a web framework does for you, and walks through the smallest possible Flask app that responds to a request.
+
+- A web framework like Flask already handles the low-level work of parsing incoming HTTP requests and formatting outgoing responses, so you don't build that from scratch.
+- `Flask(__name__)` creates your application object. Nearly every Flask app starts with this line.
+- The `@app.route(...)` decorator connects a URL path to the function right below it. Visiting that path runs the function, and whatever it returns becomes the response sent back.
+- `app.run(debug=True)` actually starts the server listening for requests. Debug mode restarts the server automatically when you save a change and shows a detailed error page in the browser if something breaks, but never leave it on for a real, publicly deployed app.
+
+```python
+from flask import Flask
+
+app = Flask(__name__)
+
+
+@app.route("/status")
+def status():
+    return "Server is running"
+
+
+if __name__ == "__main__":
+    app.run(debug=True)
+```
+
 ## What a web framework actually is
 
 In Week 1, your Python script was the *client*: it sent a request out to someone else's server and handled the response. This week, you flip roles and build the *server* yourself: a program that sits and waits for requests, and sends back responses.

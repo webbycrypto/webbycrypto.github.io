@@ -2,6 +2,33 @@
 
 [← Back to Week 7 (Blockchain track): Low-scaffolding build, continued](../README.md)
 
+## TL;DR
+
+This page covers how to make handling a blockchain event safe to receive more than once, and when it's actually safe to retry sending a transaction.
+
+- Give each event a unique id, for example its transaction hash plus its log index (its position in that transaction's list of events), since a single transaction can emit more than one event.
+- Check that id against your record of already-handled events before acting. If it's already there, stop, because handling the same event twice must have the exact same effect as handling it once.
+- If you already have a transaction hash back from a previous attempt, don't resend the transaction, check its status instead. Only send a brand new transaction if you're sure the first attempt never reached the network at all.
+- Only add the id to your handled-record after the work is actually finished, not before.
+
+```python
+already_credited = set()
+
+def credit_deposit(event, w3):
+    event_id = (event["transactionHash"].hex(), event["logIndex"])  # unique even if one tx emits several events
+
+    if event_id in already_credited:
+        return  # already handled, so handling it again must not change anything
+
+    tx_hash = event.get("tx_hash_sent")
+    if tx_hash is None:
+        tx_hash = w3.eth.send_raw_transaction(build_credit_tx(event))  # never reached the network, safe to send
+    else:
+        receipt = w3.eth.get_transaction_receipt(tx_hash)  # already sent once, check status instead of resending
+
+    already_credited.add(event_id)  # only now, after the work is actually done, mark it handled
+```
+
 ## Idempotency, defined concretely for this project
 
 A piece of handling logic is **idempotent** if processing the same input twice has exactly the same effect as processing it once. Not "similar effect." Not "no big deal either way." *The same effect*, as if the second time never happened at all, from the point of view of anything that matters (your internal records, any action you took because of it, anything you'd report to someone else about what happened).

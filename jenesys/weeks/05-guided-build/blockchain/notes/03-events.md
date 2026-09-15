@@ -2,6 +2,27 @@
 
 [← Back to Week 5 (Blockchain track): Guided build](../README.md)
 
+## TL;DR
+
+This page explains what an event is, why it's cheaper than state, and when to use one.
+
+- An `event` isn't a variable or a callable action. It's a note the network writes into a transaction's log when you `emit` it. It's cheap, and unlike state, no contract code can ever read it back later.
+- Marking a parameter `indexed` lets outside code search efficiently for events with a specific value in that field, like "every event about this one address."
+- The rule to follow: any function that changes state something outside the contract might care about should end with an `emit` for it, so outside code can react instead of constantly re-checking state on a timer.
+
+```solidity
+contract OrderBook {
+    event OrderPlaced(address indexed buyer, uint256 amount, uint256 timestamp);  // indexed: searchable by buyer later
+
+    mapping(address => uint256) public orders;
+
+    function placeOrder(uint256 amount) external {
+        orders[msg.sender] = amount;                            // updates state: expensive, permanent
+        emit OrderPlaced(msg.sender, amount, block.timestamp);  // cheap announcement, not stored in state itself
+    }
+}
+```
+
 ## The problem this solves
 
 Suppose a backend service (this is exactly what you'll build in Week 6) wants to know the moment a new holder gets registered, so it can, say, update its own internal records or send a notification. It has one option that clearly works but is wasteful: repeatedly call `getHolder` for every address it cares about, on a timer, forever, comparing each result to what it saw last time, just to notice when something changed. That's a lot of wasted reads for the vast majority of checks where nothing changed at all, and it still might miss a change that happened and reverted back between two checks.

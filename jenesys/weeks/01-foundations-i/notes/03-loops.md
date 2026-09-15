@@ -2,6 +2,35 @@
 
 [← Back to Week 1: Foundations I](../README.md)
 
+## TL;DR
+
+A loop repeats a block of code, either a set number of times or until a condition becomes false. This page covers `for` and `range()`, the accumulator pattern, `while` loops, and `break`/`continue`.
+
+- Create an accumulator variable (something that builds up, like a running count) before the loop starts, with a sensible starting value.
+- `range(n)` counts from `0` up to but not including `n`, and the loop variable updates automatically on every pass. Both are common sources of off-by-one mistakes.
+- `continue` skips the rest of the current pass and moves to the next one; `break` exits the loop entirely, right away.
+- Update the accumulator inside the loop body, once per pass, so it builds up instead of resetting.
+- A `while` loop checks its condition before every pass. Forgetting to update the variable it depends on causes an infinite loop that never stops.
+
+```python
+queue = ["Ana", "Bo", "Cy", "Dee", "Eve"]
+served = 0                             # accumulator: start it before the loop, at 0
+
+for position in range(len(queue)):     # range stops *before* len(queue), no off-by-one
+    name = queue[position]             # loop variable "position" changes automatically each pass
+    if name == "Cy":
+        continue                        # skip serving Cy, but keep the loop going
+    if served == 3:
+        break                           # stop the whole loop once 3 people are served
+    served = served + 1                 # update the accumulator once per pass
+
+wait_time = 10
+while wait_time > 0:                    # checked before every pass
+    wait_time = wait_time - 1           # forgetting this line would loop forever
+
+print(served, wait_time)
+```
+
 ## What a loop actually is
 
 A loop repeats a block of code, either a fixed number of times or until some condition stops being true. Think of a washing machine: it doesn't run the rinse cycle once and hope the clothes are clean, it repeats the rinse cycle a set number of times, or until a sensor says the water is clear enough. A loop in code is the same idea: repeat this step, without you having to write it out five, ten, or ten thousand times.

@@ -2,6 +2,32 @@
 
 [← Back to Week 6 (Blockchain track): Low-scaffolding build](../README.md)
 
+## TL;DR
+
+Instead of repeatedly asking a contract if anything changed, your service can listen for the events it emits. This page covers the two ways to do that, and why only one of them survives a restart.
+
+- A filter's position (`get_new_entries`) lives on the connected node, not in your own program, so it disappears if your service restarts.
+- `get_logs` with a block range you track yourself is more code, but that range is your own state, so a restart can pick up exactly where you left off.
+- Persist that cursor (the last block you've fully processed) somewhere durable, and only move it forward once you're done handling everything up to that point.
+- Advancing the cursor too early, or keeping it only in memory, is what lets a restart process the exact same event twice.
+
+```python
+def load_cursor():
+    with open("cursor.txt") as f:
+        return int(f.read())          # your own state, unlike a filter, survives a restart
+
+def poll_for_events(w3, contract):
+    start_block = load_cursor() + 1
+    end_block = w3.eth.block_number
+    events = contract.events.HolderRegistered.get_logs(from_block=start_block, to_block=end_block)
+
+    for event in events:
+        handle_holder_registered(event)   # fully process before moving the cursor forward
+
+    with open("cursor.txt", "w") as f:
+        f.write(str(end_block))           # only advance once everything above is done
+```
+
 ## Recap, briefly, then the new part
 
 Week 5's `notes/03-events.md` covered what an event actually is: a cheap, timestamped log entry written into a transaction's receipt, readable by anything watching from outside the contract, not stored as queryable state. That note ended by promising this exact topic would come back once you were building something that actually needed to react to events as they happened, rather than just reading a receipt you already had in hand. This is that note.

@@ -2,6 +2,16 @@
 
 [← Back to Week 4: Track exposure](../../README.md)
 
+## TL;DR
+
+This page explains what a transaction actually is and why sending one costs a fee called gas.
+
+- A transaction is a signed instruction broadcast to the network: move currency from one address to another, or call a function on a smart contract.
+- "Signed" means your private key produces a signature over the transaction's contents. Change even one character afterward and the signature no longer matches, which is what stops tampering or forgery.
+- Once broadcast, thousands of independent computers (nodes) check the signature and your balance, then execute the transaction and add it permanently to the blockchain's history. It cannot be undone afterward.
+- Gas has two parts: the gas amount (how much computation your transaction needs) and the gas price (how much you're willing to pay per unit of that computation). More work costs more gas, and gas prices rise when the network is busy.
+- The total fee is roughly gas amount multiplied by gas price. On a testnet, that fee is paid in worthless test currency, but the mechanics work exactly like they would with real money.
+
 ## What a transaction actually is
 
 A transaction is a signed instruction that gets broadcast to the network, asking it to do something: move some currency from one address to another, or run a specific function on a smart contract, along with any data that function needs.

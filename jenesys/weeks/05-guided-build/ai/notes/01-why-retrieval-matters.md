@@ -2,6 +2,33 @@
 
 [← Back to Week 5 (AI track): Guided build](../README.md)
 
+## TL;DR
+
+This page explains why an AI model can't answer questions about your own notes unless you put the relevant text directly into the prompt, and why retrieval is the step that figures out which text to include.
+
+- A model only knows two things when it answers: what was in its training data, frozen in the past, and whatever text is in the prompt for this one request. It has no other way to know anything.
+- If the answer isn't in either of those, the model can't know it, though it might still answer confidently and just be wrong.
+- "Handing it to the model" means putting the actual text of your note into the prompt string yourself. There's no attach-a-file button; the text just becomes part of the conversation.
+- You can't paste your whole notes folder in every time. It costs more tokens than you need, the context window has a limit, and irrelevant text can actually make the answer worse.
+- Retrieval is the fix: store your documents somewhere searchable, find the specific piece relevant to the question, and hand only that piece, plus the question, to the model.
+
+```python
+# the model only knows two things: its training data, and whatever text is in this prompt
+notes = load_notes("plant_notes/")                    # your notes aren't in either, until you add them
+
+relevant_chunk = find_relevant_chunk(notes, question)  # retrieval: pick only the piece that matters
+# not the whole folder -- that would cost more tokens, might not fit, and can confuse the model
+
+prompt = f"""Here is a note I wrote:
+
+{relevant_chunk}
+
+Question: {question}
+"""
+
+answer = ask_model(prompt)   # the model can only use relevant_chunk plus whatever it already knew
+```
+
 ## What a model actually knows
 
 Every model you've used so far, including the tiny memory chatbot you built in Week 4, only "knows" two things when it generates a response:

@@ -2,6 +2,14 @@
 
 [← Back to Week 5 (Blockchain track): Guided build](../README.md)
 
+## TL;DR
+
+This page explains why `interact.py` is written as one long linear script instead of being broken into functions, and when that choice would stop being right.
+
+- Splitting code into functions is usually good practice, but `interact.py`'s whole job is teaching the transaction lifecycle in order, once, so reading it top to bottom as one continuous story is easier to follow than jumping between several short functions.
+- Extracting functions here wouldn't make the script more organized. It would just scatter one linear story across more places with no real benefit to the reader.
+- The moment this logic needs to run more than once, from more than one place, or without a person watching it step by step (like the always-on service you build in Week 6), that same logic belongs in named, callable functions instead.
+
 Everything from [Week 2's organizing-your-code note](../../../02-foundations-ii/notes/06-organizing-your-code.md) and [Week 3's note on splitting a growing file](../../../03-foundations-consolidation/notes/03-organizing-a-growing-file.md) still applies to Python code in general, including this track's. This note is about a case those two didn't cover: when the right call is writing something as one long, linear sequence, on purpose, with no functions extracted at all.
 
 ## Look at `interact.py`, and notice what's missing

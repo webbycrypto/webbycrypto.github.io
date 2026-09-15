@@ -2,6 +2,26 @@
 
 [← Back to Week 1: Foundations I](../README.md)
 
+## TL;DR
+
+The command line lets you type instructions instead of clicking, and it's the fastest way to move around your files and run your code. This page covers the basic navigation commands, running a Python script, and reading an error when one shows up.
+
+- `pwd` shows your current folder, `ls` lists what's inside it, and `cd folder_name` moves into it (`cd ..` moves back up one level).
+- Once you're in the right folder, run a script with `python filename.py` (or `py filename.py` on some Windows setups).
+- If the script crashes, Python prints a traceback. Read it from the bottom up: the last line says what went wrong, and the line number just above it says where.
+
+```
+pwd                    # shows your current folder
+ls                     # lists what's inside it
+cd week1               # moves into that folder
+
+python main.py
+Traceback (most recent call last):
+  File "main.py", line 5, in <module>
+    print(total)
+NameError: name 'total' is not defined
+```
+
 ## What the command line actually is
 
 Up to now, you've probably interacted with computers mostly by clicking icons, buttons, and menus. That's called a graphical user interface, or GUI. The command line (also called a terminal, shell, or console) is a different, older way of interacting with a computer: you type instructions as text, and the computer responds with text.

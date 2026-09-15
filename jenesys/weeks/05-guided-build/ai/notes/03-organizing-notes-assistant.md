@@ -2,6 +2,32 @@
 
 [← Back to Week 5 (AI track): Guided build](../README.md)
 
+## TL;DR
+
+This page points out where Week 2 and Week 3's file-organization ideas already show up in `notes_assistant.py`, and what to watch for as later weeks add to it.
+
+- A good test for whether a file still does one coherent job: can you describe what it's for in one sentence, without using "and"?
+- `notes_assistant.py` is grouped into three sections, in order: loading and retrieval functions, functions that talk to Claude, then the CLI loop. That's the same "group related things together" idea from Week 2.
+- Week 6 (tool-calling) and Week 7 (persistence) will each add a genuinely new concern to this same file. Ask the one-sentence question again each time, instead of assuming today's answer still holds later.
+
+```python
+# notes_assistant.py -- one sentence, no "and": a tool that finds relevant notes and asks Claude about them
+
+# 1. loading and retrieval
+def load_notes(folder): ...
+def find_relevant_chunks(question, chunks): ...
+
+# 2. talking to Claude
+def summarize_note(note): ...
+def answer_question(question, context): ...
+
+# 3. the CLI loop
+def main(): ...
+
+# Weeks 6-7 add new concerns (tool-calling, persistence) to this file --
+# ask the one-sentence question again then, don't assume these three sections stay the right split forever
+```
+
 Everything from [Week 2's organizing-your-code note](../../../02-foundations-ii/notes/06-organizing-your-code.md) and [Week 3's note on splitting a growing file](../../../03-foundations-consolidation/notes/03-organizing-a-growing-file.md) still applies. This note doesn't repeat them; it points out where their ideas already show up in `notes_assistant.py`, and what to watch for as Weeks 6 and 7 add to this exact file.
 
 ## The file is already grouped by concern, on purpose

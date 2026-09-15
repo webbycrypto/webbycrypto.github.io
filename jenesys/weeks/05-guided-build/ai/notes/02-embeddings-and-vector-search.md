@@ -2,6 +2,32 @@
 
 [← Back to Week 5 (AI track): Guided build](../README.md)
 
+## TL;DR
+
+This page explains what a vector and an embedding actually are, how vector search uses them to find relevant text by meaning instead of by matching words, and what this week's project does instead (something simpler).
+
+- A vector is just an ordered list of numbers. What makes it useful is that you can measure how close two vectors are to each other.
+- An embedding is a vector made by a model so that distance reflects similarity in meaning, not similarity in spelling. Two sentences with totally different words can still be "close" if they mean the same thing.
+- Picture every piece of text as a dot on a huge map, placed by meaning. Notes about the same topic end up near each other, even if they use different words.
+- Vector search means embedding the question, then finding the nearest dots to it on that same map. Those nearest neighbors are what you hand to the model.
+- For huge collections, a specialized vector database (Pinecone, Chroma, Weaviate, pgvector) finds the nearest dots quickly. A small personal folder doesn't need one.
+- This week's project skips all of this. It just counts how many words a question shares with each chunk, which is closer to keyword search and will miss cases where the wording differs but the meaning matches.
+
+```python
+question_vector = embed("why are my tomato leaves turning yellow")     # a vector: an ordered list of numbers
+note_vector = embed("my tomato plant's leaves are pale and drooping")  # different words, similar meaning
+
+distance = cosine_distance(question_vector, note_vector)   # small distance = close on the "meaning map"
+
+# vector search: embed the question, then find the nearest dots to it among all your chunks
+# (a vector database like Pinecone or pgvector does this fast across millions of chunks)
+nearest = sorted(chunks, key=lambda c: cosine_distance(embed(c), question_vector))[:3]
+
+# what this week's project actually does instead: no embed(), no meaning map, just shared words
+shared_words = set(question.split()) & set(chunk.split())
+relevance_score = len(shared_words)   # more shared words = judged more relevant
+```
+
 The previous note ended on a question: how do you actually find the relevant piece of text, out of a whole folder of documents, given just a question? This note explains the real, production answer (embeddings and vector search), and then tells you plainly what this week's project will do instead, and why that's fine.
 
 ## What a vector is

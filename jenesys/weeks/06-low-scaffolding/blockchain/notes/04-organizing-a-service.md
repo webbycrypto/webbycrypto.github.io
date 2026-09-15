@@ -2,6 +2,29 @@
 
 [← Back to Week 6 (Blockchain track): Low-scaffolding build](../README.md)
 
+## TL;DR
+
+A service that runs for a long time, reacting to its own triggers, can't stay readable the way a script that ran once for a human could. This page covers splitting the chain-talking mechanics from the project-specific decisions about when to use them.
+
+- Your code has at least two different concerns: talking to the chain (signing, sending, waiting for receipts) and deciding what to do (when to send, what an event should trigger).
+- Keep the chain-talking mechanics in their own functions, written generically enough that they don't reference any of your specific business rules.
+- Put the deciding logic, the part that's specific to this project, in its own function that calls the chain-talking one.
+- A good test: could you hand someone just the chain-talking functions, with no explanation of why your service does what it does, and have them still make sense on their own? If not, the two concerns are still tangled together.
+
+```python
+def send_transaction(function_call, account):
+    """Chain-talking: signs and sends. Makes sense with zero context about *why*."""
+    tx = function_call.build_transaction({"from": account.address, "nonce": next_nonce()})
+    signed = account.sign_transaction(tx)
+    return w3.eth.send_raw_transaction(signed.raw_transaction)
+
+def register_new_holder(address, contract, account):
+    """Deciding: this is where your specific business rule lives."""
+    if not is_eligible(address):          # business logic stays here, not in send_transaction
+        return None
+    return send_transaction(contract.functions.registerHolder(address), account)
+```
+
 [Week 5's note](../../../05-guided-build/blockchain/notes/05-organizing-a-walkthrough-script.md) explained why `interact.py` was written as one linear block on purpose: it ran once, top to bottom, for a human to watch. This week's service does not get that excuse. It runs on its own, potentially for a long time, reacting to triggers you don't control the timing of. That's precisely the condition where Week 2's "one job per function" test stops being optional polish and starts being how you keep the thing debuggable at all.
 
 ## The seams this week actually has

@@ -2,6 +2,41 @@
 
 [← Back to Week 2: Foundations II and first project](../README.md)
 
+## TL;DR
+
+This page covers why data needs to be saved to disk to survive a restart, and how to do that with a plain JSON file instead of a database.
+
+- Data kept only in a Python variable disappears the moment your program stops. Persistence means storing it somewhere, like a file, that's still there after the program exits.
+- This week uses a plain JSON file instead of a full database, since a database brings in a lot of new concepts (tables, schemas, a whole new piece of software) you don't need yet.
+- Before loading, check `os.path.exists(...)` and return an empty list if the file isn't there yet. Otherwise the very first run crashes with `FileNotFoundError`.
+- `with open(path) as file:` is a context manager. It guarantees the file gets closed properly even if something goes wrong while reading or writing.
+- `json.load(file)` reads JSON text back into a Python object, and `json.dump(data, file)` does the reverse, writing a Python object out as JSON text.
+- Rewriting the whole file on every single change is simple and fine at this small scale, but it's not how a real production system would store data once it gets bigger.
+
+```python
+import json
+import os
+
+CART_FILE = "cart.json"
+
+
+def load_cart():
+    if not os.path.exists(CART_FILE):
+        return []
+    with open(CART_FILE, "r") as file:
+        return json.load(file)
+
+
+def save_cart(cart):
+    with open(CART_FILE, "w") as file:
+        json.dump(cart, file)
+
+
+cart = load_cart()
+cart.append({"item": "apple"})
+save_cart(cart)
+```
+
 ## What persistence actually means
 
 Look back at the example in the previous note: `notes = [...]` is a plain Python list, sitting in memory while the program runs. Every note you add with the POST endpoint gets appended to that same list, and everything works fine, right up until you stop the server. The moment the Flask process ends (you press `Ctrl+C`, or the computer restarts, or `debug=True`'s auto-reload kicks in after a code change), that list is gone completely. Restart the server, and you're back to whatever the list was hardcoded to at the top of the file. Nothing you added survives.

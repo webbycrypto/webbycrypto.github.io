@@ -2,6 +2,32 @@
 
 [← Back to Week 7 (AI track): Low-scaffolding build, continued](../README.md)
 
+## TL;DR
+
+Not crashing is not the same as being robust. This page covers checking risky input before you act on it, and deciding on purpose what your program does when that check fails.
+
+- Real robustness means checking a risky input before you act on it, not just catching whatever error falls out afterward.
+- Check for the big, structural problem first, like an empty notes folder, and refuse cleanly with a plain explanation rather than pretending to search and finding nothing.
+- Check whether a more specific input, like a filename a tool call asked for, is actually valid right now, while you still have the full list of what counts as valid, so you can give a specific answer instead of a vague one.
+- Keep a try/except around the whole thing too, but only as a last-resort backstop for genuine surprises, not as your main way of handling bad input.
+
+```python
+def search_notes_tool(filename):
+    if not notes:                                             # empty notes folder: refuse cleanly
+        return {"content": "No notes exist yet, nothing to search.", "is_error": True}
+
+    if filename not in notes:                                 # validate first, while you still
+        available = ", ".join(notes.keys())                   # know the full list of what's valid
+        return {"content": f"'{filename}' isn't one of your notes. Try: {available}", "is_error": True}
+
+    return {"content": notes[filename], "is_error": False}
+
+try:
+    result = search_notes_tool(tool_input["filename"])
+except Exception as e:                                        # backstop for surprises you can't predict
+    result = {"content": f"Unexpected error: {e}", "is_error": True}
+```
+
 ## Raising the bar past "doesn't crash"
 
 "Doesn't crash" is the absolute floor, not the goal. A program that catches every possible exception with a bare `except: pass` technically never crashes, and is also nearly useless, because it has no actual answer for what SHOULD happen when something goes wrong, only "not that." Genuine robustness has two parts, and the second one is the part beginners tend to skip: validating a piece of input BEFORE acting on it, and deciding, deliberately, what your program DOES when that validation fails. Not just "doesn't explode," but does something specific and sensible instead.

@@ -2,6 +2,15 @@
 
 [← Back to Week 6 (AI track): Low-scaffolding build](../README.md)
 
+## TL;DR
+
+This page walks through whether tool-calling logic needs its own file as `notes_assistant.py` grows, using the same test earlier organization notes already established.
+
+- Tool use adds a fourth job to the file: reading what tool Claude asked for, matching it to a real function, running it, and turning the result into a `tool_result`. That's different from talking to Claude or doing retrieval.
+- Use the same one-sentence test from earlier weeks: can you describe the whole file in one sentence without saying "and"? If yes, one file is still fine.
+- If scrolling past tool-handling code to find retrieval logic (or the other way around) is actually slowing you down, that's the signal to pull the tool definitions and tool-running logic into their own file, like `tools.py`.
+- Either choice is fine. What matters is that you deliberately asked the question and can explain which way you went and why.
+
 [Week 5's organization note](../../../05-guided-build/ai/notes/03-organizing-notes-assistant.md) pointed out that `notes_assistant.py` reads as three concerns: loading/retrieval, talking to Claude, and the CLI loop. Tool use adds a fourth: deciding which tool to call, running it, and feeding the result back. That's not the same job as "talk to Claude" (that's just sending a request and getting text back) or "retrieval" (that's finding relevant chunks). It's its own thing: reading a `tool_use` block, matching it to a real Python function, running that function, and shaping the result into a `tool_result` block.
 
 ## The actual decision this week

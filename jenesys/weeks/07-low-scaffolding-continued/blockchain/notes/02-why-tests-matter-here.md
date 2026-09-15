@@ -2,6 +2,25 @@
 
 [← Back to Week 7 (Blockchain track): Low-scaffolding build, continued](../README.md)
 
+## TL;DR
+
+This page explains why a small test suite is worth writing even on a solo, ungraded project, and shows the one test this week's project needs and how to write it without a live network connection.
+
+- Either pytest or unittest works fine for this, pick whichever you like.
+- Write your event handler so it takes an event as a plain argument, instead of fetching the next event itself. Then a test can hand it a made-up event with no live network connection at all.
+- The one property this week's project must prove: redelivering the same event twice does not cause it to be processed twice.
+- Once the test passes, deliberately break your idempotency check and rerun it. If the test doesn't fail when you break the exact thing it's supposed to catch, it wasn't really testing that.
+
+```python
+def test_redelivered_event_is_only_processed_once():  # pytest or unittest both pick this up fine
+    fake_event = {"transactionHash": FakeHash("0xdeadbeef"), "logIndex": 2}  # a plain event, no chain involved
+
+    handle_balance_update(fake_event)
+    handle_balance_update(fake_event)  # the same event, delivered again
+
+    assert balance_updates_seen == 1  # comment out the idempotency check in the handler and rerun: this should fail
+```
+
 ## The obvious objection, taken seriously
 
 This is a solo, self-paced project. Nobody is going to run a CI pipeline against it. Nobody is going to reject a pull request because coverage dropped. It would be reasonable to ask: if the only person who will ever look at this code is me, and I already believe it works because I ran it and watched it behave correctly, what is a test suite actually buying me?

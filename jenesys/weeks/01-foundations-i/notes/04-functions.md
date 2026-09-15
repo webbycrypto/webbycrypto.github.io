@@ -2,6 +2,30 @@
 
 [← Back to Week 1: Foundations I](../README.md)
 
+## TL;DR
+
+A function is a named block of code you can reuse. You write it once with `def`, then run it just by calling its name, giving it whatever input it needs.
+
+- You can give a parameter a default value, so it's optional to fill in when you call the function.
+- Don't use a list or dictionary as a default value. Python only creates it once, so every call that skips that argument ends up sharing and changing the exact same one. Use `None` instead, and create a fresh list inside the function.
+- `print()` just shows something on screen. `return` actually hands a value back so the rest of your code can use it. If a function never returns anything, you get `None` back, even if it printed the right answer. Mixing these two up is the most common mistake beginners make.
+- Any variable you create inside a function only exists in there. Once the function finishes, that variable is gone and the rest of your code can't see it.
+
+```python
+def add_item(item, cart=None, note="added"):
+    if cart is None:              # avoids the mutable-default trap ([] would be
+        cart = []                 # reused across every call that skips cart)
+    cart.append(item)
+    receipt_line = f"{note}: {item}"  # local -- only exists inside this function
+    print(receipt_line)           # shows it on screen, gives nothing back
+    return cart                   # actually hands the list back to the caller
+
+my_cart = add_item("apple")
+my_cart = add_item("banana", my_cart)
+print(my_cart)          # ["apple", "banana"]
+print(receipt_line)     # NameError: receipt_line only exists inside add_item
+```
+
 ## What a function actually is
 
 A function is a named, reusable block of instructions. Instead of writing the same steps over and over throughout your program, you write them once inside a function, give that block a name, and then just refer to it by name every time you need it done.

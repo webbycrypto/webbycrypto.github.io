@@ -2,6 +2,33 @@
 
 [← Back to Week 6 (Blockchain track): Low-scaffolding build](../README.md)
 
+## TL;DR
+
+A backend service can't send a transaction and just sit there waiting for it, the way a one-shot script can. This page covers what changes: not blocking callers on a confirmation, and treating a slow transaction as still pending, not failed.
+
+- Track your own next nonce as part of the service's state, resyncing it once when it starts up, instead of asking the network for a fresh nonce before every send.
+- When your code sends a transaction, don't make an API caller wait for it to confirm. Hand back the transaction hash right away, and check on it separately.
+- A transaction that hasn't confirmed yet is not the same as one that failed. Don't react to "it's taking a while" by sending a second, duplicate transaction. That's the mistake that gets something registered, or paid, twice.
+
+```python
+next_nonce = w3.eth.get_transaction_count(account.address)  # resync once, on startup
+
+def send_registration(address):
+    global next_nonce
+    tx = registry.functions.registerHolder(address).build_transaction({
+        "from": account.address,
+        "nonce": next_nonce,          # your own count, not a fresh network lookup
+    })
+    signed = account.sign_transaction(tx)
+    tx_hash = w3.eth.send_raw_transaction(signed.raw_transaction)
+    next_nonce += 1                    # advance right away, don't wait for a receipt
+    return tx_hash                     # hand this back immediately; confirm separately, later
+
+def check_status(tx_hash):
+    receipt = w3.eth.get_transaction_receipt(tx_hash)
+    return receipt   # None means still pending, not failed -- don't resend because of this
+```
+
 ## What's different this time
 
 Week 5's project README walked through the transaction lifecycle (build, sign, send, pending, mined, confirmed) from the point of view of a script you run once and watch finish. That explanation doesn't need repeating here; go back and reread it if it's fuzzy, since everything below assumes you already have it.

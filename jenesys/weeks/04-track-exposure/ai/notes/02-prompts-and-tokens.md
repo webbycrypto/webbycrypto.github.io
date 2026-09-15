@@ -2,6 +2,31 @@
 
 [← Back to Week 4: Track exposure](../../README.md)
 
+## TL;DR
+
+This page covers what actually makes up a prompt, and what a token is, since both determine cost and length limits.
+
+- A prompt is just the text you send. It's built from up to three parts: a system prompt you set in advance, the conversation so far, and the user's newest message.
+- A token is a small chunk of text, roughly a word or a piece of a word, and it's what pricing and length limits are measured in, not words or characters.
+- More text you send in means more input tokens, and more text the model generates back means more output tokens. Both get counted and billed, usually at different rates.
+- Every model has a maximum context window (a token limit for the whole request), and every request you send sets a `max_tokens` cap on how much the model is allowed to generate back.
+
+```python
+system_prompt = "You are a concise, friendly assistant."    # part 1 of the prompt
+conversation = [
+    {"role": "user", "content": "What's the capital of France?"},
+    {"role": "assistant", "content": "Paris."},
+]                                                             # part 2: history so far
+new_message = {"role": "user", "content": "And of Japan?"}   # part 3: newest message
+
+# every word above becomes tokens: more text in means more input tokens billed
+request_payload = {
+    "system": system_prompt,
+    "messages": conversation + [new_message],
+    "max_tokens": 200,   # caps how much text (and tokens) the model can generate back
+}
+```
+
 ## What a prompt is
 
 A prompt is simply the text you send to the model. That's the whole definition. It sounds anticlimactic because it is: the entire skill of "prompt engineering" that gets talked about so much is really just the skill of writing clear instructions and giving relevant context to something that can only see the words you actually send it, with no other way of reading your mind.

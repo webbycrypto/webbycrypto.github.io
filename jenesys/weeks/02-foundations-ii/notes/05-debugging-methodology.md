@@ -2,6 +2,16 @@
 
 [← Back to Week 2: Foundations II and first project](../README.md)
 
+## TL;DR
+
+This page lays out the actual process for debugging systematically instead of guessing.
+
+- Read a traceback from the bottom up. The error type and message come last, but the real mistake often lives further up the call chain, so trace upward to the last line that points into your own file.
+- Before changing anything, write down one specific, testable hypothesis about the cause ("I think X is happening because of Y"), instead of changing code and rerunning to see what happens.
+- Test that exact hypothesis directly, usually with a temporary print statement that shows you the real values at that point, or the smallest possible check.
+- If a bug is hard to pin down inside your full app, reproduce it in the smallest separate piece of code that still shows the problem, away from everything else that isn't related.
+- Once it's fixed, remove any temporary print statements and rerun everything, not just the part you changed, to confirm nothing else broke.
+
 This is arguably the single most important note in the entire Foundations phase. The root README frames the whole program's target outcome as a "self-sufficient developer," and the Foundations checkpoint you'll self-assess against at the end of Week 3 is specifically about this skill: can you read an error message, form a hypothesis about the cause, and fix it, without being told the answer, on something you haven't seen before? Everything below is the actual process behind that.
 
 ## Reading a traceback properly (a deeper pass)

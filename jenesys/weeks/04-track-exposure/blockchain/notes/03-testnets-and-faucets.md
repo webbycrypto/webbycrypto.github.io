@@ -2,6 +2,15 @@
 
 [← Back to Week 4: Track exposure](../../README.md)
 
+## TL;DR
+
+This page explains what a testnet is, why this program only ever uses one, and what a faucet is.
+
+- A testnet is a full, independent copy of a blockchain that works exactly like the real network (the "mainnet"), except its currency has no real-world value.
+- Testnets exist so you can make every possible mistake (a broken contract, a transaction to the wrong address) at zero cost, because the funds were never worth anything.
+- This program never uses real cryptocurrency or a browser wallet. Every transaction goes to a testnet from plain Python code, because that matches how backend engineering with blockchains actually works in practice.
+- A faucet is a free service that gives out small amounts of testnet currency to anyone who provides their public address. You never give a faucet your private key, only the address, the same way you'd only give someone a mailbox address, not the key to it.
+
 ## What a testnet is
 
 A testnet (short for "test network") is a full, independent copy of a blockchain's software and rules, running as its own separate network from the real, live network (the "mainnet") that carries actual financial value. Sepolia, the specific testnet this program's examples use for Ethereum, works exactly like Ethereum's mainnet in every way that matters for learning: the same kind of addresses, the same kind of transactions, the same gas mechanics, the same smart contract language. The only real difference is that the currency used to pay for gas on a testnet has no real-world value whatsoever. It's play money, freely given away, that exists purely so people can practice, test, and build without financial risk.
